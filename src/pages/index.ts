@@ -1,0 +1,7 @@
+export { Home } from './Home';
+export { MyInfo } from './MyInfo';
+export { People } from './People';
+export { Hiring } from './Hiring';
+export { Reports } from './Reports';
+export { Files } from './Files';
+export { Payroll } from './Payroll';
