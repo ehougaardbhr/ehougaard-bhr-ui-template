@@ -22,66 +22,69 @@ export function Reports() {
   ];
 
   return (
-    <div className="flex h-full bg-[var(--surface-neutral-xx-weak)]">
-      {/* Sidebar Navigation */}
-      <div className="w-[280px] bg-white border-r border-[var(--border-neutral-x-weak)] p-6 overflow-y-auto flex-shrink-0">
-        <nav className="space-y-1">
-          {categories.map((category) => (
-            <button
-              key={category.id}
-              onClick={() => setSelectedCategory(category.id)}
-              className={`
-                w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[15px] font-medium transition-colors
-                ${
-                  selectedCategory === category.id
-                    ? 'bg-[var(--color-primary-strong)] text-white'
-                    : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
-                }
-              `}
-            >
-              <Icon name={category.icon} size={16} className={selectedCategory === category.id ? 'text-white' : ''} />
-              <span>{category.label}</span>
-            </button>
-          ))}
-        </nav>
+    <div className="flex flex-col h-full bg-[var(--surface-neutral-xx-weak)]">
+      {/* Header */}
+      <div className="flex items-center justify-between pr-10 pt-10 pb-6 pl-8">
+        <h1
+          className="text-[44px] font-bold"
+          style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '52px', color: '#2e7918' }}
+        >
+          Analytics
+        </h1>
+        <div className="flex items-center gap-4">
+          {/* Search */}
+          <div className="flex items-center gap-2 h-10 px-4 py-2 bg-white border border-[var(--border-neutral-medium)] rounded-[var(--radius-full)]">
+            <Icon name="magnifying-glass" size={16} className="text-[var(--icon-neutral-strong)]" />
+            <input
+              type="text"
+              placeholder="Search reports..."
+              className="w-[200px] bg-transparent text-[14px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none"
+            />
+          </div>
+          {/* New Button */}
+          <button className="flex items-center gap-2 h-10 px-5 bg-[var(--color-primary-strong)] text-white rounded-[var(--radius-full)] text-[15px] font-medium hover:bg-[#267015] transition-colors">
+            <span className="text-[18px] leading-none">+</span>
+            <span>New</span>
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="ml-1">
+              <path
+                d="M1 1.5L6 6.5L11 1.5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 p-10 overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <h1
-            className="text-[40px] font-semibold"
-            style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '48px', color: '#2e7918' }}
-          >
-            Analytics
-          </h1>
-          <div className="flex items-center gap-4">
-            {/* Search */}
-            <div className="flex items-center gap-2 h-10 px-4 py-2 bg-white border border-[var(--border-neutral-medium)] rounded-[var(--radius-full)]">
-              <Icon name="magnifying-glass" size={16} className="text-[var(--icon-neutral-strong)]" />
-              <input
-                type="text"
-                placeholder="Search reports..."
-                className="w-[200px] bg-transparent text-[14px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none"
-              />
-            </div>
-            {/* New Button */}
-            <button className="flex items-center gap-2 h-10 px-5 bg-[var(--color-primary-strong)] text-white rounded-[var(--radius-full)] text-[15px] font-medium hover:bg-[#267015] transition-colors">
-              <span className="text-[18px] leading-none">+</span>
-              <span>New</span>
-              <svg width="12" height="8" viewBox="0 0 12 8" fill="none" className="ml-1">
-                <path
-                  d="M1 1.5L6 6.5L11 1.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
+      {/* Content Area with Sidebar and Main Content */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar Navigation */}
+        <div className="w-[280px] pl-8 overflow-y-auto flex-shrink-0">
+          <nav className="space-y-1">
+            {categories.map((category) => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`
+                  w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-[15px] font-medium transition-colors
+                  ${
+                    selectedCategory === category.id
+                      ? 'bg-[var(--color-primary-strong)] text-white'
+                      : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                  }
+                `}
+              >
+                <Icon name={category.icon} size={16} className={selectedCategory === category.id ? 'text-white' : ''} />
+                <span>{category.label}</span>
+              </button>
+            ))}
+          </nav>
         </div>
+
+        {/* Main Content */}
+        <div className="flex-1 pr-10 pl-6 overflow-y-auto">
 
         {/* Ask a Question Section */}
         <div className="mb-8">
@@ -234,6 +237,7 @@ export function Reports() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
