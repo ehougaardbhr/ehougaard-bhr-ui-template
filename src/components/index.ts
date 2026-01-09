@@ -5,3 +5,5 @@ export { Avatar } from './Avatar';
 export { Button } from './Button';
 export { TextHeadline } from './TextHeadline';
 export { Gridlet } from './Gridlet';
+export { EmployeeCard } from './EmployeeCard';
+export { Dropdown } from './Dropdown';
