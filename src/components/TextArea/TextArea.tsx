@@ -38,7 +38,7 @@ export function TextArea({
       <div
         className="relative rounded-lg p-[2px]"
         style={{
-          background: 'linear-gradient(90deg, #2e7918 0%, #3b9c4a 50%, #f59e0b 100%)',
+          background: 'linear-gradient(93deg, #87C276 0%, #7AB8EE 33.65%, #C198D4 66.83%, #F2A766 96.15%)',
           boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04), 2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
         }}
       >
