@@ -64,10 +64,11 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
         flex flex-col justify-between
         bg-white
         pt-6 pb-10 px-8
-        transition-all duration-300 ease-in-out
+        transition-[width] duration-300 ease-in-out
         ${effectiveExpanded ? 'w-[240px]' : 'w-[120px]'}
         ${className}
       `}
+      style={{ transformOrigin: 'left center' }}
     >
       {/* Top Section - Nav Items */}
       <div className="flex flex-col gap-4">
@@ -101,20 +102,19 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
                   }
                 `}
               />
-              {effectiveExpanded && (
-                <span
-                  className={`
-                    font-medium text-base leading-6 whitespace-nowrap
-                    transition-opacity duration-200
-                    ${isActive
-                      ? 'text-[var(--text-neutral-xx-strong)]'
-                      : 'text-[var(--text-neutral-x-strong)]'
-                    }
-                  `}
-                >
-                  {item.label}
-                </span>
-              )}
+              <span
+                className={`
+                  font-medium text-base leading-6 whitespace-nowrap
+                  transition-opacity duration-300
+                  ${effectiveExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}
+                  ${isActive
+                    ? 'text-[var(--text-neutral-xx-strong)]'
+                    : 'text-[var(--text-neutral-x-strong)]'
+                  }
+                `}
+              >
+                {item.label}
+              </span>
             </NavLink>
           );
         })}
@@ -137,11 +137,15 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
             className="w-8 h-8 rounded-[var(--radius-xx-small)] object-cover"
             style={{ boxShadow: 'var(--shadow-100)' }}
           />
-          {effectiveExpanded && (
-            <span className="ml-4 font-medium text-base text-[var(--text-neutral-x-strong)]">
-              Account
-            </span>
-          )}
+          <span
+            className={`
+              ml-4 font-medium text-base text-[var(--text-neutral-x-strong)]
+              transition-opacity duration-300
+              ${effectiveExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}
+            `}
+          >
+            Account
+          </span>
         </div>
 
         {/* Expand/Collapse Button - hidden on tablet */}
@@ -163,11 +167,15 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
               size={24}
               className="text-[var(--icon-neutral-x-strong)]"
             />
-            {effectiveExpanded && (
-              <span className="ml-4 font-medium text-base text-[var(--text-neutral-x-strong)]">
-                Collapse
-              </span>
-            )}
+            <span
+              className={`
+                ml-4 font-medium text-base text-[var(--text-neutral-x-strong)]
+                transition-opacity duration-300
+                ${effectiveExpanded ? 'opacity-100' : 'opacity-0 w-0 overflow-hidden'}
+              `}
+            >
+              Collapse
+            </span>
           </button>
         )}
       </div>
