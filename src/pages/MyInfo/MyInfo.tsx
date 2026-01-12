@@ -209,8 +209,8 @@ export function MyInfo() {
             </div>
           </div>
 
-          {/* Contact Section */}
-          <div className="mb-8">
+          {/* Contact Card */}
+          <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] p-6 mb-8">
             <h3
               className="text-[22px] font-semibold text-[var(--color-primary-strong)] mb-6"
               style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
@@ -219,16 +219,15 @@ export function MyInfo() {
             </h3>
 
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <div>
-                <TextInput label="Phone" value={employee.mobilePhone} />
-                <TextInput value="Work" className="mt-2" />
+              <div className="flex flex-col gap-2">
+                <TextInput label="Phone" value={employee.workPhone} />
+                <div className="pl-4 text-[13px] text-[var(--text-neutral-medium)]">Work</div>
               </div>
             </div>
 
             <div className="grid grid-cols-4 gap-4 mb-4">
-              <div>
-                <TextInput label="Input label" value="Mobile" />
-              </div>
+              <TextInput label="Input label" value={employee.mobilePhone} />
+              <div className="flex items-end pb-3 text-[13px] text-[var(--text-neutral-medium)]">Mobile</div>
             </div>
 
             <div className="grid grid-cols-4 gap-4 mb-4">

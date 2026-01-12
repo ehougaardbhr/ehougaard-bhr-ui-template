@@ -31,7 +31,7 @@ export function TextInput({
       <div
         className={`
           flex items-center gap-4
-          h-10 px-4
+          h-10 pl-4 pr-3 py-2
           bg-[var(--surface-neutral-white)]
           border border-[var(--border-neutral-medium)]
           rounded-[var(--radius-xx-small)]
@@ -46,16 +46,16 @@ export function TextInput({
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 bg-transparent text-[15px] leading-[22px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none"
+          className="flex-1 bg-transparent text-[15px] leading-[22px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none min-w-0"
         />
         {type === 'dropdown' && (
-          <div className="flex items-center gap-2 h-full">
+          <div className="flex items-center gap-2 h-full shrink-0">
             <div className="w-px h-full bg-[var(--border-neutral-medium)]" />
             <Icon name="caret-down" size={16} className="text-[var(--icon-neutral-strong)]" />
           </div>
         )}
         {type === 'date' && (
-          <Icon name="calendar" size={16} className="text-[var(--icon-neutral-strong)]" />
+          <Icon name="calendar" size={16} className="text-[var(--icon-neutral-strong)] shrink-0" />
         )}
       </div>
     </div>
