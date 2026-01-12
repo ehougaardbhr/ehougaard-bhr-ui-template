@@ -25,12 +25,7 @@ export function Reports() {
     <div className="flex flex-col h-full bg-[var(--surface-neutral-xx-weak)]">
       {/* Header */}
       <div className="flex items-center justify-between pr-10 pt-10 pb-6 pl-8">
-        <h1
-          className="text-[44px] font-bold"
-          style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '52px', color: '#2e7918' }}
-        >
-          Analytics
-        </h1>
+        <h1>Analytics</h1>
         <div className="flex items-center gap-4">
           {/* Search */}
           <div className="flex items-center gap-2 h-10 px-4 py-2 bg-white border border-[var(--border-neutral-medium)] rounded-[var(--radius-full)]">
@@ -84,7 +79,7 @@ export function Reports() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 pr-10 pl-6 overflow-y-auto">
+        <div className="flex-1 pr-10 pl-6 pb-10 overflow-y-auto">
 
         {/* Ask a Question Section */}
         <div className="mb-8">
@@ -179,17 +174,17 @@ export function Reports() {
           </div>
 
           <div className="bg-white rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] overflow-hidden">
-            <div className="px-6">
+            <div className="px-6 py-6">
               <table className="w-full">
                 <thead>
                   <tr className="bg-[var(--surface-neutral-xx-weak)]">
-                    <th className="px-4 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)] rounded-tl-[8px] rounded-bl-[8px]">
+                    <th className="px-6 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)] rounded-tl-[8px] rounded-bl-[8px]">
                       Name
                     </th>
-                    <th className="px-4 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)]">
+                    <th className="px-6 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)]">
                       Owner
                     </th>
-                    <th className="px-4 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)] rounded-tr-[8px] rounded-br-[8px]">
+                    <th className="px-6 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)] rounded-tr-[8px] rounded-br-[8px]">
                       Last Viewed
                     </th>
                   </tr>
@@ -197,7 +192,7 @@ export function Reports() {
                 <tbody className="divide-y divide-[var(--border-neutral-x-weak)]">
                   {recentReports.map((report) => (
                     <tr key={report.id} className="hover:bg-[var(--surface-neutral-xx-weak)] transition-colors">
-                      <td className="px-4 py-4">
+                      <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <Icon name="chart-pie-simple" size={16} className="text-[#2563eb]" />
                         <a
@@ -212,10 +207,10 @@ export function Reports() {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-4">
                       <span className="text-[15px] text-[var(--text-neutral-strong)]">{report.owner}</span>
                     </td>
-                    <td className="px-4 py-4">
+                    <td className="px-6 py-4">
                       <span className="text-[15px] text-[var(--text-neutral-medium)]">{report.lastViewed}</span>
                     </td>
                   </tr>

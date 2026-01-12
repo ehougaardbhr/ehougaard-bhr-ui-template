@@ -118,6 +118,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Headline/X-large (H1) */
+h1 {
+  font-family: 'Fields', system-ui, sans-serif;
+  font-size: 44px;
+  font-weight: 700;
+  line-height: 52px;
+  color: #2e7918;
+  margin: 0;
+}
+
 /* Minimum width for tablet+ */
 @media (max-width: 767px) {
   body {

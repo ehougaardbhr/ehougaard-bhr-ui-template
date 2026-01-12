@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { TextHeadline, Button, Icon, EmployeeCard, Dropdown } from '../../components';
+import { Button, Icon, EmployeeCard, Dropdown } from '../../components';
 import { employees } from '../../data/employees';
 
 type GroupBy = 'name' | 'department' | 'location' | 'division';
@@ -76,9 +76,7 @@ export function People() {
     <div className="p-10">
       {/* Page Header */}
       <div className="mb-6">
-        <TextHeadline size="x-large" color="primary">
-          Directory
-        </TextHeadline>
+        <h1>Directory</h1>
       </div>
 
       {/* Actions Bar */}

@@ -26,12 +26,7 @@ export function Hiring() {
     <div className="p-10">
       {/* Page Header */}
       <div className="mb-6">
-        <h1
-          className="text-[40px] font-semibold"
-          style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '48px', color: '#2e7918' }}
-        >
-          Hiring
-        </h1>
+        <h1>Hiring</h1>
       </div>
 
       {/* Tabs */}
