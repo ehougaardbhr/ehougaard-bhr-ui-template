@@ -33,6 +33,13 @@ import {
 import {
   PanelLeftClose,
   PanelLeftOpen,
+  Home,
+  UserCircle,
+  Users,
+  IdCard,
+  PieChart,
+  FileText,
+  CircleDollarSign,
 } from 'lucide-react';
 
 export type IconName =
@@ -60,7 +67,14 @@ export type IconName =
   | 'file'
   | 'file-audio'
   | 'image'
-  | 'circle-info';
+  | 'circle-info'
+  | 'home-lucide'
+  | 'user-circle-lucide'
+  | 'users-lucide'
+  | 'id-card-lucide'
+  | 'pie-chart-lucide'
+  | 'file-text-lucide'
+  | 'circle-dollar-lucide';
 
 interface IconProps {
   name: IconName;
@@ -120,6 +134,35 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
         strokeWidth={1.5}
       />
     );
+  }
+
+  // Handle Lucide nav icons
+  if (name === 'home-lucide') {
+    return <Home size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'user-circle-lucide') {
+    return <UserCircle size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'users-lucide') {
+    return <Users size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'id-card-lucide') {
+    return <IdCard size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'pie-chart-lucide') {
+    return <PieChart size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'file-text-lucide') {
+    return <FileText size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'circle-dollar-lucide') {
+    return <CircleDollarSign size={size} className={className} strokeWidth={1.5} />;
   }
 
   // Handle Font Awesome icons
