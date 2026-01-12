@@ -23,7 +23,19 @@ import {
   faFileAudio,
   faImage,
   faCircleInfo,
+  faBuilding,
+  faMobileScreen,
+  faEnvelope,
+  faClock,
+  faWrench,
+  faCalendar,
+  faEllipsis,
+  faPen,
+  faLocationDot,
+  faAddressCard,
+  faCaretDown,
 } from '@fortawesome/free-solid-svg-icons';
+import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
   faCircleUser as faCircleUserRegular,
   faFileLines as faFileLinesRegular,
@@ -70,6 +82,18 @@ export type IconName =
   | 'file-audio'
   | 'image'
   | 'circle-info'
+  | 'building'
+  | 'mobile'
+  | 'envelope'
+  | 'clock'
+  | 'wrench'
+  | 'calendar'
+  | 'linkedin'
+  | 'ellipsis'
+  | 'pen'
+  | 'location-dot'
+  | 'address-card'
+  | 'caret-down'
   | 'home-lucide'
   | 'user-circle-lucide'
   | 'users-lucide'
@@ -116,6 +140,18 @@ const faIconMap = {
   'file-audio': faFileAudio,
   'image': faImage,
   'circle-info': faCircleInfo,
+  'building': faBuilding,
+  'mobile': faMobileScreen,
+  'envelope': faEnvelope,
+  'clock': faClock,
+  'wrench': faWrench,
+  'calendar': faCalendar,
+  'linkedin': faLinkedin,
+  'ellipsis': faEllipsis,
+  'pen': faPen,
+  'location-dot': faLocationDot,
+  'address-card': faAddressCard,
+  'caret-down': faCaretDown,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
