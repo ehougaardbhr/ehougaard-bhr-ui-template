@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Icon } from '../Icon';
 import bamboohrLogo from '../../assets/images/bamboohr-logo.svg';
 
@@ -8,6 +8,8 @@ interface GlobalHeaderProps {
 
 export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const isOnSettings = location.pathname === '/settings';
   return (
     <header
       className={`
@@ -95,20 +97,24 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
           </button>
 
           <button
-            className="
+            className={`
               flex items-center justify-center
               p-[9px]
               rounded-[var(--radius-xx-small)]
-              hover:bg-[var(--surface-neutral-xx-weak)]
               transition-colors duration-200
-            "
+              ${
+                isOnSettings
+                  ? 'bg-[var(--surface-neutral-xx-weak)]'
+                  : 'hover:bg-[var(--surface-neutral-xx-weak)]'
+              }
+            `}
             aria-label="Settings"
             onClick={() => navigate('/settings')}
           >
             <Icon
               name="gear"
               size={24}
-              className="text-[var(--icon-neutral-x-strong)]"
+              className={isOnSettings ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}
             />
           </button>
         </div>
