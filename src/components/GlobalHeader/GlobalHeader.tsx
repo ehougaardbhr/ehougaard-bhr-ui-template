@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import bamboohrLogo from '../../assets/images/bamboohr-logo.svg';
 
@@ -6,6 +7,7 @@ interface GlobalHeaderProps {
 }
 
 export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
+  const navigate = useNavigate();
   return (
     <header
       className={`
@@ -101,6 +103,7 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
               transition-colors duration-200
             "
             aria-label="Settings"
+            onClick={() => navigate('/settings')}
           >
             <Icon
               name="gear"

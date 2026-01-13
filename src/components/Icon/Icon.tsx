@@ -34,6 +34,21 @@ import {
   faLocationDot,
   faAddressCard,
   faCaretDown,
+  faLock,
+  faThumbsUp,
+  faHeart,
+  faSliders,
+  faBell,
+  faSpa,
+  faPalette,
+  faDoorOpen,
+  faRightToBracket,
+  faChartLine,
+  faPlane,
+  faGraduationCap,
+  faShield,
+  faCheckCircle,
+  faLink,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -94,6 +109,21 @@ export type IconName =
   | 'location-dot'
   | 'address-card'
   | 'caret-down'
+  | 'lock'
+  | 'thumbs-up'
+  | 'heart'
+  | 'sliders'
+  | 'bell'
+  | 'spa'
+  | 'palette'
+  | 'door-open'
+  | 'door-closed'
+  | 'chart-line'
+  | 'plane'
+  | 'graduation-cap'
+  | 'shield'
+  | 'check-circle'
+  | 'link'
   | 'home-lucide'
   | 'user-circle-lucide'
   | 'users-lucide'
@@ -152,6 +182,21 @@ const faIconMap = {
   'location-dot': faLocationDot,
   'address-card': faAddressCard,
   'caret-down': faCaretDown,
+  'lock': faLock,
+  'thumbs-up': faThumbsUp,
+  'heart': faHeart,
+  'sliders': faSliders,
+  'bell': faBell,
+  'spa': faSpa,
+  'palette': faPalette,
+  'door-open': faDoorOpen,
+  'door-closed': faRightToBracket,
+  'chart-line': faChartLine,
+  'plane': faPlane,
+  'graduation-cap': faGraduationCap,
+  'shield': faShield,
+  'check-circle': faCheckCircle,
+  'link': faLink,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
-import { Home, MyInfo, People, Hiring, Reports, Files, Payroll } from './pages';
+import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings } from './pages';
 
 function App() {
   return (
@@ -14,6 +14,7 @@ function App() {
           <Route path="/reports" element={<Reports />} />
           <Route path="/files" element={<Files />} />
           <Route path="/payroll" element={<Payroll />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </AppLayout>
     </BrowserRouter>

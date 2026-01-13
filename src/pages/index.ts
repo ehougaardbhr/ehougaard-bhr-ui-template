@@ -5,3 +5,4 @@ export { Hiring } from './Hiring';
 export { Reports } from './Reports';
 export { Files } from './Files';
 export { Payroll } from './Payroll';
+export { Settings } from './Settings';
