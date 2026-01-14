@@ -21,7 +21,10 @@ export function ChatSidebar({ className = '' }: ChatSidebarProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleClose = () => {
-    navigate(-1); // Go back to previous page
+    // Open the slide-in chat panel
+    localStorage.setItem('bhr-chat-panel-open', 'true');
+    // Go back to previous page
+    navigate(-1);
   };
 
   const handleNewChat = () => {
@@ -31,19 +34,20 @@ export function ChatSidebar({ className = '' }: ChatSidebarProps) {
 
   return (
     <aside
-      className={`w-[280px] h-full flex flex-col bg-[var(--surface-neutral-white)] border-r border-[var(--border-neutral-xx-weak)] ${className}`}
+      className={`w-[280px] h-full flex flex-col bg-[var(--surface-neutral-white)] ${className}`}
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-[var(--border-neutral-xx-weak)]">
+      <div className="flex items-center justify-between px-5 py-4">
         <div className="w-6 h-6 flex items-center justify-center bg-[var(--color-primary-strong)] rounded-md">
           <Icon name="sparkles" size={14} className="text-white" />
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={handleClose}
             className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xx-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
-            aria-label="Collapse sidebar"
+            aria-label="Collapse to slide-in"
           >
-            <Icon name="expand" size={16} className="text-[var(--icon-neutral-x-strong)]" />
+            <Icon name="down-left-and-up-right-to-center" size={16} className="text-[var(--icon-neutral-x-strong)]" />
           </button>
           <button
             onClick={handleClose}

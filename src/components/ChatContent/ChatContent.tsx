@@ -50,27 +50,29 @@ export function ChatContent({ className = '' }: ChatContentProps) {
 
   if (!selectedConversation) {
     return (
-      <div className={`flex-1 flex items-center justify-center bg-[var(--surface-neutral-xx-weak)] ${className}`}>
-        <p className="text-[var(--text-neutral-medium)]">Select a conversation to start chatting</p>
+      <div className={`flex-1 flex flex-col bg-[var(--surface-neutral-white)] p-6 ${className}`}>
+        <div className="flex-1 flex items-center justify-center bg-[var(--surface-neutral-xx-weak)] rounded-[20px]">
+          <p className="text-[var(--text-neutral-medium)]">Select a conversation to start chatting</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className={`flex-1 flex flex-col bg-[var(--surface-neutral-xx-weak)] ${className}`}>
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[800px] mx-auto px-8 py-6 flex flex-col gap-6">
-          {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
-          <div ref={messagesEndRef} />
+    <div className={`flex-1 flex flex-col bg-[var(--surface-neutral-white)] p-6 ${className}`}>
+      <div className="flex-1 flex flex-col bg-[var(--surface-neutral-xx-weak)] rounded-[20px] overflow-hidden">
+        {/* Messages Area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="max-w-[800px] mx-auto px-8 py-6 flex flex-col gap-6">
+            {messages.map((message) => (
+              <MessageBubble key={message.id} message={message} />
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
         </div>
-      </div>
 
-      {/* Input Area */}
-      <div className="bg-[var(--surface-neutral-xx-weak)]">
-        <div className="max-w-[800px] mx-auto px-8 py-4">
+        {/* Input Area */}
+        <div className="px-8 py-6">
           <div className="flex items-center gap-3 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-weak)] rounded-full px-6 py-3 shadow-sm">
             <textarea
               ref={textareaRef}
@@ -108,7 +110,7 @@ function MessageBubble({ message }: MessageBubbleProps) {
   if (message.type === 'user') {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[70%] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-weak)] px-4 py-3 rounded-tl-[16px] rounded-tr-[16px] rounded-bl-[16px]">
+        <div className="max-w-[70%] bg-[var(--surface-neutral-white)] px-4 py-3 rounded-tl-[16px] rounded-tr-[16px] rounded-bl-[16px]">
           <p className="text-[15px] leading-[22px] text-[var(--text-neutral-x-strong)] whitespace-pre-line">
             {message.text}
           </p>

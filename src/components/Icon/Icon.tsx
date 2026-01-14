@@ -55,6 +55,8 @@ import {
   faPaperclip,
   faMicrophone,
   faExpand,
+  faCompress,
+  faDownLeftAndUpRightToCenter,
   faXmark,
   faCircleArrowUp,
   faPaperPlane,
@@ -148,6 +150,8 @@ export type IconName =
   | 'paperclip'
   | 'microphone'
   | 'expand'
+  | 'compress'
+  | 'down-left-and-up-right-to-center'
   | 'xmark'
   | 'circle-arrow-up'
   | 'paper-plane';
@@ -221,6 +225,8 @@ const faIconMap = {
   'paperclip': faPaperclip,
   'microphone': faMicrophone,
   'expand': faExpand,
+  'compress': faCompress,
+  'down-left-and-up-right-to-center': faDownLeftAndUpRightToCenter,
   'xmark': faXmark,
   'circle-arrow-up': faCircleArrowUp,
   'paper-plane': faPaperPlane,
