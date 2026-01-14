@@ -30,6 +30,7 @@ export function ChatSidebar({ className = '' }: ChatSidebarProps) {
   const handleNewChat = () => {
     const newChat = createNewChat();
     selectConversation(newChat.id);
+    navigate(`/chat/${newChat.id}`);
   };
 
   return (
@@ -105,7 +106,10 @@ export function ChatSidebar({ className = '' }: ChatSidebarProps) {
           return (
             <button
               key={conversation.id}
-              onClick={() => selectConversation(conversation.id)}
+              onClick={() => {
+                selectConversation(conversation.id);
+                navigate(`/chat/${conversation.id}`);
+              }}
               className={`
                 w-full text-left px-4 py-3 rounded-[var(--radius-xx-small)]
                 text-[15px] text-[var(--text-neutral-x-strong)]
