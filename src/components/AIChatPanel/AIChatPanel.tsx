@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { recentConversations } from '../../data/chatData';
-import type { ChatMessage, ChatConversation } from '../../data/chatData';
+import type { ChatConversation } from '../../data/chatData';
 
 interface AIChatPanelProps {
   isOpen: boolean;
@@ -9,10 +10,18 @@ interface AIChatPanelProps {
 }
 
 export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = useState('');
   const [selectedConversation, setSelectedConversation] = useState<ChatConversation>(recentConversations[0]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleExpand = () => {
+    // Close the slide-in panel
+    localStorage.setItem('bhr-chat-panel-open', 'false');
+    // Navigate to full-page chat
+    navigate(`/chat/${selectedConversation.id}`);
+  };
 
   const messages = selectedConversation.messages;
   const title = selectedConversation.title;
@@ -82,6 +91,7 @@ export function AIChatPanel({ isOpen, onClose }: AIChatPanelProps) {
                 </button>
                 <div className="flex items-center gap-[6px]">
                   <button
+                    onClick={handleExpand}
                     className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xx-small)] hover:bg-[var(--surface-neutral-x-weak)] transition-colors"
                     aria-label="Expand"
                   >

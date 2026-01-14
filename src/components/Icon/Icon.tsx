@@ -57,6 +57,7 @@ import {
   faExpand,
   faXmark,
   faCircleArrowUp,
+  faPaperPlane,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -148,7 +149,8 @@ export type IconName =
   | 'microphone'
   | 'expand'
   | 'xmark'
-  | 'circle-arrow-up';
+  | 'circle-arrow-up'
+  | 'paper-plane';
 
 interface IconProps {
   name: IconName;
@@ -221,6 +223,7 @@ const faIconMap = {
   'expand': faExpand,
   'xmark': faXmark,
   'circle-arrow-up': faCircleArrowUp,
+  'paper-plane': faPaperPlane,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
