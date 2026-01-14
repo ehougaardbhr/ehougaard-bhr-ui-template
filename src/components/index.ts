@@ -11,3 +11,4 @@ export { TextArea } from './TextArea';
 export { TextInput } from './TextInput';
 export { Tabs } from './Tabs';
 export { ProgressBar } from './ProgressBar';
+export { AIChatPanel } from './AIChatPanel';

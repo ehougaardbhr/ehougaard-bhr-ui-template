@@ -51,6 +51,12 @@ import {
   faCheckCircle,
   faLink,
   faArrowsRotate,
+  faWandMagicSparkles,
+  faPaperclip,
+  faMicrophone,
+  faExpand,
+  faXmark,
+  faCircleArrowUp,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -136,7 +142,13 @@ export type IconName =
   | 'file-text-lucide'
   | 'circle-dollar-lucide'
   | 'sun'
-  | 'moon';
+  | 'moon'
+  | 'sparkles'
+  | 'paperclip'
+  | 'microphone'
+  | 'expand'
+  | 'xmark'
+  | 'circle-arrow-up';
 
 interface IconProps {
   name: IconName;
@@ -203,6 +215,12 @@ const faIconMap = {
   'check-circle': faCheckCircle,
   'link': faLink,
   'arrows-rotate': faArrowsRotate,
+  'sparkles': faWandMagicSparkles,
+  'paperclip': faPaperclip,
+  'microphone': faMicrophone,
+  'expand': faExpand,
+  'xmark': faXmark,
+  'circle-arrow-up': faCircleArrowUp,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {

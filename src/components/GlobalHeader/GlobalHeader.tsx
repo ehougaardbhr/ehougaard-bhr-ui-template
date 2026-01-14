@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Icon } from '../Icon';
 import bamboohrLogo from '../../assets/images/bamboohr-logo.svg';
@@ -10,6 +11,21 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isOnSettings = location.pathname === '/settings';
+  const [isChatPanelOpen, setIsChatPanelOpen] = useState(() => {
+    return localStorage.getItem('bhr-chat-panel-open') === 'true';
+  });
+
+  // Poll for chat panel state changes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const isOpen = localStorage.getItem('bhr-chat-panel-open') === 'true';
+      if (isOpen !== isChatPanelOpen) {
+        setIsChatPanelOpen(isOpen);
+      }
+    }, 100);
+
+    return () => clearInterval(interval);
+  }, [isChatPanelOpen]);
   return (
     <header
       className={`
@@ -116,6 +132,22 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
               size={24}
               className={isOnSettings ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}
             />
+          </button>
+
+          <button
+            className={`h-[40px] px-4 text-[15px] font-semibold rounded-full flex items-center gap-2 transition-all ${
+              isChatPanelOpen
+                ? 'text-white bg-[var(--color-primary-strong)] hover:opacity-90'
+                : 'text-[var(--color-primary-strong)] bg-[var(--surface-neutral-white)] border-2 border-[var(--color-primary-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+            }`}
+            style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
+            onClick={() => {
+              const isOpen = localStorage.getItem('bhr-chat-panel-open') === 'true';
+              localStorage.setItem('bhr-chat-panel-open', String(!isOpen));
+            }}
+          >
+            <Icon name="sparkles" size={16} />
+            Ask
           </button>
         </div>
       </div>
