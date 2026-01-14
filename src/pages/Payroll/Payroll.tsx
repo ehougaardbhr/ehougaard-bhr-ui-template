@@ -159,17 +159,20 @@ export function Payroll() {
               {payrollStats.map((stat) => (
                 <div
                   key={stat.id}
-                  className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-medium)] p-6"
+                  className="bg-white border border-[#e5e4e1] rounded-[16px] p-5 flex items-center gap-4"
+                  style={{ boxShadow: '1px 1px 0px 2px rgba(56, 49, 47, 0.03)' }}
                 >
-                  <div className="flex items-center gap-3 mb-2">
-                    <Icon name={stat.icon as any} size={20} className="text-[var(--icon-neutral-strong)]" />
-                    <span className="text-[28px] font-bold text-[var(--color-primary-strong)]">
-                      {stat.value}
-                    </span>
+                  <div className="w-[48px] h-[48px] bg-[#f5f4f1] rounded-[16px] flex items-center justify-center flex-shrink-0">
+                    <Icon name={stat.icon as any} size={24} className="text-[var(--color-primary-strong)]" />
                   </div>
-                  <p className="text-[14px] text-[var(--text-neutral-medium)]">
-                    {stat.label}
-                  </p>
+                  <div className="flex flex-col gap-0 min-w-0">
+                    <p className="text-[18px] font-semibold leading-[26px] text-[var(--color-primary-strong)]">
+                      {stat.value}
+                    </p>
+                    <p className="text-[13px] leading-[19px] text-[#48413f]">
+                      {stat.label}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
