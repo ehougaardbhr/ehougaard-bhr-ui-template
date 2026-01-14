@@ -65,13 +65,13 @@ export function Payroll() {
         </h1>
         <div className="flex items-center gap-4">
           <button
-            className="h-[40px] px-5 text-[15px] font-semibold leading-[22px] text-[#48413f] bg-white border border-[#c6c2bf] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+            className="h-[40px] px-5 text-[15px] font-semibold leading-[22px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
             style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
           >
             Open TRAXPayroll
           </button>
           <button
-            className="h-[40px] px-5 text-[15px] font-semibold leading-[22px] text-[var(--color-primary-strong)] bg-white border border-[var(--color-primary-strong)] rounded-full hover:bg-[var(--color-primary-weak)] transition-colors flex items-center gap-2"
+            className="h-[40px] px-5 text-[15px] font-semibold leading-[22px] text-[var(--color-primary-strong)] bg-[var(--surface-neutral-white)] border border-[var(--color-primary-strong)] rounded-full hover:bg-[var(--color-primary-weak)] transition-colors flex items-center gap-2"
             style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
           >
             <span className="text-[16px] leading-none">⊕</span>
@@ -83,7 +83,7 @@ export function Payroll() {
       {/* Date Selector */}
       <div className="mb-6 relative" ref={containerRef}>
         {/* Grey horizontal line behind cards */}
-        <div className="absolute left-0 right-0 top-1/2 h-[2px] bg-[#e4e3e0]" style={{ transform: 'translateY(-50%)' }} />
+        <div className="absolute left-0 right-0 top-1/2 h-[2px] bg-[var(--border-neutral-x-weak)]" style={{ transform: 'translateY(-50%)' }} />
 
         <div className="relative flex items-center w-full overflow-hidden">
           {/* Cards container */}
@@ -95,8 +95,8 @@ export function Payroll() {
                 relative w-[160px] flex-shrink-0 rounded-[var(--radius-medium)] px-8 py-6 transition-all flex flex-col gap-4 items-start
                 ${
                   date.isSelected
-                    ? 'bg-[#f6f6f4] border border-[var(--color-primary-strong)]'
-                    : 'bg-[var(--surface-neutral-white)] border border-[#e5e4e1] hover:border-[var(--border-neutral-medium)]'
+                    ? 'bg-[var(--surface-neutral-xx-weak)] border border-[var(--color-primary-strong)]'
+                    : 'bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] hover:border-[var(--border-neutral-medium)]'
                 }
               `}
               style={{
@@ -111,7 +111,7 @@ export function Payroll() {
                     {date.badge}
                   </div>
                 )}
-                <div className={`inline-flex items-center justify-center p-4 rounded-[var(--radius-small)] ${date.isSelected ? 'bg-[var(--color-primary-strong)]' : 'bg-[#f5f4f1]'}`}>
+                <div className={`inline-flex items-center justify-center p-4 rounded-[var(--radius-small)] ${date.isSelected ? 'bg-[var(--color-primary-strong)]' : 'bg-[var(--surface-neutral-xx-weak)]'}`}>
                   <span className={`text-[32px] font-bold leading-none ${date.isSelected ? 'text-white' : 'text-[var(--color-primary-strong)]'}`} style={{ fontFamily: 'Fields, system-ui, sans-serif' }}>
                     {date.day}
                   </span>
@@ -121,7 +121,7 @@ export function Payroll() {
                 <span className={`text-[15px] leading-[22px] text-[var(--color-primary-strong)] ${date.isSelected ? 'font-bold' : 'font-medium'}`}>
                   {date.month}
                 </span>
-                <span className="text-[13px] leading-[19px] text-[#48413f]">
+                <span className="text-[13px] leading-[19px] text-[var(--text-neutral-strong)]">
                   {date.dayOfWeek}
                 </span>
               </div>
@@ -130,7 +130,7 @@ export function Payroll() {
           </div>
           {/* Arrow button - always visible */}
           <button
-            className="w-[40px] h-[40px] flex-shrink-0 bg-white border border-[#c6c2bf] rounded-full flex items-center justify-center hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+            className="w-[40px] h-[40px] flex-shrink-0 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full flex items-center justify-center hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
             style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
           >
             <Icon name="chevron-right" size={16} className="text-[var(--color-primary-strong)]" />
@@ -161,17 +161,17 @@ export function Payroll() {
               {payrollStats.map((stat) => (
                 <div
                   key={stat.id}
-                  className="bg-white border border-[#e5e4e1] rounded-[16px] p-5 flex items-center gap-4"
+                  className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[16px] p-5 flex items-center gap-4"
                   style={{ boxShadow: '1px 1px 0px 2px rgba(56, 49, 47, 0.03)' }}
                 >
-                  <div className="w-[48px] h-[48px] bg-[#f5f4f1] rounded-[16px] flex items-center justify-center flex-shrink-0">
+                  <div className="w-[48px] h-[48px] bg-[var(--surface-neutral-xx-weak)] rounded-[16px] flex items-center justify-center flex-shrink-0">
                     <Icon name={stat.icon as any} size={24} className="text-[var(--color-primary-strong)]" />
                   </div>
                   <div className="flex flex-col gap-0 min-w-0">
                     <p className="text-[18px] font-semibold leading-[26px] text-[var(--color-primary-strong)]">
                       {stat.value}
                     </p>
-                    <p className="text-[13px] leading-[19px] text-[#48413f]">
+                    <p className="text-[13px] leading-[19px] text-[var(--text-neutral-strong)]">
                       {stat.label}
                     </p>
                   </div>
@@ -222,10 +222,10 @@ export function Payroll() {
                 {updatesText}
               </p>
               <button
-                className="h-[40px] px-5 text-[15px] font-semibold text-[#48413f] bg-white border border-[#c6c2bf] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors inline-flex items-center gap-2"
+                className="h-[40px] px-5 text-[15px] font-semibold text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors inline-flex items-center gap-2"
                 style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
               >
-                <Icon name="link" size={16} className="text-[#48413f]" />
+                <Icon name="link" size={16} className="text-[var(--icon-neutral-x-strong)]" />
                 Jump to report
               </button>
             </div>
@@ -234,7 +234,7 @@ export function Payroll() {
 
         {/* Right Sidebar */}
         <div className="w-80">
-          <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] p-6 border border-[#e4e3e0]" style={{ boxShadow: '1px 1px 0px 2px rgba(56, 49, 47, 0.03)' }}>
+          <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] p-6 border border-[var(--border-neutral-x-weak)]" style={{ boxShadow: '1px 1px 0px 2px rgba(56, 49, 47, 0.03)' }}>
             {/* Start Payroll Button */}
             <button
               className="w-full h-[48px] px-6 text-[18px] font-semibold leading-[26px] text-white bg-[var(--color-primary-strong)] rounded-full hover:opacity-90 transition-opacity mb-3"
@@ -251,14 +251,14 @@ export function Payroll() {
             <div className="space-y-4 mb-6">
               {payrollDetails.map((detail) => (
                 <div key={detail.id} className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-[44px] h-[44px] bg-[#f5f4f1] rounded-[12px] flex-shrink-0">
-                    <Icon name={detail.icon as any} size={16} className="text-[#48413f]" />
+                  <div className="flex items-center justify-center w-[44px] h-[44px] bg-[var(--surface-neutral-xx-weak)] rounded-[12px] flex-shrink-0">
+                    <Icon name={detail.icon as any} size={16} className="text-[var(--icon-neutral-x-strong)]" />
                   </div>
                   <div className="flex-1">
-                    <p className="text-[15px] font-semibold leading-[22px] text-[#38312f]">
+                    <p className="text-[15px] font-semibold leading-[22px] text-[var(--text-neutral-xx-strong)]">
                       {detail.value}
                     </p>
-                    <p className="text-[14px] leading-[20px] text-[#777270]">
+                    <p className="text-[14px] leading-[20px] text-[var(--text-neutral-medium)]">
                       {detail.label}
                     </p>
                   </div>
@@ -268,7 +268,7 @@ export function Payroll() {
 
             {/* Delete Button */}
             <button
-              className="w-full h-[40px] px-5 text-[15px] font-semibold text-[#48413f] bg-white border border-[#c6c2bf] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors mb-3"
+              className="w-full h-[40px] px-5 text-[15px] font-semibold text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors mb-3"
               style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
             >
               Delete this payroll
