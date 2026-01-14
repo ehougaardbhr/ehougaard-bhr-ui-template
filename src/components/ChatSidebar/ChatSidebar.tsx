@@ -20,11 +20,18 @@ export function ChatSidebar({ className = '' }: ChatSidebarProps) {
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const handleClose = () => {
+  const handleCollapse = () => {
     // Open the slide-in chat panel
     localStorage.setItem('bhr-chat-panel-open', 'true');
-    // Go back to previous page
-    navigate(-1);
+    // Navigate to home page
+    navigate('/');
+  };
+
+  const handleClose = () => {
+    // Close the slide-in chat panel (if it was open)
+    localStorage.setItem('bhr-chat-panel-open', 'false');
+    // Navigate to home page
+    navigate('/');
   };
 
   const handleNewChat = () => {
@@ -44,7 +51,7 @@ export function ChatSidebar({ className = '' }: ChatSidebarProps) {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={handleClose}
+            onClick={handleCollapse}
             className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xx-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
             aria-label="Collapse to slide-in"
           >
