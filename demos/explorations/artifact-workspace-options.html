@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artifact Workspace - Layout Options Comparison</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f3;
+      color: #222;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Option Switcher */
+    .option-switcher {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      z-index: 1000;
+      padding: 0 24px;
+    }
+
+    .option-btn {
+      padding: 10px 20px;
+      background: #333;
+      border: none;
+      border-radius: 8px;
+      color: #aaa;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .option-btn:hover {
+      background: #444;
+      color: #fff;
+    }
+
+    .option-btn.active {
+      background: #2e7918;
+      color: #fff;
+    }
+
+    .option-label {
+      color: #666;
+      font-size: 12px;
+      margin-right: 16px;
+    }
+
+    /* Main Content Area */
+    .main-content {
+      margin-top: 60px;
+      height: calc(100vh - 60px);
+    }
+
+    /* Hide inactive options */
+    .option-view {
+      display: none;
+      height: 100%;
+    }
+
+    .option-view.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Shared Styles */
+    .top-bar {
+      height: 56px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .back-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: none;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #444;
+      transition: all 0.15s ease;
+    }
+
+    .back-button:hover {
+      background: #f0f0f0;
+    }
+
+    .artifact-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .auto-saved {
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .auto-saved i {
+      color: #2e7918;
+    }
+
+    .workspace-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Chart Panel */
+    .chart-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-area {
+      flex: 1;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+
+    .chart-container {
+      width: 100%;
+      max-width: 600px;
+      background: #fafafa;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 24px;
+      padding-bottom: 48px;
+      min-height: 320px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .bar {
+      width: 60px;
+      background: linear-gradient(180deg, #4CAF50 0%, #2e7918 100%);
+      border-radius: 6px 6px 0 0;
+      position: relative;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .bar:hover {
+      opacity: 0.85;
+    }
+
+    .bar-label {
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Chat Panel - Shared */
+    .chat-panel {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      background: #f5f5f3;
+      border-left: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .chat-header-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sparkle-icon {
+      width: 14px;
+      height: 14px;
+      color: #2e7918;
+    }
+
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      max-width: 90%;
+    }
+
+    .message.user {
+      align-self: flex-end;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+    }
+
+    .message-bubble {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      background: #fff;
+      color: #222;
+    }
+
+    .message.user .message-bubble {
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.assistant .message-bubble {
+      border-bottom-left-radius: 4px;
+    }
+
+    .assistant-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #2e7918;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-input-area {
+      padding: 16px 20px;
+      background: #fff;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    .chat-input-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f5f5f3;
+      border: 1px solid #e0e0e0;
+      border-radius: 24px;
+      padding: 6px 14px;
+    }
+
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: none;
+      font-size: 13px;
+      outline: none;
+      color: #222;
+    }
+
+    .chat-input::placeholder {
+      color: #999;
+    }
+
+    .send-button {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: #2e7918;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ========================================
+       OPTION A: Floating Panel
+       ======================================== */
+
+    .floating-panel {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      width: 260px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+      z-index: 10;
+      overflow: hidden;
+    }
+
+    .floating-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      background: #f9f9f7;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .floating-panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .floating-panel-toggle {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #666;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .floating-panel-toggle:hover {
+      background: #eee;
+    }
+
+    .floating-panel-content {
+      padding: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    /* Shared control styles */
+    .chart-types-row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+    }
+
+    .chart-type-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 8px;
+      border: 1px solid #e0e0e0;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      gap: 4px;
+    }
+
+    .chart-type-btn:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+
+    .chart-type-btn:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+
+    .chart-type-btn + .chart-type-btn {
+      border-left: none;
+    }
+
+    .chart-type-btn:hover {
+      background: #f8f8f8;
+    }
+
+    .chart-type-btn.active {
+      background: #f0f9ed;
+      border-color: #2e7918;
+      z-index: 1;
+    }
+
+    .chart-type-btn i {
+      font-size: 18px;
+      color: #868180;
+    }
+
+    .chart-type-btn.active i {
+      color: #2e7918;
+    }
+
+    .chart-type-btn span {
+      font-size: 10px;
+      color: #868180;
+    }
+
+    .chart-type-btn.active span {
+      color: #2e7918;
+    }
+
+    .control-section {
+      margin-bottom: 16px;
+    }
+
+    .control-section-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: #868180;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .control-row:last-child {
+      border-bottom: none;
+    }
+
+    .control-row:hover {
+      background: #fafafa;
+      margin: 0 -8px;
+      padding: 8px;
+    }
+
+    .control-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .control-icon {
+      font-size: 14px;
+      color: #555;
+      width: 18px;
+      text-align: center;
+    }
+
+    .control-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .control-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .control-value {
+      font-size: 13px;
+      color: #777;
+    }
+
+    .control-arrow {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .divider {
+      height: 1px;
+      background: #e8e8e8;
+      margin: 12px 0;
+    }
+
+    /* ========================================
+       OPTION B: Toolbar + Drawer
+       ======================================== */
+
+    .chart-toolbar {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #fff;
+      padding: 6px;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .toolbar-btn {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      transition: all 0.15s ease;
+    }
+
+    .toolbar-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .toolbar-btn.active {
+      background: #f0f9ed;
+      color: #2e7918;
+    }
+
+    .toolbar-btn i {
+      font-size: 18px;
+    }
+
+    .toolbar-divider {
+      width: 1px;
+      height: 24px;
+      background: #e0e0e0;
+      margin: 0 4px;
+    }
+
+    .settings-drawer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 280px;
+      background: #fff;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+      z-index: 20;
+      transform: translateX(100%);
+      transition: transform 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .settings-drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .drawer-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .drawer-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #666;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drawer-close:hover {
+      background: #f0f0f0;
+    }
+
+    .drawer-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    /* ========================================
+       OPTION C: Contextual Controls
+       ======================================== */
+
+    .contextual-chart-container {
+      position: relative;
+    }
+
+    .axis-label {
+      position: absolute;
+      font-size: 12px;
+      color: #666;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .axis-label:hover {
+      background: #f0f9ed;
+      color: #2e7918;
+    }
+
+    .axis-label.active {
+      background: #2e7918;
+      color: #fff;
+    }
+
+    .y-axis-label {
+      left: -10px;
+      top: 50%;
+      transform: translateX(-100%) translateY(-50%);
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      transform: rotate(180deg) translateX(100%);
+      left: 40px;
+      top: 50%;
+    }
+
+    .x-axis-label {
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .contextual-popover {
+      position: absolute;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+      padding: 12px 0;
+      min-width: 200px;
+      z-index: 100;
+      display: none;
+    }
+
+    .contextual-popover.show {
+      display: block;
+    }
+
+    .contextual-popover.y-axis {
+      left: 60px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .contextual-popover.x-axis {
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .popover-header {
+      padding: 8px 16px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #868180;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .popover-option {
+      padding: 10px 16px;
+      font-size: 14px;
+      color: #333;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: background 0.15s ease;
+    }
+
+    .popover-option:hover {
+      background: #f5f5f3;
+    }
+
+    .popover-option.selected {
+      background: #f0f9ed;
+      color: #2e7918;
+    }
+
+    .popover-option i {
+      width: 18px;
+      color: #888;
+    }
+
+    .popover-option.selected i {
+      color: #2e7918;
+    }
+
+    .chart-type-float {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      display: flex;
+      gap: 4px;
+      background: #fff;
+      padding: 6px;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    .mini-chart-btn {
+      width: 36px;
+      height: 36px;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      transition: all 0.15s ease;
+    }
+
+    .mini-chart-btn:hover {
+      background: #f0f0f0;
+    }
+
+    .mini-chart-btn.active {
+      background: #f0f9ed;
+      color: #2e7918;
+    }
+
+    /* Instruction banner for Option C */
+    .instruction-banner {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.75);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 5;
+    }
+
+    .instruction-banner i {
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Option Switcher -->
+  <div class="option-switcher">
+    <span class="option-label">Layout Option:</span>
+    <button class="option-btn active" onclick="showOption('a')">A: Floating Panel</button>
+    <button class="option-btn" onclick="showOption('b')">B: Toolbar + Drawer</button>
+    <button class="option-btn" onclick="showOption('c')">C: Contextual Controls</button>
+  </div>
+
+  <div class="main-content">
+    <!-- ==========================================
+         OPTION A: Floating Panel
+         ========================================== -->
+    <div id="option-a" class="option-view active">
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <button class="back-button">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to chat
+          </button>
+          <span class="artifact-title">Headcount by Department</span>
+        </div>
+        <span class="auto-saved"><i class="fa-solid fa-check"></i> Saved</span>
+      </div>
+
+      <div class="workspace-container">
+        <div class="chart-panel">
+          <!-- Floating Controls Panel -->
+          <div class="floating-panel">
+            <div class="floating-panel-header">
+              <span class="floating-panel-title">Chart Settings</span>
+              <button class="floating-panel-toggle">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+            </div>
+            <div class="floating-panel-content">
+              <div class="chart-types-row">
+                <button class="chart-type-btn active">
+                  <i class="fa-solid fa-chart-simple"></i>
+                  <span>Bar</span>
+                </button>
+                <button class="chart-type-btn">
+                  <i class="fa-solid fa-chart-line"></i>
+                  <span>Line</span>
+                </button>
+                <button class="chart-type-btn">
+                  <i class="fa-solid fa-chart-pie"></i>
+                  <span>Pie</span>
+                </button>
+                <button class="chart-type-btn">
+                  <i class="fa-solid fa-table"></i>
+                  <span>Table</span>
+                </button>
+              </div>
+
+              <div class="control-section">
+                <div class="control-section-header">What to measure</div>
+                <div class="control-row">
+                  <div class="control-left">
+                    <i class="fa-solid fa-hashtag control-icon"></i>
+                    <span class="control-label">Measure</span>
+                  </div>
+                  <div class="control-right">
+                    <span class="control-value">Headcount</span>
+                    <i class="fa-solid fa-angle-right control-arrow"></i>
+                  </div>
+                </div>
+                <div class="control-row">
+                  <div class="control-left">
+                    <i class="fa-solid fa-scale-balanced control-icon"></i>
+                    <span class="control-label">Compare to</span>
+                  </div>
+                  <div class="control-right">
+                    <span class="control-value">None</span>
+                    <i class="fa-solid fa-angle-right control-arrow"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div class="control-section">
+                <div class="control-section-header">Group by</div>
+                <div class="control-row">
+                  <div class="control-left">
+                    <i class="fa-solid fa-layer-group control-icon"></i>
+                    <span class="control-label">Category</span>
+                  </div>
+                  <div class="control-right">
+                    <span class="control-value">Department</span>
+                    <i class="fa-solid fa-angle-right control-arrow"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="control-row">
+                <div class="control-left">
+                  <i class="fa-solid fa-filter control-icon"></i>
+                  <span class="control-label">Filter</span>
+                </div>
+                <div class="control-right">
+                  <i class="fa-solid fa-angle-right control-arrow"></i>
+                </div>
+              </div>
+              <div class="control-row">
+                <div class="control-left">
+                  <i class="fa-solid fa-palette control-icon"></i>
+                  <span class="control-label">Style</span>
+                </div>
+                <div class="control-right">
+                  <i class="fa-solid fa-angle-right control-arrow"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-area">
+            <div class="chart-container">
+              <div class="bar" style="height: 180px;">
+                <span class="bar-value">45</span>
+                <span class="bar-label">Engineering</span>
+              </div>
+              <div class="bar" style="height: 120px;">
+                <span class="bar-value">30</span>
+                <span class="bar-label">Sales</span>
+              </div>
+              <div class="bar" style="height: 100px;">
+                <span class="bar-value">25</span>
+                <span class="bar-label">Marketing</span>
+              </div>
+              <div class="bar" style="height: 80px;">
+                <span class="bar-value">20</span>
+                <span class="bar-label">HR</span>
+              </div>
+              <div class="bar" style="height: 60px;">
+                <span class="bar-value">15</span>
+                <span class="bar-label">Finance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-panel">
+          <div class="chat-header">
+            <div class="chat-header-title">
+              <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+              </svg>
+              Chart Conversation
+            </div>
+          </div>
+          <div class="messages-area">
+            <div class="message user">
+              <div class="message-bubble">Show me headcount by department</div>
+            </div>
+            <div class="message assistant">
+              <div class="assistant-label">
+                <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+                </svg>
+                BambooHR Assistant
+              </div>
+              <div class="message-bubble">Here's a bar chart showing headcount by department. Engineering leads with 45 employees.</div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <div class="chat-input-container">
+              <input type="text" class="chat-input" placeholder="Ask about this chart...">
+              <button class="send-button">
+                <i class="fa-solid fa-arrow-up" style="font-size: 12px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         OPTION B: Toolbar + Drawer
+         ========================================== -->
+    <div id="option-b" class="option-view">
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <button class="back-button">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to chat
+          </button>
+          <span class="artifact-title">Headcount by Department</span>
+        </div>
+        <span class="auto-saved"><i class="fa-solid fa-check"></i> Saved</span>
+      </div>
+
+      <div class="workspace-container">
+        <div class="chart-panel">
+          <!-- Floating Toolbar -->
+          <div class="chart-toolbar">
+            <button class="toolbar-btn active" title="Bar Chart">
+              <i class="fa-solid fa-chart-simple"></i>
+            </button>
+            <button class="toolbar-btn" title="Line Chart">
+              <i class="fa-solid fa-chart-line"></i>
+            </button>
+            <button class="toolbar-btn" title="Pie Chart">
+              <i class="fa-solid fa-chart-pie"></i>
+            </button>
+            <button class="toolbar-btn" title="Table">
+              <i class="fa-solid fa-table"></i>
+            </button>
+            <div class="toolbar-divider"></div>
+            <button class="toolbar-btn" title="Filter">
+              <i class="fa-solid fa-filter"></i>
+            </button>
+            <button class="toolbar-btn" title="Settings" onclick="toggleDrawer()">
+              <i class="fa-solid fa-sliders"></i>
+            </button>
+          </div>
+
+          <!-- Settings Drawer -->
+          <div id="settings-drawer" class="settings-drawer">
+            <div class="drawer-header">
+              <span class="drawer-title">Chart Settings</span>
+              <button class="drawer-close" onclick="toggleDrawer()">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div class="drawer-content">
+              <div class="control-section">
+                <div class="control-section-header">What to measure</div>
+                <div class="control-row">
+                  <div class="control-left">
+                    <i class="fa-solid fa-hashtag control-icon"></i>
+                    <span class="control-label">Measure</span>
+                  </div>
+                  <div class="control-right">
+                    <span class="control-value">Headcount</span>
+                    <i class="fa-solid fa-angle-right control-arrow"></i>
+                  </div>
+                </div>
+                <div class="control-row">
+                  <div class="control-left">
+                    <i class="fa-solid fa-scale-balanced control-icon"></i>
+                    <span class="control-label">Compare to</span>
+                  </div>
+                  <div class="control-right">
+                    <span class="control-value">None</span>
+                    <i class="fa-solid fa-angle-right control-arrow"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div class="control-section">
+                <div class="control-section-header">Group by</div>
+                <div class="control-row">
+                  <div class="control-left">
+                    <i class="fa-solid fa-layer-group control-icon"></i>
+                    <span class="control-label">Category</span>
+                  </div>
+                  <div class="control-right">
+                    <span class="control-value">Department</span>
+                    <i class="fa-solid fa-angle-right control-arrow"></i>
+                  </div>
+                </div>
+              </div>
+
+              <div class="divider"></div>
+
+              <div class="control-section">
+                <div class="control-section-header">Style</div>
+                <div class="control-row">
+                  <div class="control-left">
+                    <i class="fa-solid fa-palette control-icon"></i>
+                    <span class="control-label">Color</span>
+                  </div>
+                  <div class="control-right">
+                    <span class="control-value">Green</span>
+                    <i class="fa-solid fa-angle-right control-arrow"></i>
+                  </div>
+                </div>
+                <div class="control-row">
+                  <div class="control-left">
+                    <i class="fa-solid fa-text-height control-icon"></i>
+                    <span class="control-label">Labels</span>
+                  </div>
+                  <div class="control-right">
+                    <span class="control-value">Show</span>
+                    <i class="fa-solid fa-angle-right control-arrow"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-area">
+            <div class="chart-container">
+              <div class="bar" style="height: 180px;">
+                <span class="bar-value">45</span>
+                <span class="bar-label">Engineering</span>
+              </div>
+              <div class="bar" style="height: 120px;">
+                <span class="bar-value">30</span>
+                <span class="bar-label">Sales</span>
+              </div>
+              <div class="bar" style="height: 100px;">
+                <span class="bar-value">25</span>
+                <span class="bar-label">Marketing</span>
+              </div>
+              <div class="bar" style="height: 80px;">
+                <span class="bar-value">20</span>
+                <span class="bar-label">HR</span>
+              </div>
+              <div class="bar" style="height: 60px;">
+                <span class="bar-value">15</span>
+                <span class="bar-label">Finance</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="chat-panel">
+          <div class="chat-header">
+            <div class="chat-header-title">
+              <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+              </svg>
+              Chart Conversation
+            </div>
+          </div>
+          <div class="messages-area">
+            <div class="message user">
+              <div class="message-bubble">Show me headcount by department</div>
+            </div>
+            <div class="message assistant">
+              <div class="assistant-label">
+                <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+                </svg>
+                BambooHR Assistant
+              </div>
+              <div class="message-bubble">Here's a bar chart showing headcount by department. Engineering leads with 45 employees.</div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <div class="chat-input-container">
+              <input type="text" class="chat-input" placeholder="Ask about this chart...">
+              <button class="send-button">
+                <i class="fa-solid fa-arrow-up" style="font-size: 12px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==========================================
+         OPTION C: Contextual Controls
+         ========================================== -->
+    <div id="option-c" class="option-view">
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <button class="back-button">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to chat
+          </button>
+          <span class="artifact-title">Headcount by Department</span>
+        </div>
+        <span class="auto-saved"><i class="fa-solid fa-check"></i> Saved</span>
+      </div>
+
+      <div class="workspace-container">
+        <div class="chart-panel">
+          <!-- Mini chart type selector -->
+          <div class="chart-type-float">
+            <button class="mini-chart-btn active">
+              <i class="fa-solid fa-chart-simple"></i>
+            </button>
+            <button class="mini-chart-btn">
+              <i class="fa-solid fa-chart-line"></i>
+            </button>
+            <button class="mini-chart-btn">
+              <i class="fa-solid fa-chart-pie"></i>
+            </button>
+            <button class="mini-chart-btn">
+              <i class="fa-solid fa-table"></i>
+            </button>
+          </div>
+
+          <div class="chart-area">
+            <div class="contextual-chart-container">
+              <!-- Y-Axis Label (clickable) -->
+              <div class="axis-label y-axis-label" onclick="togglePopover('y')">
+                <i class="fa-solid fa-chart-simple"></i>
+                Headcount
+              </div>
+
+              <!-- Y-Axis Popover -->
+              <div id="popover-y" class="contextual-popover y-axis">
+                <div class="popover-header">What to measure</div>
+                <div class="popover-option selected">
+                  <i class="fa-solid fa-check"></i>
+                  Headcount
+                </div>
+                <div class="popover-option">
+                  <i class="fa-solid fa-dollar-sign"></i>
+                  Average Salary
+                </div>
+                <div class="popover-option">
+                  <i class="fa-solid fa-clock"></i>
+                  Avg Tenure
+                </div>
+                <div class="popover-option">
+                  <i class="fa-solid fa-percent"></i>
+                  Turnover Rate
+                </div>
+              </div>
+
+              <div class="chart-container">
+                <div class="bar" style="height: 180px;">
+                  <span class="bar-value">45</span>
+                  <span class="bar-label">Engineering</span>
+                </div>
+                <div class="bar" style="height: 120px;">
+                  <span class="bar-value">30</span>
+                  <span class="bar-label">Sales</span>
+                </div>
+                <div class="bar" style="height: 100px;">
+                  <span class="bar-value">25</span>
+                  <span class="bar-label">Marketing</span>
+                </div>
+                <div class="bar" style="height: 80px;">
+                  <span class="bar-value">20</span>
+                  <span class="bar-label">HR</span>
+                </div>
+                <div class="bar" style="height: 60px;">
+                  <span class="bar-value">15</span>
+                  <span class="bar-label">Finance</span>
+                </div>
+              </div>
+
+              <!-- X-Axis Label (clickable) -->
+              <div class="axis-label x-axis-label" onclick="togglePopover('x')">
+                <i class="fa-solid fa-layer-group"></i>
+                Department
+              </div>
+
+              <!-- X-Axis Popover -->
+              <div id="popover-x" class="contextual-popover x-axis">
+                <div class="popover-header">Group by</div>
+                <div class="popover-option selected">
+                  <i class="fa-solid fa-check"></i>
+                  Department
+                </div>
+                <div class="popover-option">
+                  <i class="fa-solid fa-location-dot"></i>
+                  Location
+                </div>
+                <div class="popover-option">
+                  <i class="fa-solid fa-briefcase"></i>
+                  Job Level
+                </div>
+                <div class="popover-option">
+                  <i class="fa-solid fa-calendar"></i>
+                  Hire Year
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="instruction-banner">
+            <i class="fa-solid fa-hand-pointer"></i>
+            Click axis labels to change what's displayed
+          </div>
+        </div>
+
+        <div class="chat-panel">
+          <div class="chat-header">
+            <div class="chat-header-title">
+              <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+              </svg>
+              Chart Conversation
+            </div>
+          </div>
+          <div class="messages-area">
+            <div class="message user">
+              <div class="message-bubble">Show me headcount by department</div>
+            </div>
+            <div class="message assistant">
+              <div class="assistant-label">
+                <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+                </svg>
+                BambooHR Assistant
+              </div>
+              <div class="message-bubble">Here's a bar chart showing headcount by department. Engineering leads with 45 employees. Click the axis labels to explore different views!</div>
+            </div>
+          </div>
+          <div class="chat-input-area">
+            <div class="chat-input-container">
+              <input type="text" class="chat-input" placeholder="Ask about this chart...">
+              <button class="send-button">
+                <i class="fa-solid fa-arrow-up" style="font-size: 12px;"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showOption(option) {
+      // Update buttons
+      document.querySelectorAll('.option-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Update views
+      document.querySelectorAll('.option-view').forEach(view => view.classList.remove('active'));
+      document.getElementById('option-' + option).classList.add('active');
+
+      // Close any open drawers/popovers
+      document.getElementById('settings-drawer')?.classList.remove('open');
+      document.querySelectorAll('.contextual-popover').forEach(p => p.classList.remove('show'));
+    }
+
+    function toggleDrawer() {
+      document.getElementById('settings-drawer').classList.toggle('open');
+    }
+
+    function togglePopover(axis) {
+      const popover = document.getElementById('popover-' + axis);
+      const wasOpen = popover.classList.contains('show');
+
+      // Close all popovers first
+      document.querySelectorAll('.contextual-popover').forEach(p => p.classList.remove('show'));
+      document.querySelectorAll('.axis-label').forEach(l => l.classList.remove('active'));
+
+      // Toggle the clicked one
+      if (!wasOpen) {
+        popover.classList.add('show');
+        popover.previousElementSibling?.classList.add('active') ||
+        document.querySelector(axis === 'y' ? '.y-axis-label' : '.x-axis-label').classList.add('active');
+      }
+    }
+
+    // Close popovers when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.axis-label') && !e.target.closest('.contextual-popover')) {
+        document.querySelectorAll('.contextual-popover').forEach(p => p.classList.remove('show'));
+        document.querySelectorAll('.axis-label').forEach(l => l.classList.remove('active'));
+      }
+    });
+  </script>
+</body>
+</html>

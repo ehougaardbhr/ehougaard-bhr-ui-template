@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artifact Workspace - Mockup v2 (Figma Design)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f3;
+      color: #222;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      height: 56px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .back-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: none;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #444;
+      transition: all 0.15s ease;
+    }
+
+    .back-button:hover {
+      background: #f0f0f0;
+      border-color: #bbb;
+    }
+
+    .artifact-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .auto-saved {
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* Main Container */
+    .main-container {
+      display: flex;
+      height: calc(100vh - 56px);
+    }
+
+    /* Left Panel - Artifact */
+    .artifact-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #e0e0e0;
+      background: #fff;
+    }
+
+    /* Chart Area */
+    .chart-area {
+      flex: 1;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+    }
+
+    .chart-header {
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 4px;
+    }
+
+    .chart-subtitle {
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* Placeholder Chart */
+    .chart-container {
+      flex: 1;
+      background: #fafafa;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 24px;
+      min-height: 300px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 24px;
+    }
+
+    .bar {
+      width: 60px;
+      background: linear-gradient(180deg, #4CAF50 0%, #2e7918 100%);
+      border-radius: 6px 6px 0 0;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .bar:hover {
+      opacity: 0.85;
+    }
+
+    .bar-label {
+      position: absolute;
+      bottom: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Controls Panel - Figma Design */
+    .controls-panel {
+      background: #f9f9f7;
+      border-top: 1px solid #e8e8e8;
+      padding: 20px;
+      max-height: 50vh;
+      overflow-y: auto;
+    }
+
+    /* Chart Type Buttons */
+    .chart-types {
+      display: flex;
+      gap: 0;
+      margin-bottom: 16px;
+    }
+
+    .chart-type-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 16px;
+      border: 1px solid #d0d0d0;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .chart-type-btn:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+
+    .chart-type-btn:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+
+    .chart-type-btn + .chart-type-btn {
+      border-left: none;
+    }
+
+    .chart-type-btn:hover {
+      background: #f8f8f8;
+    }
+
+    .chart-type-btn.active {
+      background: #f0f9ed;
+      border-color: #2e7918;
+      z-index: 1;
+    }
+
+    .chart-type-btn.active + .chart-type-btn {
+      border-left: 1px solid #d0d0d0;
+    }
+
+    .chart-type-btn i {
+      font-size: 20px;
+      color: #868180;
+    }
+
+    .chart-type-btn.active i {
+      color: #2e7918;
+    }
+
+    /* Divider */
+    .divider {
+      height: 1px;
+      background: #e8e8e8;
+      margin: 16px 0;
+    }
+
+    /* Property Group */
+    .property-group {
+      margin-bottom: 16px;
+    }
+
+    .property-group-header {
+      font-size: 13px;
+      font-weight: 600;
+      color: #868180;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .property-list {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .property-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 2px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      border-bottom: 1px solid #f5f5f3;
+    }
+
+    .property-row:last-child {
+      border-bottom: none;
+    }
+
+    .property-row:hover {
+      background: #fafafa;
+    }
+
+    .property-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .property-icon {
+      font-size: 16px;
+      color: #38312f;
+      width: 20px;
+      text-align: center;
+    }
+
+    .property-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #38312f;
+    }
+
+    .property-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .property-value {
+      font-size: 14px;
+      color: #777270;
+    }
+
+    .property-arrow {
+      font-size: 16px;
+      color: #868180;
+    }
+
+    /* Right Panel - Chat */
+    .chat-panel {
+      width: 50%;
+      display: flex;
+      flex-direction: column;
+      background: #f5f5f3;
+    }
+
+    .chat-header {
+      padding: 16px 24px;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .chat-header-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sparkle-icon {
+      width: 14px;
+      height: 14px;
+      color: #2e7918;
+    }
+
+    /* Messages Area */
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .message {
+      max-width: 85%;
+    }
+
+    .message.user {
+      align-self: flex-end;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+    }
+
+    .message-bubble {
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.user .message-bubble {
+      background: #fff;
+      color: #222;
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.assistant .message-bubble {
+      background: #fff;
+      color: #222;
+      border-bottom-left-radius: 4px;
+    }
+
+    .assistant-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #2e7918;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Chat Input */
+    .chat-input-area {
+      padding: 16px 24px;
+      background: #fff;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    .chat-input-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f5f5f3;
+      border: 1px solid #e0e0e0;
+      border-radius: 24px;
+      padding: 8px 16px;
+    }
+
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: none;
+      font-size: 14px;
+      outline: none;
+      color: #222;
+    }
+
+    .chat-input::placeholder {
+      color: #999;
+    }
+
+    .send-button {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: none;
+      background: #2e7918;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .send-button:hover {
+      background: #256614;
+    }
+
+    /* Suggestion Chips */
+    .suggestion-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .suggestion-chip {
+      padding: 6px 12px;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 16px;
+      font-size: 12px;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .suggestion-chip:hover {
+      border-color: #2e7918;
+      color: #2e7918;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button class="back-button">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Back to chat
+      </button>
+      <span class="artifact-title">Headcount by Department</span>
+    </div>
+    <span class="auto-saved">Auto-saved</span>
+  </div>
+
+  <!-- Main Container -->
+  <div class="main-container">
+    <!-- Left Panel - Artifact -->
+    <div class="artifact-panel">
+      <div class="chart-area">
+        <div class="chart-header">
+          <h2 class="chart-title">Headcount by Department</h2>
+          <p class="chart-subtitle">All employees as of January 2026</p>
+        </div>
+
+        <!-- Placeholder Bar Chart -->
+        <div class="chart-container">
+          <div class="bar" style="height: 180px;">
+            <span class="bar-value">45</span>
+            <span class="bar-label">Engineering</span>
+          </div>
+          <div class="bar" style="height: 120px;">
+            <span class="bar-value">30</span>
+            <span class="bar-label">Sales</span>
+          </div>
+          <div class="bar" style="height: 100px;">
+            <span class="bar-value">25</span>
+            <span class="bar-label">Marketing</span>
+          </div>
+          <div class="bar" style="height: 80px;">
+            <span class="bar-value">20</span>
+            <span class="bar-label">HR</span>
+          </div>
+          <div class="bar" style="height: 60px;">
+            <span class="bar-value">15</span>
+            <span class="bar-label">Finance</span>
+          </div>
+          <div class="bar" style="height: 48px;">
+            <span class="bar-value">12</span>
+            <span class="bar-label">Legal</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Controls Panel - Figma Design -->
+      <div class="controls-panel">
+        <!-- Chart Type Buttons -->
+        <div class="chart-types">
+          <button class="chart-type-btn active">
+            <i class="fa-solid fa-chart-simple"></i>
+          </button>
+          <button class="chart-type-btn">
+            <i class="fa-solid fa-chart-bar"></i>
+          </button>
+          <button class="chart-type-btn">
+            <i class="fa-solid fa-chart-pie"></i>
+          </button>
+          <button class="chart-type-btn">
+            <i class="fa-solid fa-chart-line"></i>
+          </button>
+          <button class="chart-type-btn">
+            <i class="fa-solid fa-table-cells"></i>
+          </button>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Vertical Axis -->
+        <div class="property-group">
+          <div class="property-group-header">Vertical axis</div>
+          <div class="property-list">
+            <div class="property-row">
+              <div class="property-left">
+                <i class="fa-solid fa-chart-simple property-icon"></i>
+                <span class="property-label">Metric</span>
+              </div>
+              <div class="property-right">
+                <span class="property-value">Headcount</span>
+                <i class="fa-solid fa-angle-right property-arrow"></i>
+              </div>
+            </div>
+            <div class="property-row">
+              <div class="property-left">
+                <i class="fa-solid fa-circle-nodes property-icon"></i>
+                <span class="property-label">Benchmark</span>
+              </div>
+              <div class="property-right">
+                <span class="property-value">None</span>
+                <i class="fa-solid fa-angle-right property-arrow"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Horizontal Axis -->
+        <div class="property-group">
+          <div class="property-group-header">Horizontal axis</div>
+          <div class="property-list">
+            <div class="property-row">
+              <div class="property-left">
+                <i class="fa-solid fa-border-bottom property-icon"></i>
+                <span class="property-label">Dimension</span>
+              </div>
+              <div class="property-right">
+                <span class="property-value">Department</span>
+                <i class="fa-solid fa-angle-right property-arrow"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Style -->
+        <div class="property-group">
+          <div class="property-group-header">Style</div>
+          <div class="property-list">
+            <div class="property-row">
+              <div class="property-left">
+                <i class="fa-solid fa-palette property-icon"></i>
+                <span class="property-label">Color</span>
+              </div>
+              <div class="property-right">
+                <span class="property-value">Auto</span>
+                <i class="fa-solid fa-angle-right property-arrow"></i>
+              </div>
+            </div>
+            <div class="property-row">
+              <div class="property-left">
+                <i class="fa-solid fa-circle-ellipsis property-icon"></i>
+                <span class="property-label">More style options</span>
+              </div>
+              <div class="property-right">
+                <i class="fa-solid fa-angle-right property-arrow"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Filter -->
+        <div class="property-list">
+          <div class="property-row">
+            <div class="property-left">
+              <i class="fa-solid fa-filter property-icon"></i>
+              <span class="property-label">Filter</span>
+            </div>
+            <div class="property-right">
+              <i class="fa-solid fa-angle-right property-arrow"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel - Chat -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+          </svg>
+          Chart Conversation
+        </div>
+      </div>
+
+      <div class="messages-area">
+        <div class="message user">
+          <div class="message-bubble">
+            Show me a breakdown of headcount by department
+          </div>
+        </div>
+
+        <div class="message assistant">
+          <div class="assistant-label">
+            <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+            </svg>
+            BambooHR Assistant
+          </div>
+          <div class="message-bubble">
+            Here's a bar chart showing headcount by department. Engineering has the most employees at 45, followed by Sales (30) and Marketing (25). You can use the controls below the chart to change the visualization, or ask me to make specific changes.
+          </div>
+        </div>
+
+        <div class="message user">
+          <div class="message-bubble">
+            Can you add a trend line showing growth over time?
+          </div>
+        </div>
+
+        <div class="message assistant">
+          <div class="assistant-label">
+            <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+            </svg>
+            BambooHR Assistant
+          </div>
+          <div class="message-bubble">
+            I've updated the chart to show year-over-year growth. Engineering grew 15% this year, which is the highest growth rate. Would you like me to highlight any specific department?
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <div class="chat-input-container">
+          <input type="text" class="chat-input" placeholder="Ask about this chart...">
+          <button class="send-button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13M22 2L15 22L11 13L2 9L22 2Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="suggestion-chips">
+          <span class="suggestion-chip">Change to pie chart</span>
+          <span class="suggestion-chip">Show salary instead</span>
+          <span class="suggestion-chip">Filter by location</span>
+          <span class="suggestion-chip">Export as PNG</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
