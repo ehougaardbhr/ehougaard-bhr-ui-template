@@ -20,8 +20,8 @@ This repo uses a **branch-based workflow** to keep the template clean while allo
 
 ```bash
 # Clone the repo
-git clone https://github.com/mattcmorrell/bhr-ui-mcp.git
-cd bhr-ui-mcp
+git clone https://github.com/mattcmorrell/bhr-ui-template.git
+cd bhr-ui-template
 
 # Create your own branch
 git checkout -b your-feature-name
