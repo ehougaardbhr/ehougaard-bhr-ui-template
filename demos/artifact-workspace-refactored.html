@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Artifact Workspace - Modular Architecture</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* ============================================
+       BASE STYLES
+       ============================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f3;
+      color: #222;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ============================================
+       UNIVERSAL SHELL - TOP BAR
+       Component: <TopBar />
+       ============================================ */
+    .top-bar {
+      height: 56px;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      flex-shrink: 0;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .back-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: none;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #444;
+      transition: all 0.15s ease;
+    }
+
+    .back-button:hover {
+      background: #f0f0f0;
+    }
+
+    .artifact-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .auto-saved {
+      font-size: 12px;
+      color: #888;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .auto-saved i {
+      color: #2e7918;
+    }
+
+    /* Publish Actions */
+    .publish-actions {
+      position: relative;
+    }
+
+    .publish-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: #2e7918;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #fff;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .publish-button:hover {
+      background: #256614;
+    }
+
+    .publish-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: #fff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      min-width: 200px;
+      z-index: 100;
+      display: none;
+    }
+
+    .publish-dropdown.active {
+      display: block;
+    }
+
+    .publish-dropdown-item {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .publish-dropdown-item:last-child {
+      border-bottom: none;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .publish-dropdown-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .publish-dropdown-item:hover {
+      background: #f8f8f8;
+    }
+
+    .publish-dropdown-item i {
+      font-size: 14px;
+      color: #868180;
+      width: 16px;
+    }
+
+    /* ============================================
+       UNIVERSAL SHELL - WORKSPACE CONTAINER
+       Component: <WorkspaceContainer />
+       ============================================ */
+    .workspace-container {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      height: calc(100vh - 56px);
+    }
+
+    /* ============================================
+       UNIVERSAL SHELL - CHAT PANEL
+       Component: <ChatPanel />
+       ============================================ */
+    .chat-panel {
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      background: #f5f5f3;
+      border-left: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .chat-header {
+      padding: 16px 20px;
+      background: #fff;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .chat-header-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sparkle-icon {
+      width: 14px;
+      height: 14px;
+      color: #2e7918;
+    }
+
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .message {
+      max-width: 90%;
+    }
+
+    .message.user {
+      align-self: flex-end;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+    }
+
+    .message-bubble {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+      background: #fff;
+      color: #222;
+    }
+
+    .message.user .message-bubble {
+      border-bottom-right-radius: 4px;
+    }
+
+    .message.assistant .message-bubble {
+      border-bottom-left-radius: 4px;
+    }
+
+    .assistant-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: #2e7918;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-input-area {
+      padding: 16px 20px;
+      background: #fff;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    .chat-input-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #f5f5f3;
+      border: 1px solid #e0e0e0;
+      border-radius: 24px;
+      padding: 6px 14px;
+    }
+
+    .chat-input {
+      flex: 1;
+      border: none;
+      background: none;
+      font-size: 13px;
+      outline: none;
+      color: #222;
+    }
+
+    .chat-input::placeholder {
+      color: #999;
+    }
+
+    .send-button {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: none;
+      background: #2e7918;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ============================================
+       CHART ARTIFACT - CONTAINER
+       Component: <ChartArtifact />
+       ============================================ */
+    .artifact-area {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      background: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chart-area {
+      flex: 1;
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: auto;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 100%;
+      background: #fafafa;
+      border: 1px solid #e8e8e8;
+      border-radius: 12px;
+      padding: 40px;
+      padding-bottom: 60px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================
+       CHART ARTIFACT - CHART RENDERING
+       ============================================ */
+
+    /* Bar Chart */
+    .bar-chart {
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    .bar {
+      width: 80px;
+      background: linear-gradient(180deg, #4CAF50 0%, #2e7918 100%);
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .bar:hover {
+      opacity: 0.85;
+    }
+
+    .bar-label {
+      position: absolute;
+      bottom: -32px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: #666;
+      white-space: nowrap;
+    }
+
+    .bar-value {
+      position: absolute;
+      top: -28px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    /* Line Chart */
+    .line-chart {
+      height: 100%;
+      position: relative;
+    }
+
+    .line-chart svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Pie Chart */
+    .pie-chart {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+    }
+
+    .pie-chart svg {
+      width: 300px;
+      height: 300px;
+    }
+
+    .pie-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pie-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pie-legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+    }
+
+    .pie-legend-label {
+      font-size: 13px;
+      color: #333;
+    }
+
+    .pie-legend-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #666;
+      margin-left: auto;
+    }
+
+    /* Table View */
+    .table-view {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 12px;
+      background: #f0f0f0;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    .data-table td {
+      padding: 12px;
+      font-size: 14px;
+      color: #333;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .data-table tr:hover {
+      background: #f8f8f8;
+    }
+
+    /* ============================================
+       CHART ARTIFACT - SETTINGS PILLS (Collapsed State)
+       ============================================ */
+    .settings-pills {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 5;
+    }
+
+    .settings-pills.hidden {
+      display: none;
+    }
+
+    .settings-pill {
+      position: relative;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 16px;
+      border: 1px solid #e8e8e8;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      color: #666;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      transition: all 0.15s ease;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    .settings-pill:hover {
+      background: rgba(255, 255, 255, 0.9);
+      border-color: #d0d0d0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .settings-pill.dropdown-open {
+      z-index: 101;
+    }
+
+    .settings-pill i {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .settings-pill-label {
+      color: #555;
+    }
+
+    .settings-pill-caret {
+      font-size: 10px;
+      color: #999;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      margin-left: auto;
+    }
+
+    .settings-pill:hover .settings-pill-caret {
+      opacity: 1;
+    }
+
+    /* Open Settings Pill - Primary Action */
+    #pill-open-settings {
+      background: rgba(249, 249, 247, 0.8);
+      border-color: #e0e0e0;
+      border-radius: 6px;
+    }
+
+    #pill-open-settings:hover {
+      background: rgba(240, 240, 240, 0.9);
+      border-color: #d0d0d0;
+    }
+
+    #pill-open-settings i {
+      color: #666;
+    }
+
+    /* Pill Dropdown */
+    .pill-dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 4px;
+      background: #fff;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      min-width: 160px;
+      z-index: 100;
+      display: none;
+    }
+
+    .pill-dropdown.active {
+      display: block;
+    }
+
+    .pill-dropdown-item {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #333;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .pill-dropdown-item:first-child {
+      border-radius: 8px 8px 0 0;
+    }
+
+    .pill-dropdown-item:last-child {
+      border-radius: 0 0 8px 8px;
+    }
+
+    .pill-dropdown-item:hover {
+      background: #f0f0f0;
+    }
+
+    .pill-dropdown-item.active {
+      background: #f0f9ed;
+      color: #2e7918;
+      font-weight: 600;
+    }
+
+    /* Chart Type Pills Special */
+    .pill-dropdown-item.chart-type-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill-dropdown-item.chart-type-item i {
+      font-size: 16px;
+      color: #868180;
+    }
+
+    .pill-dropdown-item.chart-type-item.active i {
+      color: #2e7918;
+    }
+
+    /* ============================================
+       CHART ARTIFACT - SETTINGS DRAWER (Expanded State)
+       ============================================ */
+    .settings-drawer {
+      width: 280px;
+      background: #fff;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+      z-index: 20;
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .drawer-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .drawer-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .drawer-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: #666;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .drawer-close:hover {
+      background: #f0f0f0;
+    }
+
+    .drawer-content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    /* Chart Type Buttons */
+    .chart-types-section {
+      margin-bottom: 20px;
+    }
+
+    .chart-types-row {
+      display: flex;
+      gap: 0;
+    }
+
+    .chart-type-btn {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 8px;
+      border: 1px solid #e0e0e0;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      gap: 4px;
+    }
+
+    .chart-type-btn:first-child {
+      border-radius: 8px 0 0 8px;
+    }
+
+    .chart-type-btn:last-child {
+      border-radius: 0 8px 8px 0;
+    }
+
+    .chart-type-btn + .chart-type-btn {
+      border-left: none;
+    }
+
+    .chart-type-btn:hover {
+      background: #f8f8f8;
+    }
+
+    .chart-type-btn.active {
+      background: #f0f9ed;
+      border-color: #2e7918;
+      z-index: 1;
+    }
+
+    .chart-type-btn i {
+      font-size: 18px;
+      color: #868180;
+    }
+
+    .chart-type-btn.active i {
+      color: #2e7918;
+    }
+
+    .chart-type-btn span {
+      font-size: 10px;
+      color: #868180;
+    }
+
+    .chart-type-btn.active span {
+      color: #2e7918;
+    }
+
+    /* Control Sections */
+    .control-section {
+      margin-bottom: 20px;
+    }
+
+    .control-section-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: #868180;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .control-group {
+      margin-bottom: 12px;
+    }
+
+    .control-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #555;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .control-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #fff;
+      color: #333;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 32px;
+      transition: all 0.15s ease;
+    }
+
+    .control-select:hover {
+      border-color: #aaa;
+    }
+
+    .control-select:focus {
+      outline: none;
+      border-color: #2e7918;
+      box-shadow: 0 0 0 2px rgba(46, 121, 24, 0.1);
+    }
+
+    .divider {
+      height: 1px;
+      background: #e8e8e8;
+      margin: 16px 0;
+    }
+  </style>
+</head>
+<body>
+  <!-- ============================================
+       UNIVERSAL SHELL - TOP BAR
+       ============================================ -->
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button class="back-button">
+        <i class="fa-solid fa-arrow-left"></i>
+        Back to chat
+      </button>
+      <span class="artifact-title" id="artifact-title">Headcount by Department</span>
+    </div>
+    <div class="top-bar-right">
+      <span class="auto-saved"><i class="fa-solid fa-check"></i> Saved</span>
+      <div class="publish-actions">
+        <button class="publish-button" id="publish-button">
+          <span>Publish</span>
+          <i class="fa-solid fa-caret-down" style="font-size: 10px;"></i>
+        </button>
+        <div class="publish-dropdown" id="publish-dropdown">
+          <div class="publish-dropdown-item" data-action="save-report">
+            <i class="fa-solid fa-file-lines"></i>
+            <span>Save to Report</span>
+          </div>
+          <div class="publish-dropdown-item" data-action="save-desktop">
+            <i class="fa-solid fa-table-cells"></i>
+            <span>Save to Dashboard</span>
+          </div>
+          <div class="publish-dropdown-item" data-action="export-png">
+            <i class="fa-solid fa-download"></i>
+            <span>Export as PNG</span>
+          </div>
+          <div class="publish-dropdown-item" data-action="share-user">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Share with User</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       UNIVERSAL SHELL - WORKSPACE CONTAINER
+       ============================================ -->
+  <div class="workspace-container">
+
+    <!-- ============================================
+         CHART ARTIFACT AREA
+         This section would be replaced for other artifact types
+         ============================================ -->
+    <div class="artifact-area">
+
+      <!-- Settings Pills (Collapsed State) -->
+      <div class="settings-pills hidden" id="settings-pills">
+        <div class="settings-pill" id="pill-open-settings">
+          <i class="fa-solid fa-sliders"></i>
+          <span class="settings-pill-label">Chart Settings</span>
+        </div>
+
+        <div class="settings-pill" id="pill-chart-type">
+          <i class="fa-solid fa-chart-simple"></i>
+          <span class="settings-pill-label">Bar</span>
+          <i class="fa-solid fa-caret-down settings-pill-caret"></i>
+          <div class="pill-dropdown" id="dropdown-chart-type">
+            <div class="pill-dropdown-item chart-type-item active" data-value="bar">
+              <i class="fa-solid fa-chart-simple"></i>
+              <span>Bar</span>
+            </div>
+            <div class="pill-dropdown-item chart-type-item" data-value="line">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>Line</span>
+            </div>
+            <div class="pill-dropdown-item chart-type-item" data-value="pie">
+              <i class="fa-solid fa-chart-pie"></i>
+              <span>Pie</span>
+            </div>
+            <div class="pill-dropdown-item chart-type-item" data-value="table">
+              <i class="fa-solid fa-table"></i>
+              <span>Table</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-pill" id="pill-measure">
+          <i class="fa-solid fa-ruler"></i>
+          <span class="settings-pill-label">Headcount</span>
+          <i class="fa-solid fa-caret-down settings-pill-caret"></i>
+          <div class="pill-dropdown" id="dropdown-measure">
+            <div class="pill-dropdown-item active" data-value="headcount">Headcount</div>
+            <div class="pill-dropdown-item" data-value="salary">Average Salary</div>
+            <div class="pill-dropdown-item" data-value="tenure">Average Tenure</div>
+            <div class="pill-dropdown-item" data-value="turnover">Turnover Rate</div>
+          </div>
+        </div>
+
+        <div class="settings-pill" id="pill-category">
+          <i class="fa-solid fa-folder"></i>
+          <span class="settings-pill-label">Department</span>
+          <i class="fa-solid fa-caret-down settings-pill-caret"></i>
+          <div class="pill-dropdown" id="dropdown-category">
+            <div class="pill-dropdown-item active" data-value="department">Department</div>
+            <div class="pill-dropdown-item" data-value="location">Location</div>
+            <div class="pill-dropdown-item" data-value="job-level">Job Level</div>
+            <div class="pill-dropdown-item" data-value="employment-type">Employment Type</div>
+          </div>
+        </div>
+
+        <div class="settings-pill" id="pill-color">
+          <i class="fa-solid fa-palette"></i>
+          <span class="settings-pill-label">Green</span>
+          <i class="fa-solid fa-caret-down settings-pill-caret"></i>
+          <div class="pill-dropdown" id="dropdown-color">
+            <div class="pill-dropdown-item active" data-value="green">Green</div>
+            <div class="pill-dropdown-item" data-value="blue">Blue</div>
+            <div class="pill-dropdown-item" data-value="purple">Purple</div>
+            <div class="pill-dropdown-item" data-value="multi">Multi-color</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chart Rendering Area -->
+      <div class="chart-area">
+        <div class="chart-container" id="chart-container">
+          <!-- Chart will be rendered here -->
+        </div>
+      </div>
+
+      <!-- Settings Drawer (Expanded State) -->
+      <div class="settings-drawer">
+        <div class="drawer-header">
+          <span class="drawer-title">Chart Settings</span>
+          <button class="drawer-close">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+        <div class="drawer-content">
+          <!-- Chart Types -->
+          <div class="chart-types-section">
+            <div class="chart-types-row">
+              <button class="chart-type-btn active" data-type="bar">
+                <i class="fa-solid fa-chart-simple"></i>
+                <span>Bar</span>
+              </button>
+              <button class="chart-type-btn" data-type="line">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Line</span>
+              </button>
+              <button class="chart-type-btn" data-type="pie">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Pie</span>
+              </button>
+              <button class="chart-type-btn" data-type="table">
+                <i class="fa-solid fa-table"></i>
+                <span>Table</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- What to Measure -->
+          <div class="control-section">
+            <div class="control-section-header">What to measure</div>
+            <div class="control-group">
+              <label class="control-label">Measure</label>
+              <select class="control-select" id="measure-select">
+                <option value="headcount">Headcount</option>
+                <option value="salary">Average Salary</option>
+                <option value="tenure">Average Tenure</option>
+                <option value="turnover">Turnover Rate</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <label class="control-label">Compare to</label>
+              <select class="control-select" id="benchmark-select">
+                <option value="none">None</option>
+                <option value="industry">Industry Average</option>
+                <option value="previous">Previous Year</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Group By -->
+          <div class="control-section">
+            <div class="control-section-header">Group by</div>
+            <div class="control-group">
+              <label class="control-label">Category</label>
+              <select class="control-select" id="category-select">
+                <option value="department">Department</option>
+                <option value="location">Location</option>
+                <option value="job-level">Job Level</option>
+                <option value="employment-type">Employment Type</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Style -->
+          <div class="control-section">
+            <div class="control-section-header">Style</div>
+            <div class="control-group">
+              <label class="control-label">Color</label>
+              <select class="control-select" id="color-select">
+                <option value="green">Green</option>
+                <option value="blue">Blue</option>
+                <option value="purple">Purple</option>
+                <option value="multi">Multi-color</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Filter -->
+          <div class="control-group">
+            <label class="control-label">Filter</label>
+            <select class="control-select" id="filter-select">
+              <option value="all">All Employees</option>
+              <option value="full-time">Full-time Only</option>
+              <option value="contractors">Contractors Only</option>
+              <option value="remote">Remote Only</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================
+         UNIVERSAL SHELL - CHAT PANEL
+         ============================================ -->
+    <div class="chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-title">
+          <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+          </svg>
+          BambooHR Assistant
+        </div>
+      </div>
+      <div class="messages-area" id="messages-area">
+        <div class="message user">
+          <div class="message-bubble">Show me headcount by department</div>
+        </div>
+        <div class="message assistant">
+          <div class="assistant-label">
+            <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+            </svg>
+            BambooHR Assistant
+          </div>
+          <div class="message-bubble">Here's a bar chart showing headcount by department. Engineering leads with 45 employees. Use the controls to explore different views!</div>
+        </div>
+      </div>
+      <div class="chat-input-area">
+        <div class="chat-input-container">
+          <input type="text" class="chat-input" placeholder="Ask about this chart...">
+          <button class="send-button">
+            <i class="fa-solid fa-arrow-up" style="font-size: 12px;"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ============================================
+       CHART ARTIFACT - DATA & STATE
+       ============================================ */
+
+    // Chart state
+    let currentChartType = 'bar';
+    let currentMeasure = 'headcount';
+    let currentCategory = 'department';
+    let currentColor = 'green';
+
+    // Mock data organized by category > measure
+    const mockData = {
+      department: {
+        headcount: [
+          { label: 'Engineering', value: 45 },
+          { label: 'Sales', value: 30 },
+          { label: 'Marketing', value: 25 },
+          { label: 'HR', value: 20 },
+          { label: 'Finance', value: 15 }
+        ],
+        salary: [
+          { label: 'Engineering', value: 95000 },
+          { label: 'Sales', value: 75000 },
+          { label: 'Marketing', value: 70000 },
+          { label: 'HR', value: 65000 },
+          { label: 'Finance', value: 85000 }
+        ],
+        tenure: [
+          { label: 'Engineering', value: 3.2 },
+          { label: 'Sales', value: 2.8 },
+          { label: 'Marketing', value: 2.5 },
+          { label: 'HR', value: 4.1 },
+          { label: 'Finance', value: 5.3 }
+        ],
+        turnover: [
+          { label: 'Engineering', value: 12 },
+          { label: 'Sales', value: 18 },
+          { label: 'Marketing', value: 15 },
+          { label: 'HR', value: 8 },
+          { label: 'Finance', value: 6 }
+        ]
+      },
+      location: {
+        headcount: [
+          { label: 'San Francisco', value: 50 },
+          { label: 'New York', value: 35 },
+          { label: 'Austin', value: 30 },
+          { label: 'Remote', value: 20 }
+        ],
+        salary: [
+          { label: 'San Francisco', value: 105000 },
+          { label: 'New York', value: 95000 },
+          { label: 'Austin', value: 75000 },
+          { label: 'Remote', value: 80000 }
+        ],
+        tenure: [
+          { label: 'San Francisco', value: 2.8 },
+          { label: 'New York', value: 3.5 },
+          { label: 'Austin', value: 2.2 },
+          { label: 'Remote', value: 4.0 }
+        ],
+        turnover: [
+          { label: 'San Francisco', value: 15 },
+          { label: 'New York', value: 12 },
+          { label: 'Austin', value: 10 },
+          { label: 'Remote', value: 8 }
+        ]
+      },
+      'job-level': {
+        headcount: [
+          { label: 'Executive', value: 8 },
+          { label: 'Senior', value: 35 },
+          { label: 'Mid-level', value: 52 },
+          { label: 'Junior', value: 40 }
+        ],
+        salary: [
+          { label: 'Executive', value: 180000 },
+          { label: 'Senior', value: 120000 },
+          { label: 'Mid-level', value: 85000 },
+          { label: 'Junior', value: 65000 }
+        ],
+        tenure: [
+          { label: 'Executive', value: 8.5 },
+          { label: 'Senior', value: 5.2 },
+          { label: 'Mid-level', value: 3.1 },
+          { label: 'Junior', value: 1.8 }
+        ],
+        turnover: [
+          { label: 'Executive', value: 3 },
+          { label: 'Senior', value: 8 },
+          { label: 'Mid-level', value: 12 },
+          { label: 'Junior', value: 22 }
+        ]
+      },
+      'employment-type': {
+        headcount: [
+          { label: 'Full-time', value: 105 },
+          { label: 'Part-time', value: 18 },
+          { label: 'Contractor', value: 12 }
+        ],
+        salary: [
+          { label: 'Full-time', value: 85000 },
+          { label: 'Part-time', value: 45000 },
+          { label: 'Contractor', value: 95000 }
+        ],
+        tenure: [
+          { label: 'Full-time', value: 3.8 },
+          { label: 'Part-time', value: 2.1 },
+          { label: 'Contractor', value: 1.2 }
+        ],
+        turnover: [
+          { label: 'Full-time', value: 10 },
+          { label: 'Part-time', value: 25 },
+          { label: 'Contractor', value: 35 }
+        ]
+      }
+    };
+
+    // Color palettes
+    const colorPalettes = {
+      green: {
+        gradient: 'linear-gradient(180deg, #4CAF50 0%, #2e7918 100%)',
+        solid: '#2e7918',
+        multi: ['#2e7918', '#4CAF50', '#87C276', '#7AB8EE', '#C198D4']
+      },
+      blue: {
+        gradient: 'linear-gradient(180deg, #4A90E2 0%, #2563EB 100%)',
+        solid: '#2563EB',
+        multi: ['#2563EB', '#4A90E2', '#7AB8EE', '#87C276', '#C198D4']
+      },
+      purple: {
+        gradient: 'linear-gradient(180deg, #9F7AEA 0%, #6B46C1 100%)',
+        solid: '#6B46C1',
+        multi: ['#6B46C1', '#9F7AEA', '#C198D4', '#7AB8EE', '#87C276']
+      },
+      multi: {
+        gradient: null,
+        solid: null,
+        multi: ['#2e7918', '#4A90E2', '#C198D4', '#F2A766', '#4CAF50']
+      }
+    };
+
+    /* ============================================
+       CHART ARTIFACT - RENDERING FUNCTIONS
+       ============================================ */
+
+    function renderBarChart(data) {
+      const maxValue = Math.max(...data.map(d => d.value));
+      const colors = colorPalettes[currentColor];
+
+      return `
+        <div class="bar-chart">
+          ${data.map((d, i) => {
+            const heightPercent = (d.value / maxValue) * 100;
+            let displayValue = d.value;
+
+            if (currentMeasure === 'salary') {
+              displayValue = '$' + (d.value / 1000).toFixed(0) + 'k';
+            } else if (currentMeasure === 'tenure') {
+              displayValue = d.value.toFixed(1) + ' yrs';
+            } else if (currentMeasure === 'turnover') {
+              displayValue = d.value + '%';
+            }
+
+            const barColor = currentColor === 'multi' ? colors.multi[i % colors.multi.length] : colors.gradient;
+            const style = currentColor === 'multi'
+              ? `background: ${barColor};`
+              : `background: ${barColor};`;
+
+            return `
+              <div class="bar" style="height: ${heightPercent}%; ${style}">
+                <span class="bar-value">${displayValue}</span>
+                <span class="bar-label">${d.label}</span>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function renderLineChart(data) {
+      const maxValue = Math.max(...data.map(d => d.value));
+      const width = 700;
+      const height = 400;
+      const padding = 60;
+      const colors = colorPalettes[currentColor];
+
+      const points = data.map((d, i) => {
+        const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+        const y = height - padding - ((d.value / maxValue) * (height - padding * 2));
+        return `${x},${y}`;
+      }).join(' ');
+
+      const strokeColor = colors.solid || colors.multi[0];
+
+      return `
+        <div class="line-chart">
+          <svg viewBox="0 0 ${width} ${height}">
+            <polyline
+              points="${points}"
+              fill="none"
+              stroke="${strokeColor}"
+              stroke-width="3"
+            />
+            ${data.map((d, i) => {
+              const x = padding + (i / (data.length - 1)) * (width - padding * 2);
+              const y = height - padding - ((d.value / maxValue) * (height - padding * 2));
+
+              let displayValue = d.value;
+              if (currentMeasure === 'salary') {
+                displayValue = '$' + (d.value / 1000).toFixed(0) + 'k';
+              } else if (currentMeasure === 'tenure') {
+                displayValue = d.value.toFixed(1);
+              } else if (currentMeasure === 'turnover') {
+                displayValue = d.value + '%';
+              }
+
+              const fillColor = currentColor === 'multi' ? colors.multi[i % colors.multi.length] : strokeColor;
+
+              return `
+                <circle cx="${x}" cy="${y}" r="5" fill="${fillColor}"/>
+                <text x="${x}" y="${y - 15}" text-anchor="middle" font-size="12" fill="#333">${displayValue}</text>
+                <text x="${x}" y="${height - 35}" text-anchor="middle" font-size="11" fill="#666">${d.label}</text>
+              `;
+            }).join('')}
+          </svg>
+        </div>
+      `;
+    }
+
+    function renderPieChart(data) {
+      const total = data.reduce((sum, d) => sum + d.value, 0);
+      const colors = colorPalettes[currentColor].multi;
+
+      let currentAngle = 0;
+      const slices = data.map((d, i) => {
+        const sliceAngle = (d.value / total) * 360;
+        const startAngle = currentAngle;
+        const endAngle = currentAngle + sliceAngle;
+        currentAngle = endAngle;
+
+        const startRad = (startAngle - 90) * Math.PI / 180;
+        const endRad = (endAngle - 90) * Math.PI / 180;
+
+        const x1 = 150 + 120 * Math.cos(startRad);
+        const y1 = 150 + 120 * Math.sin(startRad);
+        const x2 = 150 + 120 * Math.cos(endRad);
+        const y2 = 150 + 120 * Math.sin(endRad);
+
+        const largeArc = sliceAngle > 180 ? 1 : 0;
+
+        return {
+          path: `M 150 150 L ${x1} ${y1} A 120 120 0 ${largeArc} 1 ${x2} ${y2} Z`,
+          color: colors[i % colors.length],
+          label: d.label,
+          value: d.value,
+          percent: ((d.value / total) * 100).toFixed(0)
+        };
+      });
+
+      return `
+        <div class="pie-chart">
+          <svg viewBox="0 0 300 300">
+            ${slices.map(s => `
+              <path d="${s.path}" fill="${s.color}"/>
+            `).join('')}
+          </svg>
+          <div class="pie-legend">
+            ${slices.map(s => {
+              let displayValue = s.value;
+              if (currentMeasure === 'salary') {
+                displayValue = '$' + (s.value / 1000).toFixed(0) + 'k';
+              } else if (currentMeasure === 'tenure') {
+                displayValue = s.value.toFixed(1) + ' yrs';
+              } else if (currentMeasure === 'turnover') {
+                displayValue = s.value + '%';
+              }
+
+              return `
+                <div class="pie-legend-item">
+                  <div class="pie-legend-color" style="background: ${s.color}"></div>
+                  <div class="pie-legend-label">${s.label}</div>
+                  <div class="pie-legend-value">${displayValue} (${s.percent}%)</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTable(data) {
+      const measureLabels = {
+        headcount: 'Headcount',
+        salary: 'Average Salary',
+        tenure: 'Avg Tenure (Years)',
+        turnover: 'Turnover Rate (%)'
+      };
+      const categoryLabels = {
+        department: 'Department',
+        location: 'Location',
+        'job-level': 'Job Level',
+        'employment-type': 'Employment Type'
+      };
+
+      return `
+        <div class="table-view">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>${categoryLabels[currentCategory]}</th>
+                <th>${measureLabels[currentMeasure]}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${data.map(d => {
+                let displayValue = d.value;
+                if (currentMeasure === 'salary') {
+                  displayValue = '$' + d.value.toLocaleString();
+                } else if (currentMeasure === 'tenure') {
+                  displayValue = d.value.toFixed(1);
+                } else if (currentMeasure === 'turnover') {
+                  displayValue = d.value + '%';
+                }
+
+                return `
+                  <tr>
+                    <td>${d.label}</td>
+                    <td>${displayValue}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function updateChart() {
+      const data = mockData[currentCategory][currentMeasure];
+      const container = document.getElementById('chart-container');
+
+      let html = '';
+      switch(currentChartType) {
+        case 'bar':
+          html = renderBarChart(data);
+          break;
+        case 'line':
+          html = renderLineChart(data);
+          break;
+        case 'pie':
+          html = renderPieChart(data);
+          break;
+        case 'table':
+          html = renderTable(data);
+          break;
+      }
+
+      container.innerHTML = html;
+      updateTitle();
+    }
+
+    function updateTitle() {
+      const measureLabels = {
+        headcount: 'Headcount',
+        salary: 'Average Salary',
+        tenure: 'Average Tenure',
+        turnover: 'Turnover Rate'
+      };
+      const categoryLabels = {
+        department: 'Department',
+        location: 'Location',
+        'job-level': 'Job Level',
+        'employment-type': 'Employment Type'
+      };
+
+      document.getElementById('artifact-title').textContent =
+        `${measureLabels[currentMeasure]} by ${categoryLabels[currentCategory]}`;
+    }
+
+    function updatePills() {
+      const chartTypeLabels = {
+        bar: 'Bar',
+        line: 'Line',
+        pie: 'Pie',
+        table: 'Table'
+      };
+      const chartTypeIcons = {
+        bar: 'fa-chart-simple',
+        line: 'fa-chart-line',
+        pie: 'fa-chart-pie',
+        table: 'fa-table'
+      };
+      const measureLabels = {
+        headcount: 'Headcount',
+        salary: 'Average Salary',
+        tenure: 'Average Tenure',
+        turnover: 'Turnover Rate'
+      };
+      const categoryLabels = {
+        department: 'Department',
+        location: 'Location',
+        'job-level': 'Job Level',
+        'employment-type': 'Employment Type'
+      };
+      const colorLabels = {
+        green: 'Green',
+        blue: 'Blue',
+        purple: 'Purple',
+        multi: 'Multi-color'
+      };
+
+      // Update chart type pill
+      const chartTypePill = document.querySelector('#pill-chart-type');
+      chartTypePill.querySelector('i').className = `fa-solid ${chartTypeIcons[currentChartType]}`;
+      chartTypePill.querySelector('.settings-pill-label').textContent = chartTypeLabels[currentChartType];
+
+      // Update measure pill
+      document.querySelector('#pill-measure .settings-pill-label').textContent = measureLabels[currentMeasure];
+
+      // Update category pill
+      document.querySelector('#pill-category .settings-pill-label').textContent = categoryLabels[currentCategory];
+
+      // Update color pill
+      document.querySelector('#pill-color .settings-pill-label').textContent = colorLabels[currentColor];
+    }
+
+    /* ============================================
+       UNIVERSAL SHELL - CHAT FUNCTIONS
+       ============================================ */
+
+    function addChatMessage(message) {
+      const messagesArea = document.getElementById('messages-area');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message assistant';
+      messageDiv.innerHTML = `
+        <div class="assistant-label">
+          <svg class="sparkle-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+          </svg>
+          BambooHR Assistant
+        </div>
+        <div class="message-bubble">${message}</div>
+      `;
+      messagesArea.appendChild(messageDiv);
+      messagesArea.scrollTop = messagesArea.scrollHeight;
+    }
+
+    /* ============================================
+       UNIVERSAL SHELL - PUBLISH ACTIONS
+       ============================================ */
+
+    document.getElementById('publish-button').addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.getElementById('publish-dropdown').classList.toggle('active');
+    });
+
+    document.querySelectorAll('.publish-dropdown-item').forEach(item => {
+      item.addEventListener('click', function() {
+        const action = this.dataset.action;
+        const actionLabels = {
+          'save-report': 'saved this chart to a report',
+          'save-desktop': 'saved this chart to your dashboard',
+          'export-png': 'exported this chart as a PNG',
+          'share-user': 'shared this chart'
+        };
+
+        document.getElementById('publish-dropdown').classList.remove('active');
+        addChatMessage(`I've ${actionLabels[action]}.`);
+      });
+    });
+
+    /* ============================================
+       CHART ARTIFACT - DRAWER EVENT LISTENERS
+       ============================================ */
+
+    document.querySelectorAll('.chart-type-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.chart-type-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentChartType = this.dataset.type;
+        updateChart();
+        updatePills();
+
+        const chartTypeLabels = { bar: 'bar chart', line: 'line chart', pie: 'pie chart', table: 'table' };
+        addChatMessage(`I've changed the visualization to a ${chartTypeLabels[currentChartType]}.`);
+      });
+    });
+
+    document.getElementById('measure-select').addEventListener('change', function() {
+      currentMeasure = this.value;
+      updateChart();
+      updatePills();
+
+      const measureLabels = {
+        headcount: 'Headcount',
+        salary: 'Average Salary',
+        tenure: 'Average Tenure',
+        turnover: 'Turnover Rate'
+      };
+      addChatMessage(`I've updated the chart to show ${measureLabels[currentMeasure]}.`);
+    });
+
+    document.getElementById('category-select').addEventListener('change', function() {
+      currentCategory = this.value;
+      updateChart();
+      updatePills();
+
+      const categoryLabels = {
+        department: 'Department',
+        location: 'Location',
+        'job-level': 'Job Level',
+        'employment-type': 'Employment Type'
+      };
+      addChatMessage(`I've updated the chart to group by ${categoryLabels[currentCategory]}.`);
+    });
+
+    document.getElementById('color-select').addEventListener('change', function() {
+      currentColor = this.value;
+      updateChart();
+      updatePills();
+
+      const colorLabels = { green: 'green', blue: 'blue', purple: 'purple', multi: 'multi-color' };
+      addChatMessage(`I've changed the chart colors to ${colorLabels[currentColor]}.`);
+    });
+
+    document.querySelector('.drawer-close').addEventListener('click', function() {
+      document.querySelector('.settings-drawer').style.display = 'none';
+      document.getElementById('settings-pills').classList.remove('hidden');
+    });
+
+    /* ============================================
+       CHART ARTIFACT - PILLS EVENT LISTENERS
+       ============================================ */
+
+    document.getElementById('pill-open-settings').addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.querySelector('.settings-drawer').style.display = 'flex';
+      document.getElementById('settings-pills').classList.add('hidden');
+    });
+
+    document.querySelectorAll('.settings-pill:not(#pill-open-settings)').forEach(pill => {
+      pill.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const dropdown = this.querySelector('.pill-dropdown');
+        const isActive = dropdown.classList.contains('active');
+
+        document.querySelectorAll('.pill-dropdown').forEach(d => d.classList.remove('active'));
+        document.querySelectorAll('.settings-pill').forEach(p => p.classList.remove('dropdown-open'));
+
+        if (!isActive) {
+          dropdown.classList.add('active');
+          this.classList.add('dropdown-open');
+        }
+      });
+    });
+
+    // Chart type pill dropdown
+    document.querySelectorAll('#dropdown-chart-type .pill-dropdown-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const value = this.dataset.value;
+
+        document.querySelectorAll('#dropdown-chart-type .pill-dropdown-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        currentChartType = value;
+        document.querySelectorAll('.chart-type-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.type === value);
+        });
+        updateChart();
+        updatePills();
+
+        document.querySelector('#dropdown-chart-type').classList.remove('active');
+        document.querySelector('#pill-chart-type').classList.remove('dropdown-open');
+
+        const chartTypeLabels = { bar: 'bar chart', line: 'line chart', pie: 'pie chart', table: 'table' };
+        addChatMessage(`I've changed the visualization to a ${chartTypeLabels[currentChartType]}.`);
+      });
+    });
+
+    // Measure pill dropdown
+    document.querySelectorAll('#dropdown-measure .pill-dropdown-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const value = this.dataset.value;
+
+        document.querySelectorAll('#dropdown-measure .pill-dropdown-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        currentMeasure = value;
+        document.getElementById('measure-select').value = value;
+        updateChart();
+        updatePills();
+
+        document.querySelector('#dropdown-measure').classList.remove('active');
+        document.querySelector('#pill-measure').classList.remove('dropdown-open');
+
+        const measureLabels = {
+          headcount: 'Headcount',
+          salary: 'Average Salary',
+          tenure: 'Average Tenure',
+          turnover: 'Turnover Rate'
+        };
+        addChatMessage(`I've updated the chart to show ${measureLabels[currentMeasure]}.`);
+      });
+    });
+
+    // Category pill dropdown
+    document.querySelectorAll('#dropdown-category .pill-dropdown-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const value = this.dataset.value;
+
+        document.querySelectorAll('#dropdown-category .pill-dropdown-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        currentCategory = value;
+        document.getElementById('category-select').value = value;
+        updateChart();
+        updatePills();
+
+        document.querySelector('#dropdown-category').classList.remove('active');
+        document.querySelector('#pill-category').classList.remove('dropdown-open');
+
+        const categoryLabels = {
+          department: 'Department',
+          location: 'Location',
+          'job-level': 'Job Level',
+          'employment-type': 'Employment Type'
+        };
+        addChatMessage(`I've updated the chart to group by ${categoryLabels[currentCategory]}.`);
+      });
+    });
+
+    // Color pill dropdown
+    document.querySelectorAll('#dropdown-color .pill-dropdown-item').forEach(item => {
+      item.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const value = this.dataset.value;
+
+        document.querySelectorAll('#dropdown-color .pill-dropdown-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        currentColor = value;
+        document.getElementById('color-select').value = value;
+        updateChart();
+        updatePills();
+
+        document.querySelector('#dropdown-color').classList.remove('active');
+        document.querySelector('#pill-color').classList.remove('dropdown-open');
+
+        const colorLabels = { green: 'green', blue: 'blue', purple: 'purple', multi: 'multi-color' };
+        addChatMessage(`I've changed the chart colors to ${colorLabels[currentColor]}.`);
+      });
+    });
+
+    /* ============================================
+       GLOBAL EVENT LISTENERS
+       ============================================ */
+
+    // Close all dropdowns when clicking outside
+    document.addEventListener('click', function() {
+      document.querySelectorAll('.pill-dropdown').forEach(d => d.classList.remove('active'));
+      document.querySelectorAll('.settings-pill').forEach(p => p.classList.remove('dropdown-open'));
+      document.getElementById('publish-dropdown').classList.remove('active');
+    });
+
+    // Prevent dropdowns from closing when clicking inside them
+    document.querySelectorAll('.pill-dropdown').forEach(dropdown => {
+      dropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+      });
+    });
+
+    document.getElementById('publish-dropdown').addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+
+    /* ============================================
+       INITIALIZATION
+       ============================================ */
+
+    updateChart();
+    updatePills();
+  </script>
+</body>
+</html>
