@@ -16,6 +16,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isArtifactsExpanded, setIsArtifactsExpanded] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const messages = selectedConversation.messages;
@@ -25,6 +26,21 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const filteredConversations = recentConversations.filter(conv =>
     conv.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Mock artifacts data
+  const allArtifacts = [
+    { id: '1', title: 'Q4 Revenue Chart', type: 'chart', color: '#87C276', icon: 'chart-line' },
+    { id: '2', title: 'Employee Report', type: 'report', color: '#7AB8EE', icon: 'file-lines' },
+    { id: '3', title: 'Org Structure', type: 'image', color: '#C198D4', icon: 'image' },
+    { id: '4', title: 'Benefits Summary', type: 'chart', color: '#F2A766', icon: 'chart-pie' },
+    { id: '5', title: 'Training Materials', type: 'report', color: '#87C276', icon: 'file' },
+    { id: '6', title: 'Team Photo', type: 'image', color: '#7AB8EE', icon: 'image' },
+    { id: '7', title: 'PTO Analysis', type: 'chart', color: '#C198D4', icon: 'chart-bar' },
+    { id: '8', title: 'Onboarding Guide', type: 'report', color: '#F2A766', icon: 'file-lines' },
+    { id: '9', title: 'Office Layout', type: 'image', color: '#87C276', icon: 'image' },
+  ];
+
+  const visibleArtifacts = isArtifactsExpanded ? allArtifacts : allArtifacts.slice(0, 3);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -129,6 +145,38 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
             >
               <Icon name="pen-to-square" size={16} className="text-[var(--icon-neutral-x-strong)]" />
               New Chat
+            </button>
+          </div>
+
+          {/* Artifacts Section */}
+          <div className="px-4 py-3 mb-4">
+            {/* Artifacts Header */}
+            <div className="px-1 py-2 flex items-center justify-between">
+              <span className="text-[13px] font-semibold text-[var(--text-neutral-medium)]">
+                Artifacts
+              </span>
+            </div>
+
+            {/* Artifact Thumbnails Grid */}
+            <div className="grid grid-cols-3 gap-2 mt-2">
+              {visibleArtifacts.map((artifact) => (
+                <div
+                  key={artifact.id}
+                  className="aspect-[4/3] rounded-[var(--radius-xx-small)] flex items-center justify-center cursor-not-allowed opacity-50"
+                  style={{ backgroundColor: artifact.color }}
+                  title={artifact.title}
+                >
+                  <Icon name={artifact.icon as any} size={24} className="text-white" />
+                </div>
+              ))}
+            </div>
+
+            {/* See More/Less Link */}
+            <button
+              onClick={() => setIsArtifactsExpanded(!isArtifactsExpanded)}
+              className="w-full mt-3 text-[13px] text-[#0066CC] hover:underline text-left px-1"
+            >
+              {isArtifactsExpanded ? 'See less' : 'See more'}
             </button>
           </div>
 
