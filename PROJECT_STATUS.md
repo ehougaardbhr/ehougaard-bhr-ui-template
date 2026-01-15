@@ -271,26 +271,49 @@ Testing 7 solutions for text reflow during expansion:
 **Problem**: Text wrapping/unwrapping during width changes draws eye away from main animation
 **Goal**: Find solution that keeps focus on panel expansion, not text reflow
 
-### Current Status
+### Current Status (Main Branch)
 - ✅ Slide-in panel functional with localStorage persistence
 - ✅ Full-screen view with sidebar navigation
 - ✅ Conversation list, search, new chat working
 - ✅ URL routing and state management
 - ✅ Expand/collapse buttons wired correctly
-- 🔄 Testing transition styles (Expand and Zoom are favorites)
-- 🔄 Evaluating text reflow solutions
-- ⏳ Need to finalize transition and apply to production components
+- ✅ Production animation implemented (700ms, cubic-bezier(0.25, 0.8, 0.25, 1))
+- ✅ Panel expands in-place without route change
+- ✅ Sidebar emerges with smooth width/opacity transition
+
+### Experimental Features (Experiments Branch)
+
+#### Artifacts Section
+- **Location**: Full-screen chat sidebar, above Chats list
+- **Purpose**: Display user-generated content (charts, reports, images)
+- **Layout**:
+  - 3x3 grid of artifact thumbnails (colored boxes with icons)
+  - Shows 3 artifacts initially (1 row)
+  - "See more" expands to 9 artifacts (3 rows)
+  - "See less" collapses back to 3
+- **Styling**:
+  - Blue link color (#0066CC) for "See more/less"
+  - Placeholder artifacts with colored backgrounds (green, blue, purple, orange)
+  - Icons: chart-line, file-lines, image, chart-pie, etc.
+- **Status**: Non-clickable placeholders, ready for real data integration
 
 ### Technical Details
-- Animations use CSS `transition-all` with custom durations
+- Animations use CSS transitions with custom durations (700ms)
+- Easing: `cubic-bezier(0.25, 0.8, 0.25, 1)` for smooth deceleration
 - Right-edge anchoring: `right: 16px` stays constant, width expands leftward
 - Transform origin: `right center` for zoom effects
-- Opacity transitions: Half the duration of main animation (450ms vs 900ms)
+- Sidebar width: 0 → 280px with synchronized opacity
 - Background: Grey rounded container (20px radius) on white outer padding
 
+## Branch Strategy
+- **`main` branch** - Clean template with completed features
+- **`experiments` branch** - Experimental features like Artifacts
+- Contributors can create feature branches and merge back to `main` via Pull Requests
+
 ## Next Steps
-1. Choose final transition style and text reflow solution
-2. Apply chosen transition to production Chat components
-3. Speed up animations to production speed (~300ms)
+1. ~~Choose final transition style and text reflow solution~~ ✅ Completed
+2. ~~Apply chosen transition to production Chat components~~ ✅ Completed
+3. ~~Speed up animations to production speed~~ ✅ Completed (700ms)
 4. Test dark mode compatibility for all chat components
 5. Polish any remaining styling details
+6. **Experiments**: Make Artifacts clickable and integrate with real data
