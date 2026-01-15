@@ -95,7 +95,7 @@ function ExpandTransition({ isExpanded, onToggle }: { isExpanded: boolean; onTog
         bottom: isExpanded ? 0 : 16,
         right: 16,
         width: isExpanded ? 'calc(100% - 16px)' : 380,
-        transition: 'all 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: 'all 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
       }}
     >
       <div
@@ -103,7 +103,7 @@ function ExpandTransition({ isExpanded, onToggle }: { isExpanded: boolean; onTog
           isExpanded ? 'rounded-none' : 'rounded-[20px]'
         }`}
         style={{
-          transition: 'border-radius 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'border-radius 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         {/* Sidebar - only visible when expanded */}
@@ -112,7 +112,7 @@ function ExpandTransition({ isExpanded, onToggle }: { isExpanded: boolean; onTog
             isExpanded ? 'w-[280px] opacity-100' : 'w-0 opacity-0'
           }`}
           style={{
-            transition: 'width 800ms cubic-bezier(0.16, 1, 0.3, 1), opacity 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'width 850ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
           }}
         >
           <SidebarContent onToggle={onToggle} showCollapse={isExpanded} />
@@ -156,7 +156,7 @@ function SlideHandoffTransition({ isExpanded, onToggle }: { isExpanded: boolean;
           isExpanded ? '-translate-x-[120%] opacity-0' : 'translate-x-0 opacity-100'
         }`}
         style={{
-          transition: 'transform 800ms cubic-bezier(0.16, 1, 0.3, 1), opacity 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'transform 850ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         <div className="h-full bg-[var(--surface-neutral-white)] rounded-[20px] shadow-xl flex flex-col overflow-hidden">
@@ -181,7 +181,7 @@ function SlideHandoffTransition({ isExpanded, onToggle }: { isExpanded: boolean;
           isExpanded ? 'translate-x-0 opacity-100' : 'translate-x-[100%] opacity-0'
         }`}
         style={{
-          transition: 'transform 800ms cubic-bezier(0.16, 1, 0.3, 1), opacity 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'transform 850ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         <div className="h-full bg-[var(--surface-neutral-white)] flex overflow-hidden">
@@ -210,7 +210,7 @@ function SlideFadeTransition({ isExpanded, onToggle }: { isExpanded: boolean; on
           isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
         style={{
-          transition: 'opacity 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         <div className="h-full bg-[var(--surface-neutral-white)] rounded-[20px] shadow-xl flex flex-col overflow-hidden">
@@ -235,7 +235,7 @@ function SlideFadeTransition({ isExpanded, onToggle }: { isExpanded: boolean; on
           isExpanded ? 'translate-x-0 opacity-100' : 'translate-x-[100%] opacity-0 pointer-events-none'
         }`}
         style={{
-          transition: 'transform 800ms cubic-bezier(0.16, 1, 0.3, 1), opacity 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'transform 850ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         <div className="h-full bg-[var(--surface-neutral-white)] flex overflow-hidden">
@@ -265,7 +265,7 @@ function ZoomTransition({ isExpanded, onToggle }: { isExpanded: boolean; onToggl
         width: isExpanded ? 'calc(100% - 16px)' : 380,
         transformOrigin: 'right center',
         transform: isExpanded ? 'scale(1)' : 'scale(0.95)',
-        transition: 'all 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+        transition: 'all 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
       }}
     >
       <div
@@ -273,7 +273,7 @@ function ZoomTransition({ isExpanded, onToggle }: { isExpanded: boolean; onToggl
           isExpanded ? 'rounded-none' : 'rounded-[20px]'
         }`}
         style={{
-          transition: 'border-radius 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'border-radius 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         {/* Sidebar */}
@@ -282,7 +282,7 @@ function ZoomTransition({ isExpanded, onToggle }: { isExpanded: boolean; onToggl
             isExpanded ? 'w-[280px] opacity-100' : 'w-0 opacity-0'
           }`}
           style={{
-            transition: 'width 800ms cubic-bezier(0.16, 1, 0.3, 1), opacity 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+            transition: 'width 850ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
           }}
         >
           <SidebarContent onToggle={onToggle} showCollapse={isExpanded} />
@@ -322,7 +322,7 @@ function CrossfadeTransition({ isExpanded, onToggle }: { isExpanded: boolean; on
           isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
         }`}
         style={{
-          transition: 'opacity 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         <div className="h-full bg-[var(--surface-neutral-white)] rounded-[20px] shadow-xl flex flex-col overflow-hidden">
@@ -347,7 +347,7 @@ function CrossfadeTransition({ isExpanded, onToggle }: { isExpanded: boolean; on
           isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
         style={{
-          transition: 'opacity 800ms cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         <div className="h-full bg-[var(--surface-neutral-white)] flex overflow-hidden">

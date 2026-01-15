@@ -80,14 +80,14 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
         bottom: isExpanded ? 0 : 40,
         right: 16,
         width: isExpanded ? 'calc(100% - 32px)' : 383,
-        transition: 'all 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
+        transition: 'all 700ms cubic-bezier(0.25, 0.8, 0.25, 1)',
       }}
     >
       <div
         className="w-full h-full bg-[var(--surface-neutral-white)] shadow-xl flex overflow-hidden"
         style={{
           borderRadius: isExpanded ? 0 : 20,
-          transition: 'border-radius 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
+          transition: 'border-radius 700ms cubic-bezier(0.25, 0.8, 0.25, 1)',
         }}
       >
         {/* Sidebar - only visible when expanded */}
@@ -96,7 +96,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
           style={{
             width: isExpanded ? 280 : 0,
             opacity: isExpanded ? 1 : 0,
-            transition: 'width 850ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 850ms cubic-bezier(0.25, 0.8, 0.25, 1)',
+            transition: 'width 700ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 700ms cubic-bezier(0.25, 0.8, 0.25, 1)',
           }}
         >
           {/* Sidebar Header */}

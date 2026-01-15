@@ -11,8 +11,8 @@ export function TextReflowDemo2() {
   const toggleExpand = () => {
     setIsAnimating(true);
     setIsExpanded(!isExpanded);
-    // Animation takes 800ms
-    setTimeout(() => setIsAnimating(false), 800);
+    // Animation takes 850ms
+    setTimeout(() => setIsAnimating(false), 850);
   };
 
   return (
@@ -90,7 +90,7 @@ interface ExpandTransitionProps {
 function ExpandTransition({ isExpanded, onToggle, reflowOption, isAnimating }: ExpandTransitionProps) {
   return (
     <div
-      className="absolute transition-all duration-[800ms] cubic-bezier(0.16, 1, 0.3, 1)"
+      className="absolute transition-all duration-[850ms] cubic-bezier(0.25, 0.8, 0.25, 1)"
       style={{
         top: isExpanded ? 0 : 16,
         bottom: isExpanded ? 0 : 16,
@@ -99,13 +99,13 @@ function ExpandTransition({ isExpanded, onToggle, reflowOption, isAnimating }: E
       }}
     >
       <div
-        className={`h-full bg-[var(--surface-neutral-white)] shadow-xl flex overflow-hidden transition-all duration-[800ms] cubic-bezier(0.16, 1, 0.3, 1) ${
+        className={`h-full bg-[var(--surface-neutral-white)] shadow-xl flex overflow-hidden transition-all duration-[850ms] cubic-bezier(0.25, 0.8, 0.25, 1) ${
           isExpanded ? 'rounded-none' : 'rounded-[20px]'
         }`}
       >
         {/* Sidebar - only visible when expanded */}
         <div
-          className={`shrink-0 bg-[var(--surface-neutral-white)] border-r border-[var(--border-neutral-xx-weak)] transition-all duration-[800ms] cubic-bezier(0.16, 1, 0.3, 1) overflow-hidden ${
+          className={`shrink-0 bg-[var(--surface-neutral-white)] border-r border-[var(--border-neutral-xx-weak)] transition-all duration-[850ms] cubic-bezier(0.25, 0.8, 0.25, 1) overflow-hidden ${
             isExpanded ? 'w-[280px] opacity-100' : 'w-0 opacity-0'
           }`}
         >
@@ -228,14 +228,14 @@ function ChatContentArea({ reflowOption, isAnimating, isExpanded }: ChatContentA
   };
 
   const contentTransitionClass = isAnimating
-    ? 'transition-all duration-[400ms] cubic-bezier(0.16, 1, 0.3, 1)'
-    : 'transition-all duration-[400ms] cubic-bezier(0.16, 1, 0.3, 1)';
+    ? 'transition-all duration-[425ms] cubic-bezier(0.25, 0.8, 0.25, 1)'
+    : 'transition-all duration-[425ms] cubic-bezier(0.25, 0.8, 0.25, 1)';
 
   // Settled Reflow: Hold width for first half, then naturally reflow during second half
   if (reflowOption === 'settled-reflow') {
-    // Panel animation: 800ms total
-    // Text delay: 400ms (50%), Text duration: 400ms
-    // Result: text reflows from 400ms-800ms, finishing with the panel animation
+    // Panel animation: 850ms total
+    // Text delay: 425ms (50%), Text duration: 425ms
+    // Result: text reflows from 425ms-850ms, finishing with the panel animation
     const targetWidth = isExpanded ? 'max-w-[600px]' : 'max-w-[320px]';
 
     return (
@@ -245,7 +245,7 @@ function ChatContentArea({ reflowOption, isAnimating, isExpanded }: ChatContentA
             <div
               className={`${targetWidth} mx-auto`}
               style={{
-                transition: 'max-width 400ms cubic-bezier(0.16, 1, 0.3, 1) 400ms', // duration, easing, delay
+                transition: 'max-width 425ms cubic-bezier(0.25, 0.8, 0.25, 1) 425ms', // duration, easing, delay
               }}
             >
               <MessageContent />
@@ -264,7 +264,7 @@ function ChatContentArea({ reflowOption, isAnimating, isExpanded }: ChatContentA
         <div className="flex-1 flex flex-col bg-[var(--surface-neutral-xx-weak)] rounded-[20px] overflow-hidden">
           {/* Narrow layout */}
           <div
-            className={`absolute inset-0 transition-opacity duration-[400ms] ${
+            className={`absolute inset-0 transition-opacity duration-[425ms] ${
               isExpanded ? 'opacity-0 pointer-events-none' : 'opacity-100'
             }`}
           >
@@ -273,7 +273,7 @@ function ChatContentArea({ reflowOption, isAnimating, isExpanded }: ChatContentA
 
           {/* Wide layout */}
           <div
-            className={`absolute inset-0 transition-opacity duration-[400ms] ${
+            className={`absolute inset-0 transition-opacity duration-[425ms] ${
               isExpanded ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`}
           >
