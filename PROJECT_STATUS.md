@@ -159,7 +159,7 @@ h1 {
 ```
 
 ## Git Repository
-- Remote: https://github.com/mattcmorrell/bhr-ui-mcp.git
+- Remote: https://github.com/mattcmorrell/bhr-ui-template.git
 - All changes committed and pushed
 
 ## Dark Mode Implementation
