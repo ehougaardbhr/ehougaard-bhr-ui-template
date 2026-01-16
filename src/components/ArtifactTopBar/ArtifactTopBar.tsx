@@ -136,6 +136,7 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
           <Icon name="arrow-left" size={16} />
           <span>Back to chat</span>
         </button>
+        </div>
       </div>
 
       {/* Divider */}
