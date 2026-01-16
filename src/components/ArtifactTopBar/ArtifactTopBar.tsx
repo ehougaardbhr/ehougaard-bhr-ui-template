@@ -30,33 +30,35 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
 
   return (
     <div
-      className="h-14 flex items-center justify-between px-6 shrink-0"
+      className="flex flex-col px-8 pt-5 pb-4 shrink-0"
       style={{
         backgroundColor: 'var(--surface-neutral-white)',
-        borderBottom: '1px solid var(--border-neutral-weak)',
       }}
     >
-      {/* Left: Title */}
-      <h1
-        className="text-[24px] font-bold"
-        style={{
-          fontFamily: 'Fields, system-ui, sans-serif',
-          color: 'var(--color-primary-strong)',
-          lineHeight: '32px',
-        }}
-      >
-        {title}
-      </h1>
+      {/* Header row */}
+      <div className="flex items-center justify-between mb-4">
+        {/* Left: Title */}
+        <h1
+          className="text-[27px] font-semibold"
+          style={{
+            fontFamily: 'Fields, system-ui, sans-serif',
+            color: 'var(--color-primary-strong)',
+            lineHeight: '37px',
+          }}
+        >
+          {title}
+        </h1>
 
-      {/* Right: Actions */}
-      <div className="flex items-center gap-2">
+        {/* Right: Actions */}
+        <div className="flex items-center gap-3">
         {/* Copy button */}
         <button
           onClick={onCopy}
-          className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
+          className="h-8 px-3 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
           style={{
             backgroundColor: 'var(--surface-neutral-white)',
-            border: '1px solid var(--border-neutral-weak)',
+            border: '1px solid var(--border-neutral-medium)',
+            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
           }}
           aria-label="Copy"
         >
@@ -67,10 +69,11 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
         <div className="relative" ref={menuRef}>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
+            className="h-8 px-3 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
             style={{
               backgroundColor: 'var(--surface-neutral-white)',
-              border: '1px solid var(--border-neutral-weak)',
+              border: '1px solid var(--border-neutral-medium)',
+              boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
             }}
             aria-label="More options"
           >
@@ -122,17 +125,24 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
         {/* Back to chat button */}
         <button
           onClick={onBack}
-          className="h-8 px-3 rounded-full flex items-center gap-2 text-[13px] font-medium transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
+          className="h-8 px-3 rounded-full flex items-center gap-2 text-[16px] font-semibold transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
           style={{
             backgroundColor: 'var(--surface-neutral-white)',
-            border: '1px solid var(--border-neutral-weak)',
+            border: '1px solid var(--border-neutral-medium)',
             color: 'var(--text-neutral-strong)',
+            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
           }}
         >
-          <Icon name="arrow-left" size={14} />
+          <Icon name="arrow-left" size={16} />
           <span>Back to chat</span>
         </button>
       </div>
+
+      {/* Divider */}
+      <div
+        className="h-px w-full"
+        style={{ backgroundColor: 'var(--border-neutral-x-weak)' }}
+      />
     </div>
   );
 }
