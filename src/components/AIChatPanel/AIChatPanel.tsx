@@ -315,7 +315,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
           )}
 
           {/* Chat Content Area */}
-          <div className={`flex-1 flex flex-col ${isExpanded ? 'bg-[var(--surface-neutral-white)] p-6' : 'bg-[var(--surface-neutral-white)]'}`}>
+          <div className={`flex-1 flex flex-col min-h-0 ${isExpanded ? 'bg-[var(--surface-neutral-white)] p-6' : 'bg-[var(--surface-neutral-white)]'}`}>
             {isExpanded ? (
               /* Expanded view - grey rounded container */
               <div className="flex-1 flex flex-col bg-[var(--surface-neutral-xx-weak)] rounded-[20px] overflow-hidden">
@@ -403,7 +403,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
               </div>
             ) : (
               /* Panel view - original layout */
-              <>
+              <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Content Area */}
                 <div className="flex-1 overflow-y-auto">
                   <div className="flex flex-col gap-5 p-5">
@@ -502,7 +502,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                     </div>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         </div>

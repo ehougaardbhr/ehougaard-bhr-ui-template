@@ -56,9 +56,9 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
     if (artifact.type !== 'chart') return null;
 
     const chartSettings = artifact.settings as ChartSettings;
-    // Smaller sizes for inline display
-    const width = 500;
-    const height = 340;
+    // Responsive sizes: smaller in compact mode (sidebar), larger in fullscreen
+    const width = compact ? 320 : 500;
+    const height = compact ? 220 : 340;
 
     switch (chartSettings.chartType) {
       case 'bar':
