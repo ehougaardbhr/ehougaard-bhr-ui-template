@@ -4,3 +4,4 @@ export { PieChart } from './PieChart';
 export { TableChart } from './TableChart';
 export { ChartSettingsDrawer } from './ChartSettingsDrawer';
 export { ChartSettingsPills } from './ChartSettingsPills';
+export { ChartSettingsToolbar } from './ChartSettingsToolbar';

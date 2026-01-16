@@ -7,7 +7,7 @@ import { ArtifactTopBar } from '../../components/ArtifactTopBar';
 import { ArtifactChatPanel } from '../../components/ArtifactChatPanel';
 import type { ChartSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
-import { BarChart, LineChart, PieChart, TableChart, ChartSettingsDrawer, ChartSettingsPills } from '../../components/Charts';
+import { BarChart, LineChart, PieChart, TableChart, ChartSettingsToolbar } from '../../components/Charts';
 
 export function ArtifactWorkspace() {
   const { type, id } = useParams<{ type: string; id: string }>();
@@ -16,8 +16,6 @@ export function ArtifactWorkspace() {
     selectArtifact,
     selectedArtifact,
     artifacts,
-    isDrawerOpen,
-    setDrawerOpen,
     updateArtifactSettings,
   } = useArtifact();
 
@@ -44,6 +42,11 @@ export function ArtifactWorkspace() {
     } else {
       navigate(-1);
     }
+  };
+
+  const handleCopy = () => {
+    // TODO: Implement copy functionality
+    console.log('Copy artifact:', selectedArtifact?.id);
   };
 
   // Handle publish actions
@@ -76,88 +79,69 @@ export function ArtifactWorkspace() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-[var(--surface-neutral-white)]">
-      {/* TOP BAR */}
+      {/* Header */}
       <ArtifactTopBar
         title={artifactTitle}
         onBack={handleBack}
+        onCopy={handleCopy}
         onPublish={handlePublish}
       />
 
-      {/* ============================================
-          WORKSPACE CONTAINER
-          ============================================ */}
+      {/* Settings Toolbar */}
+      {selectedArtifact && (
+        <ChartSettingsToolbar
+          settings={selectedArtifact.settings as ChartSettings}
+          onSettingsChange={(newSettings) => {
+            updateArtifactSettings(selectedArtifact.id, newSettings);
+          }}
+        />
+      )}
+
+      {/* Main content area */}
       <div className="flex flex-1 overflow-hidden">
-        {/* ============================================
-            ARTIFACT AREA (Chart + Settings Drawer)
-            ============================================ */}
-        <div className="flex-1 flex relative bg-[var(--surface-neutral-white)]">
-          {/* Chart Area */}
-          <div className="flex-1 p-8 flex items-center justify-center overflow-auto">
-            <div
-              className="w-full h-full rounded-xl p-10 flex flex-col"
-              style={{
-                backgroundColor: 'var(--surface-neutral-xx-weak)',
-                border: '1px solid var(--border-neutral-x-weak)',
-              }}
-            >
-              {/* Chart rendering */}
-              <div className="flex-1 flex items-center justify-center min-h-0 min-w-0">
-                {selectedArtifact ? (
-                  (() => {
-                    const chartSettings = selectedArtifact.settings as ChartSettings;
-                    // Use larger responsive sizes that scale with container
-                    const width = 900;
-                    const height = 600;
+        {/* Chart area */}
+        <div
+          className="flex-1 p-6 overflow-auto"
+          style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}
+        >
+          <div
+            className="w-full h-full rounded-2xl p-8 flex items-center justify-center"
+            style={{
+              backgroundColor: 'var(--surface-neutral-white)',
+              boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
+            }}
+          >
+            {selectedArtifact ? (
+              (() => {
+                const chartSettings = selectedArtifact.settings as ChartSettings;
+                const width = 900;
+                const height = 600;
 
-                    switch (chartSettings.chartType) {
-                      case 'bar':
-                        return <BarChart settings={chartSettings} width={width} height={height} />;
-                      case 'line':
-                        return <LineChart settings={chartSettings} width={width} height={height} />;
-                      case 'pie':
-                        return <PieChart settings={chartSettings} width={height} height={height} />;
-                      case 'table':
-                        return <TableChart settings={chartSettings} />;
-                      default:
-                        return null;
-                    }
-                  })()
-                ) : (
-                  <div className="text-center">
-                    <Icon name="chart-simple" size={48} className="text-[var(--text-neutral-weak)] mx-auto mb-4" />
-                    <TextHeadline size="medium" color="neutral-medium">
-                      No artifact selected
-                    </TextHeadline>
-                  </div>
-                )}
+                switch (chartSettings.chartType) {
+                  case 'bar':
+                    return <BarChart settings={chartSettings} width={width} height={height} />;
+                  case 'line':
+                    return <LineChart settings={chartSettings} width={width} height={height} />;
+                  case 'pie':
+                    return <PieChart settings={chartSettings} width={height} height={height} />;
+                  case 'table':
+                    return <TableChart settings={chartSettings} />;
+                  default:
+                    return null;
+                }
+              })()
+            ) : (
+              <div className="text-center">
+                <Icon name="chart-simple" size={48} className="text-[var(--text-neutral-weak)] mx-auto mb-4" />
+                <TextHeadline size="medium" color="neutral-medium">
+                  No artifact selected
+                </TextHeadline>
               </div>
-            </div>
+            )}
           </div>
-
-          {/* Settings Drawer */}
-          {isDrawerOpen && selectedArtifact && (
-            <ChartSettingsDrawer
-              settings={selectedArtifact.settings as ChartSettings}
-              onSettingsChange={(newSettings) => {
-                updateArtifactSettings(selectedArtifact.id, newSettings);
-              }}
-              onClose={() => setDrawerOpen(false)}
-            />
-          )}
-
-          {/* Settings Pills (when drawer is closed) */}
-          {!isDrawerOpen && selectedArtifact && (
-            <ChartSettingsPills
-              settings={selectedArtifact.settings as ChartSettings}
-              onOpenDrawer={() => setDrawerOpen(true)}
-              onSettingsChange={(newSettings) => {
-                updateArtifactSettings(selectedArtifact.id, newSettings);
-              }}
-            />
-          )}
         </div>
 
-        {/* CHAT PANEL */}
+        {/* Chat panel */}
         <ArtifactChatPanel conversationId={selectedArtifact?.conversationId || null} />
       </div>
     </div>
