@@ -65,6 +65,7 @@ import {
   faCheck,
   faChartSimple,
   faTable,
+  faCopy,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -164,7 +165,8 @@ export type IconName =
   | 'arrow-up'
   | 'check'
   | 'chart-simple'
-  | 'table';
+  | 'table'
+  | 'copy';
 
 interface IconProps {
   name: IconName;
@@ -245,6 +247,7 @@ const faIconMap = {
   'check': faCheck,
   'chart-simple': faChartSimple,
   'table': faTable,
+  'copy': faCopy,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {

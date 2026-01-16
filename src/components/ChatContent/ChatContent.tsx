@@ -201,7 +201,7 @@ function MessageBubble({ message, artifacts }: MessageBubbleProps) {
         {/* Inline Artifact Card */}
         {message.artifactId && (() => {
           const artifact = artifacts.find(a => a.id === message.artifactId);
-          return artifact ? <InlineArtifactCard artifact={artifact} /> : null;
+          return artifact ? <InlineArtifactCard artifact={artifact} compact={false} /> : null;
         })()}
 
         {/* Suggestion Chips */}

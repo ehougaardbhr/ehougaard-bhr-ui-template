@@ -351,7 +351,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                               {/* Inline Artifact Card */}
                               {message.artifactId && (() => {
                                 const artifact = artifacts.find(a => a.id === message.artifactId);
-                                return artifact ? <InlineArtifactCard artifact={artifact} /> : null;
+                                return artifact ? <InlineArtifactCard artifact={artifact} compact={false} /> : null;
                               })()}
                               {/* Suggestion Chips */}
                               {message.suggestions && message.suggestions.length > 0 && (
@@ -425,7 +425,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                             {/* Inline Artifact Card */}
                             {message.artifactId && (() => {
                               const artifact = artifacts.find(a => a.id === message.artifactId);
-                              return artifact ? <InlineArtifactCard artifact={artifact} /> : null;
+                              return artifact ? <InlineArtifactCard artifact={artifact} compact={true} /> : null;
                             })()}
                             {message.suggestions && message.suggestions.length > 0 && (
                               <div className="flex flex-col gap-2">
