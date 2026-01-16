@@ -516,7 +516,59 @@ Testing 7 solutions for text reflow during expansion:
 ## Branch Strategy
 - **`main` branch** - Clean template with completed features
 - **`experiments` branch** - Experimental features like Artifacts
+- **`edit-artifact` branch** - Redesigned artifact workspace (branched from experiments)
 - Contributors can create feature branches and merge back to `main` via Pull Requests
+
+### Edit Artifact Branch - Workspace Redesign
+
+**Purpose**: Simplify the artifact editing experience to feel like an extension of fullscreen chat, not "a mode within a mode."
+
+**Problem with Current Design**:
+- Current: App → Chat → Artifact Editor (with its own Settings panel)
+- Too much nesting and context-switching
+- "Back to chat" + "Settings" tab + "Publish" dropdown feels heavy
+
+**New Design Direction (from Figma)**:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│  Headcount by Gender          [Copy] [...] [← Back to chat]    │
+├─────────────────────────────────────────────────────────────────┤
+│  [Bar ▾] [Headcount ▾] [by Department ▾] [Green ▾]    ✓ Saved  │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│                         CHART                                   │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Changes**:
+1. **Header simplified**: Title (left) + Copy icon + "..." menu + "Back to chat" button
+2. **Settings as horizontal toolbar**: Dropdowns in a row below title, no "Settings" label/panel
+3. **"Saved" indicator**: Shows at end of toolbar row
+4. **Actions in three-dot menu**: Publish, Share, Download hidden in overflow menu
+
+**Design Rationale**:
+| Current | New | Why Better |
+|---------|-----|------------|
+| "Back to chat" top-left | "Back to chat" top-right | Clearer exit path |
+| Settings panel (280px drawer) | Horizontal toolbar row | Less nesting, more direct |
+| "Publish" dropdown visible | Hidden in "..." menu | Cleaner, editing is primary |
+| Multiple buttons with labels | Icon-only + one labeled button | Reduces visual clutter |
+| No save indicator | "✓ Saved" in toolbar | Users know work is persisted |
+
+**Pros**:
+- Mental model is cleaner - editing artifact with AI as collaborator
+- Settings controls are immediately visible, not hidden in drawer
+- "Back to chat" explicitly says where you're going
+- Save state visible reduces anxiety
+
+**Concerns**:
+- Icon-only buttons need tooltips for clarity
+- Publish being buried in "..." menu may reduce discoverability
+- Need to ensure settings dropdowns are understood as chart controls
+
+**Implementation Status**: Not started - branch created for experimentation
 
 ## Completed Milestones
 1. ✅ Choose final transition style and text reflow solution
