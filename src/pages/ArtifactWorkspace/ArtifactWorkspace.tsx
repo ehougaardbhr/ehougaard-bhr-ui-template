@@ -6,13 +6,8 @@ import { TextHeadline } from '../../components/TextHeadline';
 import { ArtifactTopBar } from '../../components/ArtifactTopBar';
 import { ArtifactChatPanel } from '../../components/ArtifactChatPanel';
 import type { ChartSettings } from '../../data/artifactData';
-import {
-  measureLabels,
-  categoryLabels,
-  chartTypeLabels,
-  generateArtifactTitle,
-} from '../../data/artifactData';
-import { BarChart, ChartSettingsDrawer, ChartSettingsPills } from '../../components/Charts';
+import { generateArtifactTitle } from '../../data/artifactData';
+import { BarChart, LineChart, PieChart, TableChart, ChartSettingsDrawer, ChartSettingsPills } from '../../components/Charts';
 
 export function ArtifactWorkspace() {
   const { type, id } = useParams<{ type: string; id: string }>();
@@ -108,32 +103,21 @@ export function ArtifactWorkspace() {
               {/* Chart rendering */}
               <div className="flex-1 flex items-center justify-center">
                 {selectedArtifact ? (
-                  (selectedArtifact.settings as ChartSettings).chartType === 'bar' ? (
-                    <BarChart
-                      settings={selectedArtifact.settings as ChartSettings}
-                      width={520}
-                      height={360}
-                    />
-                  ) : (
-                    <div className="text-center">
-                      <Icon
-                        name={(selectedArtifact.settings as ChartSettings).chartType === 'line' ? 'chart-line' :
-                              (selectedArtifact.settings as ChartSettings).chartType === 'pie' ? 'chart-pie-simple' : 'table'}
-                        size={48}
-                        className="text-[var(--text-neutral-weak)] mx-auto mb-4"
-                      />
-                      <TextHeadline size="medium" color="neutral-medium">
-                        {chartTypeLabels[(selectedArtifact.settings as ChartSettings).chartType]} chart
-                      </TextHeadline>
-                      <p className="text-sm text-[var(--text-neutral-weak)] mt-2">
-                        {measureLabels[(selectedArtifact.settings as ChartSettings).measure]} by{' '}
-                        {categoryLabels[(selectedArtifact.settings as ChartSettings).category]}
-                      </p>
-                      <p className="text-xs text-[var(--text-neutral-weak)] mt-4">
-                        Coming soon
-                      </p>
-                    </div>
-                  )
+                  (() => {
+                    const chartSettings = selectedArtifact.settings as ChartSettings;
+                    switch (chartSettings.chartType) {
+                      case 'bar':
+                        return <BarChart settings={chartSettings} width={520} height={360} />;
+                      case 'line':
+                        return <LineChart settings={chartSettings} width={520} height={360} />;
+                      case 'pie':
+                        return <PieChart settings={chartSettings} width={400} height={400} />;
+                      case 'table':
+                        return <TableChart settings={chartSettings} />;
+                      default:
+                        return null;
+                    }
+                  })()
                 ) : (
                   <div className="text-center">
                     <Icon name="chart-simple" size={48} className="text-[var(--text-neutral-weak)] mx-auto mb-4" />
