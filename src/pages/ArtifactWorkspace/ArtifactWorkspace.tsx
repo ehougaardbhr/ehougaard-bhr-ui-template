@@ -101,17 +101,21 @@ export function ArtifactWorkspace() {
               }}
             >
               {/* Chart rendering */}
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center min-h-0 min-w-0">
                 {selectedArtifact ? (
                   (() => {
                     const chartSettings = selectedArtifact.settings as ChartSettings;
+                    // Use larger responsive sizes that scale with container
+                    const width = 900;
+                    const height = 600;
+
                     switch (chartSettings.chartType) {
                       case 'bar':
-                        return <BarChart settings={chartSettings} width={520} height={360} />;
+                        return <BarChart settings={chartSettings} width={width} height={height} />;
                       case 'line':
-                        return <LineChart settings={chartSettings} width={520} height={360} />;
+                        return <LineChart settings={chartSettings} width={width} height={height} />;
                       case 'pie':
-                        return <PieChart settings={chartSettings} width={400} height={400} />;
+                        return <PieChart settings={chartSettings} width={height} height={height} />;
                       case 'table':
                         return <TableChart settings={chartSettings} />;
                       default:

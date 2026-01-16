@@ -43,15 +43,18 @@ export function LineChart({ settings, width = 500, height = 320 }: LineChartProp
     return `M ${points.join(' L ')}`;
   }, [data, xStep, chartHeight, maxValue, padding]);
 
-  // Get line color
-  const lineColor = palette.solid;
+  // Get line color - line charts always use solid color, never multi-color
+  // If multi-color is selected, use the first color from the multi palette
+  const lineColor = settings.color === 'multi'
+    ? palette.multi[0]
+    : palette.solid;
 
   return (
     <svg
-      width={width}
-      height={height}
       viewBox={`0 0 ${width} ${height}`}
       className="overflow-visible"
+      style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto' }}
+      preserveAspectRatio="xMidYMid meet"
     >
       {/* Y-axis grid lines and labels */}
       {yTicks.map((tick, i) => {

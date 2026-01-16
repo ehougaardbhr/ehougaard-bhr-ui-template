@@ -156,7 +156,19 @@ export function ChartSettingsPills({ settings, onOpenDrawer, onSettingsChange }:
             {(Object.keys(chartTypeLabels) as ChartType[]).map(type => (
               <button
                 key={type}
-                onClick={() => handleSelect({ chartType: type })}
+                onClick={() => {
+                  // When switching to pie chart, default to multi-color for better visual distinction
+                  if (type === 'pie') {
+                    handleSelect({ chartType: type, color: 'multi' });
+                  }
+                  // When switching to line chart, ensure solid color (multi-color doesn't work for lines)
+                  else if (type === 'line' && settings.color === 'multi') {
+                    handleSelect({ chartType: type, color: 'green' });
+                  }
+                  else {
+                    handleSelect({ chartType: type });
+                  }
+                }}
                 className={`w-full px-3 py-2 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-2 ${
                   settings.chartType === type ? 'bg-[var(--surface-neutral-x-weak)]' : ''
                 }`}
@@ -248,18 +260,20 @@ export function ChartSettingsPills({ settings, onOpenDrawer, onSettingsChange }:
               border: '1px solid var(--border-neutral-weak)',
             }}
           >
-            {(Object.keys(colorLabels) as ColorType[]).map(color => (
-              <button
-                key={color}
-                onClick={() => handleSelect({ color })}
-                className={`w-full px-3 py-2 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-2 ${
-                  settings.color === color ? 'bg-[var(--surface-neutral-x-weak)]' : ''
-                }`}
-              >
-                <ColorDot color={color} />
-                <span>{colorLabels[color]}</span>
-              </button>
-            ))}
+            {(Object.keys(colorLabels) as ColorType[])
+              .filter(color => settings.chartType === 'line' ? color !== 'multi' : true)
+              .map(color => (
+                <button
+                  key={color}
+                  onClick={() => handleSelect({ color })}
+                  className={`w-full px-3 py-2 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-2 ${
+                    settings.color === color ? 'bg-[var(--surface-neutral-x-weak)]' : ''
+                  }`}
+                >
+                  <ColorDot color={color} />
+                  <span>{colorLabels[color]}</span>
+                </button>
+              ))}
           </div>
         )}
       </div>

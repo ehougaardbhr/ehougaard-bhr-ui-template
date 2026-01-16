@@ -41,9 +41,8 @@ export function PieChart({ settings, width = 400, height = 400 }: PieChartProps)
 
       currentAngle = endAngle;
 
-      const color = settings.color === 'multi'
-        ? palette.multi[i % palette.multi.length]
-        : palette.solid;
+      // Pie charts always use multi-color palette for better visual distinction
+      const color = palette.multi[i % palette.multi.length];
 
       return {
         ...d,
@@ -53,7 +52,7 @@ export function PieChart({ settings, width = 400, height = 400 }: PieChartProps)
         color,
       };
     });
-  }, [data, settings.color, palette]);
+  }, [data, palette]);
 
   // Helper to create arc path
   const createArcPath = (startAngle: number, endAngle: number, outerRadius: number) => {
@@ -84,10 +83,10 @@ export function PieChart({ settings, width = 400, height = 400 }: PieChartProps)
 
   return (
     <svg
-      width={width}
-      height={height}
       viewBox={`0 0 ${width} ${height}`}
       className="overflow-visible"
+      style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto' }}
+      preserveAspectRatio="xMidYMid meet"
     >
       {/* Pie slices */}
       {slices.map((slice, i) => (
@@ -119,27 +118,40 @@ export function PieChart({ settings, width = 400, height = 400 }: PieChartProps)
         );
       })}
 
-      {/* Legend */}
-      <g transform={`translate(${width / 2 - 100}, ${height - 30})`}>
-        {slices.map((slice, i) => (
-          <g key={`legend-${slice.label}`} transform={`translate(${(i * 220) / slices.length}, 0)`}>
-            <rect
-              x={0}
-              y={0}
-              width={12}
-              height={12}
-              rx={2}
-              fill={slice.color}
-            />
-            <text
-              x={18}
-              y={10}
-              className="text-[11px] fill-[var(--text-neutral-medium)]"
-            >
-              {slice.label}: {formatValue(slice.value, settings.measure)}
-            </text>
-          </g>
-        ))}
+      {/* Legend - arranged in rows */}
+      <g transform={`translate(${width / 2}, ${height - 20})`}>
+        {slices.map((slice, i) => {
+          const itemsPerRow = Math.ceil(slices.length / 2);
+          const row = Math.floor(i / itemsPerRow);
+          const col = i % itemsPerRow;
+          const itemWidth = 140;
+          const rowHeight = 20;
+
+          // Center the legend items
+          const totalWidth = Math.min(slices.length, itemsPerRow) * itemWidth;
+          const xOffset = col * itemWidth - totalWidth / 2;
+          const yOffset = row * rowHeight;
+
+          return (
+            <g key={`legend-${slice.label}`} transform={`translate(${xOffset}, ${yOffset})`}>
+              <rect
+                x={0}
+                y={0}
+                width={10}
+                height={10}
+                rx={2}
+                fill={slice.color}
+              />
+              <text
+                x={16}
+                y={9}
+                className="text-[10px] fill-[var(--text-neutral-medium)]"
+              >
+                {slice.label}: {formatValue(slice.value, settings.measure)}
+              </text>
+            </g>
+          );
+        })}
       </g>
     </svg>
   );

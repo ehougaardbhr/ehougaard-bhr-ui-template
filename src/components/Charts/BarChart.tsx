@@ -44,10 +44,10 @@ export function BarChart({ settings, width = 500, height = 320 }: BarChartProps)
 
   return (
     <svg
-      width={width}
-      height={height}
       viewBox={`0 0 ${width} ${height}`}
       className="overflow-visible"
+      style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto' }}
+      preserveAspectRatio="xMidYMid meet"
     >
       {/* Y-axis grid lines and labels */}
       {yTicks.map((tick, i) => {

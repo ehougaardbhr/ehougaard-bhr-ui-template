@@ -133,7 +133,19 @@ export function ChartSettingsDrawer({
         {/* Chart Type */}
         <ChartTypeButtons
           value={settings.chartType}
-          onChange={(value) => onSettingsChange({ chartType: value })}
+          onChange={(value) => {
+            // When switching to pie chart, default to multi-color for better visual distinction
+            if (value === 'pie') {
+              onSettingsChange({ chartType: value, color: 'multi' });
+            }
+            // When switching to line chart, ensure solid color (multi-color doesn't work for lines)
+            else if (value === 'line' && settings.color === 'multi') {
+              onSettingsChange({ chartType: value, color: 'green' });
+            }
+            else {
+              onSettingsChange({ chartType: value });
+            }
+          }}
         />
 
         {/* Measure */}
@@ -162,11 +174,13 @@ export function ChartSettingsDrawer({
             onChange={(e) => onSettingsChange({ color: e.target.value as ColorType })}
             className="w-full px-3 py-2.5 rounded-lg text-[13px] font-medium bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-weak)] text-[var(--text-neutral-strong)] hover:border-[var(--border-neutral-medium)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary-weak)] focus:border-[var(--color-primary-medium)] transition-all duration-150"
           >
-            {(Object.keys(colorLabels) as ColorType[]).map(color => (
-              <option key={color} value={color}>
-                {colorLabels[color]}
-              </option>
-            ))}
+            {(Object.keys(colorLabels) as ColorType[])
+              .filter(color => settings.chartType === 'line' ? color !== 'multi' : true)
+              .map(color => (
+                <option key={color} value={color}>
+                  {colorLabels[color]}
+                </option>
+              ))}
           </select>
         </div>
 
