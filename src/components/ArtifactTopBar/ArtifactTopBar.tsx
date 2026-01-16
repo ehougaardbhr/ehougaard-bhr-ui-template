@@ -39,11 +39,12 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
       <div className="flex items-center justify-between mb-4">
         {/* Left: Title */}
         <h1
-          className="text-[27px] font-semibold"
+          className="font-semibold"
           style={{
             fontFamily: 'Fields, system-ui, sans-serif',
             color: 'var(--color-primary-strong)',
-            lineHeight: '37px',
+            fontSize: '32px',
+            lineHeight: '40px',
           }}
         >
           {title}
@@ -51,91 +52,90 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
 
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
-        {/* Copy button */}
-        <button
-          onClick={onCopy}
-          className="h-8 px-3 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
-          style={{
-            backgroundColor: 'var(--surface-neutral-white)',
-            border: '1px solid var(--border-neutral-medium)',
-            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
-          }}
-          aria-label="Copy"
-        >
-          <Icon name="copy" size={16} className="text-[var(--text-neutral-strong)]" />
-        </button>
-
-        {/* Three-dot menu */}
-        <div className="relative" ref={menuRef}>
+          {/* Copy button */}
           <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="h-8 px-3 rounded-full flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
+            onClick={onCopy}
+            className="h-8 px-3 rounded-[1000px] flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-x-weak)]"
             style={{
-              backgroundColor: 'var(--surface-neutral-white)',
+              backgroundColor: 'white',
               border: '1px solid var(--border-neutral-medium)',
               boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
             }}
-            aria-label="More options"
+            aria-label="Copy"
           >
-            <Icon name="ellipsis" size={16} className="text-[var(--text-neutral-strong)]" />
+            <Icon name="copy" size={16} className="text-[#48413f]" />
           </button>
 
-          {/* Dropdown menu */}
-          {isMenuOpen && (
-            <div
-              className="absolute right-0 top-full mt-2 w-48 rounded-lg shadow-lg py-1 z-50"
+          {/* Three-dot menu */}
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="h-8 px-3 rounded-[1000px] flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-x-weak)]"
               style={{
-                backgroundColor: 'var(--surface-neutral-white)',
-                border: '1px solid var(--border-neutral-weak)',
+                backgroundColor: 'white',
+                border: '1px solid var(--border-neutral-medium)',
+                boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
               }}
+              aria-label="More options"
             >
-              <button
-                onClick={() => handleMenuAction('dashboard')}
-                className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
-              >
-                <Icon name="table-cells" size={16} className="text-[var(--text-neutral-medium)]" />
-                <span className="font-medium text-[var(--text-neutral-strong)]">Add to Dashboard</span>
-              </button>
-              <button
-                onClick={() => handleMenuAction('report')}
-                className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
-              >
-                <Icon name="file-lines" size={16} className="text-[var(--text-neutral-medium)]" />
-                <span className="font-medium text-[var(--text-neutral-strong)]">Save as Report</span>
-              </button>
-              <div className="my-1 border-t" style={{ borderColor: 'var(--border-neutral-x-weak)' }} />
-              <button
-                onClick={() => handleMenuAction('share')}
-                className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
-              >
-                <Icon name="arrow-up-from-bracket" size={16} className="text-[var(--text-neutral-medium)]" />
-                <span className="font-medium text-[var(--text-neutral-strong)]">Share</span>
-              </button>
-              <button
-                onClick={() => handleMenuAction('download')}
-                className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
-              >
-                <Icon name="arrow-down-to-line" size={16} className="text-[var(--text-neutral-medium)]" />
-                <span className="font-medium text-[var(--text-neutral-strong)]">Download</span>
-              </button>
-            </div>
-          )}
-        </div>
+              <Icon name="ellipsis" size={16} className="text-[#48413f]" />
+            </button>
 
-        {/* Back to chat button */}
-        <button
-          onClick={onBack}
-          className="h-8 px-3 rounded-full flex items-center gap-2 text-[16px] font-semibold transition-colors hover:bg-[var(--surface-neutral-xx-weak)]"
-          style={{
-            backgroundColor: 'var(--surface-neutral-white)',
-            border: '1px solid var(--border-neutral-medium)',
-            color: 'var(--text-neutral-strong)',
-            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
-          }}
-        >
-          <Icon name="arrow-left" size={16} />
-          <span>Back to chat</span>
-        </button>
+            {/* Dropdown menu */}
+            {isMenuOpen && (
+              <div
+                className="absolute right-0 top-full mt-2 w-48 rounded-lg shadow-lg py-1 z-50"
+                style={{
+                  backgroundColor: 'var(--surface-neutral-white)',
+                  border: '1px solid var(--border-neutral-weak)',
+                }}
+              >
+                <button
+                  onClick={() => handleMenuAction('dashboard')}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                >
+                  <Icon name="table-cells" size={16} className="text-[var(--text-neutral-medium)]" />
+                  <span className="font-medium text-[var(--text-neutral-strong)]">Add to Dashboard</span>
+                </button>
+                <button
+                  onClick={() => handleMenuAction('report')}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                >
+                  <Icon name="file-lines" size={16} className="text-[var(--text-neutral-medium)]" />
+                  <span className="font-medium text-[var(--text-neutral-strong)]">Save as Report</span>
+                </button>
+                <div className="my-1 border-t" style={{ borderColor: 'var(--border-neutral-x-weak)' }} />
+                <button
+                  onClick={() => handleMenuAction('share')}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                >
+                  <Icon name="arrow-up-from-bracket" size={16} className="text-[var(--text-neutral-medium)]" />
+                  <span className="font-medium text-[var(--text-neutral-strong)]">Share</span>
+                </button>
+                <button
+                  onClick={() => handleMenuAction('download')}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                >
+                  <Icon name="arrow-down-to-line" size={16} className="text-[var(--text-neutral-medium)]" />
+                  <span className="font-medium text-[var(--text-neutral-strong)]">Download</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Back to chat button */}
+          <button
+            onClick={onBack}
+            className="h-8 px-3 rounded-[1000px] flex items-center gap-2 text-[16px] font-semibold transition-colors hover:bg-[var(--surface-neutral-x-weak)]"
+            style={{
+              backgroundColor: 'white',
+              border: '1px solid var(--border-neutral-medium)',
+              boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+            }}
+          >
+            <Icon name="arrow-left" size={16} className="text-[#48413f]" />
+            <span className="text-[#48413f]">Back to chat</span>
+          </button>
         </div>
       </div>
 
