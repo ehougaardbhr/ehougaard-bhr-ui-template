@@ -568,7 +568,64 @@ Testing 7 solutions for text reflow during expansion:
 - Publish being buried in "..." menu may reduce discoverability
 - Need to ensure settings dropdowns are understood as chart controls
 
-**Implementation Status**: Not started - branch created for experimentation
+**Implementation Status**: ✅ COMPLETED (Latest commits: 5b5e374 → 34fa1c8)
+
+**Changes Made**:
+
+1. **Redesigned Artifact Workspace Layout** (Figma-driven):
+   - Created `ChartSettingsToolbar` - Horizontal toolbar with dropdowns (Chart Type, Measure, Category, Color)
+   - Moved settings from vertical drawer to toolbar below header
+   - Relocated header and toolbar **inside** the white chart card (not separate)
+   - Added "Saved" indicator to toolbar (green checkmark)
+   - Updated page background to beige (`--surface-neutral-xx-weak`)
+
+2. **ArtifactTopBar Redesign**:
+   - Simplified header: Title (left) + Copy/Menu/Back buttons (right)
+   - Updated button styles to match Figma exactly:
+     - Border radius: `1000px` (full pill)
+     - Background: forced `white`
+     - Border: `1px solid var(--border-neutral-medium)`
+     - Shadow: `1px 1px 0px 1px rgba(56, 49, 47, 0.04)`
+   - Title: h1 tag, 32px/40px (medium TextHeadline size), Fields font, primary green
+   - Three-dot menu contains: Add to Dashboard, Save as Report, Share, Download
+
+3. **Created ArtifactToolBar**:
+   - Left vertical icon toolbar (sparkles, pen, search, image)
+   - 48px icon buttons with rounded corners
+   - White background
+
+4. **ArtifactChatPanel Styling**:
+   - Updated to match Figma slide-in dialog design
+   - Outer container: Grey with 1px padding, 20px rounded corners
+   - Header: White background, 12px top corners, 20px green sparkles icon
+   - Rainbow gradient border on input textarea
+   - Added paperclip/image/mic/send icons to input
+
+5. **Navigation Consolidation** (Major Architectural Change):
+   - **Removed `/chat` routes entirely** - deleted 365 lines of duplicate code
+   - Deleted `Chat` page, `ChatSidebar`, and `ChatContent` components
+   - Now uses **only AIChatPanel** for all chat (slide-in panel that expands to fullscreen)
+   - Updated ArtifactWorkspace "Back to chat" to open AIChatPanel instead of navigating to `/chat/:id`
+   - Fixed collapse button to properly set both `bhr-chat-panel-open` and `bhr-chat-expanded` localStorage flags
+   - **Benefit**: Single chat implementation, no state sync issues, simpler architecture
+
+6. **AIChatPanel Sidebar Enhancements**:
+   - Added **Artifacts section** above Chats list
+   - Shows all artifacts from all conversations
+   - Displays artifact icon + title
+   - Initially shows 3 artifacts with "See X more" to expand
+   - "Show less" to collapse back to 3
+   - Click artifact to navigate to workspace
+
+**Files Modified**:
+- `src/components/Charts/ChartSettingsToolbar.tsx` (NEW)
+- `src/components/ArtifactTopBar/ArtifactTopBar.tsx` (redesigned)
+- `src/components/ArtifactToolBar/ArtifactToolBar.tsx` (NEW)
+- `src/pages/ArtifactWorkspace/ArtifactWorkspace.tsx` (restructured layout)
+- `src/components/ArtifactChatPanel/ArtifactChatPanel.tsx` (Figma styling + artifacts list)
+- `src/components/AIChatPanel/AIChatPanel.tsx` (added artifacts section)
+- `src/App.tsx` (removed `/chat` routes)
+- Deleted: ChatSidebar, ChatContent, Chat page (9 files removed)
 
 ## Completed Milestones
 1. ✅ Choose final transition style and text reflow solution
@@ -581,12 +638,67 @@ Testing 7 solutions for text reflow during expansion:
 8. ✅ Pin chat input 48px from bottom of screen
 
 ## Current Priority
-**Responsive Inline Artifact Card Header**
-- Design and implement solution for title + buttons on small cards
-- Options: Stack layout (recommended), icon-only, overflow menu, or hybrid
-- Must work in narrow sidebar panel (383px) and with long titles
+
+### 🎯 Artifact View → Edit Transition Animation
+
+**Goal**: Create smooth, cinematic transition when user clicks "Edit" on an inline artifact card in chat.
+
+**Current Behavior**:
+- User clicks "Edit" button on artifact card in chat
+- Immediate route change to `/artifact/:type/:id`
+- Jarring context switch with no visual continuity
+
+**Desired Behavior**:
+Create a smooth transition that maintains visual continuity between the two states:
+
+1. **Chat text fades out** (300ms fade)
+   - All message bubbles, AI labels, and text content fade to 0 opacity
+   - Happens simultaneously with other animations
+
+2. **Artifact card scales up to full size** (600ms ease-out)
+   - Card grows from inline size (500x340) to workspace size (900x600)
+   - Maintains aspect ratio during growth
+   - Position transitions from inline location to center of workspace
+   - Card stays white, border transitions to match workspace styling
+
+3. **Chat window slides in from right** (500ms, slight delay)
+   - ArtifactChatPanel (400px wide) slides in from right edge
+   - Starts after card begins scaling (~100ms delay)
+   - Easing: `cubic-bezier(0.25, 0.8, 0.25, 1)`
+
+4. **Workspace chrome fades in** (400ms)
+   - ArtifactTopBar (header with title, buttons)
+   - ChartSettingsToolbar (dropdowns)
+   - ArtifactToolBar (left icon sidebar)
+   - All fade in once card is ~70% through scaling
+
+**Technical Approach**:
+- Use **View Transitions API** if supported, graceful degradation to CSS transitions
+- Shared element transition: artifact card is the hero element
+- Route stays on `/chat/:id` during animation, switches to `/artifact/:type/:id` at end
+- Consider using Framer Motion or React Spring for complex orchestration
+- Animation total duration: ~800ms for smooth but not sluggish feel
+
+**Challenges to Solve**:
+- Coordinate timing across multiple elements
+- Handle route change mid-animation
+- Maintain 60fps performance
+- Handle user interrupting animation (clicking away)
+- Ensure accessible for users with reduced motion preferences
+
+**Reference Animations**:
+- Similar to macOS Quick Look expanding to full screen
+- iOS photo grid → detail view transition
+- Material Design shared element transitions
+
+**Success Criteria**:
+- User feels artifact "becomes" the workspace, not replaced by it
+- No visual discontinuity or jarring jumps
+- Smooth 60fps animation
+- Works on artifact cards in both panel and expanded chat views
 
 ## Upcoming Work
-1. Implement compact view/mode
+1. Implement artifact view → edit transition animation
 2. Test dark mode compatibility for all chat and artifact components
 3. Polish any remaining styling details
+4. Add keyboard shortcuts for common actions
