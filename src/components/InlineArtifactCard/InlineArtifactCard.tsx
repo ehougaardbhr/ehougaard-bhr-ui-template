@@ -78,7 +78,7 @@ export function InlineArtifactCard({ artifact }: InlineArtifactCardProps) {
     >
       {/* Header with title and actions */}
       <div className="flex items-center justify-between mb-6">
-        <TextHeadline size="large" style={{ color: 'var(--color-primary-strong)' }}>
+        <TextHeadline size="small" style={{ color: 'var(--color-primary-strong)' }}>
           {title}
         </TextHeadline>
 
