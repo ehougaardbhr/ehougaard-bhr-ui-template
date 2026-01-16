@@ -24,9 +24,12 @@ export function PieChart({ settings, width = 400, height = 400 }: PieChartProps)
   const data = useMemo(() => getChartData(settings), [settings]);
   const palette = colorPalettes[settings.color];
 
+  // Smaller padding for smaller charts
+  const isCompact = width < 300;
+  const chartPadding = isCompact ? 20 : 40;
   const centerX = width / 2;
   const centerY = height / 2;
-  const radius = Math.min(width, height) / 2 - 40;
+  const radius = Math.min(width, height) / 2 - chartPadding;
 
   // Calculate slices
   const slices: PieSlice[] = useMemo(() => {
@@ -84,8 +87,7 @@ export function PieChart({ settings, width = 400, height = 400 }: PieChartProps)
   return (
     <svg
       viewBox={`0 0 ${width} ${height}`}
-      className="overflow-visible"
-      style={{ maxWidth: '100%', maxHeight: '100%', width: 'auto', height: 'auto' }}
+      className="overflow-visible w-full h-auto"
       preserveAspectRatio="xMidYMid meet"
     >
       {/* Pie slices */}

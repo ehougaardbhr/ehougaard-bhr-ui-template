@@ -56,9 +56,11 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
     if (artifact.type !== 'chart') return null;
 
     const chartSettings = artifact.settings as ChartSettings;
-    // Responsive sizes: smaller in compact mode (sidebar), larger in fullscreen
-    const width = compact ? 320 : 500;
-    const height = compact ? 220 : 340;
+    // Larger sizes for better visibility
+    // Sidebar is ~383px wide - 48px card padding = 335px available
+    // Use that full width for compact mode
+    const width = compact ? 335 : 700;
+    const height = compact ? 230 : 480;
 
     switch (chartSettings.chartType) {
       case 'bar':
@@ -76,14 +78,14 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
 
   return (
     <div
-      className="rounded-xl p-6 my-3"
+      className={`rounded-xl my-3 ${compact ? 'p-4' : 'p-6'}`}
       style={{
         backgroundColor: 'var(--surface-neutral-white)',
         border: '1px solid var(--border-neutral-weak)',
       }}
     >
       {/* Header with title and actions */}
-      <div className="flex items-start justify-between gap-3 mb-6">
+      <div className={`flex items-start justify-between gap-3 ${compact ? 'mb-3' : 'mb-6'}`}>
         <h3
           className="font-bold"
           style={{
@@ -298,7 +300,7 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
       </div>
 
       {/* Chart display */}
-      <div className="flex items-center justify-center">
+      <div className="w-full">
         {renderChart()}
       </div>
     </div>
