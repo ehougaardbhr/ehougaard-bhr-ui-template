@@ -1,19 +1,15 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { InlineArtifactCard } from '../InlineArtifactCard';
 import { useChat } from '../../contexts/ChatContext';
 import { useArtifact } from '../../contexts/ArtifactContext';
-import { chartTypeIcons } from '../../data/artifactData';
 import type { ChatMessage } from '../../data/chatData';
-import type { ChartSettings } from '../../data/artifactData';
 
 interface ChatContentProps {
   className?: string;
 }
 
 export function ChatContent({ className = '' }: ChatContentProps) {
-  const navigate = useNavigate();
   const { selectedConversation, addMessage, selectedConversationId } = useChat();
   const { artifacts } = useArtifact();
   const [inputValue, setInputValue] = useState('');
@@ -21,25 +17,6 @@ export function ChatContent({ className = '' }: ChatContentProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const messages = selectedConversation?.messages || [];
-
-  // Filter artifacts for this conversation
-  const conversationArtifacts = artifacts.filter(
-    artifact => artifact.conversationId === selectedConversationId
-  );
-
-  // Map artifacts to display format with colors
-  const artifactColors = ['#87C276', '#7AB8EE', '#C198D4', '#F2A766'];
-  const displayArtifacts = conversationArtifacts.map((artifact, index) => ({
-    id: artifact.id,
-    title: artifact.title,
-    type: artifact.type,
-    color: artifactColors[index % artifactColors.length],
-    icon: artifact.type === 'chart'
-      ? chartTypeIcons[(artifact.settings as ChartSettings).chartType]
-      : artifact.type === 'document' ? 'file-lines'
-      : artifact.type === 'org-chart' ? 'user-group'
-      : 'table',
-  }));
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -93,39 +70,6 @@ export function ChatContent({ className = '' }: ChatContentProps) {
             {messages.map((message) => (
               <MessageBubble key={message.id} message={message} artifacts={artifacts} />
             ))}
-
-            {/* Artifacts Section */}
-            {displayArtifacts.length > 0 && (
-              <div className="mt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <div className="w-6 h-6 flex items-center justify-center bg-[var(--color-primary-strong)] rounded-full">
-                    <Icon name="sparkles" size={12} className="text-white" />
-                  </div>
-                  <span className="text-[13px] font-semibold text-[var(--text-neutral-medium)]">
-                    Artifacts from this conversation
-                  </span>
-                </div>
-                <div className="grid grid-cols-4 gap-4 pl-8">
-                  {displayArtifacts.map((artifact) => (
-                    <button
-                      key={artifact.id}
-                      onClick={() => navigate(`/artifact/${artifact.type}/${artifact.id}`)}
-                      className="group flex flex-col gap-2"
-                    >
-                      <div
-                        className="aspect-[4/3] rounded-lg flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                        style={{ backgroundColor: artifact.color }}
-                      >
-                        <Icon name={artifact.icon as any} size={32} className="text-white" />
-                      </div>
-                      <span className="text-xs text-[var(--text-neutral-medium)] text-center line-clamp-2 group-hover:text-[var(--text-neutral-strong)]">
-                        {artifact.title}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <div ref={messagesEndRef} />
           </div>
