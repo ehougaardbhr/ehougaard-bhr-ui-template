@@ -122,7 +122,7 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
             {/* Compact menu dropdown */}
             {isMenuOpen && (
               <div
-                className="absolute right-0 top-full mt-2 w-56 rounded-lg shadow-lg py-1 z-50"
+                className="absolute right-0 top-full mt-2 w-48 rounded-lg shadow-lg py-1 z-50"
                 style={{
                   backgroundColor: 'var(--surface-neutral-white)',
                   border: '1px solid var(--border-neutral-weak)',
@@ -148,20 +148,14 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
                   className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
                 >
                   <Icon name="table-cells" size={16} className="text-[var(--text-neutral-medium)]" />
-                  <div>
-                    <div className="font-medium text-[var(--text-neutral-strong)]">Add to Dashboard</div>
-                    <div className="text-xs text-[var(--text-neutral-weak)]">Pin to your home dashboard</div>
-                  </div>
+                  <div className="font-medium text-[var(--text-neutral-strong)]">Add to Dashboard</div>
                 </button>
                 <button
                   onClick={() => handlePublish('report')}
                   className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
                 >
                   <Icon name="file-lines" size={16} className="text-[var(--text-neutral-medium)]" />
-                  <div>
-                    <div className="font-medium text-[var(--text-neutral-strong)]">Save as Report</div>
-                    <div className="text-xs text-[var(--text-neutral-weak)]">Create a reusable report</div>
-                  </div>
+                  <div className="font-medium text-[var(--text-neutral-strong)]">Save as Report</div>
                 </button>
                 <div className="my-1 border-t" style={{ borderColor: 'var(--border-neutral-x-weak)' }} />
                 <button
@@ -169,20 +163,14 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
                   className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
                 >
                   <Icon name="arrow-up-from-bracket" size={16} className="text-[var(--text-neutral-medium)]" />
-                  <div>
-                    <div className="font-medium text-[var(--text-neutral-strong)]">Share</div>
-                    <div className="text-xs text-[var(--text-neutral-weak)]">Share with team members</div>
-                  </div>
+                  <div className="font-medium text-[var(--text-neutral-strong)]">Share</div>
                 </button>
                 <button
                   onClick={() => handlePublish('download')}
                   className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
                 >
                   <Icon name="arrow-down-to-line" size={16} className="text-[var(--text-neutral-medium)]" />
-                  <div>
-                    <div className="font-medium text-[var(--text-neutral-strong)]">Download</div>
-                    <div className="text-xs text-[var(--text-neutral-weak)]">Export as PNG or CSV</div>
-                  </div>
+                  <div className="font-medium text-[var(--text-neutral-strong)]">Download</div>
                 </button>
               </div>
             )}
