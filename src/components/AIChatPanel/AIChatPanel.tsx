@@ -5,6 +5,8 @@ import { InlineArtifactCard } from '../InlineArtifactCard';
 import { recentConversations } from '../../data/chatData';
 import type { ChatConversation } from '../../data/chatData';
 import { useArtifact } from '../../contexts/ArtifactContext';
+import { chartTypeIcons } from '../../data/artifactData';
+import type { ChartSettings } from '../../data/artifactData';
 
 interface AIChatPanelProps {
   isOpen: boolean;
@@ -12,6 +14,8 @@ interface AIChatPanelProps {
   isExpanded: boolean;
   onExpandChange: (expanded: boolean) => void;
 }
+
+const ARTIFACTS_INITIAL_COUNT = 3;
 
 export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIChatPanelProps) {
   const navigate = useNavigate();
@@ -21,7 +25,23 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAllArtifacts, setShowAllArtifacts] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Get artifact icon based on type
+  const getArtifactIcon = (artifact: typeof artifacts[0]) => {
+    if (artifact.type === 'chart') {
+      return chartTypeIcons[(artifact.settings as ChartSettings).chartType];
+    }
+    if (artifact.type === 'document') return 'file-lines';
+    if (artifact.type === 'org-chart') return 'sitemap';
+    return 'table';
+  };
+
+  // Artifacts to display (limited or all)
+  const displayedArtifacts = showAllArtifacts
+    ? artifacts
+    : artifacts.slice(0, ARTIFACTS_INITIAL_COUNT);
 
   const messages = selectedConversation.messages;
   const title = selectedConversation.title;
@@ -136,6 +156,37 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
               New Chat
             </button>
           </div>
+
+          {/* Artifacts Section */}
+          {artifacts.length > 0 && (
+            <>
+              <div className="px-5 py-2">
+                <span className="text-[13px] font-semibold text-[var(--text-neutral-medium)]">
+                  Artifacts
+                </span>
+              </div>
+              <div className="px-2">
+                {displayedArtifacts.map((artifact) => (
+                  <button
+                    key={artifact.id}
+                    onClick={() => navigate(`/artifact/${artifact.type}/${artifact.id}`)}
+                    className="w-full text-left px-4 py-2.5 rounded-[var(--radius-xx-small)] text-[15px] text-[var(--text-neutral-x-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors duration-150 flex items-center gap-3"
+                  >
+                    <Icon name={getArtifactIcon(artifact) as any} size={14} className="text-[var(--icon-neutral-strong)] shrink-0" />
+                    <span className="truncate">{artifact.title}</span>
+                  </button>
+                ))}
+                {artifacts.length > ARTIFACTS_INITIAL_COUNT && (
+                  <button
+                    onClick={() => setShowAllArtifacts(!showAllArtifacts)}
+                    className="w-full text-left px-4 py-2 text-[13px] text-[var(--color-primary-strong)] hover:text-[var(--color-primary-medium)] transition-colors"
+                  >
+                    {showAllArtifacts ? 'Show less' : `See ${artifacts.length - ARTIFACTS_INITIAL_COUNT} more`}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
 
           {/* Chats Section Header */}
           <div className="px-5 py-2 flex items-center justify-between">
