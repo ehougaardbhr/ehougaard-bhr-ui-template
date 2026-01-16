@@ -84,39 +84,36 @@ export function ArtifactWorkspace() {
       <ArtifactToolBar />
 
       {/* Main Content Area */}
-      <div className="flex flex-col flex-1 overflow-hidden">
-        {/* Header */}
-        <ArtifactTopBar
-          title={artifactTitle}
-          onBack={handleBack}
-          onCopy={handleCopy}
-          onPublish={handlePublish}
-        />
-
-        {/* Settings Toolbar */}
-        {selectedArtifact && (
-          <ChartSettingsToolbar
-            settings={selectedArtifact.settings as ChartSettings}
-            onSettingsChange={(newSettings) => {
-              updateArtifactSettings(selectedArtifact.id, newSettings);
-            }}
-          />
-        )}
-
-        {/* Chart and Chat Panel */}
-        <div className="flex flex-1 overflow-hidden">
-          {/* Chart area */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Chart area with card containing header, toolbar, and chart */}
+        <div className="flex-1 p-6 overflow-auto">
           <div
-            className="flex-1 p-6 overflow-auto"
-            style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}
+            className="flex flex-col h-full rounded-2xl overflow-hidden"
+            style={{
+              backgroundColor: 'var(--surface-neutral-white)',
+              boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
+            }}
           >
-            <div
-              className="w-full h-full rounded-2xl p-8 flex items-center justify-center"
-              style={{
-                backgroundColor: 'var(--surface-neutral-white)',
-                boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
-              }}
-            >
+            {/* Header inside card */}
+            <ArtifactTopBar
+              title={artifactTitle}
+              onBack={handleBack}
+              onCopy={handleCopy}
+              onPublish={handlePublish}
+            />
+
+            {/* Settings Toolbar inside card */}
+            {selectedArtifact && (
+              <ChartSettingsToolbar
+                settings={selectedArtifact.settings as ChartSettings}
+                onSettingsChange={(newSettings) => {
+                  updateArtifactSettings(selectedArtifact.id, newSettings);
+                }}
+              />
+            )}
+
+            {/* Chart content */}
+            <div className="flex-1 p-8 flex items-center justify-center overflow-hidden">
               {selectedArtifact ? (
                 (() => {
                   const chartSettings = selectedArtifact.settings as ChartSettings;
@@ -146,10 +143,10 @@ export function ArtifactWorkspace() {
               )}
             </div>
           </div>
-
-          {/* Chat panel */}
-          <ArtifactChatPanel conversationId={selectedArtifact?.conversationId || null} />
         </div>
+
+        {/* Chat panel */}
+        <ArtifactChatPanel conversationId={selectedArtifact?.conversationId || null} />
       </div>
     </div>
   );
