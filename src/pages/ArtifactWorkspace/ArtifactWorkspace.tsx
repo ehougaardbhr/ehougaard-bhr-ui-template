@@ -4,6 +4,7 @@ import { useArtifact } from '../../contexts/ArtifactContext';
 import { Icon } from '../../components/Icon';
 import { TextHeadline } from '../../components/TextHeadline';
 import { ArtifactTopBar } from '../../components/ArtifactTopBar';
+import { ArtifactToolBar } from '../../components/ArtifactToolBar';
 import { ArtifactChatPanel } from '../../components/ArtifactChatPanel';
 import type { ChartSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
@@ -78,71 +79,77 @@ export function ArtifactWorkspace() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-[var(--surface-neutral-white)]">
-      {/* Header */}
-      <ArtifactTopBar
-        title={artifactTitle}
-        onBack={handleBack}
-        onCopy={handleCopy}
-        onPublish={handlePublish}
-      />
+    <div className="h-screen flex overflow-hidden bg-[var(--surface-neutral-white)]">
+      {/* Left Toolbar */}
+      <ArtifactToolBar />
 
-      {/* Settings Toolbar */}
-      {selectedArtifact && (
-        <ChartSettingsToolbar
-          settings={selectedArtifact.settings as ChartSettings}
-          onSettingsChange={(newSettings) => {
-            updateArtifactSettings(selectedArtifact.id, newSettings);
-          }}
+      {/* Main Content Area */}
+      <div className="flex flex-col flex-1 overflow-hidden">
+        {/* Header */}
+        <ArtifactTopBar
+          title={artifactTitle}
+          onBack={handleBack}
+          onCopy={handleCopy}
+          onPublish={handlePublish}
         />
-      )}
 
-      {/* Main content area */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Chart area */}
-        <div
-          className="flex-1 p-6 overflow-auto"
-          style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}
-        >
-          <div
-            className="w-full h-full rounded-2xl p-8 flex items-center justify-center"
-            style={{
-              backgroundColor: 'var(--surface-neutral-white)',
-              boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
+        {/* Settings Toolbar */}
+        {selectedArtifact && (
+          <ChartSettingsToolbar
+            settings={selectedArtifact.settings as ChartSettings}
+            onSettingsChange={(newSettings) => {
+              updateArtifactSettings(selectedArtifact.id, newSettings);
             }}
+          />
+        )}
+
+        {/* Chart and Chat Panel */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Chart area */}
+          <div
+            className="flex-1 p-6 overflow-auto"
+            style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}
           >
-            {selectedArtifact ? (
-              (() => {
-                const chartSettings = selectedArtifact.settings as ChartSettings;
-                const width = 900;
-                const height = 600;
+            <div
+              className="w-full h-full rounded-2xl p-8 flex items-center justify-center"
+              style={{
+                backgroundColor: 'var(--surface-neutral-white)',
+                boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
+              }}
+            >
+              {selectedArtifact ? (
+                (() => {
+                  const chartSettings = selectedArtifact.settings as ChartSettings;
+                  const width = 900;
+                  const height = 600;
 
-                switch (chartSettings.chartType) {
-                  case 'bar':
-                    return <BarChart settings={chartSettings} width={width} height={height} />;
-                  case 'line':
-                    return <LineChart settings={chartSettings} width={width} height={height} />;
-                  case 'pie':
-                    return <PieChart settings={chartSettings} width={height} height={height} />;
-                  case 'table':
-                    return <TableChart settings={chartSettings} />;
-                  default:
-                    return null;
-                }
-              })()
-            ) : (
-              <div className="text-center">
-                <Icon name="chart-simple" size={48} className="text-[var(--text-neutral-weak)] mx-auto mb-4" />
-                <TextHeadline size="medium" color="neutral-medium">
-                  No artifact selected
-                </TextHeadline>
-              </div>
-            )}
+                  switch (chartSettings.chartType) {
+                    case 'bar':
+                      return <BarChart settings={chartSettings} width={width} height={height} />;
+                    case 'line':
+                      return <LineChart settings={chartSettings} width={width} height={height} />;
+                    case 'pie':
+                      return <PieChart settings={chartSettings} width={height} height={height} />;
+                    case 'table':
+                      return <TableChart settings={chartSettings} />;
+                    default:
+                      return null;
+                  }
+                })()
+              ) : (
+                <div className="text-center">
+                  <Icon name="chart-simple" size={48} className="text-[var(--text-neutral-weak)] mx-auto mb-4" />
+                  <TextHeadline size="medium" color="neutral-medium">
+                    No artifact selected
+                  </TextHeadline>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Chat panel */}
-        <ArtifactChatPanel conversationId={selectedArtifact?.conversationId || null} />
+          {/* Chat panel */}
+          <ArtifactChatPanel conversationId={selectedArtifact?.conversationId || null} />
+        </div>
       </div>
     </div>
   );
