@@ -162,6 +162,9 @@ export function ArtifactWorkspace() {
             <ChartSettingsPills
               settings={selectedArtifact.settings as ChartSettings}
               onOpenDrawer={() => setDrawerOpen(true)}
+              onSettingsChange={(newSettings) => {
+                updateArtifactSettings(selectedArtifact.id, newSettings);
+              }}
             />
           )}
         </div>
