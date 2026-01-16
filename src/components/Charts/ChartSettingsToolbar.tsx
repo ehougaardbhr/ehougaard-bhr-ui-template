@@ -121,7 +121,6 @@ export function ChartSettingsToolbar({ settings, onSettingsChange }: ChartSettin
       className="h-12 px-6 flex items-center justify-between shrink-0"
       style={{
         backgroundColor: 'var(--surface-neutral-white)',
-        borderBottom: '1px solid var(--border-neutral-weak)',
       }}
     >
       {/* Left: Setting dropdowns */}
