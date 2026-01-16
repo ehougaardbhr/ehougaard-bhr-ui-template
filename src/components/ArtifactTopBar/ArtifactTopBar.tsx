@@ -39,11 +39,11 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
       <div className="flex items-center justify-between mb-4">
         {/* Left: Title */}
         <h1
-          className="text-[39px] font-bold"
+          className="text-[27px] font-semibold"
           style={{
             fontFamily: 'Fields, system-ui, sans-serif',
             color: 'var(--color-primary-strong)',
-            lineHeight: '47px',
+            lineHeight: '37px',
           }}
         >
           {title}
