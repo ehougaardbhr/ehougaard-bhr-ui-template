@@ -1,7 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { recentConversations } from '../../data/chatData';
 import type { ChatConversation } from '../../data/chatData';
+import { useArtifact } from '../../contexts/ArtifactContext';
+import { chartTypeIcons } from '../../data/artifactData';
+import type { ChartSettings } from '../../data/artifactData';
 
 interface AIChatPanelProps {
   isOpen: boolean;
@@ -11,6 +15,8 @@ interface AIChatPanelProps {
 }
 
 export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIChatPanelProps) {
+  const navigate = useNavigate();
+  const { artifacts } = useArtifact();
   const [inputValue, setInputValue] = useState('');
   const [selectedConversation, setSelectedConversation] = useState<ChatConversation>(recentConversations[0]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -27,20 +33,21 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
     conv.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Mock artifacts data
-  const allArtifacts = [
-    { id: '1', title: 'Q4 Revenue Chart', type: 'chart', color: '#87C276', icon: 'chart-line' },
-    { id: '2', title: 'Employee Report', type: 'report', color: '#7AB8EE', icon: 'file-lines' },
-    { id: '3', title: 'Org Structure', type: 'image', color: '#C198D4', icon: 'image' },
-    { id: '4', title: 'Benefits Summary', type: 'chart', color: '#F2A766', icon: 'chart-pie' },
-    { id: '5', title: 'Training Materials', type: 'report', color: '#87C276', icon: 'file' },
-    { id: '6', title: 'Team Photo', type: 'image', color: '#7AB8EE', icon: 'image' },
-    { id: '7', title: 'PTO Analysis', type: 'chart', color: '#C198D4', icon: 'chart-bar' },
-    { id: '8', title: 'Onboarding Guide', type: 'report', color: '#F2A766', icon: 'file-lines' },
-    { id: '9', title: 'Office Layout', type: 'image', color: '#87C276', icon: 'image' },
-  ];
+  // Map real artifacts to display format with colors
+  const artifactColors = ['#87C276', '#7AB8EE', '#C198D4', '#F2A766'];
+  const displayArtifacts = artifacts.map((artifact, index) => ({
+    id: artifact.id,
+    title: artifact.title,
+    type: artifact.type,
+    color: artifactColors[index % artifactColors.length],
+    icon: artifact.type === 'chart'
+      ? chartTypeIcons[(artifact.settings as ChartSettings).chartType]
+      : artifact.type === 'document' ? 'file-lines'
+      : artifact.type === 'org-chart' ? 'user-group'
+      : 'table',
+  }));
 
-  const visibleArtifacts = isArtifactsExpanded ? allArtifacts : allArtifacts.slice(0, 3);
+  const visibleArtifacts = isArtifactsExpanded ? displayArtifacts : displayArtifacts.slice(0, 3);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -160,14 +167,18 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
             {/* Artifact Thumbnails Grid */}
             <div className="grid grid-cols-3 gap-2 mt-2">
               {visibleArtifacts.map((artifact) => (
-                <div
+                <button
                   key={artifact.id}
-                  className="aspect-[4/3] rounded-[var(--radius-xx-small)] flex items-center justify-center cursor-not-allowed opacity-50"
+                  onClick={() => {
+                    onClose();
+                    navigate(`/artifact/${artifact.type}/${artifact.id}`);
+                  }}
+                  className="aspect-[4/3] rounded-[var(--radius-xx-small)] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                   style={{ backgroundColor: artifact.color }}
                   title={artifact.title}
                 >
                   <Icon name={artifact.icon as any} size={24} className="text-white" />
-                </div>
+                </button>
               ))}
             </div>
 
