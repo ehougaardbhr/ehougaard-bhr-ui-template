@@ -146,7 +146,9 @@ export function ArtifactWorkspace() {
         </div>
 
         {/* Chat panel */}
-        <ArtifactChatPanel conversationId={selectedArtifact?.conversationId || null} />
+        <div className="py-8 pr-8 flex">
+          <ArtifactChatPanel conversationId={selectedArtifact?.conversationId || null} />
+        </div>
       </div>
     </div>
   );

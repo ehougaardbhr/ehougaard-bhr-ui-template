@@ -55,72 +55,71 @@ export function ArtifactChatPanel({ conversationId }: ArtifactChatPanelProps) {
     }
   };
 
+  const handleInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(e.target.value);
+    // Auto-resize textarea
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
+  };
+
   return (
     <div
-      className="w-[400px] flex flex-col shrink-0"
+      className="w-[367px] flex flex-col shrink-0 p-1 rounded-[20px]"
       style={{
         backgroundColor: 'var(--surface-neutral-xx-weak)',
-        borderLeft: '1px solid var(--border-neutral-weak)',
       }}
     >
-      {/* Chat Header */}
+      {/* Header */}
       <div
-        className="px-5 py-4"
+        className="px-5 py-4 rounded-t-[12px]"
         style={{
           backgroundColor: 'var(--surface-neutral-white)',
-          borderBottom: '1px solid var(--border-neutral-x-weak)',
         }}
       >
-        <div className="flex items-center gap-2 text-sm font-semibold text-[var(--text-neutral-xx-strong)]">
-          <Icon name="sparkles" size={14} className="text-[var(--color-primary-strong)]" />
-          BambooHR Assistant
+        <div className="flex items-center gap-2.5">
+          <Icon name="sparkles" size={20} className="text-[var(--color-primary-strong)]" />
+          <span className="text-[16px] font-medium text-[var(--text-neutral-x-strong)]">
+            BambooHR Assistant
+          </span>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-5">
-        <div className="space-y-4">
+      <div
+        className="flex-1 overflow-y-auto px-5 py-5"
+        style={{ backgroundColor: 'var(--surface-neutral-white)' }}
+      >
+        <div className="flex flex-col gap-5">
           {conversation?.messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
+            <div key={message.id}>
               {message.type === 'user' ? (
-                <div
-                  className="max-w-[90%] px-4 py-3 rounded-xl rounded-br-sm text-sm text-[var(--text-neutral-strong)]"
-                  style={{ backgroundColor: 'var(--surface-neutral-white)' }}
-                >
-                  {message.text}
+                <div className="flex justify-end pl-[34px]">
+                  <div
+                    className="px-4 py-3 rounded-tl-[16px] rounded-tr-[16px] rounded-bl-[16px] text-[15px] leading-[22px] text-[var(--text-neutral-x-strong)]"
+                    style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}
+                  >
+                    {message.text}
+                  </div>
                 </div>
               ) : (
-                <div className="max-w-[90%]">
-                  <div className="flex items-center gap-1 text-xs font-medium text-[var(--color-primary-strong)] mb-1">
-                    <Icon name="sparkles" size={12} />
-                    BambooHR Assistant
-                  </div>
-                  <div
-                    className="px-4 py-3 rounded-xl rounded-bl-sm text-sm text-[var(--text-neutral-strong)]"
-                    style={{ backgroundColor: 'var(--surface-neutral-white)' }}
-                  >
-                    <div className="whitespace-pre-wrap">{message.text}</div>
-                    {message.suggestions && message.suggestions.length > 0 && (
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        {message.suggestions.map((suggestion, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => setInputValue(suggestion)}
-                            className="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors hover:bg-[var(--surface-neutral-x-weak)]"
-                            style={{
-                              borderColor: 'var(--border-neutral-weak)',
-                              color: 'var(--text-neutral-medium)',
-                            }}
-                          >
-                            {suggestion}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                <div className="flex flex-col gap-2">
+                  <p className="text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)] whitespace-pre-line">
+                    {message.text}
+                  </p>
+                  {message.suggestions && message.suggestions.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {message.suggestions.map((suggestion, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setInputValue(suggestion)}
+                          className="px-4 py-2 text-[14px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                          style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -130,7 +129,7 @@ export function ArtifactChatPanel({ conversationId }: ArtifactChatPanelProps) {
           {(!conversation || conversation.messages.length === 0) && (
             <div className="text-center py-8">
               <Icon name="sparkles" size={24} className="text-[var(--color-primary-weak)] mx-auto mb-3" />
-              <p className="text-sm text-[var(--text-neutral-medium)]">
+              <p className="text-[15px] text-[var(--text-neutral-medium)]">
                 Ask questions about this chart or request changes
               </p>
             </div>
@@ -140,37 +139,62 @@ export function ArtifactChatPanel({ conversationId }: ArtifactChatPanelProps) {
         </div>
       </div>
 
-      {/* Chat Input */}
+      {/* Input Area */}
       <div
-        className="px-5 py-4"
-        style={{
-          backgroundColor: 'var(--surface-neutral-white)',
-          borderTop: '1px solid var(--border-neutral-x-weak)',
-        }}
+        className="p-4 rounded-b-[16px]"
+        style={{ backgroundColor: 'var(--surface-neutral-white)' }}
       >
+        {/* Rainbow gradient border wrapper */}
         <div
-          className="flex items-center gap-3 px-4 py-2 rounded-full"
+          className="relative rounded-lg p-[2px] min-h-[86px]"
           style={{
-            backgroundColor: 'var(--surface-neutral-xx-weak)',
-            border: '1px solid var(--border-neutral-weak)',
+            background: 'linear-gradient(93deg, #87C276 0%, #7AB8EE 33.65%, #C198D4 66.83%, #F2A766 96.15%)',
+            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04), 2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
           }}
         >
-          <input
-            type="text"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ask about this chart..."
-            className="flex-1 bg-transparent text-sm outline-none text-[var(--text-neutral-xx-strong)] placeholder:text-[var(--text-neutral-weak)]"
-          />
-          <button
-            onClick={handleSend}
-            disabled={!inputValue.trim()}
-            className="w-7 h-7 rounded-full flex items-center justify-center text-white transition-opacity disabled:opacity-50"
-            style={{ backgroundColor: 'var(--color-primary-strong)' }}
-          >
-            <Icon name="arrow-up" size={12} />
-          </button>
+          <div className="bg-[var(--surface-neutral-white)] rounded-[6px] px-5 pt-4 pb-3 flex flex-col gap-3">
+            {/* Input field */}
+            <textarea
+              placeholder="Reply..."
+              value={inputValue}
+              onChange={handleInput}
+              onKeyDown={handleKeyDown}
+              rows={1}
+              className="w-full bg-transparent text-[15px] leading-[22px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-medium)] outline-none resize-none overflow-hidden"
+            />
+
+            {/* Icons row */}
+            <div className="flex items-center justify-between">
+              {/* Left action icons */}
+              <div className="flex items-center gap-4">
+                <button className="hover:opacity-70 transition-opacity" aria-label="Attach file">
+                  <Icon name="paperclip" size={16} className="text-[var(--icon-neutral-xx-strong)]" />
+                </button>
+                <button className="hover:opacity-70 transition-opacity" aria-label="Add image">
+                  <Icon name="image" size={16} className="text-[var(--icon-neutral-xx-strong)]" />
+                </button>
+              </div>
+
+              {/* Right icons */}
+              <div className="flex items-center gap-4">
+                <button className="hover:opacity-70 transition-opacity" aria-label="Voice input">
+                  <Icon name="microphone" size={16} className="text-[var(--icon-neutral-xx-strong)]" />
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center justify-center"
+                  onClick={handleSend}
+                  aria-label="Send message"
+                >
+                  <Icon
+                    name="circle-arrow-up"
+                    size={16}
+                    className={inputValue.trim() ? 'text-[var(--icon-neutral-xx-strong)]' : 'text-[var(--icon-neutral-x-weak)]'}
+                  />
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
