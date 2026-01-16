@@ -425,7 +425,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                             {/* Inline Artifact Card */}
                             {message.artifactId && (() => {
                               const artifact = artifacts.find(a => a.id === message.artifactId);
-                              return artifact ? <InlineArtifactCard artifact={artifact} compact={true} /> : null;
+                              return artifact ? <InlineArtifactCard artifact={artifact} compact={true} onExpand={handleExpand} /> : null;
                             })()}
                             {message.suggestions && message.suggestions.length > 0 && (
                               <div className="flex flex-col gap-2">

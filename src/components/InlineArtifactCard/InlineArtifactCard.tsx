@@ -8,14 +8,17 @@ import { generateArtifactTitle } from '../../data/artifactData';
 interface InlineArtifactCardProps {
   artifact: Artifact;
   compact?: boolean;
+  onExpand?: () => void;
 }
 
-export function InlineArtifactCard({ artifact, compact = false }: InlineArtifactCardProps) {
+export function InlineArtifactCard({ artifact, compact = false, onExpand }: InlineArtifactCardProps) {
   const navigate = useNavigate();
   const [isPublishOpen, setIsPublishOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showButtonText, setShowButtonText] = useState(true);
   const publishRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -30,6 +33,27 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Detect card width to show/hide button text in fullscreen mode
+  useEffect(() => {
+    if (compact) return; // Only applies to fullscreen mode
+
+    const observeWidth = () => {
+      if (cardRef.current) {
+        const width = cardRef.current.offsetWidth;
+        // Hide text if card is narrower than 600px
+        setShowButtonText(width >= 600);
+      }
+    };
+
+    const resizeObserver = new ResizeObserver(observeWidth);
+    if (cardRef.current) {
+      resizeObserver.observe(cardRef.current);
+      observeWidth(); // Initial check
+    }
+
+    return () => resizeObserver.disconnect();
+  }, [compact]);
 
   const handleCopy = () => {
     // TODO: Implement copy to clipboard
@@ -76,13 +100,21 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
     }
   };
 
+  const handleCardClick = () => {
+    if (compact && onExpand) {
+      onExpand();
+    }
+  };
+
   return (
     <div
-      className={`rounded-xl my-3 ${compact ? 'p-4' : 'p-6'}`}
+      ref={cardRef}
+      className={`rounded-xl my-3 ${compact ? 'p-4' : 'p-6'} ${compact && onExpand ? 'cursor-pointer hover:border-[var(--border-neutral-medium)] transition-colors' : ''}`}
       style={{
         backgroundColor: 'var(--surface-neutral-white)',
         border: '1px solid var(--border-neutral-weak)',
       }}
+      onClick={handleCardClick}
     >
       {/* Header with title and actions */}
       <div className={`flex items-start justify-between gap-3 ${compact ? 'mb-3' : 'mb-6'}`}>
@@ -103,7 +135,10 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
           /* Compact mode: Three-dot menu in top right */
           <div className="relative shrink-0" ref={menuRef}>
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
+              }}
               className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
               style={{
                 backgroundColor: 'var(--surface-neutral-white)',
@@ -183,7 +218,7 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
             {/* Copy button */}
             <button
               onClick={handleCopy}
-              className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors group"
+              className={`${showButtonText ? 'px-4 py-2' : 'w-8 h-8'} rounded-lg text-sm font-medium flex items-center ${showButtonText ? 'gap-2' : 'justify-center'} transition-colors group`}
               style={{
                 backgroundColor: 'var(--surface-neutral-white)',
                 border: '1px solid var(--border-neutral-medium)',
@@ -195,15 +230,16 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'var(--surface-neutral-white)';
               }}
+              aria-label="Copy"
             >
               <Icon name="copy" size={16} />
-              <span>Copy</span>
+              {showButtonText && <span>Copy</span>}
             </button>
 
             {/* Edit button */}
             <button
               onClick={handleEdit}
-              className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors group"
+              className={`${showButtonText ? 'px-4 py-2' : 'w-8 h-8'} rounded-lg text-sm font-medium flex items-center ${showButtonText ? 'gap-2' : 'justify-center'} transition-colors group`}
               style={{
                 backgroundColor: 'var(--surface-neutral-white)',
                 border: '1px solid var(--border-neutral-medium)',
@@ -215,16 +251,17 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'var(--surface-neutral-white)';
               }}
+              aria-label="Edit"
             >
               <Icon name="pen-to-square" size={16} />
-              <span>Edit</span>
+              {showButtonText && <span>Edit</span>}
             </button>
 
             {/* Publish dropdown */}
             <div className="relative" ref={publishRef}>
               <button
                 onClick={() => setIsPublishOpen(!isPublishOpen)}
-                className="px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-colors group"
+                className={`${showButtonText ? 'px-4 py-2' : 'w-8 h-8'} rounded-lg text-sm font-medium flex items-center ${showButtonText ? 'gap-2' : 'justify-center'} transition-colors group`}
                 style={{
                   backgroundColor: 'var(--surface-neutral-white)',
                   border: '1px solid var(--border-neutral-medium)',
@@ -236,10 +273,11 @@ export function InlineArtifactCard({ artifact, compact = false }: InlineArtifact
                 onMouseLeave={(e) => {
                   e.currentTarget.style.backgroundColor = 'var(--surface-neutral-white)';
                 }}
+                aria-label="Publish"
               >
                 <Icon name="arrow-up-from-bracket" size={16} />
-                <span>Publish</span>
-                <Icon name="caret-down" size={10} />
+                {showButtonText && <span>Publish</span>}
+                {showButtonText && <Icon name="caret-down" size={10} />}
               </button>
 
               {/* Dropdown menu */}
