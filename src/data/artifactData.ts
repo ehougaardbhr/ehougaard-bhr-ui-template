@@ -48,7 +48,7 @@ export const chartTypeLabels: Record<ChartType, string> = {
 export const chartTypeIcons: Record<ChartType, string> = {
   bar: 'chart-simple',
   line: 'chart-line',
-  pie: 'chart-pie',
+  pie: 'chart-pie-simple',
   table: 'table',
 };
 

@@ -9,8 +9,10 @@ import type { ChartSettings } from '../../data/artifactData';
 import {
   measureLabels,
   categoryLabels,
+  chartTypeLabels,
   generateArtifactTitle,
 } from '../../data/artifactData';
+import { BarChart, ChartSettingsDrawer, ChartSettingsPills } from '../../components/Charts';
 
 export function ArtifactWorkspace() {
   const { type, id } = useParams<{ type: string; id: string }>();
@@ -21,6 +23,7 @@ export function ArtifactWorkspace() {
     artifacts,
     isDrawerOpen,
     setDrawerOpen,
+    updateArtifactSettings,
   } = useArtifact();
   const { selectedConversation } = useChat();
 
@@ -132,103 +135,64 @@ export function ArtifactWorkspace() {
                 border: '1px solid var(--border-neutral-x-weak)',
               }}
             >
-              {/* Placeholder for chart rendering */}
+              {/* Chart rendering */}
               <div className="flex-1 flex items-center justify-center">
-                <div className="text-center">
-                  <Icon name="chart-simple" size={48} className="text-[var(--text-neutral-weak)] mx-auto mb-4" />
-                  <TextHeadline size="medium" color="neutral-medium">
-                    Chart will render here
-                  </TextHeadline>
-                  <p className="text-sm text-[var(--text-neutral-weak)] mt-2">
-                    {selectedArtifact ? (
-                      <>
+                {selectedArtifact ? (
+                  (selectedArtifact.settings as ChartSettings).chartType === 'bar' ? (
+                    <BarChart
+                      settings={selectedArtifact.settings as ChartSettings}
+                      width={520}
+                      height={360}
+                    />
+                  ) : (
+                    <div className="text-center">
+                      <Icon
+                        name={(selectedArtifact.settings as ChartSettings).chartType === 'line' ? 'chart-line' :
+                              (selectedArtifact.settings as ChartSettings).chartType === 'pie' ? 'chart-pie-simple' : 'table'}
+                        size={48}
+                        className="text-[var(--text-neutral-weak)] mx-auto mb-4"
+                      />
+                      <TextHeadline size="medium" color="neutral-medium">
+                        {chartTypeLabels[(selectedArtifact.settings as ChartSettings).chartType]} chart
+                      </TextHeadline>
+                      <p className="text-sm text-[var(--text-neutral-weak)] mt-2">
                         {measureLabels[(selectedArtifact.settings as ChartSettings).measure]} by{' '}
                         {categoryLabels[(selectedArtifact.settings as ChartSettings).category]}
-                      </>
-                    ) : (
-                      'No artifact selected'
-                    )}
-                  </p>
-                </div>
+                      </p>
+                      <p className="text-xs text-[var(--text-neutral-weak)] mt-4">
+                        Coming soon
+                      </p>
+                    </div>
+                  )
+                ) : (
+                  <div className="text-center">
+                    <Icon name="chart-simple" size={48} className="text-[var(--text-neutral-weak)] mx-auto mb-4" />
+                    <TextHeadline size="medium" color="neutral-medium">
+                      No artifact selected
+                    </TextHeadline>
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           {/* Settings Drawer */}
-          {isDrawerOpen && (
-            <div
-              className="w-[280px] flex flex-col shrink-0"
-              style={{
-                backgroundColor: 'var(--surface-neutral-white)',
-                borderLeft: '1px solid var(--border-neutral-weak)',
-                boxShadow: '-4px 0 20px rgba(0,0,0,0.1)',
+          {isDrawerOpen && selectedArtifact && (
+            <ChartSettingsDrawer
+              settings={selectedArtifact.settings as ChartSettings}
+              onSettingsChange={(newSettings) => {
+                updateArtifactSettings(selectedArtifact.id, newSettings);
               }}
-            >
-              {/* Drawer Header */}
-              <div
-                className="flex items-center justify-between px-5 py-4"
-                style={{ borderBottom: '1px solid var(--border-neutral-x-weak)' }}
-              >
-                <span className="text-[15px] font-semibold text-[var(--text-neutral-xx-strong)]">
-                  Chart Settings
-                </span>
-                <button
-                  onClick={() => setDrawerOpen(false)}
-                  className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-[var(--surface-neutral-x-weak)] text-[var(--text-neutral-medium)]"
-                >
-                  <Icon name="xmark" size={16} />
-                </button>
-              </div>
-
-              {/* Drawer Content - Placeholder */}
-              <div className="flex-1 p-5 overflow-y-auto">
-                <p className="text-sm text-[var(--text-neutral-medium)]">
-                  Chart settings controls will go here.
-                </p>
-                {selectedArtifact && (
-                  <div className="mt-4 space-y-3 text-sm">
-                    <div>
-                      <span className="text-[var(--text-neutral-weak)]">Chart Type: </span>
-                      <span className="text-[var(--text-neutral-strong)]">
-                        {(selectedArtifact.settings as ChartSettings).chartType}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[var(--text-neutral-weak)]">Measure: </span>
-                      <span className="text-[var(--text-neutral-strong)]">
-                        {measureLabels[(selectedArtifact.settings as ChartSettings).measure]}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-[var(--text-neutral-weak)]">Category: </span>
-                      <span className="text-[var(--text-neutral-strong)]">
-                        {categoryLabels[(selectedArtifact.settings as ChartSettings).category]}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+              onClose={() => setDrawerOpen(false)}
+            />
           )}
 
           {/* Settings Pills (when drawer is closed) */}
-          {!isDrawerOpen && (
-            <div className="absolute top-5 right-5 flex flex-col gap-2 z-10">
-              <button
-                onClick={() => setDrawerOpen(true)}
-                className="h-8 px-3 rounded-md flex items-center gap-2 text-sm font-medium"
-                style={{
-                  backgroundColor: 'rgba(249, 249, 247, 0.8)',
-                  border: '1px solid var(--border-neutral-weak)',
-                  color: 'var(--text-neutral-medium)',
-                  backdropFilter: 'blur(8px)',
-                }}
-              >
-                <Icon name="sliders" size={12} />
-                <span>Chart Settings</span>
-              </button>
-              {/* TODO: Add individual setting pills */}
-            </div>
+          {!isDrawerOpen && selectedArtifact && (
+            <ChartSettingsPills
+              settings={selectedArtifact.settings as ChartSettings}
+              onOpenDrawer={() => setDrawerOpen(true)}
+            />
           )}
         </div>
 
