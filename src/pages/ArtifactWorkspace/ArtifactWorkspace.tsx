@@ -37,12 +37,10 @@ export function ArtifactWorkspace() {
       : 'Untitled Artifact');
 
   const handleBack = () => {
-    // Navigate back to chat with the conversation this artifact belongs to
-    if (selectedArtifact?.conversationId) {
-      navigate(`/chat/${selectedArtifact.conversationId}`);
-    } else {
-      navigate(-1);
-    }
+    // Open the chat panel in expanded mode and navigate home
+    localStorage.setItem('bhr-chat-panel-open', 'true');
+    localStorage.setItem('bhr-chat-expanded', 'true');
+    navigate('/');
   };
 
   const handleCopy = () => {

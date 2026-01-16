@@ -12,6 +12,4 @@ export { TextInput } from './TextInput';
 export { Tabs } from './Tabs';
 export { ProgressBar } from './ProgressBar';
 export { AIChatPanel } from './AIChatPanel';
-export { ChatSidebar } from './ChatSidebar';
-export { ChatContent } from './ChatContent';
 export { InlineArtifactCard } from './InlineArtifactCard';

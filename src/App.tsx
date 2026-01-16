@@ -1,7 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings } from './pages';
-import { Chat } from './pages/Chat';
 import { ArtifactWorkspace } from './pages/ArtifactWorkspace';
 import { ChatTransitionsDemo } from './pages/ChatTransitionsDemo';
 import { TextReflowDemo } from './pages/TextReflowDemo';
@@ -15,10 +14,6 @@ function App() {
       <ArtifactProvider>
         <BrowserRouter>
           <Routes>
-            {/* Chat routes - Full page, no AppLayout */}
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/chat/:conversationId" element={<Chat />} />
-
             {/* Artifact workspace - Full page, no AppLayout */}
             <Route path="/artifact/:type/:id" element={<ArtifactWorkspace />} />
 
