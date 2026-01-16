@@ -104,10 +104,10 @@ function AppLayout({ children }: AppLayoutProps) {
       {/* Global Navigation */}
       <GlobalNav />
 
-      {/* Header - Full width (only nav margin) */}
+      {/* Header - Fixed to top */}
       <div
-        className="transition-all duration-300 ease-in-out"
-        style={{ marginLeft: navWidth }}
+        className="fixed top-0 right-0 transition-all duration-300 ease-in-out z-40 bg-[var(--surface-neutral-white)]"
+        style={{ left: navWidth }}
       >
         <GlobalHeader />
       </div>
@@ -115,7 +115,7 @@ function AppLayout({ children }: AppLayoutProps) {
       {/* Page Content with Capsule Background - Compressed by chat panel */}
       <div
         className="transition-all duration-300 ease-in-out"
-        style={{ marginLeft: navWidth, marginRight: chatPanelWidth }}
+        style={{ marginLeft: navWidth, marginRight: chatPanelWidth, paddingTop: 90 }}
       >
         <main className="flex flex-col flex-1 pr-10 pb-10">
           <div
