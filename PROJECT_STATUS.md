@@ -432,13 +432,76 @@ Testing 7 solutions for text reflow during expansion:
 - Modified: Chart components (responsive sizing, color logic)
 - Data: artifactData.ts with types, mock data, utilities
 
-##### Next Steps for Artifacts
-- [ ] Wire up publish actions (export PNG/CSV, save, share)
+#### Inline Artifact Cards (IMPLEMENTED ✅)
+
+**Charts displayed directly in chat conversations, not just as thumbnails**
+
+##### Component: InlineArtifactCard
+
+**Location**: `src/components/InlineArtifactCard/`
+
+**Features**:
+- White rounded card (12px radius) with border
+- Green title (24px "small" TextHeadline)
+- Three action buttons:
+  - **Copy** - Copies artifact to clipboard (ready to wire up)
+  - **Edit** - Navigates to full artifact workspace (`/artifact/:type/:id`)
+  - **Publish** - Dropdown with 4 options (Dashboard, Report, Share, Download)
+- Chart rendered inline (500x340 for compact display)
+- Hover states on all buttons
+
+**Integration**:
+- Added `artifactId?: string` field to ChatMessage type
+- ChatContent and AIChatPanel check for artifactId and render InlineArtifactCard
+- Test data: Employee Onboarding conversation shows "Headcount by Department" chart
+- Appears in both panel and expanded chat views
+
+**Files**:
+- Created: `src/components/InlineArtifactCard/InlineArtifactCard.tsx`
+- Modified: `src/data/chatData.ts` (added artifactId field)
+- Modified: `src/components/ChatContent/ChatContent.tsx`
+- Modified: `src/components/AIChatPanel/AIChatPanel.tsx`
+- Latest commits: ba6c7e2, 22a7ccf, 385a77b
+
+##### 🎯 NEXT PRIORITY: Responsive Card Header Design
+
+**Challenge**: Handle title + buttons when card is narrow (sidebar) or title is long
+
+**Proposed Solutions**:
+
+1. **Stack Layout (Recommended)**
+   - Title on top row
+   - Buttons below in a row
+   - Always works regardless of width
+   ```
+   Headcount by Department
+   [Copy] [Edit] [Publish ▾]
+   ```
+
+2. **Icon-Only Buttons**
+   - Remove text labels on small screens
+   - Keep only icons: [📋] [✏️] [📤▾]
+   - Most compact, may lose clarity
+
+3. **Overflow Menu**
+   - Collapse all actions into single "•••" dropdown
+   - Very compact: `Headcount by Department  [•••]`
+
+4. **Responsive Hybrid**
+   - Use flex-wrap to stack buttons when needed
+   - Show full buttons when space allows
+
+**Decision Needed**: Choose and implement responsive header layout
+
+##### Next Steps for Inline Artifacts
+- [ ] **PRIORITY**: Implement responsive card header (stack layout recommended)
+- [ ] Wire up Copy functionality (clipboard API)
+- [ ] Wire up Publish actions (export PNG/CSV, save, share)
 - [ ] Add loading states for chart rendering
 - [ ] Add empty states for no data scenarios
 - [ ] Parse chart requests from chat input
-- [ ] Generate AI responses for settings changes
-- [ ] Implement other artifact types (document, org-chart, table)
+- [ ] Generate AI responses when charts appear
+- [ ] Test card appearance in narrow sidebar panel
 - [ ] Add chart tooltips on hover
 - [ ] Test dark mode compatibility
 
@@ -462,8 +525,16 @@ Testing 7 solutions for text reflow during expansion:
 4. ✅ Make Artifacts clickable and integrate with real data
 5. ✅ Build full Artifact Workspace with charts
 6. ✅ Implement chart interactivity and settings
+7. ✅ Create inline artifact cards for chat conversations
+8. ✅ Pin chat input 48px from bottom of screen
 
-## Next Steps
-1. Test dark mode compatibility for all chat and artifact components
-2. Polish any remaining styling details
-3. Ready for new major feature development!
+## Current Priority
+**Responsive Inline Artifact Card Header**
+- Design and implement solution for title + buttons on small cards
+- Options: Stack layout (recommended), icon-only, overflow menu, or hybrid
+- Must work in narrow sidebar panel (383px) and with long titles
+
+## Upcoming Work
+1. Implement compact view/mode
+2. Test dark mode compatibility for all chat and artifact components
+3. Polish any remaining styling details
