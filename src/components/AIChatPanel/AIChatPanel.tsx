@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
+import { InlineArtifactCard } from '../InlineArtifactCard';
 import { recentConversations } from '../../data/chatData';
 import type { ChatConversation } from '../../data/chatData';
 import { useArtifact } from '../../contexts/ArtifactContext';
@@ -347,6 +348,11 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                               <p className="text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)] whitespace-pre-line">
                                 {message.text}
                               </p>
+                              {/* Inline Artifact Card */}
+                              {message.artifactId && (() => {
+                                const artifact = artifacts.find(a => a.id === message.artifactId);
+                                return artifact ? <InlineArtifactCard artifact={artifact} /> : null;
+                              })()}
                               {/* Suggestion Chips */}
                               {message.suggestions && message.suggestions.length > 0 && (
                                 <div className="flex flex-wrap gap-2 mt-4">
@@ -416,6 +422,11 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                             <p className="text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)] whitespace-pre-line">
                               {message.text}
                             </p>
+                            {/* Inline Artifact Card */}
+                            {message.artifactId && (() => {
+                              const artifact = artifacts.find(a => a.id === message.artifactId);
+                              return artifact ? <InlineArtifactCard artifact={artifact} /> : null;
+                            })()}
                             {message.suggestions && message.suggestions.length > 0 && (
                               <div className="flex flex-col gap-2">
                                 {message.suggestions.map((suggestion, index) => (

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
+import { InlineArtifactCard } from '../InlineArtifactCard';
 import { useChat } from '../../contexts/ChatContext';
 import { useArtifact } from '../../contexts/ArtifactContext';
 import { chartTypeIcons } from '../../data/artifactData';
@@ -90,7 +91,7 @@ export function ChatContent({ className = '' }: ChatContentProps) {
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-[800px] mx-auto px-8 py-6 flex flex-col gap-6">
             {messages.map((message) => (
-              <MessageBubble key={message.id} message={message} />
+              <MessageBubble key={message.id} message={message} artifacts={artifacts} />
             ))}
 
             {/* Artifacts Section */}
@@ -163,9 +164,10 @@ export function ChatContent({ className = '' }: ChatContentProps) {
 
 interface MessageBubbleProps {
   message: ChatMessage;
+  artifacts: typeof import('../../data/artifactData').mockArtifacts;
 }
 
-function MessageBubble({ message }: MessageBubbleProps) {
+function MessageBubble({ message, artifacts }: MessageBubbleProps) {
   if (message.type === 'user') {
     return (
       <div className="flex justify-end">
@@ -195,6 +197,12 @@ function MessageBubble({ message }: MessageBubbleProps) {
         <p className="text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)] whitespace-pre-line">
           {message.text}
         </p>
+
+        {/* Inline Artifact Card */}
+        {message.artifactId && (() => {
+          const artifact = artifacts.find(a => a.id === message.artifactId);
+          return artifact ? <InlineArtifactCard artifact={artifact} /> : null;
+        })()}
 
         {/* Suggestion Chips */}
         {message.suggestions && message.suggestions.length > 0 && (

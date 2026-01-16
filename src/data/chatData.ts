@@ -3,6 +3,7 @@ export interface ChatMessage {
   type: 'user' | 'ai';
   text: string;
   suggestions?: string[];
+  artifactId?: string; // Reference to an artifact to display inline
 }
 
 export interface ChatConversation {
@@ -84,6 +85,17 @@ export const recentConversations: ChatConversation[] = [
         id: '2',
         type: 'ai',
         text: 'Here are the recent PTO policy updates for 2026:\n\n1. Unlimited PTO for employees with 3+ years tenure\n2. Minimum 2 weeks vacation required annually\n3. Rollover policy extended to 10 days',
+      },
+      {
+        id: '3',
+        type: 'user',
+        text: 'Can you show me a chart of average salaries by location?',
+      },
+      {
+        id: '4',
+        type: 'ai',
+        text: "Here's a breakdown of average salaries across our office locations:",
+        artifactId: 'artifact-2', // Links to "Salary by Location" chart
       },
     ],
   },
