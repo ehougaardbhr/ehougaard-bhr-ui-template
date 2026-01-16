@@ -21,8 +21,9 @@ export function ChatSidebar({ className = '' }: ChatSidebarProps) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const handleCollapse = () => {
-    // Open the slide-in chat panel
+    // Open the slide-in chat panel in expanded mode
     localStorage.setItem('bhr-chat-panel-open', 'true');
+    localStorage.setItem('bhr-chat-expanded', 'true');
     // Navigate to home page
     navigate('/');
   };
