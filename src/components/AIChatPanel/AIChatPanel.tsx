@@ -98,10 +98,10 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
 
   return (
     <div
-      className="fixed z-50"
+      className="fixed z-50 flex flex-col"
       style={{
         top: isExpanded ? 0 : 106,
-        bottom: isExpanded ? 0 : 40,
+        bottom: isExpanded ? 0 : 48,
         right: 16,
         width: isExpanded ? 'calc(100% - 32px)' : 383,
         transition: 'all 700ms cubic-bezier(0.25, 0.8, 0.25, 1)',
