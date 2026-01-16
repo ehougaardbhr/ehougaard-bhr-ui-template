@@ -118,7 +118,7 @@ export function ChartSettingsToolbar({ settings, onSettingsChange }: ChartSettin
   return (
     <div
       ref={toolbarRef}
-      className="h-12 px-6 flex items-center justify-between shrink-0"
+      className="h-12 px-8 flex items-center justify-between shrink-0"
       style={{
         backgroundColor: 'var(--surface-neutral-white)',
       }}

@@ -86,7 +86,7 @@ export function ArtifactWorkspace() {
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
         {/* Chart area with card containing header, toolbar, and chart */}
-        <div className="flex-1 p-6 overflow-auto">
+        <div className="flex-1 p-8 overflow-auto">
           <div
             className="flex flex-col h-full rounded-2xl overflow-hidden"
             style={{
