@@ -36,6 +36,17 @@ export const defaultConversation: ChatConversation = {
         'Add progress indicators',
       ],
     },
+    {
+      id: '3',
+      type: 'user',
+      text: 'Can you show me our current headcount by department?',
+    },
+    {
+      id: '4',
+      type: 'ai',
+      text: "Here's the current breakdown of employees across departments:",
+      artifactId: 'artifact-1', // Links to "Headcount by Department" chart
+    },
   ],
 };
 
@@ -69,6 +80,17 @@ export const recentConversations: ChatConversation[] = [
           'Assign onboarding buddies',
           'Add progress indicators',
         ],
+      },
+      {
+        id: '3',
+        type: 'user',
+        text: 'Can you show me our current headcount by department?',
+      },
+      {
+        id: '4',
+        type: 'ai',
+        text: "Here's the current breakdown of employees across departments:",
+        artifactId: 'artifact-1', // Links to "Headcount by Department" chart
       },
     ],
   },
