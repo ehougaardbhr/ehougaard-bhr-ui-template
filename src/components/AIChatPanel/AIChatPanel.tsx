@@ -5,8 +5,6 @@ import { InlineArtifactCard } from '../InlineArtifactCard';
 import { recentConversations } from '../../data/chatData';
 import type { ChatConversation } from '../../data/chatData';
 import { useArtifact } from '../../contexts/ArtifactContext';
-import { chartTypeIcons } from '../../data/artifactData';
-import type { ChartSettings } from '../../data/artifactData';
 
 interface AIChatPanelProps {
   isOpen: boolean;
@@ -23,7 +21,6 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isArtifactsExpanded, setIsArtifactsExpanded] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const messages = selectedConversation.messages;
@@ -33,22 +30,6 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const filteredConversations = recentConversations.filter(conv =>
     conv.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  // Map real artifacts to display format with colors
-  const artifactColors = ['#87C276', '#7AB8EE', '#C198D4', '#F2A766'];
-  const displayArtifacts = artifacts.map((artifact, index) => ({
-    id: artifact.id,
-    title: artifact.title,
-    type: artifact.type,
-    color: artifactColors[index % artifactColors.length],
-    icon: artifact.type === 'chart'
-      ? chartTypeIcons[(artifact.settings as ChartSettings).chartType]
-      : artifact.type === 'document' ? 'file-lines'
-      : artifact.type === 'org-chart' ? 'user-group'
-      : 'table',
-  }));
-
-  const visibleArtifacts = isArtifactsExpanded ? displayArtifacts : displayArtifacts.slice(0, 3);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -153,42 +134,6 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
             >
               <Icon name="pen-to-square" size={16} className="text-[var(--icon-neutral-x-strong)]" />
               New Chat
-            </button>
-          </div>
-
-          {/* Artifacts Section */}
-          <div className="px-4 py-3 mb-4">
-            {/* Artifacts Header */}
-            <div className="px-1 py-2 flex items-center justify-between">
-              <span className="text-[13px] font-semibold text-[var(--text-neutral-medium)]">
-                Artifacts
-              </span>
-            </div>
-
-            {/* Artifact Thumbnails Grid */}
-            <div className="grid grid-cols-3 gap-2 mt-2">
-              {visibleArtifacts.map((artifact) => (
-                <button
-                  key={artifact.id}
-                  onClick={() => {
-                    onClose();
-                    navigate(`/artifact/${artifact.type}/${artifact.id}`);
-                  }}
-                  className="aspect-[4/3] rounded-[var(--radius-xx-small)] flex items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{ backgroundColor: artifact.color }}
-                  title={artifact.title}
-                >
-                  <Icon name={artifact.icon as any} size={24} className="text-white" />
-                </button>
-              ))}
-            </div>
-
-            {/* See More/Less Link */}
-            <button
-              onClick={() => setIsArtifactsExpanded(!isArtifactsExpanded)}
-              className="w-full mt-3 text-[13px] text-[#0066CC] hover:underline text-left px-1"
-            >
-              {isArtifactsExpanded ? 'See less' : 'See more'}
             </button>
           </div>
 
