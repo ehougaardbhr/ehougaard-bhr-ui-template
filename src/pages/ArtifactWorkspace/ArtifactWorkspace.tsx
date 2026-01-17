@@ -37,6 +37,7 @@ export function ArtifactWorkspace() {
       : 'Untitled Artifact');
 
   const handleBack = () => {
+    // TODO: Fix reverse transition animation - currently disabled
     // Open the chat panel in expanded mode and navigate home
     localStorage.setItem('bhr-chat-panel-open', 'true');
     localStorage.setItem('bhr-chat-expanded', 'true');
@@ -60,7 +61,7 @@ export function ArtifactWorkspace() {
       <div className="h-screen flex items-center justify-center bg-[var(--surface-neutral-xx-weak)]">
         <div className="text-center">
           <TextHeadline size="large" color="neutral-strong">
-            Unsupported artifact type: {type}
+            {`Unsupported artifact type: ${type || 'unknown'}`}
           </TextHeadline>
           <p className="mt-2 text-[var(--text-neutral-medium)]">
             Only chart artifacts are currently supported.

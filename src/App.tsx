@@ -7,11 +7,14 @@ import { TextReflowDemo } from './pages/TextReflowDemo';
 import { TextReflowDemo2 } from './pages/TextReflowDemo2';
 import { ChatProvider } from './contexts/ChatContext';
 import { ArtifactProvider } from './contexts/ArtifactContext';
+import { ArtifactTransitionProvider } from './contexts/ArtifactTransitionContext';
+import { ArtifactTransitionOverlay } from './components/ArtifactTransitionOverlay';
 
 function App() {
   return (
     <ChatProvider>
       <ArtifactProvider>
+        <ArtifactTransitionProvider>
         <BrowserRouter>
           <Routes>
             {/* Artifact workspace - Full page, no AppLayout */}
@@ -41,7 +44,9 @@ function App() {
               }
             />
           </Routes>
+          <ArtifactTransitionOverlay />
         </BrowserRouter>
+        </ArtifactTransitionProvider>
       </ArtifactProvider>
     </ChatProvider>
   );

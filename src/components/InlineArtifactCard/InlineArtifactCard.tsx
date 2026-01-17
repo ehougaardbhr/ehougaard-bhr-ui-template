@@ -61,7 +61,8 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
   };
 
   const handleEdit = () => {
-    // Navigate to full artifact workspace
+    // TODO: Fix transition animation - currently disabled
+    // Direct navigation for now
     navigate(`/artifact/${artifact.type}/${artifact.id}`);
   };
 

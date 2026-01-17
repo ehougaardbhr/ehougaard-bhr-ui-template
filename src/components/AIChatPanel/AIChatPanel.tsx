@@ -100,6 +100,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   return (
     <div
       className="fixed z-50 flex flex-col"
+      data-chat-panel
       style={{
         top: isExpanded ? 0 : 106,
         bottom: isExpanded ? 0 : 48,
