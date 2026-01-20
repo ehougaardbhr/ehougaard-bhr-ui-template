@@ -10,45 +10,35 @@ interface TextEditorProps {
 
 export function TextEditor({ content, format, onChange }: TextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const isUserEditingRef = useRef(false);
 
-  // Initialize content when component mounts or content prop changes
+  // Initialize content when component mounts or when content changes externally (not from user input)
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== content) {
-      editorRef.current.innerHTML = formatContent(content, format);
+    if (editorRef.current && !isUserEditingRef.current) {
+      const currentText = editorRef.current.innerText;
+      if (currentText !== content) {
+        editorRef.current.innerText = content;
+      }
     }
-  }, [content, format]);
-
-  const formatContent = (text: string, fmt: FormatType): string => {
-    if (!text) return '';
-
-    const paragraphs = text.split('\n\n');
-
-    switch (fmt) {
-      case 'bullets':
-        return paragraphs.map(p => {
-          if (p.startsWith('•')) {
-            return p;
-          }
-          return `• ${p}`;
-        }).join('\n\n');
-
-      case 'numbered':
-        return paragraphs.map((p, i) => {
-          if (/^\d+\./.test(p)) {
-            return p;
-          }
-          return `${i + 1}. ${p}`;
-        }).join('\n\n');
-
-      default:
-        return text;
-    }
-  };
+  }, [content]);
 
   const handleInput = () => {
     if (editorRef.current) {
+      isUserEditingRef.current = true;
       onChange(editorRef.current.innerText);
+      // Reset the flag after a brief delay to allow external updates
+      setTimeout(() => {
+        isUserEditingRef.current = false;
+      }, 100);
     }
+  };
+
+  const handleFocus = () => {
+    isUserEditingRef.current = true;
+  };
+
+  const handleBlur = () => {
+    isUserEditingRef.current = false;
   };
 
   const execCommand = (command: string, value?: string) => {
@@ -162,6 +152,8 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
           ref={editorRef}
           contentEditable
           onInput={handleInput}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           className="min-h-full outline-none"
           style={{
             color: 'var(--text-neutral-strong)',
