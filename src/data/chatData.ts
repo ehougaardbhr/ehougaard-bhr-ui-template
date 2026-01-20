@@ -47,6 +47,22 @@ export const defaultConversation: ChatConversation = {
       text: "Here's the current breakdown of employees across departments:",
       artifactId: 'artifact-1', // Links to "Headcount by Department" chart
     },
+    {
+      id: '5',
+      type: 'user',
+      text: 'Can you draft a welcome message for new hires?',
+    },
+    {
+      id: '6',
+      type: 'ai',
+      text: "I've created a friendly welcome message for new hires:",
+      artifactId: 'artifact-6', // Links to "Welcome Message for New Hires" text
+      suggestions: [
+        'Make it more formal',
+        'Add onboarding timeline',
+        'Include team introductions',
+      ],
+    },
   ],
 };
 
@@ -92,6 +108,22 @@ export const recentConversations: ChatConversation[] = [
         text: "Here's the current breakdown of employees across departments:",
         artifactId: 'artifact-1', // Links to "Headcount by Department" chart
       },
+      {
+        id: '5',
+        type: 'user',
+        text: 'Can you draft a welcome message for new hires?',
+      },
+      {
+        id: '6',
+        type: 'ai',
+        text: "I've created a friendly welcome message for new hires:",
+        artifactId: 'artifact-6', // Links to "Welcome Message for New Hires" text
+        suggestions: [
+          'Make it more formal',
+          'Add onboarding timeline',
+          'Include team introductions',
+        ],
+      },
     ],
   },
   {
@@ -111,10 +143,21 @@ export const recentConversations: ChatConversation[] = [
       {
         id: '3',
         type: 'user',
-        text: 'Can you show me a chart of average salaries by location?',
+        text: 'Can you write up a summary document of our PTO policy?',
       },
       {
         id: '4',
+        type: 'ai',
+        text: "I've created a comprehensive PTO policy summary:",
+        artifactId: 'artifact-5', // Links to "PTO Policy Summary" text
+      },
+      {
+        id: '5',
+        type: 'user',
+        text: 'Can you show me a chart of average salaries by location?',
+      },
+      {
+        id: '6',
         type: 'ai',
         text: "Here's a breakdown of average salaries across our office locations:",
         artifactId: 'artifact-2', // Links to "Salary by Location" chart
@@ -135,6 +178,22 @@ export const recentConversations: ChatConversation[] = [
         type: 'ai',
         text: 'Benefits enrollment begins on January 15, 2026 and runs through January 31, 2026. You can review and update your health insurance, dental, vision, and 401(k) selections during this period.',
       },
+      {
+        id: '3',
+        type: 'user',
+        text: 'Can you create a guide for remote work best practices?',
+      },
+      {
+        id: '4',
+        type: 'ai',
+        text: "I've put together a helpful guide on remote work best practices:",
+        artifactId: 'artifact-8', // Links to "Remote Work Best Practices" text
+        suggestions: [
+          'Add equipment recommendations',
+          'Include communication tips',
+          'Suggest productivity tools',
+        ],
+      },
     ],
   },
   {
@@ -150,6 +209,33 @@ export const recentConversations: ChatConversation[] = [
         id: '2',
         type: 'ai',
         text: 'Here are key steps to prepare for performance reviews:\n\n1. Review goal completion from last quarter\n2. Gather peer feedback\n3. Document key achievements\n4. Identify areas for growth',
+      },
+      {
+        id: '3',
+        type: 'user',
+        text: 'Can you create formal performance review guidelines for managers?',
+      },
+      {
+        id: '4',
+        type: 'ai',
+        text: "I've created comprehensive performance review guidelines:",
+        artifactId: 'artifact-7', // Links to "Performance Review Guidelines" text
+        suggestions: [
+          'Add rating scale details',
+          'Include sample questions',
+          'Create manager checklist',
+        ],
+      },
+      {
+        id: '5',
+        type: 'user',
+        text: 'Show me turnover rates by job level',
+      },
+      {
+        id: '6',
+        type: 'ai',
+        text: "Here's the turnover breakdown by job level:",
+        artifactId: 'artifact-3', // Links to "Turnover by Job Level" chart
       },
     ],
   },
