@@ -154,7 +154,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
           onInput={handleInput}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          className="min-h-full outline-none"
+          className="min-h-full outline-none text-editor-content"
           style={{
             color: 'var(--text-neutral-strong)',
             fontSize: '15px',
