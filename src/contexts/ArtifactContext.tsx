@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { mockArtifacts, type Artifact, type ChartSettings } from '../data/artifactData';
+import { mockArtifacts, type Artifact, type ChartSettings, type TextSettings } from '../data/artifactData';
 
 const SELECTED_ARTIFACT_KEY = 'bhr-selected-artifact';
 
@@ -13,7 +13,8 @@ interface ArtifactContextType {
 
   // Actions
   selectArtifact: (id: string) => void;
-  updateArtifactSettings: (id: string, settings: Partial<ChartSettings>) => void;
+  updateArtifactSettings: (id: string, settings: Partial<ChartSettings> | Partial<TextSettings>) => void;
+  updateArtifactContent: (id: string, content: string) => void;
   toggleDrawer: () => void;
   setDrawerOpen: (open: boolean) => void;
   createArtifact: (type: Artifact['type'], conversationId: string, title: string) => Artifact;
@@ -38,15 +39,27 @@ export function ArtifactProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(SELECTED_ARTIFACT_KEY, id);
   }, []);
 
-  const updateArtifactSettings = useCallback((id: string, settings: Partial<ChartSettings>) => {
+  const updateArtifactSettings = useCallback((id: string, settings: Partial<ChartSettings> | Partial<TextSettings>) => {
     setArtifacts(prev => prev.map(artifact => {
-      if (artifact.id === id && artifact.type === 'chart') {
+      if (artifact.id === id) {
         return {
           ...artifact,
           settings: {
             ...artifact.settings,
             ...settings,
-          } as ChartSettings,
+          },
+        };
+      }
+      return artifact;
+    }));
+  }, []);
+
+  const updateArtifactContent = useCallback((id: string, content: string) => {
+    setArtifacts(prev => prev.map(artifact => {
+      if (artifact.id === id && artifact.type === 'text') {
+        return {
+          ...artifact,
+          content,
         };
       }
       return artifact;
@@ -74,13 +87,21 @@ export function ArtifactProvider({ children }: { children: ReactNode }) {
       benchmark: 'none',
     };
 
+    // Default settings for text artifacts
+    const defaultTextSettings: TextSettings = {
+      tone: 'professional',
+      length: 'standard',
+      format: 'paragraph',
+    };
+
     const newArtifact: Artifact = {
       id: newId,
       type,
       title,
       conversationId,
       createdAt: new Date(),
-      settings: type === 'chart' ? defaultChartSettings : {},
+      settings: type === 'chart' ? defaultChartSettings : type === 'text' ? defaultTextSettings : {},
+      content: type === 'text' ? '' : undefined,
     };
 
     setArtifacts(prev => [newArtifact, ...prev]);
@@ -103,6 +124,7 @@ export function ArtifactProvider({ children }: { children: ReactNode }) {
         isDrawerOpen,
         selectArtifact,
         updateArtifactSettings,
+        updateArtifactContent,
         toggleDrawer,
         setDrawerOpen,
         createArtifact,

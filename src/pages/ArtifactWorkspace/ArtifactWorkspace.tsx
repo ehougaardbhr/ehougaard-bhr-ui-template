@@ -6,9 +6,11 @@ import { TextHeadline } from '../../components/TextHeadline';
 import { ArtifactTopBar } from '../../components/ArtifactTopBar';
 import { ArtifactToolBar } from '../../components/ArtifactToolBar';
 import { ArtifactChatPanel } from '../../components/ArtifactChatPanel';
-import type { ChartSettings } from '../../data/artifactData';
+import type { ChartSettings, TextSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
 import { BarChart, LineChart, PieChart, TableChart, ChartSettingsToolbar } from '../../components/Charts';
+import { TextSettingsToolbar } from '../../components/TextSettingsToolbar';
+import { TextEditor } from '../../components/TextEditor';
 
 export function ArtifactWorkspace() {
   const { type, id } = useParams<{ type: string; id: string }>();
@@ -18,6 +20,7 @@ export function ArtifactWorkspace() {
     selectedArtifact,
     artifacts,
     updateArtifactSettings,
+    updateArtifactContent,
   } = useArtifact();
 
   // Select artifact from URL param on mount
@@ -55,8 +58,8 @@ export function ArtifactWorkspace() {
     console.log('Publish action:', action);
   };
 
-  // For now, only handle chart artifacts
-  if (type !== 'chart') {
+  // Handle supported artifact types
+  if (type !== 'chart' && type !== 'text') {
     return (
       <div className="h-screen flex items-center justify-center bg-[var(--surface-neutral-xx-weak)]">
         <div className="text-center">
@@ -64,7 +67,7 @@ export function ArtifactWorkspace() {
             {`Unsupported artifact type: ${type || 'unknown'}`}
           </TextHeadline>
           <p className="mt-2 text-[var(--text-neutral-medium)]">
-            Only chart artifacts are currently supported.
+            Only chart and text artifacts are currently supported.
           </p>
           <button
             onClick={() => navigate(-1)}
@@ -101,8 +104,8 @@ export function ArtifactWorkspace() {
               onPublish={handlePublish}
             />
 
-            {/* Settings Toolbar inside card */}
-            {selectedArtifact && (
+            {/* Settings Toolbar inside card - conditional based on type */}
+            {selectedArtifact && selectedArtifact.type === 'chart' && (
               <ChartSettingsToolbar
                 settings={selectedArtifact.settings as ChartSettings}
                 onSettingsChange={(newSettings) => {
@@ -110,11 +113,19 @@ export function ArtifactWorkspace() {
                 }}
               />
             )}
+            {selectedArtifact && selectedArtifact.type === 'text' && (
+              <TextSettingsToolbar
+                settings={selectedArtifact.settings as TextSettings}
+                onSettingsChange={(newSettings) => {
+                  updateArtifactSettings(selectedArtifact.id, newSettings);
+                }}
+              />
+            )}
 
-            {/* Chart content */}
-            <div className="flex-1 p-8 flex items-center justify-center overflow-hidden">
-              {selectedArtifact ? (
-                (() => {
+            {/* Content area - conditional based on type */}
+            {selectedArtifact && selectedArtifact.type === 'chart' && (
+              <div className="flex-1 p-8 flex items-center justify-center overflow-hidden">
+                {(() => {
                   const chartSettings = selectedArtifact.settings as ChartSettings;
                   const width = 900;
                   const height = 600;
@@ -131,16 +142,28 @@ export function ArtifactWorkspace() {
                     default:
                       return null;
                   }
-                })()
-              ) : (
+                })()}
+              </div>
+            )}
+            {selectedArtifact && selectedArtifact.type === 'text' && (
+              <TextEditor
+                content={selectedArtifact.content || ''}
+                format={(selectedArtifact.settings as TextSettings).format}
+                onChange={(newContent) => {
+                  updateArtifactContent(selectedArtifact.id, newContent);
+                }}
+              />
+            )}
+            {!selectedArtifact && (
+              <div className="flex-1 p-8 flex items-center justify-center">
                 <div className="text-center">
                   <Icon name="chart-simple" size={48} className="text-[var(--text-neutral-weak)] mx-auto mb-4" />
                   <TextHeadline size="medium" color="neutral-medium">
                     No artifact selected
                   </TextHeadline>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         </div>
 

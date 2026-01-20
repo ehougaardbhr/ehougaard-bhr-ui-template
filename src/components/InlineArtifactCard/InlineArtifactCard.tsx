@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { BarChart, LineChart, PieChart, TableChart } from '../Charts';
+import { TextDisplay } from '../TextDisplay';
 import type { Artifact, ChartSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
 
@@ -76,29 +77,44 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
   const title = artifact.title ||
     (artifact.type === 'chart' ? generateArtifactTitle(artifact.settings as ChartSettings) : 'Untitled');
 
-  // Render chart based on type
-  const renderChart = () => {
-    if (artifact.type !== 'chart') return null;
+  // Render content based on artifact type
+  const renderContent = () => {
+    if (artifact.type === 'chart') {
+      const chartSettings = artifact.settings as ChartSettings;
+      // Larger sizes for better visibility
+      // Sidebar is ~383px wide - 48px card padding = 335px available
+      // Use that full width for compact mode
+      const width = compact ? 335 : 700;
+      const height = compact ? 230 : 480;
 
-    const chartSettings = artifact.settings as ChartSettings;
-    // Larger sizes for better visibility
-    // Sidebar is ~383px wide - 48px card padding = 335px available
-    // Use that full width for compact mode
-    const width = compact ? 335 : 700;
-    const height = compact ? 230 : 480;
-
-    switch (chartSettings.chartType) {
-      case 'bar':
-        return <BarChart settings={chartSettings} width={width} height={height} />;
-      case 'line':
-        return <LineChart settings={chartSettings} width={width} height={height} />;
-      case 'pie':
-        return <PieChart settings={chartSettings} width={height} height={height} />;
-      case 'table':
-        return <TableChart settings={chartSettings} />;
-      default:
-        return null;
+      switch (chartSettings.chartType) {
+        case 'bar':
+          return <BarChart settings={chartSettings} width={width} height={height} />;
+        case 'line':
+          return <LineChart settings={chartSettings} width={width} height={height} />;
+        case 'pie':
+          return <PieChart settings={chartSettings} width={height} height={height} />;
+        case 'table':
+          return <TableChart settings={chartSettings} />;
+        default:
+          return null;
+      }
     }
+
+    if (artifact.type === 'text') {
+      // Show truncated preview for compact, full content for expanded
+      const maxLength = compact ? 200 : 600;
+      return (
+        <div className={compact ? '' : 'max-w-3xl'}>
+          <TextDisplay
+            content={artifact.content || 'No content'}
+            maxLength={maxLength}
+          />
+        </div>
+      );
+    }
+
+    return null;
   };
 
   const handleCardClick = () => {
@@ -338,9 +354,9 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
         )}
       </div>
 
-      {/* Chart display */}
+      {/* Content display (chart or text) */}
       <div className="w-full">
-        {renderChart()}
+        {renderContent()}
       </div>
     </div>
   );

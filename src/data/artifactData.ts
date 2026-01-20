@@ -2,7 +2,7 @@
 // TYPE DEFINITIONS
 // ============================================
 
-export type ArtifactType = 'chart' | 'document' | 'org-chart' | 'table';
+export type ArtifactType = 'chart' | 'text' | 'document' | 'org-chart' | 'table';
 
 export type ChartType = 'bar' | 'line' | 'pie' | 'table';
 export type MeasureType = 'headcount' | 'salary' | 'tenure' | 'turnover';
@@ -20,13 +20,24 @@ export interface ChartSettings {
   benchmark: BenchmarkType;
 }
 
+export type ToneType = 'professional' | 'casual' | 'formal' | 'friendly';
+export type LengthType = 'brief' | 'standard' | 'detailed';
+export type FormatType = 'paragraph' | 'bullets' | 'numbered';
+
+export interface TextSettings {
+  tone: ToneType;
+  length: LengthType;
+  format: FormatType;
+}
+
 export interface Artifact {
   id: string;
   type: ArtifactType;
   title: string;
   conversationId: string;
   createdAt: Date;
-  settings: ChartSettings | Record<string, unknown>; // Extensible for other artifact types
+  settings: ChartSettings | TextSettings | Record<string, unknown>; // Extensible for other artifact types
+  content?: string; // For text artifacts
 }
 
 export interface ChartDataPoint {
@@ -84,6 +95,25 @@ export const benchmarkLabels: Record<BenchmarkType, string> = {
   none: 'None',
   industry: 'Industry Average',
   previous: 'Previous Year',
+};
+
+export const toneLabels: Record<ToneType, string> = {
+  professional: 'Professional',
+  casual: 'Casual',
+  formal: 'Formal',
+  friendly: 'Friendly',
+};
+
+export const lengthLabels: Record<LengthType, string> = {
+  brief: 'Brief',
+  standard: 'Standard',
+  detailed: 'Detailed',
+};
+
+export const formatLabels: Record<FormatType, string> = {
+  paragraph: 'Paragraph',
+  bullets: 'Bullets',
+  numbered: 'Numbered',
 };
 
 // ============================================
@@ -294,6 +324,58 @@ export const mockArtifacts: Artifact[] = [
       filter: 'full-time',
       benchmark: 'previous',
     } as ChartSettings,
+  },
+  {
+    id: 'artifact-5',
+    type: 'text',
+    title: 'PTO Policy Summary',
+    conversationId: '2', // Links to "PTO Policy Updates"
+    createdAt: new Date('2026-01-11T11:30:00'),
+    settings: {
+      tone: 'professional',
+      length: 'standard',
+      format: 'paragraph',
+    } as TextSettings,
+    content: `Our company offers a comprehensive Paid Time Off (PTO) policy designed to support work-life balance. Full-time employees accrue 15 days of PTO annually during their first year, increasing to 20 days after three years of service. PTO can be used for vacation, personal matters, or illness.\n\nEmployees are encouraged to schedule time off in advance when possible, and all requests should be submitted through the HR portal. PTO accrues bi-weekly and rolls over up to 5 days into the following year. We also observe 10 company holidays throughout the year.\n\nFor questions about your PTO balance or to request time off, please contact the HR team or access your account through the employee portal.`,
+  },
+  {
+    id: 'artifact-6',
+    type: 'text',
+    title: 'Welcome Message for New Hires',
+    conversationId: '1', // Links to "Employee Onboarding"
+    createdAt: new Date('2026-01-10T09:00:00'),
+    settings: {
+      tone: 'friendly',
+      length: 'brief',
+      format: 'paragraph',
+    } as TextSettings,
+    content: `Welcome to the team! We're thrilled to have you join us. Your first week will be packed with exciting introductions, training sessions, and getting to know your new colleagues.\n\nYou'll receive your equipment and access credentials on day one. Don't hesitate to ask questions—everyone here remembers being new and is happy to help. We're excited to see all the great things you'll accomplish!`,
+  },
+  {
+    id: 'artifact-7',
+    type: 'text',
+    title: 'Performance Review Guidelines',
+    conversationId: '4', // Links to "Performance Reviews"
+    createdAt: new Date('2026-01-09T14:15:00'),
+    settings: {
+      tone: 'formal',
+      length: 'detailed',
+      format: 'numbered',
+    } as TextSettings,
+    content: `1. Review Period and Schedule\nPerformance reviews are conducted bi-annually in January and July. Managers will schedule 60-minute one-on-one meetings with each direct report to discuss performance, goals, and development opportunities.\n\n2. Evaluation Criteria\nEmployees are evaluated across five key competencies: job knowledge and skills, quality of work, productivity and efficiency, communication and collaboration, and initiative and innovation. Each area is rated on a scale from 1 (needs improvement) to 5 (exceptional).\n\n3. Self-Assessment Process\nEmployees are required to complete a self-assessment form at least one week before their scheduled review meeting. This form should include accomplishments, challenges faced, goals achieved, and professional development interests.\n\n4. Manager Preparation\nManagers should review the employee's self-assessment, gather feedback from colleagues and stakeholders, compile specific examples of performance (both strengths and areas for improvement), and prepare development recommendations.\n\n5. Review Discussion\nThe review meeting should be a two-way conversation. Begin by discussing accomplishments and strengths, then address areas for development constructively, and conclude by setting clear goals for the next review period and identifying growth opportunities.`,
+  },
+  {
+    id: 'artifact-8',
+    type: 'text',
+    title: 'Remote Work Best Practices',
+    conversationId: '3', // Links to "Benefits Overview"
+    createdAt: new Date('2026-01-08T10:20:00'),
+    settings: {
+      tone: 'casual',
+      length: 'standard',
+      format: 'bullets',
+    } as TextSettings,
+    content: `• Set up a dedicated workspace with good lighting and minimal distractions\n• Stick to regular working hours and take breaks to avoid burnout\n• Use video for meetings when possible to maintain team connection\n• Over-communicate with your team since casual hallway chats don't happen remotely\n• Keep your calendar updated so teammates know when you're available\n• Use status indicators in Slack to show when you're focused, in meetings, or away\n• Schedule virtual coffee chats with colleagues to maintain relationships\n• Take advantage of flexible hours but be present for core team collaboration time\n• Set boundaries between work and personal life—close your laptop at end of day\n• Speak up if you're feeling isolated or need more team interaction`,
   },
 ];
 
