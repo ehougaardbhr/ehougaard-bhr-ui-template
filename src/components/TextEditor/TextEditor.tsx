@@ -73,6 +73,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('bold')}
           className="h-8 w-8 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Bold"
         >
           <Icon name="bold" size={14} />
@@ -80,6 +81,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('italic')}
           className="h-8 w-8 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Italic"
         >
           <Icon name="italic" size={14} />
@@ -87,6 +89,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('underline')}
           className="h-8 w-8 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Underline"
         >
           <Icon name="underline" size={14} />
@@ -100,6 +103,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('formatBlock', '<h1>')}
           className="h-8 px-2 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors text-[13px] font-medium"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Heading 1"
         >
           H1
@@ -107,6 +111,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('formatBlock', '<h2>')}
           className="h-8 px-2 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors text-[13px] font-medium"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Heading 2"
         >
           H2
@@ -114,6 +119,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('formatBlock', '<h3>')}
           className="h-8 px-2 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors text-[13px] font-medium"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Heading 3"
         >
           H3
@@ -121,6 +127,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('formatBlock', '<p>')}
           className="h-8 px-2 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors text-[13px] font-medium"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Paragraph"
         >
           P
@@ -134,6 +141,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('insertUnorderedList')}
           className="h-8 w-8 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Bullet List"
         >
           <Icon name="list-ul" size={14} />
@@ -141,6 +149,7 @@ export function TextEditor({ content, format, onChange }: TextEditorProps) {
         <button
           onClick={() => execCommand('insertOrderedList')}
           className="h-8 w-8 rounded flex items-center justify-center hover:bg-[var(--surface-neutral-x-weak)] transition-colors"
+          style={{ color: 'var(--text-neutral-strong)' }}
           title="Numbered List"
         >
           <Icon name="list-ol" size={14} />
