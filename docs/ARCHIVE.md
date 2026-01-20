@@ -209,6 +209,56 @@ const maxCards = Math.floor((availableWidth + MIN_GAP) / (CARD_WIDTH + MIN_GAP))
 
 Cards use `justify-between` to redistribute remaining space.
 
+## Text Artifacts Implementation (Jan 20, 2026)
+
+### Purpose
+Add text artifact type alongside chart artifacts, reusing the same UX patterns.
+
+### Implementation Details
+Created complete text artifact support:
+
+**Data Model** (`artifactData.ts`):
+- `TextSettings` interface: tone, length, format
+- Label mappings for all settings
+- 4 mock text artifacts with realistic HR content
+- Added `content` field to Artifact interface
+
+**Context Updates** (`ArtifactContext.tsx`):
+- `updateArtifactContent()` function for text updates
+- Default text settings in `createArtifact()`
+- User editing tracking to prevent cursor jumping
+
+**New Components**:
+- **TextSettingsToolbar**: Reuses dropdown pattern from ChartSettingsToolbar
+- **TextEditor**: ContentEditable-based with formatting toolbar (Bold, Italic, Underline, Headings, Lists)
+- **TextDisplay**: Read-only text with truncation for previews
+
+**Workspace Integration**:
+- Conditional rendering for text vs chart artifacts
+- Type-specific toolbar and content areas
+- Scoped heading styles (`.text-editor-content` class) to avoid affecting global headers
+
+**Issues Fixed**:
+- Cursor jumping on Enter key (useEffect interference with contentEditable)
+- Missing Font Awesome icons (bold, italic, underline, list-ul, list-ol)
+- Dark mode button visibility (explicit text color on all toolbar buttons)
+- Global heading style pollution (scoped styles to editor only)
+
+**Navigation Enhancement**:
+- Clicking artifact in sidebar now navigates to conversation and scrolls to artifact
+- Expands chat panel if collapsed
+- Smooth scroll with appropriate timing delays
+
+### Files Created
+- `src/components/TextSettingsToolbar/`
+- `src/components/TextEditor/`
+- `src/components/TextDisplay/`
+
+### Lessons Learned
+- Always scope CSS when adding global element styles (h1, h2, etc.)
+- ContentEditable requires careful state management to preserve cursor position
+- Icon definitions must exist before use - invisible buttons indicate missing icons
+
 ## Figma MCP Integration
 
 Used Figma MCP tools to:

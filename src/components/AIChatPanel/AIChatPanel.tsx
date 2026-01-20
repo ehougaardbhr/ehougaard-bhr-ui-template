@@ -125,31 +125,8 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
             transition: 'width 700ms cubic-bezier(0.25, 0.8, 0.25, 1), opacity 700ms cubic-bezier(0.25, 0.8, 0.25, 1)',
           }}
         >
-          {/* Sidebar Header */}
-          <div className="flex items-center justify-between px-5 py-4">
-            <div className="w-6 h-6 flex items-center justify-center bg-[var(--color-primary-strong)] rounded-md">
-              <Icon name="sparkles" size={14} className="text-white" />
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleCollapse}
-                className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xx-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
-                aria-label="Collapse to panel"
-              >
-                <Icon name="down-left-and-up-right-to-center" size={16} className="text-[var(--icon-neutral-x-strong)]" />
-              </button>
-              <button
-                onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xx-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
-                aria-label="Close chat"
-              >
-                <Icon name="xmark" size={16} className="text-[var(--icon-neutral-x-strong)]" />
-              </button>
-            </div>
-          </div>
-
           {/* New Chat Button */}
-          <div className="px-4 py-3">
+          <div className="px-4 py-3 pt-6">
             <button
               className="w-full flex items-center gap-3 px-4 py-3 text-[15px] font-medium text-[var(--text-neutral-x-strong)] hover:bg-[var(--surface-neutral-xx-weak)] rounded-[var(--radius-xx-small)] transition-colors"
             >
@@ -334,6 +311,28 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
           <div className={`flex-1 flex flex-col min-h-0 ${isExpanded ? 'bg-[var(--surface-neutral-white)] p-6' : 'bg-[var(--surface-neutral-white)]'}`}>
             {isExpanded ? (
               /* Expanded view - grey rounded container */
+              <>
+                {/* Header with title and controls */}
+                <div className="flex items-center justify-between mb-6 px-2">
+                  <h2>{title}</h2>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={handleCollapse}
+                      className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xx-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                      aria-label="Collapse to panel"
+                    >
+                      <Icon name="down-left-and-up-right-to-center" size={16} className="text-[var(--icon-neutral-x-strong)]" />
+                    </button>
+                    <button
+                      onClick={onClose}
+                      className="w-8 h-8 flex items-center justify-center rounded-[var(--radius-xx-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                      aria-label="Close chat"
+                    >
+                      <Icon name="xmark" size={16} className="text-[var(--icon-neutral-x-strong)]" />
+                    </button>
+                  </div>
+                </div>
+
               <div className="flex-1 flex flex-col bg-[var(--surface-neutral-xx-weak)] rounded-[20px] overflow-hidden">
                 {/* Messages Area */}
                 <div className="flex-1 overflow-y-auto">
@@ -417,6 +416,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                   </div>
                 </div>
               </div>
+              </>
             ) : (
               /* Panel view - original layout */
               <div className="flex-1 flex flex-col overflow-hidden">

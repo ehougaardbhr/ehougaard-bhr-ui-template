@@ -46,9 +46,9 @@ User-generated visualizations and documents displayed inline in conversations an
 ### Artifact Types
 Currently implemented:
 - **Charts**: Bar, Line, Pie, Table
+- **Text**: Rich text editing with formatting toolbar
 
 Planned:
-- **Text**: Generation + rich text editing
 - **Workflows**: Process/flowchart builder
 - **Org Charts**: Hierarchy visualization + scenario planning
 
@@ -110,15 +110,47 @@ Mock data in `src/data/artifactData.ts`:
 - Label mappings
 - Format utilities
 
+### Text Features
+
+#### Editing Capabilities
+Rich text editor with formatting toolbar:
+- **Text formatting**: Bold, Italic, Underline
+- **Headings**: H1, H2, H3, P (paragraph)
+- **Lists**: Bulleted and numbered
+
+#### Settings Controls
+Dropdown pills for:
+- **Tone**: Professional, Casual, Formal, Friendly
+- **Length**: Brief, Standard, Detailed
+- **Format**: Paragraph, Bullets, Numbered
+
+#### Components
+- **TextSettingsToolbar**: Horizontal settings pills matching chart toolbar pattern
+- **TextEditor**: ContentEditable-based rich text editor with formatting buttons
+- **TextDisplay**: Read-only text rendering for inline previews
+
+#### Mock Data
+4 sample text artifacts in `artifactData.ts`:
+- PTO Policy Summary (professional/standard/paragraph)
+- Welcome Message for New Hires (friendly/brief/paragraph)
+- Performance Review Guidelines (formal/detailed/numbered)
+- Remote Work Best Practices (casual/standard/bullets)
+
+#### Inline Display
+- Shows truncated text preview (200 chars in panel, 600 in expanded)
+- Document icon to differentiate from charts
+- Same action buttons as charts (Copy, Edit, Publish)
+
 ### Artifact Context
 **ArtifactContext** manages:
 - Artifacts list
 - Selected artifact
-- Settings updates
+- Settings updates (charts and text)
+- Content updates (for text)
 - Creation/selection actions
 
 ### Navigation Integration
-- **Chat sidebar**: Shows artifacts above conversation list
+- **Chat sidebar**: Shows artifacts above conversation list, click to navigate to conversation and scroll to artifact
 - **Inline cards**: Click "Edit" → navigate to workspace
 - **Back button**: Return to chat from workspace
 

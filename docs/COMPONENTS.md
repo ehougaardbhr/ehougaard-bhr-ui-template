@@ -209,6 +209,42 @@ Horizontal toolbar with dropdowns:
 - Replaces old vertical drawer design
 - Props: `settings`, `onSettingsChange`
 
+## Text Components
+
+All located in `src/components/`
+
+### TextSettingsToolbar
+**Location**: `src/components/TextSettingsToolbar/`
+
+Horizontal toolbar with dropdown pills for text settings:
+- Tone: Professional, Casual, Formal, Friendly
+- Length: Brief, Standard, Detailed
+- Format: Paragraph, Bullets, Numbered
+- "Saved" indicator with green checkmark
+- Matches ChartSettingsToolbar pattern
+- Props: `settings`, `onSettingsChange`
+
+### TextEditor
+**Location**: `src/components/TextEditor/`
+
+Rich text editor with formatting toolbar:
+- ContentEditable-based editing
+- Formatting buttons: Bold, Italic, Underline
+- Heading buttons: H1, H2, H3, P
+- List buttons: Bulleted, Numbered
+- Scoped heading styles via `.text-editor-content` class
+- User editing tracking to prevent cursor jumping
+- Props: `content`, `format`, `onChange`
+
+### TextDisplay
+**Location**: `src/components/TextDisplay/`
+
+Read-only text display with truncation:
+- Shows text content with optional length limit
+- Truncates with "..." if exceeds maxLength
+- Used in InlineArtifactCard for previews
+- Props: `content`, `maxLength`, `className`
+
 ## Context Providers
 
 ### ChatContext
@@ -223,9 +259,10 @@ Manages chat state:
 **Location**: `src/contexts/ArtifactContext.tsx`
 
 Manages artifact state:
-- Actions: `selectArtifact`, `updateArtifactSettings`, `toggleDrawer`, `createArtifact`
-- ChartSettings interface
-- Mock artifacts list
+- Actions: `selectArtifact`, `updateArtifactSettings`, `updateArtifactContent`, `toggleDrawer`, `createArtifact`
+- ChartSettings and TextSettings interfaces
+- Mock artifacts list (charts and text)
+- Default settings for both artifact types
 
 ### ArtifactTransitionContext
 **Location**: `src/contexts/ArtifactTransitionContext.tsx`
