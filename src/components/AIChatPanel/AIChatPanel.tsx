@@ -170,7 +170,26 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                 {displayedArtifacts.map((artifact) => (
                   <button
                     key={artifact.id}
-                    onClick={() => navigate(`/artifact/${artifact.type}/${artifact.id}`)}
+                    onClick={() => {
+                      // Find the conversation that contains this artifact
+                      const conversation = recentConversations.find(
+                        conv => conv.id === artifact.conversationId
+                      );
+                      if (conversation) {
+                        setSelectedConversation(conversation);
+                        // Expand chat if collapsed
+                        if (!isExpanded) {
+                          onExpandChange(true);
+                        }
+                        // Scroll to artifact after a brief delay for the DOM to update
+                        setTimeout(() => {
+                          const artifactElement = document.querySelector(`[data-artifact-id="${artifact.id}"]`);
+                          if (artifactElement) {
+                            artifactElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                          }
+                        }, isExpanded ? 100 : 800); // Longer delay if expanding
+                      }
+                    }}
                     className="w-full text-left px-4 py-2.5 rounded-[var(--radius-xx-small)] text-[15px] text-[var(--text-neutral-x-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors duration-150 flex items-center gap-3"
                   >
                     <Icon name={getArtifactIcon(artifact) as any} size={14} className="text-[var(--icon-neutral-strong)] shrink-0" />

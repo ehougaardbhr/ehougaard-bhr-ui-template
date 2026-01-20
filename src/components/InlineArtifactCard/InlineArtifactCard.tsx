@@ -126,6 +126,7 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
   return (
     <div
       ref={cardRef}
+      data-artifact-id={artifact.id}
       className={`rounded-xl my-3 ${compact ? 'p-4' : 'p-6'} ${compact && onExpand ? 'cursor-pointer hover:border-[var(--border-neutral-medium)] transition-colors' : ''}`}
       style={{
         backgroundColor: 'var(--surface-neutral-white)',
