@@ -126,15 +126,24 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
           {/* Back to chat button */}
           <button
             onClick={onBack}
-            className="h-8 px-3 rounded-[1000px] flex items-center gap-2 text-[16px] font-semibold transition-colors hover:bg-[var(--surface-neutral-x-weak)]"
+            className="px-4 py-2 rounded-[1000px] flex items-center gap-2 font-semibold transition-colors"
             style={{
-              backgroundColor: 'white',
-              border: '1px solid var(--border-neutral-medium)',
+              backgroundColor: 'var(--surface-neutral-white)',
+              border: '1px solid var(--color-primary-strong)',
               boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+              fontSize: '15px',
+              lineHeight: '22px',
+              color: 'var(--color-primary-strong)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--surface-selected-weak)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--surface-neutral-white)';
             }}
           >
-            <Icon name="arrow-left" size={16} className="text-[#48413f]" />
-            <span className="text-[#48413f]">Back to chat</span>
+            <Icon name="arrow-left" size={16} style={{ color: 'var(--color-primary-strong)' }} />
+            <span>Back to chat</span>
           </button>
         </div>
       </div>
