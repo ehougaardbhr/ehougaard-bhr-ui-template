@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Icon, Button, TextInput, Tabs } from '../../components';
 import { currentEmployee } from '../../data/currentEmployee';
 
@@ -16,62 +16,182 @@ const profileTabs = [
 
 export function MyInfo() {
   const [activeTab, setActiveTab] = useState('personal');
+  const [showFloatingHeader, setShowFloatingHeader] = useState(false);
+  const [floatingHeaderHeight, setFloatingHeaderHeight] = useState<number | null>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const employee = currentEmployee;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show floating header when main header is NOT intersecting (scrolled out of view)
+        setShowFloatingHeader(!entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        rootMargin: '-1px 0px 0px 0px',
+      }
+    );
+
+    const headerElement = headerRef.current;
+    if (headerElement) {
+      observer.observe(headerElement);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const headerElement = headerRef.current;
+    if (!headerElement) {
+      return;
+    }
+
+    const updateHeight = () => {
+      setFloatingHeaderHeight(Math.ceil(headerElement.getBoundingClientRect().height));
+    };
+
+    updateHeight();
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(headerElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   return (
     <div className="min-h-full">
+      {/* Floating Compact Header */}
+      {showFloatingHeader && (
+        <div
+          className="sticky top-0 z-50 py-4 flex items-center animate-[floatDown_220ms_ease-out]"
+          style={floatingHeaderHeight ? { height: `${floatingHeaderHeight}px` } : undefined}
+        >
+          <div className="bg-[var(--color-primary-strong)] rounded-[var(--radius-small)] pl-10 pr-8 py-2 shadow-[2px_2px_0px_2px_rgba(56,49,47,0.05)] w-full mt-[46px]">
+            <div className="flex items-center gap-3">
+              {/* Avatar and Name */}
+              <div className="flex items-center gap-3">
+                <img
+                  src={employee.avatar}
+                  alt={`${employee.preferredName} ${employee.lastName}`}
+                  className="w-12 h-12 rounded-[var(--radius-x-small)] object-cover shadow-[1px_1px_0px_1px_rgba(56,49,47,0.04)]"
+                />
+                <h2
+                  className="text-[22px] font-semibold text-white"
+                  style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
+                >
+                  {employee.preferredName} {employee.lastName}
+                </h2>
+              </div>
+
+              {/* Compact Tabs */}
+              <div className="flex items-center gap-1 overflow-clip pl-[22px]">
+                {profileTabs.map((tab) => {
+                  const isActive = tab.id === activeTab;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`
+                        flex items-center justify-center gap-3 px-4 py-4 rounded-[var(--radius-small)]
+                        ${isActive
+                          ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--color-primary-strong)] font-bold'
+                          : 'text-white font-medium hover:bg-white/10'
+                        }
+                        text-[15px] leading-[22px] transition-colors
+                      `}
+                    >
+                      {tab.label}
+                      {tab.id === 'more' && (
+                        <Icon name="caret-down" size={10} className="text-current" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Profile Header - Green Banner */}
       <div
-        className="relative px-10 pt-8 pb-0 bg-[var(--color-primary-strong)]"
-        style={{ borderRadius: '0 0 var(--radius-small) var(--radius-small)' }}
+        ref={headerRef}
+        className="relative px-8 pt-4 pb-0 bg-[var(--color-primary-strong)] rounded-[var(--radius-large)]"
       >
-        <div className="flex items-start gap-8">
-          {/* Avatar */}
-          <img
-            src={employee.avatar}
-            alt={`${employee.preferredName} ${employee.lastName}`}
-            className="w-[128px] h-[128px] rounded-[var(--radius-small)] object-cover shrink-0"
-            style={{ boxShadow: 'var(--shadow-300)' }}
-          />
+        {/* Header Contents */}
+        <div className="relative flex flex-col gap-[50px] pt-[34px] z-0">
+          {/* Top Row: Name/Title and Action Buttons */}
+          <div className="flex items-start justify-between pl-[256px]">
+            {/* Name and Title */}
+            <div className="flex flex-col gap-2 w-[512px]">
+              <h1
+                className="text-[44px] leading-[52px] font-bold"
+                style={{ fontFamily: 'Fields, system-ui, sans-serif', color: 'white' }}
+              >
+                {employee.preferredName} ({employee.firstName}) {employee.lastName}
+              </h1>
+              <p className="text-white text-[15px] leading-[22px]">
+                {employee.pronouns} · {employee.title}
+              </p>
+            </div>
 
-          {/* Name and Title */}
-          <div className="flex-1 pt-2">
-            <h1
-              className="text-[40px] leading-[48px] font-bold mb-1"
-              style={{ fontFamily: 'Fields, system-ui, sans-serif', color: 'white' }}
-            >
-              {employee.preferredName} ({employee.firstName}) {employee.lastName}
-            </h1>
-            <p className="text-white/90 text-[15px] leading-[22px]">
-              {employee.pronouns} · {employee.title}
-            </p>
+            {/* Action Buttons */}
+            <div className="flex items-center gap-[13px]">
+              <button
+                className="inline-flex items-center gap-2 h-10 px-5 bg-white border border-[var(--border-neutral-medium)] rounded-[var(--radius-full)] text-[var(--color-primary-strong)] text-[15px] font-semibold transition-colors hover:bg-gray-50"
+                style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
+              >
+                Request a Change
+                <Icon name="caret-down" size={10} className="text-[var(--color-primary-strong)]" />
+              </button>
+              <button
+                className="inline-flex items-center justify-center w-10 h-10 bg-white border border-[var(--border-neutral-medium)] rounded-[var(--radius-full)] text-[var(--color-primary-strong)] transition-colors hover:bg-gray-50"
+                style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
+              >
+                <Icon name="ellipsis" size={16} className="text-[var(--color-primary-strong)]" />
+              </button>
+            </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              className="inline-flex items-center gap-2 h-10 px-5 bg-white/20 hover:bg-white/30 border border-white/30 rounded-[var(--radius-full)] text-white text-[15px] font-semibold transition-colors"
-            >
-              Request a change
-              <Icon name="caret-down" size={10} className="text-white" />
-            </button>
-            <button
-              className="inline-flex items-center justify-center w-10 h-10 bg-white/20 hover:bg-white/30 border border-white/30 rounded-[var(--radius-full)] text-white transition-colors"
-            >
-              <Icon name="ellipsis" size={16} className="text-white" />
-            </button>
+          {/* Tabs - Filled style */}
+          <div className="flex items-center gap-1 overflow-clip pl-[256px]">
+            {profileTabs.map((tab) => {
+              const isActive = tab.id === activeTab;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    flex items-center justify-center gap-3 px-4 py-4 rounded-t-[var(--radius-xx-small)]
+                    ${isActive
+                      ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--color-primary-strong)] font-bold'
+                      : 'text-white font-medium hover:bg-white/10'
+                    }
+                    text-[15px] leading-[22px] transition-colors
+                  `}
+                >
+                  {tab.label}
+                  {tab.id === 'more' && (
+                    <Icon name="caret-down" size={10} className="text-current" />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {/* Tabs - positioned at bottom of header */}
-        <div className="mt-6 -mb-px">
-          <Tabs
-            tabs={profileTabs}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            variant="inverted"
-          />
-        </div>
+        {/* Avatar - positioned absolutely with z-10 to appear above tabs */}
+        <img
+          src={employee.avatar}
+          alt={`${employee.preferredName} ${employee.lastName}`}
+          className="absolute left-6 top-6 w-[224px] h-[224px] rounded-[var(--radius-large)] object-cover z-10"
+          style={{ boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)', marginTop: '8px' }}
+        />
       </div>
 
       {/* Main Content Area */}
@@ -79,7 +199,7 @@ export function MyInfo() {
         {/* Left Sidebar - Vitals */}
         <aside className="w-[200px] shrink-0">
           {/* Vitals Section */}
-          <div className="mb-8">
+          <div className="mb-8 pt-2">
             <h3 className="text-[13px] font-semibold text-[var(--text-neutral-medium)] uppercase tracking-wide mb-4">
               Vitals
             </h3>
