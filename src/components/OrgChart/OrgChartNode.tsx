@@ -29,18 +29,22 @@ export function OrgChartNode({
   return (
     <div
       className={`
-        relative bg-white dark:bg-slate-800 rounded-lg shadow-md
+        relative bg-white rounded-lg border border-gray-200
         ${isSelected ? 'ring-2 ring-blue-500' : ''}
         ${isFocused ? 'ring-2 ring-green-500' : ''}
-        cursor-pointer hover:shadow-lg transition-shadow
+        cursor-pointer hover:shadow-md transition-shadow
       `}
-      style={{ width: cardWidth, height: cardHeight }}
+      style={{
+        width: cardWidth,
+        height: cardHeight,
+        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+      }}
       onClick={() => onNodeClick?.(employee.id)}
     >
       {/* Pin Icon */}
       <button
-        className="absolute top-2 left-2 w-6 h-6 flex items-center justify-center
-                   text-slate-400 hover:text-slate-600 dark:hover:text-slate-200
+        className="absolute top-2 left-2 w-5 h-5 flex items-center justify-center
+                   text-gray-400 hover:text-gray-600
                    transition-colors z-10"
         onClick={(e) => {
           e.stopPropagation();
@@ -48,14 +52,14 @@ export function OrgChartNode({
         }}
         aria-label="Pin employee"
       >
-        <i className="fa-solid fa-thumbtack text-sm"></i>
+        <i className="fa-solid fa-lock text-xs"></i>
       </button>
 
       {/* Expand/Collapse chevron */}
       {employee.directReports > 0 && (
         <button
-          className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center
-                     text-slate-400 hover:text-slate-600 dark:hover:text-slate-200
+          className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center
+                     text-gray-400 hover:text-gray-600
                      transition-colors z-10"
           onClick={(e) => {
             e.stopPropagation();
@@ -71,7 +75,7 @@ export function OrgChartNode({
       <div className="p-3 flex flex-col items-center text-center h-full">
         {/* Avatar */}
         {showPhoto && (
-          <div className="w-12 h-12 rounded-full overflow-hidden mb-2 flex-shrink-0">
+          <div className="w-12 h-12 rounded-full overflow-hidden mb-2 flex-shrink-0 bg-gray-100">
             {employee.avatar ? (
               <img
                 src={employee.avatar}
@@ -79,32 +83,25 @@ export function OrgChartNode({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full bg-slate-200 dark:bg-slate-600 flex items-center justify-center">
-                <i className="fa-solid fa-user text-slate-400 dark:text-slate-500"></i>
+              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
+                <i className="fa-solid fa-user text-gray-400"></i>
               </div>
             )}
           </div>
         )}
 
         {/* Name */}
-        <div
-          className="text-sm font-semibold text-blue-600 dark:text-blue-400
-                     hover:underline cursor-pointer line-clamp-1 mb-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            // Future: Navigate to employee profile
-          }}
-        >
+        <div className="text-sm font-medium text-gray-900 line-clamp-1 mb-0.5">
           {employee.name}
         </div>
 
         {/* Title */}
-        <div className="text-xs text-slate-700 dark:text-slate-300 line-clamp-2 mb-1">
+        <div className="text-xs text-gray-600 line-clamp-2 mb-0.5">
           {employee.title}
         </div>
 
         {/* Department */}
-        <div className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
+        <div className="text-xs text-gray-500 line-clamp-1">
           {employee.department}
         </div>
 
@@ -112,10 +109,10 @@ export function OrgChartNode({
         {employee.directReports > 0 && (
           <button
             className="absolute bottom-2 left-1/2 transform -translate-x-1/2
-                       px-3 py-1 text-xs font-medium
-                       text-slate-600 dark:text-slate-300
-                       hover:bg-slate-100 dark:hover:bg-slate-700
-                       rounded-full transition-colors
+                       px-2 py-0.5 text-xs
+                       text-gray-600
+                       hover:bg-gray-50
+                       rounded transition-colors
                        flex items-center gap-1"
             onClick={(e) => {
               e.stopPropagation();
@@ -123,7 +120,7 @@ export function OrgChartNode({
             }}
           >
             <span>{employee.directReports}</span>
-            <i className={`fa-solid fa-chevron-${isExpanded ? 'up' : 'down'} text-[10px]`}></i>
+            <i className={`fa-solid fa-chevron-${isExpanded ? 'down' : 'up'} text-[8px]`}></i>
           </button>
         )}
       </div>

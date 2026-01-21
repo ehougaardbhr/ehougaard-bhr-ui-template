@@ -103,10 +103,9 @@ export function OrgChartTree({
           <path
             key={`${node.employee.id}-${child.employee.id}`}
             d={`M ${parentX} ${parentY} L ${parentX} ${midY} L ${childX} ${midY} L ${childX} ${childY}`}
-            stroke="currentColor"
+            stroke="#93C5FD"
             strokeWidth="2"
             fill="none"
-            className="text-slate-300 dark:text-slate-600"
           />
         );
 
@@ -145,7 +144,7 @@ export function OrgChartTree({
 
   if (!layout.root) {
     return (
-      <div className="flex items-center justify-center h-full text-slate-500 dark:text-slate-400">
+      <div className="flex items-center justify-center h-full text-gray-500">
         <div className="text-center">
           <i className="fa-solid fa-users text-4xl mb-4"></i>
           <p>No org chart data available</p>

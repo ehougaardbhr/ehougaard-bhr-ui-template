@@ -159,7 +159,7 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
 
       return (
         <div
-          className="relative bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden"
+          className="relative bg-[#F5F5F0] rounded-lg overflow-hidden"
           style={{ width, height }}
         >
           <OrgChartTree

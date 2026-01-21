@@ -146,11 +146,7 @@ export function OrgChartArtifact({
       />
 
       {/* Main Canvas */}
-      <div
-        className={`flex-1 relative overflow-hidden ${
-          isEditMode ? 'org-chart-edit-bg' : 'bg-white dark:bg-slate-900'
-        }`}
-      >
+      <div className="flex-1 relative overflow-hidden bg-[#F5F5F0]">
         <OrgChartTree
           employees={filteredEmployees}
           rootEmployee={rootEmployeeId}

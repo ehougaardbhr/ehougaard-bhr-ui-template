@@ -24,43 +24,26 @@ export function OrgChartZoom({
       <button
         onClick={onZoomIn}
         disabled={!canZoomIn}
-        className="w-10 h-10 rounded-full flex items-center justify-center transition-all
-                   shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
-        style={{
-          backgroundColor: 'var(--surface-neutral-white)',
-          border: '1px solid var(--border-neutral-weak)',
-          color: 'var(--text-neutral-strong)',
-        }}
+        className="w-12 h-12 rounded-full bg-white border border-gray-300 flex items-center justify-center transition-all
+                   shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed text-gray-900"
         aria-label="Zoom in"
       >
-        <Icon name="magnifying-glass-plus" size={16} />
+        <Icon name="magnifying-glass-plus" size={18} />
       </button>
 
       {/* Zoom Out */}
       <button
         onClick={onZoomOut}
         disabled={!canZoomOut}
-        className="w-10 h-10 rounded-full flex items-center justify-center transition-all
-                   shadow-md hover:shadow-lg disabled:opacity-40 disabled:cursor-not-allowed"
-        style={{
-          backgroundColor: 'var(--surface-neutral-white)',
-          border: '1px solid var(--border-neutral-weak)',
-          color: 'var(--text-neutral-strong)',
-        }}
+        className="w-12 h-12 rounded-full bg-white border border-gray-300 flex items-center justify-center transition-all
+                   shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed text-gray-900"
         aria-label="Zoom out"
       >
-        <Icon name="magnifying-glass-minus" size={16} />
+        <Icon name="magnifying-glass-minus" size={18} />
       </button>
 
       {/* Current Zoom Level */}
-      <div
-        className="px-2 py-1 rounded text-xs text-center font-medium"
-        style={{
-          backgroundColor: 'var(--surface-neutral-white)',
-          border: '1px solid var(--border-neutral-weak)',
-          color: 'var(--text-neutral-strong)',
-        }}
-      >
+      <div className="px-3 py-1.5 rounded-full bg-white border border-gray-300 text-xs text-center font-medium text-gray-900 shadow-sm">
         {Math.round(zoomLevel * 100)}%
       </div>
     </div>
