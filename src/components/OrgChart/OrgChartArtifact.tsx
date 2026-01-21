@@ -85,12 +85,18 @@ export function OrgChartArtifact({
 
   // Handle node expansion
   const handleNodeExpand = (id: number) => {
+    console.log('Expanding/collapsing node:', id);
+    const employee = employees.find(e => e.id === id);
+    console.log('Employee:', employee?.name, 'Current expanded:', expandedNodes.has(id));
     const newExpanded = new Set(expandedNodes);
     if (newExpanded.has(id)) {
       newExpanded.delete(id);
+      console.log('Collapsed');
     } else {
       newExpanded.add(id);
+      console.log('Expanded');
     }
+    console.log('New expanded set size:', newExpanded.size);
     setExpandedNodes(newExpanded);
   };
 

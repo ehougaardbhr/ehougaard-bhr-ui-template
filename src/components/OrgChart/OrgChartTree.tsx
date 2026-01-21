@@ -228,7 +228,10 @@ export function OrgChartTree({
                 isSelected={selectedEmployee === node.employee.id}
                 isFocused={focusedEmployee === node.employee.id}
                 onPinClick={onNodePin}
-                onExpandClick={onNodeExpand}
+                onExpandClick={(id) => {
+                  console.log('OrgChartTree onExpandClick called with id:', id);
+                  onNodeExpand?.(id);
+                }}
                 onNodeClick={onNodeSelect}
                 showPhoto={showPhotos}
                 compact={compact}

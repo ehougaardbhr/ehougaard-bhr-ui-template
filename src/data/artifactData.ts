@@ -414,7 +414,7 @@ export const mockArtifacts: Artifact[] = [
     settings: {
       rootEmployee: 'all',
       depth: 3,
-      filter: 'technology',
+      filter: 'all',
       layout: 'top-down',
       showPhotos: true,
       compact: false,

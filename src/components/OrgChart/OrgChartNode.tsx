@@ -96,6 +96,7 @@ export function OrgChartNode({
             <button
               className="flex items-center justify-center w-3 h-3 text-[#777270] hover:text-gray-600 transition-colors"
               onClick={(e) => {
+                console.log('Top chevron clicked for:', employee.name, employee.id);
                 e.stopPropagation();
                 onExpandClick?.(employee.id);
               }}
@@ -131,6 +132,7 @@ export function OrgChartNode({
             <button
               className="flex gap-1 items-center justify-end hover:opacity-70 transition-opacity"
               onClick={(e) => {
+                console.log('Bottom chevron clicked for:', employee.name, employee.id);
                 e.stopPropagation();
                 onExpandClick?.(employee.id);
               }}

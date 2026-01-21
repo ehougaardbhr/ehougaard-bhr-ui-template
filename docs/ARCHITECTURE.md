@@ -96,6 +96,26 @@ h1 {
 └──────────┴──────────────────────────────────┘
 ```
 
+### Artifact Workspace Layout (Full-Page)
+```
+┌──────────────────────────────────────────────────────────────┐
+│ [Title]                        [📋] [•••] [← Back to chat]   │
+├──────────────────────────────────────────────────────────────┤
+│ [Bar ▾] [Headcount ▾] [by Dept ▾] [● Green ▾]     ✓ Saved   │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│                       Artifact Content                       │
+│                   (chart, doc, org chart, etc.)              │
+│                                                              │
+└──────────────────────────────────────────────────────────────┘
+```
+
+**Key Characteristics:**
+- Full-page route: `/artifact/:type/:id` (no AppLayout/GlobalHeader/GlobalNav)
+- Universal top bar: Title, actions (copy, more menu), back button
+- Settings toolbar: Horizontal row below top bar
+- Chat panel removed in current design (was 400px right sidebar in earlier iterations)
+
 ## Responsive Patterns
 
 ### Date Selector (Payroll page)
@@ -170,6 +190,56 @@ All mock data lives in `src/data/`:
 - `chatData.ts` - 15 mock conversations
 - `artifactData.ts` - Chart definitions and data
 
+## State Management
+
+### Context Providers
+
+**ArtifactContext** (`src/contexts/ArtifactContext.tsx`)
+- Manages artifact state (charts, documents, org charts, tables)
+- Route: `/artifact/:type/:id`
+- State includes: artifacts array, selectedArtifact, settings
+- Actions: selectArtifact, updateArtifactSettings, createArtifact
+
+**ChatContext** (`src/contexts/ChatContext.tsx`)
+- Manages AI chat conversations
+- Used by AIChatPanel (slide-in) and artifact chat panels
+- State includes: conversations, messages, activeConversationId
+- Actions: addMessage, createConversation, etc.
+
+### Artifact Types
+
+Each artifact type has its own settings interface:
+
+**Chart Settings:**
+```typescript
+{
+  chartType: 'bar' | 'line' | 'pie' | 'table';
+  measure: 'headcount' | 'salary' | 'tenure' | 'turnover';
+  category: 'department' | 'location' | 'job-level';
+  color: 'green' | 'blue' | 'purple' | 'multi';
+  filter: 'all' | 'full-time' | 'contractors';
+  benchmark: 'none' | 'industry' | 'previous';
+}
+```
+
+**Org Chart Settings:**
+```typescript
+{
+  rootEmployee: string;           // Employee ID or "all" for CEO
+  depth: number | 'all';          // 1-5 levels or "all"
+  filter: DepartmentFilterType;   // Department filter
+  showPhotos: boolean;
+  compact: boolean;
+}
+```
+
+**Org Chart State Management:**
+- `expandedNodes`: Set<number> of expanded employee IDs
+- `filteredEmployees`: Computed from filter setting + full employee list
+- Tree built using d3-hierarchy (Reingold-Tilford algorithm)
+- `buildEmployeeTree()` creates tree from flat employee data
+- `calculateTreeLayout()` computes x,y positions for each node
+
 ## Key Dependencies
 
 ```json
@@ -179,6 +249,7 @@ All mock data lives in `src/data/`:
   "framer-motion": "^11.18.0",
   "@fortawesome/fontawesome-free": "^6.7.2",
   "lucide-react": "^0.468.0",
-  "tailwindcss": "^4.0.0"
+  "tailwindcss": "^4.0.0",
+  "d3-hierarchy": "^3.1.2"
 }
 ```
