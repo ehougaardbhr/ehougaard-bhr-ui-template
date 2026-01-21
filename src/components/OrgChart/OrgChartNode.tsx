@@ -72,7 +72,7 @@ export function OrgChartNode({
       )}
 
       {/* Card Content */}
-      <div className="p-3 flex flex-col items-center text-center h-full">
+      <div className="pt-7 px-3 pb-3 flex flex-col items-center text-center h-full">
         {/* Avatar */}
         {showPhoto && (
           <div className="w-12 h-12 rounded-full overflow-hidden mb-2 flex-shrink-0 bg-gray-100">

@@ -187,6 +187,7 @@ export function OrgChartArtifact({
           panX={panX}
           panY={panY}
           onPanChange={handlePanChange}
+          onZoomChange={setZoomLevel}
         />
 
         {/* Zoom Controls */}

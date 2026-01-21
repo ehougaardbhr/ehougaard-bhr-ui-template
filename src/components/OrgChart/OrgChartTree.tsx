@@ -39,6 +39,7 @@ export function OrgChartTree({
   panX = 0,
   panY = 0,
   onPanChange,
+  onZoomChange,
 }: OrgChartTreeProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -75,6 +76,32 @@ export function OrgChartTree({
   // Handle mouse leave
   const handleMouseLeave = () => {
     setIsDragging(false);
+  };
+
+  // Handle wheel for zooming - zoom to cursor position
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+
+    if (!containerRef.current) return;
+
+    const delta = e.deltaY > 0 ? -0.1 : 0.1;
+    const newZoom = Math.max(0.5, Math.min(2, zoomLevel + delta));
+
+    // Get mouse position relative to container
+    const rect = containerRef.current.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    // Calculate the point in world coordinates before zoom
+    const worldX = (mouseX - panX) / zoomLevel;
+    const worldY = (mouseY - panY) / zoomLevel;
+
+    // Calculate new pan to keep the world point under the mouse
+    const newPanX = mouseX - worldX * newZoom;
+    const newPanY = mouseY - worldY * newZoom;
+
+    onZoomChange?.(newZoom);
+    onPanChange?.(newPanX, newPanY);
   };
 
   // Update cursor based on dragging state
@@ -161,6 +188,7 @@ export function OrgChartTree({
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseLeave}
+      onWheel={handleWheel}
       style={{ cursor: isDragging ? 'grabbing' : 'grab' }}
     >
       <div
