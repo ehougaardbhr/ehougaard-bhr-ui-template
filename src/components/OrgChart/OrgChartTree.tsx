@@ -116,6 +116,11 @@ export function OrgChartTree({
     const lines: JSX.Element[] = [];
 
     const processNode = (node: TreeNode) => {
+      // Only draw connections to children if this node is expanded
+      if (!expandedNodes.has(node.employee.id)) {
+        return;
+      }
+
       node.children.forEach((child) => {
         // Line from parent bottom to child top
         const parentX = node.x;
@@ -136,10 +141,8 @@ export function OrgChartTree({
           />
         );
 
-        // Recursively process children
-        if (expandedNodes.has(child.employee.id)) {
-          processNode(child);
-        }
+        // Recursively process this child's connections
+        processNode(child);
       });
     };
 

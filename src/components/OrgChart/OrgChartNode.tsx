@@ -129,7 +129,7 @@ export function OrgChartNode({
         {employee.directReports > 0 && (
           <div className="flex items-start justify-end w-full mt-2">
             <button
-              className="flex gap-1 items-center justify-end"
+              className="flex gap-1 items-center justify-end hover:opacity-70 transition-opacity"
               onClick={(e) => {
                 e.stopPropagation();
                 onExpandClick?.(employee.id);
@@ -138,7 +138,33 @@ export function OrgChartNode({
               <span className="font-normal text-[13px] leading-[19px] text-[#38312f]">
                 {employee.directReports}
               </span>
-              <i className={`fa-solid fa-chevron-${isExpanded ? 'down' : 'up'} text-[12px] text-[#777270]`}></i>
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 12 12"
+                fill="none"
+                className="text-[#777270]"
+              >
+                {isExpanded ? (
+                  // Chevron down
+                  <path
+                    d="M3 4.5L6 7.5L9 4.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                ) : (
+                  // Chevron up
+                  <path
+                    d="M3 7.5L6 4.5L9 7.5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                )}
+              </svg>
             </button>
           </div>
         )}

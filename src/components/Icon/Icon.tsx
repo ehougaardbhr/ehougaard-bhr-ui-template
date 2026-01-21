@@ -19,6 +19,7 @@ import {
   faTableCells,
   faFolder,
   faChevronDown,
+  faChevronUp,
   faChevronRight,
   faArrowDown,
   faTrashCan,
@@ -120,6 +121,7 @@ export type IconName =
   | 'table-cells'
   | 'folder'
   | 'chevron-down'
+  | 'chevron-up'
   | 'chevron-right'
   | 'arrow-down-to-line'
   | 'trash-can'
@@ -220,6 +222,7 @@ const faIconMap = {
   'folder': faFolder,
   'folder-regular': faFolderRegular,
   'chevron-down': faChevronDown,
+  'chevron-up': faChevronUp,
   'chevron-right': faChevronRight,
   'arrow-down-to-line': faArrowDown,
   'trash-can': faTrashCan,
