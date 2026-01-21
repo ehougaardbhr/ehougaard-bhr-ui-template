@@ -175,8 +175,17 @@ export function OrgChartArtifact({
         onExportOpen={handleExportOpen}
       />
 
-      {/* Main Canvas */}
-      <div ref={canvasRef} className="flex-1 relative overflow-hidden bg-[#F5F5F0]">
+      {/* Main Canvas - with dot grid pattern in dark mode */}
+      <div
+        ref={canvasRef}
+        className="flex-1 relative overflow-hidden bg-[#F5F5F0] dark:bg-neutral-800"
+        style={{
+          backgroundImage: document.documentElement.classList.contains('dark')
+            ? 'radial-gradient(circle, #525252 1px, transparent 1px)'
+            : 'none',
+          backgroundSize: '20px 20px',
+        }}
+      >
         <OrgChartTree
           employees={filteredEmployees}
           rootEmployee={rootEmployeeId}

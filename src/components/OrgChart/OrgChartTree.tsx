@@ -115,6 +115,11 @@ export function OrgChartTree({
   const renderConnections = (nodes: TreeNode[]) => {
     const lines: JSX.Element[] = [];
 
+    // Detect dark mode
+    const isDarkMode = typeof window !== 'undefined' &&
+      document.documentElement.classList.contains('dark');
+    const lineColor = isDarkMode ? '#737373' : '#cbd5e1'; // neutral-500 for dark, slate-200 for light
+
     const processNode = (node: TreeNode) => {
       // Only draw connections to children if this node is expanded
       if (!expandedNodes.has(node.employee.id)) {
@@ -135,7 +140,7 @@ export function OrgChartTree({
           <path
             key={`${node.employee.id}-${child.employee.id}`}
             d={`M ${parentX} ${parentY} L ${parentX} ${midY} L ${childX} ${midY} L ${childX} ${childY}`}
-            stroke="#d4d2d0"
+            stroke={lineColor}
             strokeWidth="1"
             fill="none"
           />

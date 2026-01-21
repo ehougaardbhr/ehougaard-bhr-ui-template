@@ -24,22 +24,22 @@ export function OrgChartZoom({
       <button
         onClick={onZoomIn}
         disabled={!canZoomIn}
-        className="w-12 h-12 rounded-full bg-white border border-gray-300 flex items-center justify-center transition-all
+        className="w-12 h-12 rounded-full bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 flex items-center justify-center transition-all
                    shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
         aria-label="Zoom in"
       >
-        <Icon name="zoom-in" size={20} className="text-gray-700" />
+        <Icon name="zoom-in" size={20} className="text-gray-700 dark:text-neutral-300" />
       </button>
 
       {/* Zoom Out */}
       <button
         onClick={onZoomOut}
         disabled={!canZoomOut}
-        className="w-12 h-12 rounded-full bg-white border border-gray-300 flex items-center justify-center transition-all
+        className="w-12 h-12 rounded-full bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 flex items-center justify-center transition-all
                    shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
         aria-label="Zoom out"
       >
-        <Icon name="zoom-out" size={20} className="text-gray-700" />
+        <Icon name="zoom-out" size={20} className="text-gray-700 dark:text-neutral-300" />
       </button>
     </div>
   );

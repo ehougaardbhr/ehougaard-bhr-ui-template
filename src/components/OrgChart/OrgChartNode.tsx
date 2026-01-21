@@ -45,7 +45,9 @@ export function OrgChartNode({
             height: avatarSize,
             borderRadius: '12px',
             top: 0,
-            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+            boxShadow: document.documentElement.classList.contains('dark')
+              ? '1px 1px 0px 1px rgba(0, 0, 0, 0.2)'
+              : '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
           }}
         >
           {employee.avatar ? (
@@ -55,7 +57,7 @@ export function OrgChartNode({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gray-400 flex items-center justify-center">
+            <div className="w-full h-full bg-gray-400 dark:bg-neutral-600 flex items-center justify-center">
               <i className="fa-solid fa-user text-white text-xl"></i>
             </div>
           )}
@@ -65,7 +67,7 @@ export function OrgChartNode({
       {/* Card */}
       <div
         className={`
-          absolute bg-white cursor-pointer transition-all
+          absolute bg-white dark:bg-neutral-700 cursor-pointer transition-all
           ${isSelected ? 'ring-2 ring-blue-500' : ''}
           ${isFocused ? 'ring-2 ring-green-500' : ''}
         `}
@@ -73,8 +75,12 @@ export function OrgChartNode({
           width: cardWidth,
           top: avatarOffset,
           borderRadius: '8px',
-          border: '1px solid #e4e3e0',
-          boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+          border: document.documentElement.classList.contains('dark')
+            ? '1px solid #525252'
+            : '1px solid #e4e3e0',
+          boxShadow: document.documentElement.classList.contains('dark')
+            ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
+            : '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
           padding: '8px',
         }}
         onClick={() => onNodeClick?.(employee.id)}
@@ -82,7 +88,7 @@ export function OrgChartNode({
         {/* Top row - pin and chevron icons */}
         <div className="flex items-start justify-between w-full mb-2">
           <button
-            className="flex items-center justify-center w-3 h-3 text-[#777270] hover:text-gray-600 transition-colors"
+            className="flex items-center justify-center w-3 h-3 text-[#777270] dark:text-neutral-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
               onPinClick?.(employee.id);
@@ -94,7 +100,7 @@ export function OrgChartNode({
 
           {employee.directReports > 0 && (
             <button
-              className="flex items-center justify-center w-3 h-3 text-[#777270] hover:text-gray-600 transition-colors"
+              className="flex items-center justify-center w-3 h-3 text-[#777270] dark:text-neutral-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
               onClick={(e) => {
                 console.log('Top chevron clicked for:', employee.name, employee.id);
                 e.stopPropagation();
@@ -111,7 +117,7 @@ export function OrgChartNode({
         <div className="flex flex-col items-center text-center w-full pt-2 pb-0">
           {/* Name - Green */}
           <div
-            className="font-medium text-[15px] leading-[22px] text-[#2e7918] w-full overflow-hidden text-ellipsis mb-0"
+            className="font-medium text-[15px] leading-[22px] text-[#2e7918] dark:text-green-400 w-full overflow-hidden text-ellipsis mb-0"
             style={{ fontFamily: 'Inter' }}
           >
             {employee.name}
@@ -119,7 +125,7 @@ export function OrgChartNode({
 
           {/* Title */}
           <div
-            className="font-normal text-[13px] leading-[19px] text-[#48413f] w-full overflow-hidden text-ellipsis"
+            className="font-normal text-[13px] leading-[19px] text-[#48413f] dark:text-neutral-400 w-full overflow-hidden text-ellipsis"
             style={{ fontFamily: 'Inter' }}
           >
             {employee.title}
@@ -137,7 +143,7 @@ export function OrgChartNode({
                 onExpandClick?.(employee.id);
               }}
             >
-              <span className="font-normal text-[13px] leading-[19px] text-[#38312f]">
+              <span className="font-normal text-[13px] leading-[19px] text-[#38312f] dark:text-neutral-400">
                 {employee.directReports}
               </span>
               <svg
@@ -145,7 +151,7 @@ export function OrgChartNode({
                 height="12"
                 viewBox="0 0 12 12"
                 fill="none"
-                className="text-[#777270]"
+                className="text-[#777270] dark:text-neutral-500"
               >
                 {isExpanded ? (
                   // Chevron down

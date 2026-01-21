@@ -117,11 +117,17 @@ export function ArtifactWorkspace() {
         <div className="flex flex-1 overflow-hidden">
           <div className="flex-1 p-8 overflow-hidden">
             <div
-              className="flex flex-col h-full rounded-2xl overflow-hidden"
+              className="flex flex-col h-full rounded-2xl overflow-hidden dark:bg-neutral-900"
               style={{
-                backgroundColor: 'var(--surface-neutral-white)',
-                boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
-                border: '8px solid white',
+                backgroundColor: document.documentElement.classList.contains('dark')
+                  ? '#171717'
+                  : 'var(--surface-neutral-white)',
+                boxShadow: document.documentElement.classList.contains('dark')
+                  ? '2px 2px 0px 2px rgba(0, 0, 0, 0.3)'
+                  : '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
+                border: document.documentElement.classList.contains('dark')
+                  ? '8px solid #171717'
+                  : '8px solid white',
               }}
             >
               {/* Header inside card */}

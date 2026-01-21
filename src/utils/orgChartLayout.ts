@@ -5,7 +5,7 @@ import type { Employee } from '../data/employees';
 // Node spacing constants
 const NODE_WIDTH = 165;
 const NODE_HEIGHT = 140; // Card + avatar total height
-const HORIZONTAL_SPACING = 200; // Space between siblings
+const HORIZONTAL_SPACING = 180; // Space between siblings (card width + minimal gap)
 const VERTICAL_SPACING = 200; // Space between levels (140 card height + 60px gap)
 
 export interface TreeNode {

@@ -61,14 +61,14 @@ export function OrgChartControls({
   const currentDepthLabel = depth === 'all' ? 'All' : (depth ?? 'all').toString();
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200">
+    <div className="flex items-center gap-3 px-4 py-3 bg-white dark:bg-neutral-900 border-b border-gray-200 dark:border-neutral-700">
       {/* Left: Search */}
       <div ref={searchRef} className="relative flex-1 max-w-sm">
         <div className="relative">
           <Icon
             name="magnifying-glass"
             size={14}
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400"
           />
           <input
             type="text"
@@ -80,21 +80,18 @@ export function OrgChartControls({
             }}
             onFocus={() => setShowSearchResults(true)}
             className="w-full h-10 pl-9 pr-4 text-sm rounded-full
-                     bg-white
-                     border border-gray-300
+                     bg-white dark:bg-neutral-800
+                     border border-gray-300 dark:border-neutral-600
+                     text-gray-900 dark:text-neutral-100
                      focus:outline-none focus:ring-2 focus:ring-blue-500
-                     placeholder:text-gray-400"
+                     placeholder:text-gray-400 dark:placeholder:text-neutral-500"
           />
         </div>
 
         {/* Search Results Dropdown */}
         {showSearchResults && searchResults.length > 0 && (
           <div
-            className="absolute left-0 top-full mt-1 w-full rounded-lg shadow-lg py-1 z-50 max-h-64 overflow-y-auto"
-            style={{
-              backgroundColor: 'var(--surface-neutral-white)',
-              border: '1px solid var(--border-neutral-weak)',
-            }}
+            className="absolute left-0 top-full mt-1 w-full rounded-lg shadow-lg py-1 z-50 max-h-64 overflow-y-auto bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700"
           >
             {searchResults.map((emp) => (
               <button
@@ -104,7 +101,7 @@ export function OrgChartControls({
                   setSearchQuery('');
                   setShowSearchResults(false);
                 }}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center gap-3"
+                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 flex items-center gap-3"
               >
                 <img
                   src={emp.avatar}
@@ -112,10 +109,10 @@ export function OrgChartControls({
                   className="w-8 h-8 rounded-full"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="font-medium text-gray-900 truncate">
+                  <div className="font-medium text-gray-900 dark:text-neutral-100 truncate">
                     {emp.name}
                   </div>
-                  <div className="text-xs text-gray-500 truncate">
+                  <div className="text-xs text-gray-500 dark:text-neutral-400 truncate">
                     {emp.title} · {emp.department}
                   </div>
                 </div>
@@ -131,7 +128,7 @@ export function OrgChartControls({
         <div ref={depthRef} className="relative">
           <button
             onClick={() => setDepthDropdownOpen(!depthDropdownOpen)}
-            className="h-10 w-16 rounded-full bg-white border border-gray-300 flex items-center justify-center text-sm font-medium transition-colors hover:bg-gray-50 text-gray-900"
+            className="h-10 w-16 rounded-full bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 flex items-center justify-center text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-neutral-700 text-gray-900 dark:text-neutral-100"
           >
             <span>{currentDepthLabel}</span>
             <Icon
@@ -145,11 +142,7 @@ export function OrgChartControls({
 
           {depthDropdownOpen && (
             <div
-              className="absolute left-0 top-full mt-1 w-24 rounded-lg shadow-lg py-1 z-50"
-              style={{
-                backgroundColor: 'var(--surface-neutral-white)',
-                border: '1px solid var(--border-neutral-weak)',
-              }}
+              className="absolute left-0 top-full mt-1 w-24 rounded-lg shadow-lg py-1 z-50 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700"
             >
               {depthOptions.map((option) => (
                 <button
@@ -158,10 +151,10 @@ export function OrgChartControls({
                     onDepthChange(option.value);
                     setDepthDropdownOpen(false);
                   }}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 text-gray-900"
+                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 text-gray-900 dark:text-neutral-100"
                   style={{
                     backgroundColor:
-                      depth === option.value ? '#f3f4f6' : 'transparent',
+                      depth === option.value ? (document.documentElement.classList.contains('dark') ? '#404040' : '#f3f4f6') : 'transparent',
                   }}
                 >
                   {option.label}
@@ -174,7 +167,7 @@ export function OrgChartControls({
         {/* Up Arrow */}
         <button
           onClick={onGoUp}
-          className="h-10 w-10 rounded-full bg-white border border-gray-300 flex items-center justify-center transition-colors hover:bg-gray-50 text-gray-900"
+          className="h-10 w-10 rounded-full bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 flex items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-neutral-700 text-gray-900 dark:text-neutral-100"
           aria-label="Go to parent"
         >
           <Icon name="arrow-up" size={16} />
@@ -186,7 +179,7 @@ export function OrgChartControls({
         {/* Filter Button */}
         <button
           onClick={onFilterOpen}
-          className="h-10 px-4 rounded-full bg-white border border-gray-300 flex items-center gap-2 text-sm font-medium transition-colors hover:bg-gray-50 text-gray-900"
+          className="h-10 px-4 rounded-full bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 flex items-center gap-2 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-neutral-700 text-gray-900 dark:text-neutral-100"
         >
           <Icon name="sliders" size={16} />
           <Icon name="caret-down" size={8} />
@@ -195,7 +188,7 @@ export function OrgChartControls({
         {/* Export Button */}
         <button
           onClick={onExportOpen}
-          className="h-10 px-4 rounded-full bg-white border border-gray-300 flex items-center gap-2 text-sm font-medium transition-colors hover:bg-gray-50 text-gray-900"
+          className="h-10 px-4 rounded-full bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 flex items-center gap-2 text-sm font-medium transition-colors hover:bg-gray-50 dark:hover:bg-neutral-700 text-gray-900 dark:text-neutral-100"
         >
           <Icon name="arrow-up-from-bracket" size={16} />
           <span>Export</span>
