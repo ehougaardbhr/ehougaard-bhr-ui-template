@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { Artifact, OrgChartSettings } from '../../data/artifactData';
 import { employees } from '../../data/employees';
 import { OrgChartTree } from './OrgChartTree';
@@ -28,6 +28,7 @@ export function OrgChartArtifact({
   };
 
   // Local state for UI
+  const canvasRef = useRef<HTMLDivElement>(null);
   const [focusedEmployee, setFocusedEmployee] = useState<number | undefined>();
   const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>();
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(
@@ -35,7 +36,21 @@ export function OrgChartArtifact({
   );
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panX, setPanX] = useState(0);
-  const [panY, setPanY] = useState(100); // Start with some offset
+  const [panY, setPanY] = useState(0);
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // Center the tree on initial mount
+  useEffect(() => {
+    if (canvasRef.current && !isInitialized) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      // Estimate tree width around 800px, center it
+      const estimatedTreeWidth = 800;
+      const centerX = (rect.width - estimatedTreeWidth) / 2;
+      setPanX(Math.max(centerX, 50));
+      setPanY(50);
+      setIsInitialized(true);
+    }
+  }, [isInitialized]);
 
   // Filter employees based on settings
   // When filtering by department, include the full reporting chain up to root
@@ -155,7 +170,7 @@ export function OrgChartArtifact({
       />
 
       {/* Main Canvas */}
-      <div className="flex-1 relative overflow-hidden bg-[#F5F5F0]">
+      <div ref={canvasRef} className="flex-1 relative overflow-hidden bg-[#F5F5F0]">
         <OrgChartTree
           employees={filteredEmployees}
           rootEmployee={rootEmployeeId}

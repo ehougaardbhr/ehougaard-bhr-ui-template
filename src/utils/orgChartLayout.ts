@@ -1,10 +1,12 @@
+import { hierarchy, tree } from 'd3-hierarchy';
+import type { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy';
 import type { Employee } from '../data/employees';
 
 // Node spacing constants
-const HORIZONTAL_SPACING = 40;
-const VERTICAL_SPACING = 80;
 const NODE_WIDTH = 220;
 const NODE_HEIGHT = 120;
+const HORIZONTAL_SPACING = 280; // Space between siblings
+const VERTICAL_SPACING = 200; // Space between levels
 
 export interface TreeNode {
   employee: Employee;
@@ -19,6 +21,11 @@ export interface LayoutResult {
   width: number;
   height: number;
   root: TreeNode | null;
+}
+
+interface EmployeeHierarchyNode {
+  employee: Employee;
+  children?: EmployeeHierarchyNode[];
 }
 
 /**
@@ -65,8 +72,8 @@ export function buildEmployeeTree(
 }
 
 /**
- * Calculate tree layout using the Reingold-Tilford algorithm
- * This produces a tidy tree layout with proper spacing
+ * Calculate tree layout using d3-hierarchy's tree layout
+ * This produces a tidy tree layout with no overlaps
  */
 export function calculateTreeLayout(
   root: TreeNode | null,
@@ -76,80 +83,79 @@ export function calculateTreeLayout(
     return { nodes: [], width: 0, height: 0, root: null };
   }
 
-  const nodes: TreeNode[] = [];
+  // Convert TreeNode to d3 hierarchy format
+  function convertToHierarchy(node: TreeNode): EmployeeHierarchyNode {
+    return {
+      employee: node.employee,
+      children: node.children.length > 0
+        ? node.children.map(convertToHierarchy)
+        : undefined,
+    };
+  }
 
-  // First pass: Calculate relative positions
-  function firstPass(node: TreeNode, depth: number): number {
-    if (maxDepth !== 'all' && depth > maxDepth) {
-      return 0;
+  const hierarchyData = convertToHierarchy(root);
+  const rootHierarchy = hierarchy<EmployeeHierarchyNode>(hierarchyData);
+
+  // Create d3 tree layout
+  const treeLayout = tree<EmployeeHierarchyNode>()
+    .nodeSize([HORIZONTAL_SPACING, VERTICAL_SPACING])
+    .separation((a, b) => (a.parent === b.parent ? 1 : 1.2));
+
+  // Calculate layout
+  const layoutRoot = treeLayout(rootHierarchy);
+
+  // Convert back to TreeNode format
+  const nodes: TreeNode[] = [];
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  function convertToTreeNode(
+    d3Node: HierarchyPointNode<EmployeeHierarchyNode>,
+    level: number
+  ): TreeNode {
+    const node: TreeNode = {
+      employee: d3Node.data.employee,
+      x: d3Node.x,
+      y: d3Node.y,
+      level,
+      children: [],
+    };
+
+    // Track bounds
+    minX = Math.min(minX, d3Node.x);
+    maxX = Math.max(maxX, d3Node.x);
+    maxY = Math.max(maxY, d3Node.y);
+
+    // Apply depth filtering
+    if (maxDepth === 'all' || level < maxDepth) {
+      if (d3Node.children) {
+        node.children = d3Node.children.map((child) =>
+          convertToTreeNode(child, level + 1)
+        );
+      }
     }
 
     nodes.push(node);
-
-    if (node.children.length === 0) {
-      return NODE_WIDTH;
-    }
-
-    let totalWidth = 0;
-    node.children.forEach((child) => {
-      totalWidth += firstPass(child, depth + 1);
-      totalWidth += HORIZONTAL_SPACING;
-    });
-
-    // Remove extra spacing after last child
-    if (node.children.length > 0) {
-      totalWidth -= HORIZONTAL_SPACING;
-    }
-
-    return totalWidth;
+    return node;
   }
 
-  // Second pass: Position nodes horizontally
-  function secondPass(node: TreeNode, leftBound: number, depth: number): number {
-    if (maxDepth !== 'all' && depth > maxDepth) {
-      return leftBound;
-    }
+  const newRoot = convertToTreeNode(layoutRoot, 0);
 
-    if (node.children.length === 0) {
-      node.x = leftBound + NODE_WIDTH / 2;
-      return leftBound + NODE_WIDTH;
-    }
+  // Normalize coordinates to start from (0, 0)
+  const offsetX = -minX;
+  nodes.forEach((node) => {
+    node.x += offsetX;
+  });
 
-    // Position children first
-    let currentX = leftBound;
-    const childPositions: number[] = [];
-
-    node.children.forEach((child) => {
-      const childCenter = secondPass(child, currentX, depth + 1);
-      childPositions.push((currentX + childCenter) / 2);
-      currentX = childCenter + HORIZONTAL_SPACING;
-    });
-
-    // Center parent over children
-    if (childPositions.length > 0) {
-      const firstChildX = childPositions[0];
-      const lastChildX = childPositions[childPositions.length - 1];
-      node.x = (firstChildX + lastChildX) / 2;
-    } else {
-      node.x = leftBound + NODE_WIDTH / 2;
-    }
-
-    return currentX - HORIZONTAL_SPACING;
-  }
-
-  // Calculate layout
-  const totalWidth = firstPass(root, 0);
-  secondPass(root, 0, 0);
-
-  // Calculate total height
-  const maxLevel = Math.max(...nodes.map((n) => n.level));
-  const totalHeight = (maxLevel + 1) * (NODE_HEIGHT + VERTICAL_SPACING);
+  const width = maxX - minX + NODE_WIDTH;
+  const height = maxY + NODE_HEIGHT;
 
   return {
     nodes,
-    width: totalWidth,
-    height: totalHeight,
-    root,
+    width,
+    height,
+    root: newRoot,
   };
 }
 
@@ -184,11 +190,7 @@ export function findDescendants(
     }
 
     // Find direct reports
-    // Note: This logic needs to be updated based on actual employee relationships
-    const reports = allEmployees.filter((e) => {
-      // Placeholder - needs proper implementation
-      return false;
-    });
+    const reports = allEmployees.filter((e) => e.reportsTo === emp.id);
 
     reports.forEach((report) => {
       descendants.push(report);
