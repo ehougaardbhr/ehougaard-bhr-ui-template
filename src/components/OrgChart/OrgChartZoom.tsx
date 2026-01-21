@@ -19,16 +19,16 @@ export function OrgChartZoom({
   const canZoomOut = zoomLevel > minZoom;
 
   return (
-    <div className="fixed right-6 top-1/2 transform -translate-y-1/2 flex flex-col gap-2 z-10">
+    <div className="absolute right-6 top-6 flex flex-col gap-2 z-10">
       {/* Zoom In */}
       <button
         onClick={onZoomIn}
         disabled={!canZoomIn}
         className="w-12 h-12 rounded-full bg-white border border-gray-300 flex items-center justify-center transition-all
-                   shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed text-gray-900"
+                   shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
         aria-label="Zoom in"
       >
-        <Icon name="magnifying-glass-plus" size={18} />
+        <Icon name="zoom-in" size={20} className="text-gray-700" />
       </button>
 
       {/* Zoom Out */}
@@ -36,16 +36,11 @@ export function OrgChartZoom({
         onClick={onZoomOut}
         disabled={!canZoomOut}
         className="w-12 h-12 rounded-full bg-white border border-gray-300 flex items-center justify-center transition-all
-                   shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed text-gray-900"
+                   shadow-sm hover:shadow-md disabled:opacity-40 disabled:cursor-not-allowed"
         aria-label="Zoom out"
       >
-        <Icon name="magnifying-glass-minus" size={18} />
+        <Icon name="zoom-out" size={20} className="text-gray-700" />
       </button>
-
-      {/* Current Zoom Level */}
-      <div className="px-3 py-1.5 rounded-full bg-white border border-gray-300 text-xs text-center font-medium text-gray-900 shadow-sm">
-        {Math.round(zoomLevel * 100)}%
-      </div>
     </div>
   );
 }

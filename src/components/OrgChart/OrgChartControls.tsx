@@ -61,7 +61,7 @@ export function OrgChartControls({
   const currentDepthLabel = depth === 'all' ? 'All' : depth.toString();
 
   return (
-    <div className="flex items-center gap-3 px-4 py-3 bg-[#F5F5F0] border-b border-gray-200">
+    <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200">
       {/* Left: Search */}
       <div ref={searchRef} className="relative flex-1 max-w-sm">
         <div className="relative">

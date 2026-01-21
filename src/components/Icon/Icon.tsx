@@ -8,6 +8,8 @@ import {
   faFileLines,
   faDollarSign,
   faMagnifyingGlass,
+  faMagnifyingGlassPlus,
+  faMagnifyingGlassMinus,
   faInbox,
   faCircleQuestion,
   faGear,
@@ -91,6 +93,8 @@ import {
   CircleDollarSign,
   Sun,
   Moon,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 
 export type IconName =
@@ -104,6 +108,8 @@ export type IconName =
   | 'arrow-right-from-line'
   | 'arrow-left-from-line'
   | 'magnifying-glass'
+  | 'magnifying-glass-plus'
+  | 'magnifying-glass-minus'
   | 'inbox'
   | 'circle-question'
   | 'gear'
@@ -157,6 +163,8 @@ export type IconName =
   | 'circle-dollar-lucide'
   | 'sun'
   | 'moon'
+  | 'zoom-in'
+  | 'zoom-out'
   | 'sparkles'
   | 'paperclip'
   | 'microphone'
@@ -197,6 +205,8 @@ const faIconMap = {
   'file-lines-regular': faFileLinesRegular,
   'circle-dollar': faDollarSign,
   'magnifying-glass': faMagnifyingGlass,
+  'magnifying-glass-plus': faMagnifyingGlassPlus,
+  'magnifying-glass-minus': faMagnifyingGlassMinus,
   'inbox': faInbox,
   'circle-question': faCircleQuestion,
   'gear': faGear,
@@ -322,6 +332,14 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
 
   if (name === 'moon') {
     return <Moon size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'zoom-in') {
+    return <ZoomIn size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'zoom-out') {
+    return <ZoomOut size={size} className={className} strokeWidth={1.5} />;
   }
 
   // Handle Font Awesome icons
