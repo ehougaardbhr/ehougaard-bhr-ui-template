@@ -30,10 +30,7 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
 
   return (
     <div
-      className="flex flex-col px-8 pt-5 pb-4 shrink-0"
-      style={{
-        backgroundColor: 'var(--surface-neutral-white)',
-      }}
+      className="flex flex-col px-8 pt-5 pb-4 shrink-0 bg-white dark:bg-neutral-900"
     >
       {/* Header row */}
       <div className="flex items-center justify-between mb-4">
@@ -55,69 +52,65 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
           {/* Copy button */}
           <button
             onClick={onCopy}
-            className="h-8 px-3 rounded-[1000px] flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-x-weak)]"
+            className="h-8 px-3 rounded-[1000px] flex items-center justify-center transition-colors bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-600"
             style={{
-              backgroundColor: 'white',
-              border: '1px solid var(--border-neutral-medium)',
-              boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+              boxShadow: document.documentElement.classList.contains('dark')
+                ? 'none'
+                : '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
             }}
             aria-label="Copy"
           >
-            <Icon name="copy" size={16} className="text-[#48413f]" />
+            <Icon name="copy" size={16} className="text-[#48413f] dark:text-neutral-300" />
           </button>
 
           {/* Three-dot menu */}
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="h-8 px-3 rounded-[1000px] flex items-center justify-center transition-colors hover:bg-[var(--surface-neutral-x-weak)]"
+              className="h-8 px-3 rounded-[1000px] flex items-center justify-center transition-colors bg-white dark:bg-neutral-700 border border-gray-300 dark:border-neutral-600 hover:bg-gray-50 dark:hover:bg-neutral-600"
               style={{
-                backgroundColor: 'white',
-                border: '1px solid var(--border-neutral-medium)',
-                boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+                boxShadow: document.documentElement.classList.contains('dark')
+                  ? 'none'
+                  : '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
               }}
               aria-label="More options"
             >
-              <Icon name="ellipsis" size={16} className="text-[#48413f]" />
+              <Icon name="ellipsis" size={16} className="text-[#48413f] dark:text-neutral-300" />
             </button>
 
             {/* Dropdown menu */}
             {isMenuOpen && (
               <div
-                className="absolute right-0 top-full mt-2 w-48 rounded-lg shadow-lg py-1 z-50"
-                style={{
-                  backgroundColor: 'var(--surface-neutral-white)',
-                  border: '1px solid var(--border-neutral-weak)',
-                }}
+                className="absolute right-0 top-full mt-2 w-48 rounded-lg shadow-lg py-1 z-50 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700"
               >
                 <button
                   onClick={() => handleMenuAction('dashboard')}
-                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 flex items-center gap-3"
                 >
-                  <Icon name="table-cells" size={16} className="text-[var(--text-neutral-medium)]" />
-                  <span className="font-medium text-[var(--text-neutral-strong)]">Add to Dashboard</span>
+                  <Icon name="table-cells" size={16} className="text-gray-600 dark:text-neutral-400" />
+                  <span className="font-medium text-gray-900 dark:text-neutral-100">Add to Dashboard</span>
                 </button>
                 <button
                   onClick={() => handleMenuAction('report')}
-                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 flex items-center gap-3"
                 >
-                  <Icon name="file-lines" size={16} className="text-[var(--text-neutral-medium)]" />
-                  <span className="font-medium text-[var(--text-neutral-strong)]">Save as Report</span>
+                  <Icon name="file-lines" size={16} className="text-gray-600 dark:text-neutral-400" />
+                  <span className="font-medium text-gray-900 dark:text-neutral-100">Save as Report</span>
                 </button>
-                <div className="my-1 border-t" style={{ borderColor: 'var(--border-neutral-x-weak)' }} />
+                <div className="my-1 border-t border-gray-200 dark:border-neutral-700" />
                 <button
                   onClick={() => handleMenuAction('share')}
-                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 flex items-center gap-3"
                 >
-                  <Icon name="arrow-up-from-bracket" size={16} className="text-[var(--text-neutral-medium)]" />
-                  <span className="font-medium text-[var(--text-neutral-strong)]">Share</span>
+                  <Icon name="arrow-up-from-bracket" size={16} className="text-gray-600 dark:text-neutral-400" />
+                  <span className="font-medium text-gray-900 dark:text-neutral-100">Share</span>
                 </button>
                 <button
                   onClick={() => handleMenuAction('download')}
-                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 flex items-center gap-3"
                 >
-                  <Icon name="arrow-down-to-line" size={16} className="text-[var(--text-neutral-medium)]" />
-                  <span className="font-medium text-[var(--text-neutral-strong)]">Download</span>
+                  <Icon name="arrow-down-to-line" size={16} className="text-gray-600 dark:text-neutral-400" />
+                  <span className="font-medium text-gray-900 dark:text-neutral-100">Download</span>
                 </button>
               </div>
             )}
@@ -150,8 +143,7 @@ export function ArtifactTopBar({ title, onBack, onCopy, onPublish }: ArtifactTop
 
       {/* Divider */}
       <div
-        className="h-px w-full"
-        style={{ backgroundColor: 'var(--border-neutral-x-weak)' }}
+        className="h-px w-full bg-gray-200 dark:bg-neutral-700"
       />
     </div>
   );

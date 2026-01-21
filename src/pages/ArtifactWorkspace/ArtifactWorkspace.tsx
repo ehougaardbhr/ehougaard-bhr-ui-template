@@ -111,7 +111,7 @@ export function ArtifactWorkspace() {
     return (
       <div className="h-screen flex overflow-hidden" style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}>
         {/* Left Toolbar */}
-        <ArtifactToolBar />
+        {/* <ArtifactToolBar /> */}
 
         {/* Main Content Area */}
         <div className="flex flex-1 overflow-hidden">
@@ -163,7 +163,7 @@ export function ArtifactWorkspace() {
   return (
     <div className="h-screen flex overflow-hidden" style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}>
       {/* Left Toolbar */}
-      <ArtifactToolBar />
+      {/* <ArtifactToolBar /> */}
 
       {/* Main Content Area */}
       <div className="flex flex-1 overflow-hidden">
