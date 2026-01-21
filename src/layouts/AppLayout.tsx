@@ -104,9 +104,9 @@ function AppLayout({ children }: AppLayoutProps) {
       {/* Global Navigation */}
       <GlobalNav />
 
-      {/* Header - Full width (only nav margin) */}
+      {/* Header - Full width (only nav margin) - Sticky at top with z-40 */}
       <div
-        className="transition-all duration-300 ease-in-out"
+        className="sticky top-0 z-40 transition-all duration-300 ease-in-out"
         style={{ marginLeft: navWidth }}
       >
         <GlobalHeader />
@@ -123,7 +123,7 @@ function AppLayout({ children }: AppLayoutProps) {
               flex-1
               bg-[var(--surface-neutral-xx-weak)]
               rounded-[var(--radius-large)]
-              overflow-hidden
+              overflow-visible
             "
           >
             {children}

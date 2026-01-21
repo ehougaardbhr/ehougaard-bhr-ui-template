@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Icon, Button, TextInput, Tabs } from '../../components';
 import { currentEmployee } from '../../data/currentEmployee';
 
@@ -16,12 +16,111 @@ const profileTabs = [
 
 export function MyInfo() {
   const [activeTab, setActiveTab] = useState('personal');
+  const [showFloatingHeader, setShowFloatingHeader] = useState(false);
+  const [floatingHeaderHeight, setFloatingHeaderHeight] = useState<number | null>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
   const employee = currentEmployee;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // Show floating header when main header is NOT intersecting (scrolled out of view)
+        setShowFloatingHeader(!entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        rootMargin: '-1px 0px 0px 0px',
+      }
+    );
+
+    const headerElement = headerRef.current;
+    if (headerElement) {
+      observer.observe(headerElement);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
+    const headerElement = headerRef.current;
+    if (!headerElement) {
+      return;
+    }
+
+    const updateHeight = () => {
+      setFloatingHeaderHeight(Math.ceil(headerElement.getBoundingClientRect().height));
+    };
+
+    updateHeight();
+    const resizeObserver = new ResizeObserver(updateHeight);
+    resizeObserver.observe(headerElement);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, []);
 
   return (
     <div className="min-h-full">
+      {/* Floating Compact Header */}
+      {showFloatingHeader && (
+        <div
+          className="sticky top-0 z-50 py-4 flex items-center animate-[floatDown_220ms_ease-out]"
+          style={floatingHeaderHeight ? { height: `${floatingHeaderHeight}px` } : undefined}
+        >
+          <div className="bg-[var(--color-primary-strong)] rounded-[var(--radius-small)] pl-10 pr-8 py-2 shadow-[2px_2px_0px_2px_rgba(56,49,47,0.05)] w-full mt-[46px]">
+            <div className="flex items-center gap-3">
+              {/* Avatar and Name */}
+              <div className="flex items-center gap-3">
+                <img
+                  src={employee.avatar}
+                  alt={`${employee.preferredName} ${employee.lastName}`}
+                  className="w-12 h-12 rounded-[var(--radius-x-small)] object-cover shadow-[1px_1px_0px_1px_rgba(56,49,47,0.04)]"
+                />
+                <h2
+                  className="text-[22px] font-semibold text-white"
+                  style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
+                >
+                  {employee.preferredName} {employee.lastName}
+                </h2>
+              </div>
+
+              {/* Compact Tabs */}
+              <div className="flex items-center gap-1 overflow-clip pl-[22px]">
+                {profileTabs.map((tab) => {
+                  const isActive = tab.id === activeTab;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`
+                        flex items-center justify-center gap-3 px-4 py-4 rounded-[var(--radius-small)]
+                        ${isActive
+                          ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--color-primary-strong)] font-bold'
+                          : 'text-white font-medium hover:bg-white/10'
+                        }
+                        text-[15px] leading-[22px] transition-colors
+                      `}
+                    >
+                      {tab.label}
+                      {tab.id === 'more' && (
+                        <Icon name="caret-down" size={10} className="text-current" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Profile Header - Green Banner */}
       <div
+        ref={headerRef}
         className="relative px-8 pt-4 pb-0 bg-[var(--color-primary-strong)] rounded-[var(--radius-large)]"
       >
         {/* Header Contents */}
