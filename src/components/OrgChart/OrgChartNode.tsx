@@ -1,4 +1,5 @@
 import type { Employee } from '../../data/employees';
+import { Icon } from '../Icon';
 
 export interface OrgChartNodeProps {
   employee: Employee;
@@ -23,105 +24,123 @@ export function OrgChartNode({
   compact = false,
   isExpanded = true,
 }: OrgChartNodeProps) {
-  const cardWidth = compact ? 180 : 220;
-  const cardHeight = showPhoto ? 120 : 100;
+  const cardWidth = 165;
+  const avatarSize = 56;
+  const avatarOffset = 28; // Half avatar above card
 
   return (
     <div
-      className={`
-        relative bg-white rounded-lg border border-gray-200
-        ${isSelected ? 'ring-2 ring-blue-500' : ''}
-        ${isFocused ? 'ring-2 ring-green-500' : ''}
-        cursor-pointer hover:shadow-md transition-shadow
-      `}
+      className="relative"
       style={{
         width: cardWidth,
-        height: cardHeight,
-        boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)'
+        height: 140, // Total height including avatar overhang
       }}
-      onClick={() => onNodeClick?.(employee.id)}
     >
-      {/* Pin Icon */}
-      <button
-        className="absolute top-2 left-2 w-5 h-5 flex items-center justify-center
-                   text-gray-400 hover:text-gray-600
-                   transition-colors z-10"
-        onClick={(e) => {
-          e.stopPropagation();
-          onPinClick?.(employee.id);
-        }}
-        aria-label="Pin employee"
-      >
-        <i className="fa-solid fa-lock text-xs"></i>
-      </button>
-
-      {/* Expand/Collapse chevron */}
-      {employee.directReports > 0 && (
-        <button
-          className="absolute top-2 right-2 w-5 h-5 flex items-center justify-center
-                     text-gray-400 hover:text-gray-600
-                     transition-colors z-10"
-          onClick={(e) => {
-            e.stopPropagation();
-            onExpandClick?.(employee.id);
+      {/* Avatar - centered at top, overhanging */}
+      {showPhoto && (
+        <div
+          className="absolute left-1/2 transform -translate-x-1/2 overflow-hidden z-20"
+          style={{
+            width: avatarSize,
+            height: avatarSize,
+            borderRadius: '12px',
+            top: 0,
+            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
           }}
-          aria-label={isExpanded ? 'Collapse' : 'Expand'}
         >
-          <i className={`fa-solid fa-chevron-${isExpanded ? 'up' : 'down'} text-xs`}></i>
-        </button>
+          {employee.avatar ? (
+            <img
+              src={employee.avatar}
+              alt={employee.name}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-400 flex items-center justify-center">
+              <i className="fa-solid fa-user text-white text-xl"></i>
+            </div>
+          )}
+        </div>
       )}
 
-      {/* Card Content */}
-      <div className="pt-7 px-3 pb-3 flex flex-col items-center text-center h-full">
-        {/* Avatar */}
-        {showPhoto && (
-          <div className="w-12 h-12 rounded-full overflow-hidden mb-2 flex-shrink-0 bg-gray-100">
-            {employee.avatar ? (
-              <img
-                src={employee.avatar}
-                alt={employee.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                <i className="fa-solid fa-user text-gray-400"></i>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Name */}
-        <div className="text-sm font-medium text-gray-900 line-clamp-1 mb-0.5">
-          {employee.name}
-        </div>
-
-        {/* Title */}
-        <div className="text-xs text-gray-600 line-clamp-2 mb-0.5">
-          {employee.title}
-        </div>
-
-        {/* Department */}
-        <div className="text-xs text-gray-500 line-clamp-1">
-          {employee.department}
-        </div>
-
-        {/* Direct Reports Count */}
-        {employee.directReports > 0 && (
+      {/* Card */}
+      <div
+        className={`
+          absolute bg-white cursor-pointer transition-all
+          ${isSelected ? 'ring-2 ring-blue-500' : ''}
+          ${isFocused ? 'ring-2 ring-green-500' : ''}
+        `}
+        style={{
+          width: cardWidth,
+          top: avatarOffset,
+          borderRadius: '8px',
+          border: '1px solid #e4e3e0',
+          boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+          padding: '8px',
+        }}
+        onClick={() => onNodeClick?.(employee.id)}
+      >
+        {/* Top row - pin and chevron icons */}
+        <div className="flex items-start justify-between w-full mb-2">
           <button
-            className="absolute bottom-2 left-1/2 transform -translate-x-1/2
-                       px-2 py-0.5 text-xs
-                       text-gray-600
-                       hover:bg-gray-50
-                       rounded transition-colors
-                       flex items-center gap-1"
+            className="flex items-center justify-center w-3 h-3 text-[#777270] hover:text-gray-600 transition-colors"
             onClick={(e) => {
               e.stopPropagation();
-              onExpandClick?.(employee.id);
+              onPinClick?.(employee.id);
             }}
+            aria-label="Pin employee"
           >
-            <span>{employee.directReports}</span>
-            <i className={`fa-solid fa-chevron-${isExpanded ? 'down' : 'up'} text-[8px]`}></i>
+            <i className="fa-solid fa-thumbtack text-[12px]"></i>
           </button>
+
+          {employee.directReports > 0 && (
+            <button
+              className="flex items-center justify-center w-3 h-3 text-[#777270] hover:text-gray-600 transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onExpandClick?.(employee.id);
+              }}
+              aria-label={isExpanded ? 'Collapse' : 'Expand'}
+            >
+              <i className={`fa-solid fa-chevron-${isExpanded ? 'up' : 'down'} text-[12px]`}></i>
+            </button>
+          )}
+        </div>
+
+        {/* Content - name and title */}
+        <div className="flex flex-col items-center text-center w-full pt-2 pb-0">
+          {/* Name - Green */}
+          <div
+            className="font-medium text-[15px] leading-[22px] text-[#2e7918] w-full overflow-hidden text-ellipsis mb-0"
+            style={{ fontFamily: 'Inter' }}
+          >
+            {employee.name}
+          </div>
+
+          {/* Title */}
+          <div
+            className="font-normal text-[13px] leading-[19px] text-[#48413f] w-full overflow-hidden text-ellipsis"
+            style={{ fontFamily: 'Inter' }}
+          >
+            {employee.title}
+          </div>
+        </div>
+
+        {/* Bottom right - Direct reports count */}
+        {employee.directReports > 0 && (
+          <div className="flex items-start justify-end w-full mt-2">
+            <button
+              className="flex gap-1 items-center justify-end"
+              onClick={(e) => {
+                e.stopPropagation();
+                onExpandClick?.(employee.id);
+              }}
+            >
+              <span className="font-normal text-[13px] leading-[19px] text-[#38312f]">
+                {employee.directReports}
+              </span>
+              <i className={`fa-solid fa-chevron-${isExpanded ? 'down' : 'up'} text-[12px] text-[#777270]`}></i>
+            </button>
+          </div>
         )}
       </div>
     </div>

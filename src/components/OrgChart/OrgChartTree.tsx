@@ -119,7 +119,7 @@ export function OrgChartTree({
       node.children.forEach((child) => {
         // Line from parent bottom to child top
         const parentX = node.x;
-        const parentY = node.y + 120; // NODE_HEIGHT
+        const parentY = node.y + 140; // NODE_HEIGHT (total card + avatar height)
         const childX = child.x;
         const childY = child.y;
 
@@ -130,8 +130,8 @@ export function OrgChartTree({
           <path
             key={`${node.employee.id}-${child.employee.id}`}
             d={`M ${parentX} ${parentY} L ${parentX} ${midY} L ${childX} ${midY} L ${childX} ${childY}`}
-            stroke="#93C5FD"
-            strokeWidth="2"
+            stroke="#d4d2d0"
+            strokeWidth="1"
             fill="none"
           />
         );
