@@ -45,9 +45,7 @@ export function OrgChartNode({
             height: avatarSize,
             borderRadius: '12px',
             top: 0,
-            boxShadow: document.documentElement.classList.contains('dark')
-              ? '1px 1px 0px 1px rgba(0, 0, 0, 0.2)'
-              : '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
           }}
         >
           {employee.avatar ? (
@@ -68,22 +66,20 @@ export function OrgChartNode({
       <div
         className={`
           absolute bg-white dark:bg-neutral-700 cursor-pointer transition-all
-          ${isSelected ? 'ring-2 ring-blue-500' : ''}
-          ${isFocused ? 'ring-2 ring-green-500' : ''}
+          ${isSelected ? 'border-2 border-green-500 shadow-lg' : 'border border-[#e4e3e0] dark:border-neutral-600'}
+          ${isFocused ? 'ring-2 ring-green-600' : ''}
         `}
         style={{
           width: cardWidth,
           top: avatarOffset,
           borderRadius: '8px',
-          border: document.documentElement.classList.contains('dark')
-            ? '1px solid #525252'
-            : '1px solid #e4e3e0',
-          boxShadow: document.documentElement.classList.contains('dark')
-            ? '0 4px 6px -1px rgba(0, 0, 0, 0.3)'
-            : '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+          boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
           padding: '8px',
         }}
-        onClick={() => onNodeClick?.(employee.id)}
+        onClick={() => {
+          console.log('Card clicked:', employee.name, employee.id);
+          onNodeClick?.(employee.id);
+        }}
       >
         {/* Top row - pin and chevron icons */}
         <div className="flex items-start justify-between w-full mb-2">

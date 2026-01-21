@@ -31,9 +31,11 @@ export function OrgChartArtifact({
   const canvasRef = useRef<HTMLDivElement>(null);
   const [focusedEmployee, setFocusedEmployee] = useState<number | undefined>();
   const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>();
-  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(
-    new Set(employees.map((emp) => emp.id))
-  );
+  // Start with only CEO expanded (employee with no manager)
+  const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => {
+    const ceo = employees.find((emp) => emp.reportsTo === null);
+    return new Set(ceo ? [ceo.id] : []);
+  });
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
@@ -98,6 +100,21 @@ export function OrgChartArtifact({
     }
     console.log('New expanded set size:', newExpanded.size);
     setExpandedNodes(newExpanded);
+  };
+
+  // Handle node click: select the node and expand it to show direct reports
+  const handleNodeClick = (id: number) => {
+    console.log('handleNodeClick called:', id);
+    setSelectedEmployee(id);
+    // Expand the node if it has direct reports
+    const employee = filteredEmployees.find(e => e.id === id);
+    console.log('Employee found:', employee?.name, 'Direct reports:', employee?.directReports);
+    if (employee && employee.directReports > 0) {
+      console.log('Expanding node:', id);
+      const newExpanded = new Set(expandedNodes);
+      newExpanded.add(id);
+      setExpandedNodes(newExpanded);
+    }
   };
 
   // Handle pin (focus on employee)
@@ -193,7 +210,7 @@ export function OrgChartArtifact({
           focusedEmployee={focusedEmployee}
           selectedEmployee={selectedEmployee}
           expandedNodes={expandedNodes}
-          onNodeSelect={setSelectedEmployee}
+          onNodeSelect={handleNodeClick}
           onNodeExpand={handleNodeExpand}
           onNodePin={handleNodePin}
           showPhotos={settings.showPhotos}
