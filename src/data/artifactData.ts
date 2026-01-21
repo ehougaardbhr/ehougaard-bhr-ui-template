@@ -30,13 +30,25 @@ export interface TextSettings {
   format: FormatType;
 }
 
+export type LayoutType = 'top-down' | 'left-right';
+export type DepartmentFilterType = 'all' | 'technology' | 'product' | 'operations' | 'finance' | 'marketing' | 'human resources' | 'executive';
+
+export interface OrgChartSettings {
+  rootEmployee: string;           // Employee ID or "all" for CEO
+  depth: number | 'all';          // 1-5 or "all" levels
+  filter: DepartmentFilterType;   // Department filter
+  layout: LayoutType;             // "top-down" | "left-right"
+  showPhotos: boolean;            // Toggle for avatar display
+  compact: boolean;               // Compact vs expanded node view
+}
+
 export interface Artifact {
   id: string;
   type: ArtifactType;
   title: string;
   conversationId: string;
   createdAt: Date;
-  settings: ChartSettings | TextSettings | Record<string, unknown>; // Extensible for other artifact types
+  settings: ChartSettings | TextSettings | OrgChartSettings | Record<string, unknown>; // Extensible for other artifact types
   content?: string; // For text artifacts
 }
 
@@ -114,6 +126,22 @@ export const formatLabels: Record<FormatType, string> = {
   paragraph: 'Paragraph',
   bullets: 'Bullets',
   numbered: 'Numbered',
+};
+
+export const layoutLabels: Record<LayoutType, string> = {
+  'top-down': 'Top-Down',
+  'left-right': 'Left-Right',
+};
+
+export const departmentFilterLabels: Record<DepartmentFilterType, string> = {
+  all: 'All Departments',
+  technology: 'Technology',
+  product: 'Product',
+  operations: 'Operations',
+  finance: 'Finance',
+  marketing: 'Marketing',
+  'human resources': 'Human Resources',
+  executive: 'Executive',
 };
 
 // ============================================
@@ -376,6 +404,36 @@ export const mockArtifacts: Artifact[] = [
       format: 'bullets',
     } as TextSettings,
     content: `• Set up a dedicated workspace with good lighting and minimal distractions\n• Stick to regular working hours and take breaks to avoid burnout\n• Use video for meetings when possible to maintain team connection\n• Over-communicate with your team since casual hallway chats don't happen remotely\n• Keep your calendar updated so teammates know when you're available\n• Use status indicators in Slack to show when you're focused, in meetings, or away\n• Schedule virtual coffee chats with colleagues to maintain relationships\n• Take advantage of flexible hours but be present for core team collaboration time\n• Set boundaries between work and personal life—close your laptop at end of day\n• Speak up if you're feeling isolated or need more team interaction`,
+  },
+  {
+    id: 'artifact-9',
+    type: 'org-chart',
+    title: 'Technology Team Structure - Q1 2026',
+    conversationId: '6', // Could link to a scenario planning conversation
+    createdAt: new Date('2026-01-20T15:30:00'),
+    settings: {
+      rootEmployee: 'all',
+      depth: 3,
+      filter: 'technology',
+      layout: 'top-down',
+      showPhotos: true,
+      compact: false,
+    } as OrgChartSettings,
+  },
+  {
+    id: 'artifact-10',
+    type: 'org-chart',
+    title: 'Company-Wide Org Chart',
+    conversationId: '7', // Could link to another conversation
+    createdAt: new Date('2026-01-19T11:45:00'),
+    settings: {
+      rootEmployee: 'all',
+      depth: 'all',
+      filter: 'all',
+      layout: 'top-down',
+      showPhotos: true,
+      compact: false,
+    } as OrgChartSettings,
   },
 ];
 

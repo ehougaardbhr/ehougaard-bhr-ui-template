@@ -21,7 +21,18 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const navigate = useNavigate();
   const { artifacts } = useArtifact();
   const [inputValue, setInputValue] = useState('');
-  const [selectedConversation, setSelectedConversation] = useState<ChatConversation>(recentConversations[0]);
+  const [selectedConversation, setSelectedConversation] = useState<ChatConversation>(() => {
+    // Check if there's a stored conversation ID from navigating back from artifact
+    const storedConversationId = localStorage.getItem('bhr-active-conversation');
+    if (storedConversationId) {
+      const conversation = recentConversations.find(c => c.id === storedConversationId);
+      if (conversation) {
+        localStorage.removeItem('bhr-active-conversation'); // Clear it after use
+        return conversation;
+      }
+    }
+    return recentConversations[0];
+  });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

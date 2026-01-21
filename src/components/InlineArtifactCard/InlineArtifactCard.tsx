@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { BarChart, LineChart, PieChart, TableChart } from '../Charts';
 import { TextDisplay } from '../TextDisplay';
-import type { Artifact, ChartSettings } from '../../data/artifactData';
+import { OrgChartTree } from '../OrgChart';
+import type { Artifact, ChartSettings, OrgChartSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
+import { employees } from '../../data/employees';
 
 interface InlineArtifactCardProps {
   artifact: Artifact;
@@ -109,6 +111,67 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
           <TextDisplay
             content={artifact.content || 'No content'}
             maxLength={maxLength}
+          />
+        </div>
+      );
+    }
+
+    if (artifact.type === 'org-chart') {
+      const orgChartSettings = artifact.settings as OrgChartSettings;
+      const width = compact ? 335 : 700;
+      const height = compact ? 230 : 480;
+
+      // Filter employees based on settings
+      // When filtering by department, include the full reporting chain up to root
+      const filteredEmployees = (() => {
+        if (orgChartSettings.filter === 'all') {
+          return employees;
+        }
+
+        // Get all employees in the target department
+        const targetDept = orgChartSettings.filter.toLowerCase();
+        const deptEmployees = employees.filter(
+          (emp) => emp.department.toLowerCase() === targetDept
+        );
+
+        // Get all ancestors (managers) for these employees
+        const ancestorIds = new Set<number>();
+        deptEmployees.forEach((emp) => {
+          let currentId = emp.reportsTo;
+          while (currentId !== null) {
+            ancestorIds.add(currentId);
+            const manager = employees.find((e) => e.id === currentId);
+            currentId = manager?.reportsTo ?? null;
+          }
+        });
+
+        // Include department employees + their ancestors
+        return employees.filter(
+          (emp) =>
+            emp.department.toLowerCase() === targetDept || ancestorIds.has(emp.id)
+        );
+      })();
+
+      // Determine root employee
+      const rootEmployeeId = orgChartSettings.rootEmployee === 'all'
+        ? 'all'
+        : parseInt(orgChartSettings.rootEmployee, 10) || 'all';
+
+      return (
+        <div
+          className="relative bg-slate-50 dark:bg-slate-900 rounded-lg overflow-hidden"
+          style={{ width, height }}
+        >
+          <OrgChartTree
+            employees={filteredEmployees}
+            rootEmployee={rootEmployeeId}
+            depth={orgChartSettings.depth}
+            showPhotos={orgChartSettings.showPhotos}
+            compact={orgChartSettings.compact}
+            expandedNodes={new Set(filteredEmployees.map(emp => emp.id))}
+            zoomLevel={compact ? 0.5 : 0.8}
+            panX={50}
+            panY={50}
           />
         </div>
       );

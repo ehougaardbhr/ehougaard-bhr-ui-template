@@ -6,11 +6,12 @@ import { TextHeadline } from '../../components/TextHeadline';
 import { ArtifactTopBar } from '../../components/ArtifactTopBar';
 import { ArtifactToolBar } from '../../components/ArtifactToolBar';
 import { ArtifactChatPanel } from '../../components/ArtifactChatPanel';
-import type { ChartSettings, TextSettings } from '../../data/artifactData';
+import type { ChartSettings, TextSettings, OrgChartSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
 import { BarChart, LineChart, PieChart, TableChart, ChartSettingsToolbar } from '../../components/Charts';
 import { TextSettingsToolbar } from '../../components/TextSettingsToolbar';
 import { TextEditor } from '../../components/TextEditor';
+import { OrgChartArtifact } from '../../components/OrgChart';
 
 export function ArtifactWorkspace() {
   const { type, id } = useParams<{ type: string; id: string }>();
@@ -44,6 +45,12 @@ export function ArtifactWorkspace() {
     // Open the chat panel in expanded mode and navigate home
     localStorage.setItem('bhr-chat-panel-open', 'true');
     localStorage.setItem('bhr-chat-expanded', 'true');
+
+    // Store the conversation ID so chat panel knows which conversation to show
+    if (selectedArtifact?.conversationId) {
+      localStorage.setItem('bhr-active-conversation', selectedArtifact.conversationId);
+    }
+
     navigate('/');
   };
 
@@ -59,7 +66,7 @@ export function ArtifactWorkspace() {
   };
 
   // Handle supported artifact types
-  if (type !== 'chart' && type !== 'text') {
+  if (type !== 'chart' && type !== 'text' && type !== 'org-chart') {
     return (
       <div className="h-screen flex items-center justify-center bg-[var(--surface-neutral-xx-weak)]">
         <div className="text-center">
@@ -67,7 +74,7 @@ export function ArtifactWorkspace() {
             {`Unsupported artifact type: ${type || 'unknown'}`}
           </TextHeadline>
           <p className="mt-2 text-[var(--text-neutral-medium)]">
-            Only chart and text artifacts are currently supported.
+            Only chart, text, and org-chart artifacts are currently supported.
           </p>
           <button
             onClick={() => navigate(-1)}
@@ -75,6 +82,53 @@ export function ArtifactWorkspace() {
           >
             Go Back
           </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Special layout for org-chart (full-screen without card)
+  if (type === 'org-chart' && selectedArtifact) {
+    return (
+      <div className="h-screen flex overflow-hidden" style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}>
+        {/* Left Toolbar */}
+        <ArtifactToolBar />
+
+        {/* Main Content Area */}
+        <div className="flex flex-1 overflow-hidden">
+          <div className="flex-1 p-8 overflow-hidden">
+            <div
+              className="flex flex-col h-full rounded-2xl overflow-hidden"
+              style={{
+                backgroundColor: 'var(--surface-neutral-white)',
+                boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
+              }}
+            >
+              {/* Header inside card */}
+              <ArtifactTopBar
+                title={artifactTitle}
+                onBack={handleBack}
+                onCopy={handleCopy}
+                onPublish={handlePublish}
+              />
+
+              {/* Org Chart fills the rest of the space */}
+              <div className="flex-1 overflow-hidden">
+                <OrgChartArtifact
+                  artifact={selectedArtifact}
+                  onSettingsChange={(newSettings) => {
+                    updateArtifactSettings(selectedArtifact.id, newSettings);
+                  }}
+                  isEditMode={true}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Chat panel */}
+          <div className="py-8 pr-8 flex">
+            <ArtifactChatPanel conversationId={selectedArtifact?.conversationId || null} />
+          </div>
         </div>
       </div>
     );

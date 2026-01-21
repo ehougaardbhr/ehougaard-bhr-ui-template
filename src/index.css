@@ -311,3 +311,21 @@ h2 {
   --radius-large: 24px;
   --radius-full: 1000px;
 }
+
+/* ================================
+   Org Chart Styles
+   ================================ */
+
+/* Dot grid background for org chart edit mode - Light theme */
+.org-chart-edit-bg {
+  background-image: radial-gradient(circle, #cbd5e1 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: #f8fafc;
+}
+
+/* Dot grid background for org chart edit mode - Dark theme */
+.dark .org-chart-edit-bg {
+  background-image: radial-gradient(circle, #475569 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: #0f172a;
+}

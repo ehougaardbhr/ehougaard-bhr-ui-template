@@ -257,33 +257,45 @@ export const recentConversations: ChatConversation[] = [
   },
   {
     id: '6',
-    title: 'Active marketing employees',
+    title: 'Technology Team Structure Q1 2026',
     messages: [
       {
         id: '1',
         type: 'user',
-        text: 'List all active employees in the marketing department',
+        text: 'Can you show me the org chart for the Technology department? I want to understand our current structure for Q1 planning.',
       },
       {
         id: '2',
         type: 'ai',
-        text: 'There are 12 active employees in Marketing:\n\n1. Jess Cordova - Director\n2. Alex Chen - Senior Manager\n3. Taylor Swift - Content Lead\n... and 9 more',
+        text: "Here's the Technology team org chart. You can explore the team structure, see reporting relationships, and use this for scenario planning:",
+        artifactId: 'artifact-9', // Links to Technology org chart
+        suggestions: [
+          'What if we added 2 engineers to the team?',
+          'Show me span of control for each manager',
+          'Compare to industry benchmarks',
+        ],
       },
     ],
   },
   {
     id: '7',
-    title: 'Sally Lee PTO balance',
+    title: 'Company-Wide Org Chart',
     messages: [
       {
         id: '1',
         type: 'user',
-        text: "What is Sally Lee's current PTO balance?",
+        text: 'I need to see the complete company org chart showing all departments and reporting structure.',
       },
       {
         id: '2',
         type: 'ai',
-        text: "Sally Lee's PTO balance:\n\n- Vacation: 12 days remaining\n- Sick leave: 5 days remaining\n- Personal: 2 days remaining\n\nTotal: 19 days available",
+        text: "Here's the full company org chart starting from the CEO. You can navigate, zoom, and explore the entire organizational structure:",
+        artifactId: 'artifact-10', // Links to full company org chart
+        suggestions: [
+          'Focus on a specific department',
+          'Analyze span of control',
+          'Export to PDF',
+        ],
       },
     ],
   },
