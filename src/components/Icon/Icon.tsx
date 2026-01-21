@@ -73,6 +73,7 @@ import {
   faUnderline,
   faListUl,
   faListOl,
+  faSitemap,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -184,7 +185,8 @@ export type IconName =
   | 'italic'
   | 'underline'
   | 'list-ul'
-  | 'list-ol';
+  | 'list-ol'
+  | 'sitemap';
 
 interface IconProps {
   name: IconName;
@@ -273,6 +275,7 @@ const faIconMap = {
   'underline': faUnderline,
   'list-ul': faListUl,
   'list-ol': faListOl,
+  'sitemap': faSitemap,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {

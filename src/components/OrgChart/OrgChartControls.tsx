@@ -58,7 +58,7 @@ export function OrgChartControls({
     { value: 'all' as const, label: 'All' },
   ];
 
-  const currentDepthLabel = depth === 'all' ? 'All' : depth.toString();
+  const currentDepthLabel = depth === 'all' ? 'All' : (depth ?? 'all').toString();
 
   return (
     <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200">
@@ -66,7 +66,7 @@ export function OrgChartControls({
       <div ref={searchRef} className="relative flex-1 max-w-sm">
         <div className="relative">
           <Icon
-            name="search"
+            name="magnifying-glass"
             size={14}
             className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"
           />

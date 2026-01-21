@@ -26,10 +26,15 @@ export function ArtifactWorkspace() {
 
   // Select artifact from URL param on mount
   useEffect(() => {
+    console.log('ArtifactWorkspace mount:', { type, id, artifactsCount: artifacts.length });
     if (id) {
       const exists = artifacts.some(a => a.id === id);
+      console.log('Artifact exists:', exists, 'id:', id);
       if (exists) {
         selectArtifact(id);
+        console.log('Selected artifact:', id);
+      } else {
+        console.log('Artifact not found:', id, 'Available:', artifacts.map(a => a.id));
       }
     }
   }, [id, artifacts, selectArtifact]);
@@ -65,6 +70,8 @@ export function ArtifactWorkspace() {
     console.log('Publish action:', action);
   };
 
+  console.log('Render state:', { type, selectedArtifact: !!selectedArtifact, artifactType: selectedArtifact?.type });
+
   // Handle supported artifact types
   if (type !== 'chart' && type !== 'text' && type !== 'org-chart') {
     return (
@@ -87,8 +94,20 @@ export function ArtifactWorkspace() {
     );
   }
 
+  // Loading state while artifact is being selected
+  if (!selectedArtifact) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-[var(--surface-neutral-xx-weak)]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-[var(--text-neutral-medium)]">Loading artifact...</p>
+        </div>
+      </div>
+    );
+  }
+
   // Special layout for org-chart (full-screen without card)
-  if (type === 'org-chart' && selectedArtifact) {
+  if (type === 'org-chart') {
     return (
       <div className="h-screen flex overflow-hidden" style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}>
         {/* Left Toolbar */}

@@ -16,7 +16,16 @@ export function OrgChartArtifact({
   onSettingsChange,
   isEditMode = false,
 }: OrgChartArtifactProps) {
-  const settings = artifact.settings as OrgChartSettings;
+  const rawSettings = artifact.settings as OrgChartSettings;
+
+  // Provide defaults for all settings
+  const settings: OrgChartSettings = {
+    rootEmployee: rawSettings?.rootEmployee ?? 'all',
+    depth: rawSettings?.depth ?? 'all',
+    showPhotos: rawSettings?.showPhotos ?? true,
+    compact: rawSettings?.compact ?? false,
+    filter: rawSettings?.filter ?? 'all',
+  };
 
   // Local state for UI
   const [focusedEmployee, setFocusedEmployee] = useState<number | undefined>();
