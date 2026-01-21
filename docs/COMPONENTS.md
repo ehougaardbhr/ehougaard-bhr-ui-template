@@ -122,13 +122,18 @@ Employee display card for People page:
 Slide-in chat panel (can expand to full-screen):
 - 383px wide when collapsed
 - Full width when expanded
-- Header with conversation dropdown
-- Expand/collapse/close buttons
+- **Collapsed view**: Header with conversation dropdown, expand/close buttons
+- **Expanded view**: Title (H2) at top-right with collapse/close buttons
 - Message display (user + AI)
 - Input with gradient border
 - Sidebar with conversation list (when expanded)
 - Artifacts section in sidebar
 - localStorage persistence: `bhr-chat-panel-open`, `bhr-chat-expanded`
+
+**Header organization**:
+- Collapsed: Dropdown selector + expand/close in header
+- Expanded: Conversation title + collapse/close in top-right of content area
+- Clean visual hierarchy with controls positioned consistently
 
 ## Artifact Components
 

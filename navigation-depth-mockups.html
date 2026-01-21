@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Navigation Depth Mockups</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f5f5;
+      padding: 40px 20px;
+    }
+
+    .mockup-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .mockup-section {
+      margin-bottom: 60px;
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .mockup-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2e7918;
+      margin-bottom: 8px;
+    }
+
+    .mockup-description {
+      font-size: 14px;
+      color: #676260;
+      margin-bottom: 24px;
+    }
+
+    .demo-frame {
+      border: 2px solid #e4e3e0;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #f6f6f4;
+      min-height: 500px;
+    }
+
+    /* 1. Breadcrumb Trail */
+    .breadcrumb-header {
+      background: white;
+      padding: 16px 24px;
+      border-bottom: 1px solid #e4e3e0;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+
+    .breadcrumb-item {
+      color: #48413f;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .breadcrumb-item:hover {
+      color: #2e7918;
+      text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+      color: #2e7918;
+      font-weight: 600;
+    }
+
+    .breadcrumb-separator {
+      color: #c6c2bf;
+    }
+
+    /* 2. Context Strip */
+    .context-strip {
+      background: #f0f9ed;
+      border-bottom: 1px solid #87C276;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: #2e7918;
+    }
+
+    .context-strip-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .back-link {
+      color: #2e7918;
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: auto;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    /* 3. Split View */
+    .split-view {
+      display: flex;
+      height: 500px;
+    }
+
+    .chat-peek {
+      width: 280px;
+      background: #fff;
+      border-right: 2px solid #2e7918;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .chat-peek-header {
+      font-size: 12px;
+      font-weight: 600;
+      color: #676260;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+
+    .chat-message-preview {
+      font-size: 13px;
+      color: #48413f;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      padding: 8px;
+      background: #f6f6f4;
+      border-radius: 6px;
+    }
+
+    .editor-main {
+      flex: 1;
+      padding: 24px;
+      background: white;
+    }
+
+    /* 4. Theme Shift */
+    .theme-shift-editor {
+      background: linear-gradient(to bottom, #f0f9ed 0%, #ffffff 120px);
+      padding: 24px;
+      min-height: 500px;
+    }
+
+    .accent-bar {
+      height: 4px;
+      background: linear-gradient(to right, #87C276, #2e7918);
+      margin-bottom: 24px;
+      border-radius: 2px;
+    }
+
+    /* 5. Tab Bar */
+    .tab-bar {
+      background: white;
+      border-bottom: 1px solid #e4e3e0;
+      display: flex;
+      padding: 0 24px;
+    }
+
+    .tab {
+      padding: 12px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #676260;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab:hover {
+      color: #48413f;
+      background: #f6f6f4;
+    }
+
+    .tab.active {
+      color: #2e7918;
+      border-bottom-color: #2e7918;
+    }
+
+    .tab-close {
+      color: #c6c2bf;
+      font-size: 16px;
+      margin-left: 4px;
+    }
+
+    .tab-close:hover {
+      color: #48413f;
+    }
+
+    /* 6. Slide-Over */
+    .slide-over-container {
+      position: relative;
+      height: 500px;
+      overflow: hidden;
+    }
+
+    .chat-background {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: white;
+      padding: 24px;
+      opacity: 0.3;
+    }
+
+    .slide-over-panel {
+      position: absolute;
+      left: 60px;
+      top: 0;
+      right: 0;
+      height: 100%;
+      background: white;
+      box-shadow: -4px 0 16px rgba(0,0,0,0.15);
+      padding: 24px;
+      border-radius: 8px 0 0 8px;
+    }
+
+    .edge-peek {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 60px;
+      height: 100%;
+      background: linear-gradient(to right, rgba(46,121,24,0.05), transparent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #2e7918;
+      transition: all 0.2s;
+    }
+
+    .edge-peek:hover {
+      background: linear-gradient(to right, rgba(46,121,24,0.15), transparent);
+    }
+
+    /* 7. Floating Pill */
+    .floating-context {
+      position: relative;
+      min-height: 500px;
+      padding: 24px;
+    }
+
+    .context-pill {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      background: white;
+      border: 1px solid #2e7918;
+      border-radius: 1000px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #2e7918;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(46,121,24,0.15);
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 100;
+    }
+
+    .context-pill:hover {
+      background: #f0f9ed;
+      box-shadow: 0 4px 12px rgba(46,121,24,0.25);
+    }
+
+    /* Common elements */
+    .editor-header {
+      font-size: 32px;
+      font-weight: 700;
+      color: #2e7918;
+      margin-bottom: 24px;
+    }
+
+    .editor-content {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      border: 1px solid #e4e3e0;
+      min-height: 300px;
+    }
+
+    .chart-placeholder {
+      background: #f6f6f4;
+      height: 250px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c6c2bf;
+      font-size: 14px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="mockup-container">
+    <h1 style="font-size: 36px; font-weight: 700; color: #2e7918; margin-bottom: 16px;">Navigation Depth Indicators</h1>
+    <p style="font-size: 16px; color: #676260; margin-bottom: 48px;">Different approaches to help users understand their location in the navigation hierarchy</p>
+
+    <!-- 1. Breadcrumb Trail -->
+    <div class="mockup-section">
+      <div class="mockup-title">1. Breadcrumb Trail</div>
+      <div class="mockup-description">Classic navigation pattern. Clear path back, clickable levels.</div>
+      <div class="demo-frame">
+        <div class="breadcrumb-header">
+          <nav class="breadcrumb">
+            <a href="#" class="breadcrumb-item">Chat</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="#" class="breadcrumb-item">Employee Onboarding</a>
+            <span class="breadcrumb-separator">›</span>
+            <span class="breadcrumb-item active">Headcount by Department</span>
+          </nav>
+        </div>
+        <div style="padding: 24px;">
+          <div class="editor-header">Headcount by Department</div>
+          <div class="editor-content">
+            <div class="chart-placeholder">Chart Content Here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. Context Strip -->
+    <div class="mockup-section">
+      <div class="mockup-title">2. Persistent Context Strip</div>
+      <div class="mockup-description">Subtle reminder banner showing editing context with quick back link.</div>
+      <div class="demo-frame">
+        <div class="context-strip">
+          <svg class="context-strip-icon" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+          </svg>
+          <span>Editing artifact from <strong>Employee Onboarding</strong></span>
+          <a href="#" class="back-link">← Back to Chat</a>
+        </div>
+        <div style="padding: 24px;">
+          <div class="editor-header">Headcount by Department</div>
+          <div class="editor-content">
+            <div class="chart-placeholder">Chart Content Here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. Split View -->
+    <div class="mockup-section">
+      <div class="mockup-title">3. Split View / Side-by-Side</div>
+      <div class="mockup-description">Keep chat visible in narrow column. Never lose context, enables live iteration.</div>
+      <div class="demo-frame">
+        <div class="split-view">
+          <div class="chat-peek">
+            <div class="chat-peek-header">← Employee Onboarding</div>
+            <div class="chat-message-preview">
+              <strong>You:</strong> Show me headcount by department
+            </div>
+            <div class="chat-message-preview">
+              <strong>AI:</strong> I've created a chart showing headcount across all departments...
+            </div>
+            <div class="chat-message-preview" style="background: #f0f9ed; border-left: 3px solid #2e7918;">
+              <strong>Editing:</strong> Headcount by Department
+            </div>
+          </div>
+          <div class="editor-main">
+            <div class="editor-header">Headcount by Department</div>
+            <div class="editor-content">
+              <div class="chart-placeholder">Chart Content Here</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Theme Shift -->
+    <div class="mockup-section">
+      <div class="mockup-title">4. Visual Theme Shift</div>
+      <div class="mockup-description">Subtle background gradient and accent bar signals "different mode".</div>
+      <div class="demo-frame">
+        <div class="theme-shift-editor">
+          <div class="accent-bar"></div>
+          <div class="editor-header">Headcount by Department</div>
+          <div class="editor-content">
+            <div class="chart-placeholder">Chart Content Here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. Tab Bar -->
+    <div class="mockup-section">
+      <div class="mockup-title">5. Tab Bar</div>
+      <div class="mockup-description">Familiar browser-style tabs. Easy switching, artifact name always visible.</div>
+      <div class="demo-frame">
+        <div class="tab-bar">
+          <div class="tab">Chat</div>
+          <div class="tab active">
+            Editing: Headcount by Department
+            <span class="tab-close">×</span>
+          </div>
+        </div>
+        <div style="padding: 24px;">
+          <div class="editor-header">Headcount by Department</div>
+          <div class="editor-content">
+            <div class="chart-placeholder">Chart Content Here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6. Slide-Over -->
+    <div class="mockup-section">
+      <div class="mockup-title">6. Slide-Over Panel with Peek Edge</div>
+      <div class="mockup-description">Editor slides over chat, leaving visible edge. Swipe/click edge to return.</div>
+      <div class="demo-frame">
+        <div class="slide-over-container">
+          <div class="chat-background">
+            <div style="font-size: 18px; font-weight: 600; color: #48413f; margin-bottom: 16px;">Employee Onboarding</div>
+            <div style="font-size: 14px; color: #676260;">Chat conversation content blurred in background...</div>
+          </div>
+          <div class="edge-peek" title="Click to return to chat">‹</div>
+          <div class="slide-over-panel">
+            <div class="editor-header">Headcount by Department</div>
+            <div class="editor-content">
+              <div class="chart-placeholder">Chart Content Here</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Floating Pill -->
+    <div class="mockup-section">
+      <div class="mockup-title">7. Floating Context Pill</div>
+      <div class="mockup-description">Unobtrusive floating indicator. Always visible, single click to return.</div>
+      <div class="demo-frame">
+        <div class="floating-context">
+          <button class="context-pill">
+            ← From: Employee Onboarding
+          </button>
+          <div class="editor-header" style="margin-top: 60px;">Headcount by Department</div>
+          <div class="editor-content">
+            <div class="chart-placeholder">Chart Content Here</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary -->
+    <div class="mockup-section" style="background: #f0f9ed; border: 2px solid #2e7918;">
+      <div class="mockup-title">Recommendation Summary</div>
+      <div style="font-size: 14px; color: #48413f; line-height: 1.6;">
+        <p style="margin-bottom: 12px;"><strong>Best for most users:</strong> Split View (#3) or Tab Bar (#5)</p>
+        <ul style="margin-left: 20px; margin-bottom: 12px;">
+          <li>Context always visible without extra clicks</li>
+          <li>Familiar patterns (tabs from browsers, split view from IDEs)</li>
+          <li>Low cognitive load</li>
+        </ul>
+        <p style="margin-bottom: 12px;"><strong>Most lightweight:</strong> Floating Pill (#7) or Context Strip (#2)</p>
+        <ul style="margin-left: 20px;">
+          <li>Minimal UI footprint</li>
+          <li>One-click return to context</li>
+          <li>Good for larger workspace needs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -259,6 +259,55 @@ Created complete text artifact support:
 - ContentEditable requires careful state management to preserve cursor position
 - Icon definitions must exist before use - invisible buttons indicate missing icons
 
+## Expanded Chat Header Reorganization (Jan 20, 2026)
+
+### Purpose
+Improve navigation clarity when chat panel is expanded by reorganizing header controls.
+
+### Changes Made
+**AIChatPanel Header**:
+- Removed BambooHR logo icon from sidebar header
+- Moved expand/collapse buttons from sidebar to top-right of main content area
+- Added conversation title header (H2 style) with controls next to it
+- Clean visual hierarchy: Title on left, controls on right
+
+**Global Typography**:
+- Added H2 global heading style (32px, Fields font, primary green)
+- Now have two heading levels: H1 (44px) and H2 (32px)
+
+**Artifact Workspace Back Button**:
+- Updated to match Figma secondary button style
+- Green border, green text/icon
+- Light green hover background
+- Positioned on right side of header after Copy and Menu buttons
+
+### Navigation Depth Research
+Created HTML mockup files exploring 7+ approaches for indicating navigation depth:
+- `navigation-depth-mockups.html` - Original 7 approaches
+- `artifact-edit-modes.html` - 3 refined options applied to actual layout
+
+**Approaches explored**:
+1. Breadcrumb trail
+2. Context strip banner
+3. Split view with chat peek
+4. Visual theme shift
+5. Tab bar
+6. Slide-over with peek edge
+7. Floating context pill
+8. Full-screen modal with scrim
+
+**Decision**: Kept simple approach with Back to Chat button in header. Clean and familiar pattern.
+
+### Files Modified
+- `src/components/AIChatPanel/AIChatPanel.tsx` - Header reorganization
+- `src/components/ArtifactTopBar/ArtifactTopBar.tsx` - Button styling
+- `src/index.css` - Added H2 global style
+
+### Lessons Learned
+- Visual hierarchy matters more than feature count
+- Users preferred simpler navigation over complex depth indicators
+- HTML mockups are valuable for exploring options quickly
+
 ## Figma MCP Integration
 
 Used Figma MCP tools to:
@@ -270,3 +319,4 @@ Particularly useful for:
 - Button border radius (1000px pill shape)
 - Box shadows (1px 1px 0px 1px rgba...)
 - Spacing and padding measurements
+- Button variants (Primary vs Secondary)
