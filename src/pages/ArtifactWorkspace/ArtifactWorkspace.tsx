@@ -102,6 +102,7 @@ export function ArtifactWorkspace() {
               style={{
                 backgroundColor: 'var(--surface-neutral-white)',
                 boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)',
+                border: '8px solid white',
               }}
             >
               {/* Header inside card */}
