@@ -6,7 +6,7 @@ import type { Employee } from '../data/employees';
 const NODE_WIDTH = 165;
 const NODE_HEIGHT = 140; // Card + avatar total height
 const HORIZONTAL_SPACING = 200; // Space between siblings
-const VERTICAL_SPACING = 160; // Space between levels
+const VERTICAL_SPACING = 200; // Space between levels (140 card height + 60px gap)
 
 export interface TreeNode {
   employee: Employee;
