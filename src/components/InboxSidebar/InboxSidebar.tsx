@@ -170,7 +170,7 @@ export function InboxSidebar({ tabs, activeTab, onTabChange }: InboxSidebarProps
               {/* Sub-items */}
               {hasSubItems && isExpanded && (
                 <div className="flex flex-col" style={{ gap: '2px' }}>
-                  {tab.subItems?.map((subItem, index) => {
+                  {tab.subItems?.map((subItem) => {
                     const isInbox = subItem.id === 'inbox';
                     const isCompleted = subItem.id === 'completed';
 
