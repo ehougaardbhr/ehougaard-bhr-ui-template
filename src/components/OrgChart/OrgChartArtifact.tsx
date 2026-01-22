@@ -103,18 +103,33 @@ export function OrgChartArtifact({
   };
 
   // Handle node click: select the node and expand it to show direct reports
+  // Keep ancestors open, close siblings (accordion behavior)
   const handleNodeClick = (id: number) => {
     console.log('handleNodeClick called:', id);
     setSelectedEmployee(id);
-    // Expand the node if it has direct reports
-    const employee = filteredEmployees.find(e => e.id === id);
-    console.log('Employee found:', employee?.name, 'Direct reports:', employee?.directReports);
-    if (employee && employee.directReports > 0) {
-      console.log('Expanding node:', id);
-      const newExpanded = new Set(expandedNodes);
-      newExpanded.add(id);
-      setExpandedNodes(newExpanded);
+
+    // Build new expanded set
+    const newExpanded = new Set<number>();
+
+    // Get all ancestors of the clicked node (path from CEO to clicked node)
+    const clickedEmployee = filteredEmployees.find(e => e.id === id);
+    if (clickedEmployee) {
+      let currentId: number | null = clickedEmployee.reportsTo;
+      while (currentId !== null) {
+        newExpanded.add(currentId);
+        const manager = employees.find((e) => e.id === currentId);
+        currentId = manager?.reportsTo ?? null;
+      }
     }
+
+    // Expand the newly clicked node if it has direct reports
+    console.log('Employee found:', clickedEmployee?.name, 'Direct reports:', clickedEmployee?.directReports);
+    if (clickedEmployee && clickedEmployee.directReports > 0) {
+      console.log('Expanding node:', id);
+      newExpanded.add(id);
+    }
+
+    setExpandedNodes(newExpanded);
   };
 
   // Handle pin (focus on employee)
