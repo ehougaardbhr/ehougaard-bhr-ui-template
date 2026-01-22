@@ -65,7 +65,7 @@ export function OrgChartNode({
       {/* Card */}
       <div
         className={`
-          absolute bg-white dark:bg-neutral-700 cursor-pointer transition-all
+          absolute bg-white dark:bg-neutral-700 cursor-pointer
           ${isSelected ? 'border-2 border-green-500 shadow-lg' : 'border border-[#e4e3e0] dark:border-neutral-600'}
           ${isFocused ? 'ring-2 ring-green-600' : ''}
         `}
@@ -128,9 +128,9 @@ export function OrgChartNode({
           </div>
         </div>
 
-        {/* Bottom right - Direct reports count */}
-        {employee.directReports > 0 && (
-          <div className="flex items-start justify-end w-full mt-2">
+        {/* Bottom right - Direct reports count (always rendered for consistent height) */}
+        <div className="flex items-start justify-end w-full mt-2" style={{ minHeight: '19px' }}>
+          {employee.directReports > 0 && (
             <button
               className="flex gap-1 items-center justify-end hover:opacity-70 transition-opacity"
               onClick={(e) => {
@@ -170,8 +170,8 @@ export function OrgChartNode({
                 )}
               </svg>
             </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
