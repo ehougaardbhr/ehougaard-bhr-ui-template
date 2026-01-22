@@ -18,3 +18,5 @@ export { InboxSidebar } from './InboxSidebar';
 export { InboxContentCard } from './InboxContentCard';
 export { RequestItem } from './RequestItem';
 export { Pagination } from './Pagination';
+export { EmployeeTableRow } from './EmployeeTableRow';
+export { PeopleListView } from './PeopleListView';

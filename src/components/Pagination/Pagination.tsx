@@ -124,13 +124,14 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage, 
           <button
             key={pageNum}
             onClick={() => onPageChange(pageNum)}
-            className="flex items-center justify-center w-10 h-10 rounded-full border-none outline-none transition-colors cursor-pointer"
+            className="flex items-center justify-center w-8 h-8 rounded-full outline-none transition-colors cursor-pointer"
             style={{
               backgroundColor: isActive ? '#2e7918' : 'var(--surface-neutral-white)',
               color: isActive ? '#ffffff' : 'var(--text-neutral-strong)',
               fontFamily: 'Inter, system-ui, sans-serif',
               fontSize: '14px',
               fontWeight: isActive ? 600 : 400,
+              border: isActive ? 'none' : '1px solid var(--border-neutral-medium)',
             }}
             aria-label={`Page ${pageNum}`}
             aria-current={isActive ? 'page' : undefined}
@@ -144,14 +145,16 @@ export function Pagination({ currentPage, totalPages, totalItems, itemsPerPage, 
       <button
         onClick={handleNext}
         disabled={!canGoNext}
-        className="flex items-center justify-center w-10 h-10 rounded-full border-none outline-none transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
+        className="flex items-center gap-1 border-none outline-none bg-transparent transition-colors cursor-pointer disabled:cursor-not-allowed disabled:opacity-40"
         style={{
-          backgroundColor: 'var(--surface-neutral-white)',
-          color: canGoNext ? 'var(--icon-neutral-strong)' : 'var(--icon-neutral-strong)',
+          color: canGoNext ? '#0b4fd1' : 'var(--text-neutral-weak)',
+          fontFamily: 'Inter, system-ui, sans-serif',
+          fontSize: '13px',
+          fontWeight: 600,
         }}
         aria-label="Next page"
       >
-        <Icon name="chevron-right" size={16} />
+        Next →
       </button>
       </div>
     </div>

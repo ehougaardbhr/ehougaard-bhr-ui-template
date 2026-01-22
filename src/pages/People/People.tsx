@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Button, Icon, EmployeeCard, Dropdown } from '../../components';
+import { Button, Icon, EmployeeCard, Dropdown, PeopleListView } from '../../components';
 import { employees } from '../../data/employees';
 
 type GroupBy = 'name' | 'department' | 'location' | 'division';
+type ViewMode = 'list' | 'directory' | 'orgChart';
 
 export function People() {
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [groupBy, setGroupBy] = useState<GroupBy>('department');
   const [filterDepartment, setFilterDepartment] = useState('all');
@@ -75,8 +77,32 @@ export function People() {
   return (
     <div className="p-10">
       {/* Page Header */}
-      <div className="mb-6">
-        <h1>Directory</h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1
+          style={{
+            fontFamily: 'Fields, system-ui, sans-serif',
+            fontSize: '48px',
+            fontWeight: 700,
+            lineHeight: '56px',
+            color: '#2e7918',
+          }}
+        >
+          People
+        </h1>
+        <a
+          href="#"
+          style={{
+            fontFamily: 'Inter, system-ui, sans-serif',
+            fontSize: '15px',
+            fontWeight: 400,
+            color: 'var(--color-primary-strong)',
+            textDecoration: 'none',
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+          onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+        >
+          Quick Access to the Directory
+        </a>
       </div>
 
       {/* Actions Bar */}
@@ -86,21 +112,39 @@ export function People() {
         </Button>
 
         {/* View Tabs */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center" style={{ gap: '24px' }}>
           <button
-            className="flex items-center gap-2 pb-2 text-[15px] font-medium text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] transition-colors"
+            onClick={() => setViewMode('list')}
+            className="flex items-center gap-2 pb-2 text-[15px] transition-colors"
+            style={{
+              fontWeight: viewMode === 'list' ? 700 : 500,
+              color: viewMode === 'list' ? 'var(--color-primary-strong)' : 'var(--text-neutral-medium)',
+              borderBottom: viewMode === 'list' ? '2px solid var(--color-primary-strong)' : 'none',
+            }}
           >
             <Icon name="file-lines" size={20} />
             List
           </button>
           <button
-            className="flex items-center gap-2 pb-2 text-[15px] font-bold text-[var(--color-primary-strong)] border-b-2 border-[var(--color-primary-strong)]"
+            onClick={() => setViewMode('directory')}
+            className="flex items-center gap-2 pb-2 text-[15px] transition-colors"
+            style={{
+              fontWeight: viewMode === 'directory' ? 700 : 500,
+              color: viewMode === 'directory' ? 'var(--color-primary-strong)' : 'var(--text-neutral-medium)',
+              borderBottom: viewMode === 'directory' ? '2px solid var(--color-primary-strong)' : 'none',
+            }}
           >
             <Icon name="user-group" size={20} />
             Directory
           </button>
           <button
-            className="flex items-center gap-2 pb-2 text-[15px] font-medium text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] transition-colors"
+            onClick={() => setViewMode('orgChart')}
+            className="flex items-center gap-2 pb-2 text-[15px] transition-colors"
+            style={{
+              fontWeight: viewMode === 'orgChart' ? 700 : 500,
+              color: viewMode === 'orgChart' ? 'var(--color-primary-strong)' : 'var(--text-neutral-medium)',
+              borderBottom: viewMode === 'orgChart' ? '2px solid var(--color-primary-strong)' : 'none',
+            }}
           >
             <Icon name="chart-pie-simple" size={20} />
             Org chart
@@ -108,73 +152,90 @@ export function People() {
         </div>
       </div>
 
-      {/* Filters Bar */}
-      <div className="flex items-center gap-4 mb-8">
-        {/* Search */}
-        <div className="flex-1 max-w-[440px]">
-          <div
-            className="flex items-center gap-2 h-10 px-4 py-2 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-[var(--radius-full)]"
-            style={{ boxShadow: 'var(--shadow-100)' }}
-          >
-            <Icon name="magnifying-glass" size={16} className="text-[var(--icon-neutral-strong)]" />
-            <input
-              type="text"
-              placeholder="Search directory..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-[14px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none"
+      {/* Conditional View Rendering */}
+      {viewMode === 'list' && (
+        <PeopleListView employees={employees} />
+      )}
+
+      {viewMode === 'directory' && (
+        <>
+          {/* Filters Bar */}
+          <div className="flex items-center gap-4 mb-8">
+            {/* Search */}
+            <div className="flex-1 max-w-[440px]">
+              <div
+                className="flex items-center gap-2 h-10 px-4 py-2 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-[var(--radius-full)]"
+                style={{ boxShadow: 'var(--shadow-100)' }}
+              >
+                <Icon name="magnifying-glass" size={16} className="text-[var(--icon-neutral-strong)]" />
+                <input
+                  type="text"
+                  placeholder="Search directory..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 bg-transparent text-[14px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Group By Dropdown */}
+            <Dropdown
+              label="Group by"
+              options={groupByOptions}
+              value={groupBy}
+              onChange={(value) => setGroupBy(value as GroupBy)}
+            />
+
+            {/* Department Filter */}
+            <Dropdown
+              options={departments}
+              value={filterDepartment}
+              onChange={setFilterDepartment}
             />
           </div>
+
+          {/* Employee List */}
+          <div className="space-y-8">
+            {Object.entries(groupedEmployees).map(([groupName, groupEmployees]) => (
+              <div key={groupName} className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] overflow-hidden">
+                {/* Group Header */}
+                <div className="px-6 py-4">
+                  <h2
+                    className="text-[22px] font-semibold text-[var(--color-primary-strong)]"
+                    style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
+                  >
+                    {groupName}
+                  </h2>
+                </div>
+
+                {/* Employee Cards */}
+                <div className="divide-y divide-[var(--border-neutral-x-weak)]">
+                  {groupEmployees.map((employee) => (
+                    <EmployeeCard key={employee.id} employee={employee} />
+                  ))}
+                </div>
+              </div>
+            ))}
+
+            {/* No Results */}
+            {filteredEmployees.length === 0 && (
+              <div className="text-center py-12">
+                <p className="text-[15px] text-[var(--text-neutral-medium)]">
+                  No employees found matching your search.
+                </p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {viewMode === 'orgChart' && (
+        <div className="text-center py-12">
+          <p className="text-[15px] text-[var(--text-neutral-medium)]">
+            Org chart view coming soon...
+          </p>
         </div>
-
-        {/* Group By Dropdown */}
-        <Dropdown
-          label="Group by"
-          options={groupByOptions}
-          value={groupBy}
-          onChange={(value) => setGroupBy(value as GroupBy)}
-        />
-
-        {/* Department Filter */}
-        <Dropdown
-          options={departments}
-          value={filterDepartment}
-          onChange={setFilterDepartment}
-        />
-      </div>
-
-      {/* Employee List */}
-      <div className="space-y-8">
-        {Object.entries(groupedEmployees).map(([groupName, groupEmployees]) => (
-          <div key={groupName} className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] overflow-hidden">
-            {/* Group Header */}
-            <div className="px-6 py-4">
-              <h2
-                className="text-[22px] font-semibold text-[var(--color-primary-strong)]"
-                style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
-              >
-                {groupName}
-              </h2>
-            </div>
-
-            {/* Employee Cards */}
-            <div className="divide-y divide-[var(--border-neutral-x-weak)]">
-              {groupEmployees.map((employee) => (
-                <EmployeeCard key={employee.id} employee={employee} />
-              ))}
-            </div>
-          </div>
-        ))}
-
-        {/* No Results */}
-        {filteredEmployees.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-[15px] text-[var(--text-neutral-medium)]">
-              No employees found matching your search.
-            </p>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }
