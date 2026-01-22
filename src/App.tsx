@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
 import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings, Inbox } from './pages';
 import { Chat } from './pages/Chat';
-import { ArtifactWorkspace } from './pages/ArtifactWorkspace';
 import { ChatTransitionsDemo } from './pages/ChatTransitionsDemo';
 import { TextReflowDemo } from './pages/TextReflowDemo';
 import { TextReflowDemo2 } from './pages/TextReflowDemo2';

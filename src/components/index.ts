@@ -14,7 +14,6 @@ export { ProgressBar } from './ProgressBar';
 export { AIChatPanel } from './AIChatPanel';
 export { ChatSidebar } from './ChatSidebar';
 export { ChatContent } from './ChatContent';
-export { InlineArtifactCard } from './InlineArtifactCard';
 export { InboxSidebar } from './InboxSidebar';
 export { InboxContentCard } from './InboxContentCard';
 export { RequestItem } from './RequestItem';
