@@ -25,6 +25,7 @@ export interface InboxSubItem {
   label: string;
   count: number;
   icon?: string;
+  subItems?: InboxSubItem[]; // For nested sub-items like under Approvals
 }
 
 export interface InboxTab {
@@ -447,37 +448,32 @@ export const inboxTabs: InboxTab[] = [
     id: 'assigned-to-me',
     label: 'Assigned to Me',
     hasDropdown: true,
-    icon: 'circle-user'
-  },
-  {
-    id: 'inbox',
-    label: 'Inbox',
-    icon: 'inbox',
+    icon: 'circle-user',
     subItems: [
-      { id: 'approvals', label: 'Approvals', count: 10, icon: 'thumbs-up' },
-      { id: 'time-off-requests', label: 'Time Off Requests', count: 2 },
-      { id: 'information-updates', label: 'Information Updates', count: 1 },
-      { id: 'asset-request', label: 'Asset Request', count: 3 },
-      { id: 'compensation', label: 'Compensation', count: 2 },
-      { id: 'employment-status', label: 'Employment Status', count: 1 },
-      { id: 'job-information', label: 'Job Information', count: 2 },
+      {
+        id: 'inbox',
+        label: 'Inbox',
+        count: 69,
+        icon: 'inbox',
+        subItems: [
+          {
+            id: 'approvals',
+            label: 'Approvals',
+            count: 66,
+            icon: 'thumbs-up',
+            subItems: [
+              { id: 'timesheets', label: 'Timesheets', count: 63 },
+              { id: 'time-off-requests', label: 'Time Off Requests', count: 1 },
+              { id: 'asset-request', label: 'Asset Request', count: 1 },
+              { id: 'job-information', label: 'Job Information', count: 1 },
+            ]
+          },
+          { id: 'onboarding', label: 'Onboarding', count: 3, icon: 'id-badge' },
+        ]
+      },
+      { id: 'completed', label: 'Completed', count: 0, icon: 'check-circle' },
+      { id: 'sent', label: 'Sent', count: 0, icon: 'paper-plane' },
     ]
-  },
-  {
-    id: 'onboarding',
-    label: 'Onboarding',
-    badge: 1,
-    icon: 'id-badge'
-  },
-  {
-    id: 'completed',
-    label: 'Completed',
-    icon: 'check-circle'
-  },
-  {
-    id: 'sent',
-    label: 'Sent',
-    icon: 'paper-plane'
   },
 ];
 

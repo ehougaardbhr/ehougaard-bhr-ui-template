@@ -10,7 +10,7 @@ import {
 } from '../../data/inboxData';
 
 export function Inbox() {
-  const [activeTab, setActiveTab] = useState('approvals');
+  const [activeTab, setActiveTab] = useState('inbox');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRequests, setSelectedRequests] = useState<Set<string>>(new Set());
 
