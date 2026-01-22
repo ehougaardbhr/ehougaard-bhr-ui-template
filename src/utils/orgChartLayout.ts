@@ -5,7 +5,7 @@ import type { Employee } from '../data/employees';
 // Node spacing constants
 const NODE_WIDTH = 165;
 const NODE_HEIGHT = 140; // Card + avatar total height
-const HORIZONTAL_SPACING = 180; // Space between siblings (card width + minimal gap)
+const HORIZONTAL_SPACING = 177; // Card width + 12px gap
 const VERTICAL_SPACING = 200; // Space between levels (140 card height + 60px gap)
 
 export interface TreeNode {
@@ -72,6 +72,51 @@ export function buildEmployeeTree(
 }
 
 /**
+ * Build a tree structure with only visible nodes based on expanded state
+ * This creates a tree where only expanded nodes have children included
+ */
+export function buildVisibleTree(
+  employees: Employee[],
+  rootId: number | 'all',
+  expandedNodes: Set<number>
+): TreeNode | null {
+  // Create a map of employee ID to employee
+  const employeeMap = new Map<number, Employee>();
+  employees.forEach((emp) => employeeMap.set(emp.id, emp));
+
+  // Find the root employee
+  let rootEmployee: Employee | undefined;
+  if (rootId === 'all') {
+    rootEmployee = employees.find((emp) => emp.reportsTo === null);
+  } else {
+    rootEmployee = employeeMap.get(rootId);
+  }
+
+  if (!rootEmployee) return null;
+
+  // Recursively build tree, only including children of expanded nodes
+  function buildNode(employee: Employee, level: number): TreeNode {
+    const node: TreeNode = {
+      employee,
+      children: [],
+      x: 0,
+      y: level * (NODE_HEIGHT + VERTICAL_SPACING),
+      level,
+    };
+
+    // Only add children if this node is expanded
+    if (expandedNodes.has(employee.id)) {
+      const reports = employees.filter((emp) => emp.reportsTo === employee.id);
+      node.children = reports.map((emp) => buildNode(emp, level + 1));
+    }
+
+    return node;
+  }
+
+  return buildNode(rootEmployee, 0);
+}
+
+/**
  * Calculate tree layout using d3-hierarchy's tree layout
  * This produces a tidy tree layout with no overlaps
  */
@@ -96,10 +141,11 @@ export function calculateTreeLayout(
   const hierarchyData = convertToHierarchy(root);
   const rootHierarchy = hierarchy<EmployeeHierarchyNode>(hierarchyData);
 
-  // Create d3 tree layout
+  // Create d3 tree layout with very compact spacing
+  // Pack siblings tightly (1.0x spacing) and keep subtrees reasonably close (1.3x)
   const treeLayout = tree<EmployeeHierarchyNode>()
     .nodeSize([HORIZONTAL_SPACING, VERTICAL_SPACING])
-    .separation((a, b) => (a.parent === b.parent ? 1 : 1.2));
+    .separation((a, b) => (a.parent === b.parent ? 1.0 : 1.3));
 
   // Calculate layout
   const layoutRoot = treeLayout(rootHierarchy);

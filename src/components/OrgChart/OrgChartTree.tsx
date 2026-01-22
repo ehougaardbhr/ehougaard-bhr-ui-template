@@ -1,7 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
 import type { Employee } from '../../data/employees';
 import { OrgChartNode } from './OrgChartNode';
-import { buildEmployeeTree, calculateTreeLayout } from '../../utils/orgChartLayout';
+import { buildVisibleTree, calculateTreeLayout } from '../../utils/orgChartLayout';
 import type { TreeNode } from '../../utils/orgChartLayout';
 
 export interface OrgChartTreeProps {
@@ -45,11 +45,11 @@ export function OrgChartTree({
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // Calculate tree layout
+  // Calculate tree layout based on visible (expanded) nodes only
   const layout = useMemo(() => {
-    const tree = buildEmployeeTree(employees, rootEmployee);
+    const tree = buildVisibleTree(employees, rootEmployee, expandedNodes);
     return calculateTreeLayout(tree, depth);
-  }, [employees, rootEmployee, depth]);
+  }, [employees, rootEmployee, depth, expandedNodes]);
 
   // Handle mouse down for panning
   const handleMouseDown = (e: React.MouseEvent) => {
