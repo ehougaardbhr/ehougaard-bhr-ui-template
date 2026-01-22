@@ -100,13 +100,13 @@ function AppLayout({ children }: AppLayoutProps) {
   const chatPanelWidth = (isChatPanelOpen && !isChatExpanded) ? 375 : 0;
 
   return (
-    <div className="min-h-screen bg-[var(--surface-neutral-white)]">
+    <div className="h-screen flex flex-col overflow-hidden bg-[var(--surface-neutral-white)]">
       {/* Global Navigation */}
       <GlobalNav />
 
-      {/* Header - Full width (only nav margin) - Sticky at top with z-40 */}
+      {/* Header - Full width (only nav margin) */}
       <div
-        className="sticky top-0 z-40 transition-all duration-300 ease-in-out"
+        className="shrink-0 z-40 transition-all duration-300 ease-in-out"
         style={{ marginLeft: navWidth }}
       >
         <GlobalHeader />
@@ -114,16 +114,22 @@ function AppLayout({ children }: AppLayoutProps) {
 
       {/* Page Content with Capsule Background - Compressed by chat panel */}
       <div
-        className="transition-all duration-300 ease-in-out"
-        style={{ marginLeft: navWidth, marginRight: chatPanelWidth }}
+        className="flex-1 flex flex-col min-h-0 transition-all duration-300 ease-in-out"
+        style={{
+          marginLeft: navWidth,
+          marginRight: chatPanelWidth,
+        }}
       >
-        <main className="flex flex-col flex-1 pr-10 pb-10">
+        <main className="flex-1 flex flex-col min-h-0 pr-10 pb-10">
           <div
             className="
               flex-1
+              flex
+              flex-col
+              min-h-0
               bg-[var(--surface-neutral-xx-weak)]
               rounded-[var(--radius-large)]
-              overflow-visible
+              overflow-hidden
             "
           >
             {children}

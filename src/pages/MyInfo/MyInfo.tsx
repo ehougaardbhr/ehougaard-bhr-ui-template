@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Icon, Button, TextInput, Tabs } from '../../components';
+import { Icon, Button, TextInput } from '../../components';
 import { currentEmployee } from '../../data/currentEmployee';
 
 const profileTabs = [

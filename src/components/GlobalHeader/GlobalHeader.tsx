@@ -11,6 +11,7 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isOnSettings = location.pathname === '/settings';
+  const isOnInbox = location.pathname === '/inbox';
   const [isChatPanelOpen, setIsChatPanelOpen] = useState(() => {
     return localStorage.getItem('bhr-chat-panel-open') === 'true';
   });
@@ -79,19 +80,24 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
         {/* Utility Icons */}
         <div className="flex items-start gap-1">
           <button
-            className="
+            className={`
               flex items-center justify-center
               w-[42px] h-[42px] px-[9px] py-[10px]
               rounded-[var(--radius-xx-small)]
-              hover:bg-[var(--surface-neutral-xx-weak)]
               transition-colors duration-200
-            "
+              ${
+                isOnInbox
+                  ? 'bg-[var(--surface-neutral-xx-weak)]'
+                  : 'hover:bg-[var(--surface-neutral-xx-weak)]'
+              }
+            `}
             aria-label="Inbox"
+            onClick={() => navigate('/inbox')}
           >
             <Icon
               name="inbox"
               size={24}
-              className="text-[var(--icon-neutral-x-strong)]"
+              className={isOnInbox ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}
             />
           </button>
 
