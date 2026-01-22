@@ -3,9 +3,9 @@ import type { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy';
 import type { Employee } from '../data/employees';
 
 // Node spacing constants
-const NODE_WIDTH = 165;
+const NODE_WIDTH = 185;
 const NODE_HEIGHT = 140; // Card + avatar total height
-const HORIZONTAL_SPACING = 177; // Card width + 12px gap
+const HORIZONTAL_SPACING = 197; // Card width + 12px gap
 const VERTICAL_SPACING = 200; // Space between levels (140 card height + 60px gap)
 
 export interface TreeNode {

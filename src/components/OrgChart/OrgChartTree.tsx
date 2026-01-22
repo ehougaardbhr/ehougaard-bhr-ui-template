@@ -223,7 +223,7 @@ export function OrgChartTree({
               key={node.employee.id}
               className="absolute"
               style={{
-                left: node.x - 82.5, // Half of card width (165 / 2)
+                left: node.x - 92.5, // Half of card width (185 / 2)
                 top: node.y,
                 pointerEvents: 'auto',
               }}

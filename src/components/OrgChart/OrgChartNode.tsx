@@ -24,7 +24,7 @@ export function OrgChartNode({
   compact = false,
   isExpanded = true,
 }: OrgChartNodeProps) {
-  const cardWidth = 165;
+  const cardWidth = 185;
   const avatarSize = 56;
   const avatarOffset = 28; // Half avatar above card
 
@@ -113,7 +113,7 @@ export function OrgChartNode({
         <div className="flex flex-col items-center text-center w-full pt-2 pb-0">
           {/* Name - Green */}
           <div
-            className="font-medium text-[15px] leading-[22px] text-[#2e7918] dark:text-green-400 w-full overflow-hidden text-ellipsis mb-0"
+            className="font-medium text-[15px] leading-[22px] text-[#2e7918] dark:text-green-400 w-full overflow-hidden text-ellipsis whitespace-nowrap mb-0"
             style={{ fontFamily: 'Inter' }}
           >
             {employee.name}
@@ -121,7 +121,7 @@ export function OrgChartNode({
 
           {/* Title */}
           <div
-            className="font-normal text-[13px] leading-[19px] text-[#48413f] dark:text-neutral-400 w-full overflow-hidden text-ellipsis"
+            className="font-normal text-[13px] leading-[19px] text-[#48413f] dark:text-neutral-400 w-full overflow-hidden text-ellipsis whitespace-nowrap"
             style={{ fontFamily: 'Inter' }}
           >
             {employee.title}
