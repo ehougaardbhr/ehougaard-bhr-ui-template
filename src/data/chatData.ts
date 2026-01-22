@@ -279,22 +279,22 @@ export const recentConversations: ChatConversation[] = [
   },
   {
     id: '7',
-    title: 'Company-Wide Org Chart',
+    title: 'Finance Team Expansion Planning',
     messages: [
       {
         id: '1',
         type: 'user',
-        text: 'I need to see the complete company org chart showing all departments and reporting structure.',
+        text: 'What if we hired 3 more people on the Finance team?',
       },
       {
         id: '2',
         type: 'ai',
-        text: "Here's the full company org chart starting from the CEO. You can navigate, zoom, and explore the entire organizational structure:",
-        artifactId: 'artifact-10', // Links to full company org chart
+        text: "I've analyzed the implications of adding 3 Financial Analysts to the Finance team reporting to Frank Rodriguez:\n\n**Impact Summary:**\n• Total Finance headcount: 6 → 9 (50% increase)\n• Frank's direct reports: 2 → 5\n• Span of control: Still manageable (within 5-7 range)\n• Department budget impact: ~$270K annually (assuming $90K avg)\n\n**Considerations:**\n• Frank may need support with people management\n• Could enable better workload distribution\n• Aligns with Q1 revenue growth targets\n• May need additional workspace/equipment\n\nHere's the updated org chart showing the 3 open positions:",
+        artifactId: 'artifact-10', // Links to full company org chart with TBH cards
         suggestions: [
-          'Focus on a specific department',
-          'Analyze span of control',
-          'Export to PDF',
+          'Show me span of control across all teams',
+          "What's the ideal team size for Finance?",
+          'Compare to industry benchmarks',
         ],
       },
     ],

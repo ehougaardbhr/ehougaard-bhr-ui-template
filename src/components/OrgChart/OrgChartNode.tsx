@@ -1,5 +1,6 @@
 import type { Employee } from '../../data/employees';
 import { Icon } from '../Icon';
+import { TBHCard } from './TBHCard';
 
 export interface OrgChartNodeProps {
   employee: Employee;
@@ -24,6 +25,18 @@ export function OrgChartNode({
   compact = false,
   isExpanded = true,
 }: OrgChartNodeProps) {
+  // Render TBH card for unfilled positions
+  if (employee.isTBH) {
+    return (
+      <TBHCard
+        count={employee.tbhCount || 1}
+        role="This role is not filled\nat the moment"
+        onExpandClick={() => onExpandClick?.(employee.id)}
+        isExpanded={isExpanded}
+      />
+    );
+  }
+
   const cardWidth = 185;
   const avatarSize = 56;
   const avatarOffset = 28; // Half avatar above card

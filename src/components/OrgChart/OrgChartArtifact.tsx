@@ -25,14 +25,19 @@ export function OrgChartArtifact({
     showPhotos: rawSettings?.showPhotos ?? true,
     compact: rawSettings?.compact ?? false,
     filter: rawSettings?.filter ?? 'all',
+    selectedEmployee: rawSettings?.selectedEmployee,
+    expandedEmployees: rawSettings?.expandedEmployees,
   };
 
   // Local state for UI
   const canvasRef = useRef<HTMLDivElement>(null);
   const [focusedEmployee, setFocusedEmployee] = useState<number | undefined>();
-  const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>();
-  // Start with only CEO expanded (employee with no manager)
+  const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>(settings.selectedEmployee);
+  // Initialize expanded nodes from settings, or default to CEO
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => {
+    if (settings.expandedEmployees && settings.expandedEmployees.length > 0) {
+      return new Set(settings.expandedEmployees);
+    }
     const ceo = employees.find((emp) => emp.reportsTo === null);
     return new Set(ceo ? [ceo.id] : []);
   });
@@ -40,6 +45,16 @@ export function OrgChartArtifact({
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
   const [isInitialized, setIsInitialized] = useState(false);
+
+  // Apply initial settings when artifact loads
+  useEffect(() => {
+    if (settings.selectedEmployee !== undefined) {
+      setSelectedEmployee(settings.selectedEmployee);
+    }
+    if (settings.expandedEmployees && settings.expandedEmployees.length > 0) {
+      setExpandedNodes(new Set(settings.expandedEmployees));
+    }
+  }, [artifact.id, settings.selectedEmployee, settings.expandedEmployees]);
 
   // Center the tree on initial mount
   useEffect(() => {

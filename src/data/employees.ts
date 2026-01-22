@@ -10,6 +10,8 @@ export interface Employee {
   reportsTo: number | null; // Employee ID or null for CEO
   directReports: number;
   avatar: string;
+  isTBH?: boolean; // To Be Hired - unfilled position
+  tbhCount?: number; // Number of TBH positions this represents
 }
 
 export const employees: Employee[] = [
@@ -119,7 +121,7 @@ export const employees: Employee[] = [
     email: 'frank.rodriguez@bamboohr.com',
     phone: '(510) 555-0129',
     reportsTo: 5,
-    directReports: 2,
+    directReports: 5, // 2 filled + 3 TBH
     avatar: 'https://i.pravatar.cc/300?img=13',
   },
   {
@@ -147,6 +149,22 @@ export const employees: Employee[] = [
     reportsTo: 6,
     directReports: 0,
     avatar: 'https://i.pravatar.cc/300?img=51',
+  },
+  // TBH positions for Finance team
+  {
+    id: 500,
+    name: 'TBH - Finance',
+    title: 'Financial Analyst',
+    department: 'Finance',
+    location: '',
+    division: '',
+    email: '',
+    phone: '',
+    reportsTo: 6,
+    directReports: 0,
+    avatar: '',
+    isTBH: true,
+    tbhCount: 3, // 3 open positions
   },
 
   // HR Team (Report to VP HR - Grace Anderson, id 7)

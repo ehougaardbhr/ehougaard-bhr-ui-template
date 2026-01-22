@@ -5,3 +5,4 @@ export { OrgChartControls } from './OrgChartControls';
 export { OrgChartZoom } from './OrgChartZoom';
 export { OrgChartSettingsToolbar } from './OrgChartSettingsToolbar';
 export { OrgChartThumbnail } from './OrgChartThumbnail';
+export { TBHCard } from './TBHCard';

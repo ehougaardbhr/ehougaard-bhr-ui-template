@@ -40,6 +40,8 @@ export interface OrgChartSettings {
   layout: LayoutType;             // "top-down" | "left-right"
   showPhotos: boolean;            // Toggle for avatar display
   compact: boolean;               // Compact vs expanded node view
+  selectedEmployee?: number;      // Initially selected employee ID
+  expandedEmployees?: number[];   // Initially expanded employee IDs
 }
 
 export interface Artifact {
@@ -423,7 +425,8 @@ export const mockArtifacts: Artifact[] = [
   {
     id: 'artifact-10',
     type: 'org-chart',
-    title: 'Company-Wide Org Chart',
+    title: 'Finance Team Expansion Scenario',
+    content: 'Explored adding 3 Financial Analysts to Finance team, analyzed span of control and budget impact',
     conversationId: '7', // Could link to another conversation
     createdAt: new Date('2026-01-19T11:45:00'),
     settings: {
@@ -433,6 +436,8 @@ export const mockArtifacts: Artifact[] = [
       layout: 'top-down',
       showPhotos: true,
       compact: false,
+      selectedEmployee: 6, // Frank Rodriguez - Finance Manager
+      expandedEmployees: [100, 5, 6], // CEO -> VP Finance -> Frank Rodriguez (with his direct reports visible)
     } as OrgChartSettings,
   },
 ];
