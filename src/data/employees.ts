@@ -153,7 +153,7 @@ export const employees: Employee[] = [
   // TBH positions for Finance team
   {
     id: 500,
-    name: 'TBH - Finance',
+    name: 'TBH - Finance 1',
     title: 'Financial Analyst',
     department: 'Finance',
     location: '',
@@ -164,7 +164,34 @@ export const employees: Employee[] = [
     directReports: 0,
     avatar: '',
     isTBH: true,
-    tbhCount: 3, // 3 open positions
+  },
+  {
+    id: 501,
+    name: 'TBH - Finance 2',
+    title: 'Financial Analyst',
+    department: 'Finance',
+    location: '',
+    division: '',
+    email: '',
+    phone: '',
+    reportsTo: 6,
+    directReports: 0,
+    avatar: '',
+    isTBH: true,
+  },
+  {
+    id: 502,
+    name: 'TBH - Finance 3',
+    title: 'Financial Analyst',
+    department: 'Finance',
+    location: '',
+    division: '',
+    email: '',
+    phone: '',
+    reportsTo: 6,
+    directReports: 0,
+    avatar: '',
+    isTBH: true,
   },
 
   // HR Team (Report to VP HR - Grace Anderson, id 7)

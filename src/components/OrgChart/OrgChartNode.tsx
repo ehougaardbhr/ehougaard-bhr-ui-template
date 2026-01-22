@@ -30,7 +30,6 @@ export function OrgChartNode({
     return (
       <TBHCard
         count={employee.tbhCount || 1}
-        role="This role is not filled\nat the moment"
         onExpandClick={() => onExpandClick?.(employee.id)}
         isExpanded={isExpanded}
       />

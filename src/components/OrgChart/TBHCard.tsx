@@ -1,52 +1,58 @@
-import { Icon } from '../Icon';
-
 export interface TBHCardProps {
-  count: number;
-  role?: string;
+  count?: number;
   onExpandClick?: () => void;
   isExpanded?: boolean;
 }
 
 export function TBHCard({
   count = 1,
-  role = 'This role is not filled\nat the moment',
   onExpandClick,
   isExpanded = false,
 }: TBHCardProps) {
   const cardWidth = 185;
   const avatarSize = 56;
-  const avatarOffset = 28; // Half avatar above card
+  const avatarOffset = 28;
 
   return (
     <div
       className="relative"
       style={{
         width: cardWidth,
-        height: 140, // Total height including avatar overhang
+        height: 140,
       }}
     >
-      {/* Avatar placeholder - centered at top, overhanging */}
+      {/* Avatar - gray with person silhouette */}
       <div
-        className="absolute left-1/2 transform -translate-x-1/2 overflow-hidden z-20 flex items-center justify-center"
+        className="absolute left-1/2 transform -translate-x-1/2 z-20 flex items-center justify-center"
         style={{
           width: avatarSize,
           height: avatarSize,
           borderRadius: '12px',
           top: 0,
-          backgroundColor: 'var(--surface-neutral-medium)',
+          backgroundColor: '#c6c2bf',
+          boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
         }}
       >
-        <Icon name="user" size={36} className="text-white" />
+        {/* Person silhouette SVG */}
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <circle cx="16" cy="10" r="6" fill="white" />
+          <path
+            d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12"
+            fill="white"
+          />
+        </svg>
       </div>
 
       {/* Card with dashed border */}
       <div
-        className="absolute bg-[var(--surface-neutral-xx-weak)] border-dashed cursor-pointer"
+        className="absolute cursor-pointer"
         style={{
           width: cardWidth,
           top: avatarOffset,
           borderRadius: '8px',
-          border: '1px dashed var(--border-neutral-weak)',
+          border: '1px dashed #d4d2d0',
+          backgroundColor: '#f6f6f4',
+          boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
           padding: '8px',
         }}
         onClick={onExpandClick}
@@ -54,80 +60,51 @@ export function TBHCard({
         {/* Top row - pin and chevron icons */}
         <div className="flex items-start justify-between w-full mb-2">
           <button
-            className="flex items-center justify-center w-3 h-3 text-[#777270] dark:text-neutral-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            className="flex items-center justify-center"
+            style={{ width: '12px', height: '12px', color: '#777270' }}
+            onClick={(e) => e.stopPropagation()}
             aria-label="Pin"
           >
-            <i className="fa-solid fa-thumbtack text-[12px]"></i>
+            <i className="fa-solid fa-thumbtack" style={{ fontSize: '12px' }}></i>
           </button>
 
-          {count > 1 && (
-            <button
-              className="flex items-center justify-center w-3 h-3 text-[#777270] dark:text-neutral-500 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                onExpandClick?.();
-              }}
-              aria-label={isExpanded ? 'Collapse' : 'Expand'}
-            >
-              <i className={`fa-solid fa-chevron-${isExpanded ? 'up' : 'down'} text-[12px]`}></i>
-            </button>
-          )}
-        </div>
-
-        {/* Content - role description */}
-        <div className="flex flex-col items-center text-center w-full pt-2 pb-0">
-          <div
-            className="font-normal text-[13px] leading-[19px] text-[#48413f] dark:text-neutral-400 w-full overflow-hidden text-ellipsis whitespace-pre-line"
-            style={{ fontFamily: 'Inter' }}
+          <button
+            className="flex items-center justify-center"
+            style={{ width: '12px', height: '12px', color: '#777270' }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onExpandClick?.();
+            }}
+            aria-label={isExpanded ? 'Collapse' : 'Expand'}
           >
-            {role}
-          </div>
+            <i className="fa-solid fa-chevron-up" style={{ fontSize: '12px' }}></i>
+          </button>
         </div>
 
-        {/* Bottom right - Count if multiple positions */}
-        <div className="flex items-start justify-end w-full mt-2" style={{ minHeight: '19px' }}>
+        {/* Content - "This role is not filled at the moment" */}
+        <div className="flex flex-col items-center text-center w-full pt-2 pb-0">
+          <p
+            className="font-normal text-[13px] leading-[19px] text-center"
+            style={{ fontFamily: 'Inter', color: '#48413f' }}
+          >
+            This role is not filled
+            <br />
+            at the moment
+          </p>
+        </div>
+
+        {/* Bottom right - Count with chevron if multiple positions */}
+        <div className="flex items-center justify-end w-full mt-2" style={{ minHeight: '19px' }}>
           {count > 1 && (
-            <button
-              className="flex gap-1 items-center justify-end hover:opacity-70 transition-opacity"
-              onClick={(e) => {
-                e.stopPropagation();
-                onExpandClick?.();
-              }}
-            >
-              <span className="font-normal text-[13px] leading-[19px] text-[#38312f] dark:text-neutral-400">
+            <div className="flex gap-1 items-center">
+              <span
+                className="font-normal text-[13px] leading-[19px]"
+                style={{ fontFamily: 'Inter', color: '#38312f' }}
+              >
                 {count}
               </span>
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 12 12"
-                fill="none"
-                className="text-[#777270] dark:text-neutral-500"
-              >
-                {isExpanded ? (
-                  // Chevron down
-                  <path
-                    d="M3 4.5L6 7.5L9 4.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                ) : (
-                  // Chevron up
-                  <path
-                    d="M3 7.5L6 4.5L9 7.5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                )}
-              </svg>
-            </button>
+              <i className="fa-solid fa-chevron-down" style={{ fontSize: '12px', color: '#777270' }}></i>
+            </div>
           )}
         </div>
       </div>
