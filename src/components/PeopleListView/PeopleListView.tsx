@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { Dropdown, Icon, Pagination } from '../../components';
 import { EmployeeTableRow } from '../EmployeeTableRow';
 import type { Employee } from '../../data/employees';
@@ -10,7 +10,20 @@ interface PeopleListViewProps {
 export function PeopleListView({ employees }: PeopleListViewProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
   const itemsPerPage = 50;
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Filter employees by status
   const filteredEmployees = useMemo(() => {
@@ -93,25 +106,53 @@ export function PeopleListView({ employees }: PeopleListViewProps) {
             Showing
           </span>
 
-          {/* Active Dropdown */}
+          {/* Status Dropdown */}
           <Dropdown
             options={[
               { value: 'active', label: 'Active' },
               { value: 'inactive', label: 'Inactive' },
+              { value: 'all', label: 'All' },
             ]}
-            value="active"
+            value="all"
             onChange={() => {}}
             className="w-[166px]"
           />
 
           {/* Ellipsis Menu */}
-          <button
-            className="flex items-center justify-center w-10 h-10 rounded-full border border-[var(--border-neutral-medium)] bg-[var(--surface-neutral-white)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
-            style={{ boxShadow: 'var(--shadow-100)' }}
-            aria-label="More options"
-          >
-            <Icon name="ellipsis" size={16} className="text-[var(--icon-neutral-x-strong)]" />
-          </button>
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="flex items-center justify-center w-10 h-10 rounded-full border border-[var(--border-neutral-medium)] bg-[var(--surface-neutral-white)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+              style={{ boxShadow: 'var(--shadow-100)' }}
+              aria-label="More options"
+            >
+              <Icon name="ellipsis" size={16} className="text-[var(--icon-neutral-x-strong)]" />
+            </button>
+            {isMenuOpen && (
+              <div
+                className="absolute right-0 z-50 mt-2 w-[200px] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-[var(--radius-small)] shadow-lg overflow-hidden"
+              >
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full px-4 py-3 text-left text-[15px] text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                >
+                  Power Edit Employees
+                </button>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full px-4 py-3 text-left text-[15px] text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                >
+                  Download Forms
+                </button>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="w-full px-4 py-3 text-left text-[15px] text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                >
+                  Customize View
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

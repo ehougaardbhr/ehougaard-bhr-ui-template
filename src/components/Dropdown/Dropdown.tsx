@@ -80,7 +80,7 @@ export function Dropdown({ label, options, value, onChange, className = '' }: Dr
       {isOpen && (
         <div
           className="
-            absolute z-50 mt-2
+            absolute z-50 top-full left-0 mt-2
             w-full min-w-max
             bg-[var(--surface-neutral-white)]
             border border-[var(--border-neutral-medium)]
