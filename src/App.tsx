@@ -5,6 +5,7 @@ import { ArtifactWorkspace } from './pages/ArtifactWorkspace';
 import { ChatTransitionsDemo } from './pages/ChatTransitionsDemo';
 import { TextReflowDemo } from './pages/TextReflowDemo';
 import { TextReflowDemo2 } from './pages/TextReflowDemo2';
+import { OrgChartCollapsedMocks } from './components/OrgChart/OrgChartCollapsedMocks';
 import { ChatProvider } from './contexts/ChatContext';
 import { ArtifactProvider } from './contexts/ArtifactContext';
 import { ArtifactTransitionProvider } from './contexts/ArtifactTransitionContext';
@@ -24,6 +25,7 @@ function App() {
             <Route path="/chat-transitions-demo" element={<ChatTransitionsDemo />} />
             <Route path="/text-reflow-demo" element={<TextReflowDemo />} />
             <Route path="/text-reflow-demo-2" element={<TextReflowDemo2 />} />
+            <Route path="/org-chart-mocks" element={<OrgChartCollapsedMocks />} />
 
             {/* Regular routes with AppLayout */}
             <Route

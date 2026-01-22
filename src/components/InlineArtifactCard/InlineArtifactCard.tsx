@@ -3,10 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { BarChart, LineChart, PieChart, TableChart } from '../Charts';
 import { TextDisplay } from '../TextDisplay';
-import { OrgChartTree } from '../OrgChart';
-import type { Artifact, ChartSettings, OrgChartSettings } from '../../data/artifactData';
+import { OrgChartThumbnail } from '../OrgChart';
+import type { Artifact, ChartSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
-import { employees } from '../../data/employees';
 
 interface InlineArtifactCardProps {
   artifact: Artifact;
@@ -117,64 +116,8 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
     }
 
     if (artifact.type === 'org-chart') {
-      const orgChartSettings = artifact.settings as OrgChartSettings;
-      const width = compact ? 335 : 700;
-      const height = compact ? 230 : 480;
-
-      // Filter employees based on settings
-      // When filtering by department, include the full reporting chain up to root
-      const filteredEmployees = (() => {
-        if (orgChartSettings.filter === 'all') {
-          return employees;
-        }
-
-        // Get all employees in the target department
-        const targetDept = orgChartSettings.filter.toLowerCase();
-        const deptEmployees = employees.filter(
-          (emp) => emp.department.toLowerCase() === targetDept
-        );
-
-        // Get all ancestors (managers) for these employees
-        const ancestorIds = new Set<number>();
-        deptEmployees.forEach((emp) => {
-          let currentId = emp.reportsTo;
-          while (currentId !== null) {
-            ancestorIds.add(currentId);
-            const manager = employees.find((e) => e.id === currentId);
-            currentId = manager?.reportsTo ?? null;
-          }
-        });
-
-        // Include department employees + their ancestors
-        return employees.filter(
-          (emp) =>
-            emp.department.toLowerCase() === targetDept || ancestorIds.has(emp.id)
-        );
-      })();
-
-      // Determine root employee
-      const rootEmployeeId = orgChartSettings.rootEmployee === 'all'
-        ? 'all'
-        : parseInt(orgChartSettings.rootEmployee, 10) || 'all';
-
-      return (
-        <div
-          className="relative bg-[#F5F5F0] rounded-lg overflow-hidden"
-          style={{ width, height }}
-        >
-          <OrgChartTree
-            employees={filteredEmployees}
-            rootEmployee={rootEmployeeId}
-            depth={orgChartSettings.depth}
-            showPhotos={orgChartSettings.showPhotos}
-            compact={orgChartSettings.compact}
-            expandedNodes={new Set(filteredEmployees.map(emp => emp.id))}
-            zoomLevel={compact ? 0.5 : 0.8}
-            panX={50}
-            panY={50}
-          />
-        </div>
-      );
+      // Org chart uses integrated thumbnail layout
+      return null; // Rendered separately below
     }
 
     return null;
@@ -185,6 +128,148 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
       onExpand();
     }
   };
+
+  // Special layout for org-chart artifacts
+  if (artifact.type === 'org-chart') {
+    return (
+      <div
+        ref={cardRef}
+        data-artifact-id={artifact.id}
+        className="rounded-xl my-3 p-6 cursor-pointer hover:border-[var(--border-neutral-medium)] transition-colors"
+        style={{
+          backgroundColor: 'var(--surface-neutral-white)',
+          border: '1px solid var(--border-neutral-weak)',
+        }}
+        onClick={handleEdit}
+      >
+        {/* Header with title and three-dot menu */}
+        <div className="flex items-start justify-between gap-3 mb-6">
+          <h3
+            className="font-bold"
+            style={{
+              fontSize: '20px',
+              lineHeight: '28px',
+              fontFamily: 'Fields, system-ui, sans-serif',
+              color: 'var(--color-primary-strong)',
+            }}
+          >
+            {title}
+          </h3>
+
+          {/* Three-dot menu */}
+          <div className="relative shrink-0" ref={menuRef}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
+              }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style={{
+                backgroundColor: 'var(--surface-neutral-white)',
+                border: '1px solid var(--border-neutral-medium)',
+                color: 'var(--text-neutral-strong)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--surface-neutral-xx-weak)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'var(--surface-neutral-white)';
+              }}
+              aria-label="Actions"
+            >
+              <Icon name="ellipsis" size={16} />
+            </button>
+
+            {/* Dropdown menu with publish options */}
+            {isMenuOpen && (
+              <div
+                className="absolute right-0 top-full mt-2 w-56 rounded-lg shadow-lg py-1 z-50"
+                style={{
+                  backgroundColor: 'var(--surface-neutral-white)',
+                  border: '1px solid var(--border-neutral-weak)',
+                }}
+              >
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePublish('dashboard');
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                >
+                  <Icon name="table-cells" size={16} className="text-[var(--text-neutral-medium)]" />
+                  <div>
+                    <div className="font-medium text-[var(--text-neutral-strong)]">Add to Dashboard</div>
+                    <div className="text-xs text-[var(--text-neutral-weak)]">Pin to your home dashboard</div>
+                  </div>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePublish('report');
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                >
+                  <Icon name="file-lines" size={16} className="text-[var(--text-neutral-medium)]" />
+                  <div>
+                    <div className="font-medium text-[var(--text-neutral-strong)]">Save as Report</div>
+                    <div className="text-xs text-[var(--text-neutral-weak)]">Create a reusable report</div>
+                  </div>
+                </button>
+                <div className="my-1 border-t" style={{ borderColor: 'var(--border-neutral-x-weak)' }} />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePublish('share');
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                >
+                  <Icon name="arrow-up-from-bracket" size={16} className="text-[var(--text-neutral-medium)]" />
+                  <div>
+                    <div className="font-medium text-[var(--text-neutral-strong)]">Share</div>
+                    <div className="text-xs text-[var(--text-neutral-weak)]">Share with team members</div>
+                  </div>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handlePublish('download');
+                  }}
+                  className="w-full px-4 py-2.5 text-left text-sm hover:bg-[var(--surface-neutral-xx-weak)] flex items-center gap-3"
+                >
+                  <Icon name="arrow-down-to-line" size={16} className="text-[var(--text-neutral-medium)]" />
+                  <div>
+                    <div className="font-medium text-[var(--text-neutral-strong)]">Download</div>
+                    <div className="text-xs text-[var(--text-neutral-weak)]">Export as PNG or CSV</div>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Thumbnail content */}
+        <div className="flex items-start gap-3">
+          {/* Icon */}
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--surface-neutral-xx-weak)' }}>
+            <Icon name="sitemap" size={20} style={{ color: 'var(--color-primary-strong)' }} />
+          </div>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            {/* Description */}
+            <p className="text-sm text-gray-500 dark:text-neutral-400 line-clamp-2">
+              {artifact.content || 'Explore team structure and reporting relationships'}
+            </p>
+
+            {/* Timestamp */}
+            <p className="text-xs text-gray-400 dark:text-neutral-500 mt-1.5">
+              2h ago
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
