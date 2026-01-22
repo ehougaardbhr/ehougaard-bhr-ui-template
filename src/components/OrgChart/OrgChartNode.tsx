@@ -29,9 +29,8 @@ export function OrgChartNode({
   if (employee.isTBH) {
     return (
       <TBHCard
+        title={employee.title}
         count={employee.tbhCount || 1}
-        onExpandClick={() => onExpandClick?.(employee.id)}
-        isExpanded={isExpanded}
       />
     );
   }

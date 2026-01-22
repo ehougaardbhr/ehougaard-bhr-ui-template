@@ -1,114 +1,168 @@
+import { useState } from 'react';
+import { Icon } from '../Icon';
+
 export interface TBHCardProps {
+  title?: string;
   count?: number;
-  onExpandClick?: () => void;
-  isExpanded?: boolean;
+  onTitleChange?: (newTitle: string) => void;
 }
 
 export function TBHCard({
+  title = 'Financial Analyst',
   count = 1,
-  onExpandClick,
-  isExpanded = false,
+  onTitleChange,
 }: TBHCardProps) {
   const cardWidth = 185;
   const avatarSize = 56;
   const avatarOffset = 28;
 
-  return (
-    <div
-      className="relative"
-      style={{
-        width: cardWidth,
-        height: 140,
-      }}
-    >
-      {/* Avatar - gray with person silhouette */}
-      <div
-        className="absolute left-1/2 transform -translate-x-1/2 z-20 flex items-center justify-center"
-        style={{
-          width: avatarSize,
-          height: avatarSize,
-          borderRadius: '12px',
-          top: 0,
-          backgroundColor: '#c6c2bf',
-          boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
-        }}
-      >
-        {/* Person silhouette SVG */}
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <circle cx="16" cy="10" r="6" fill="white" />
-          <path
-            d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12"
-            fill="white"
-          />
-        </svg>
-      </div>
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentTitle, setCurrentTitle] = useState(title);
+  const [editedTitle, setEditedTitle] = useState(title);
 
-      {/* Card with dashed border */}
+  const handleSave = () => {
+    setCurrentTitle(editedTitle);
+    onTitleChange?.(editedTitle);
+    setIsModalOpen(false);
+  };
+
+  const handleCancel = () => {
+    setEditedTitle(currentTitle);
+    setIsModalOpen(false);
+  };
+
+  return (
+    <>
       <div
-        className="absolute cursor-pointer"
+        className="relative"
         style={{
           width: cardWidth,
-          top: avatarOffset,
-          borderRadius: '8px',
-          border: '1px dashed #d4d2d0',
-          backgroundColor: '#f6f6f4',
-          boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
-          padding: '8px',
+          height: 140,
         }}
-        onClick={onExpandClick}
       >
-        {/* Top row - pin and chevron icons */}
-        <div className="flex items-start justify-between w-full mb-2">
-          <button
-            className="flex items-center justify-center"
-            style={{ width: '12px', height: '12px', color: '#777270' }}
-            onClick={(e) => e.stopPropagation()}
-            aria-label="Pin"
-          >
-            <i className="fa-solid fa-thumbtack" style={{ fontSize: '12px' }}></i>
-          </button>
-
-          <button
-            className="flex items-center justify-center"
-            style={{ width: '12px', height: '12px', color: '#777270' }}
-            onClick={(e) => {
-              e.stopPropagation();
-              onExpandClick?.();
-            }}
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
-          >
-            <i className="fa-solid fa-chevron-up" style={{ fontSize: '12px' }}></i>
-          </button>
+        {/* Avatar - gray with person silhouette */}
+        <div
+          className="absolute left-1/2 transform -translate-x-1/2 z-20 flex items-center justify-center"
+          style={{
+            width: avatarSize,
+            height: avatarSize,
+            borderRadius: '12px',
+            top: 0,
+            backgroundColor: '#c6c2bf',
+            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+          }}
+        >
+          {/* Person silhouette SVG */}
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="10" r="6" fill="white" />
+            <path
+              d="M4 28c0-6.627 5.373-12 12-12s12 5.373 12 12"
+              fill="white"
+            />
+          </svg>
         </div>
 
-        {/* Content - "This role is not filled at the moment" */}
-        <div className="flex flex-col items-center text-center w-full pt-2 pb-0">
-          <p
-            className="font-normal text-[13px] leading-[19px] text-center"
-            style={{ fontFamily: 'Inter', color: '#48413f' }}
-          >
-            This role is not filled
-            <br />
-            at the moment
-          </p>
-        </div>
+        {/* Card with dashed border */}
+        <div
+          className="absolute"
+          style={{
+            width: cardWidth,
+            top: avatarOffset,
+            borderRadius: '8px',
+            border: '4px dashed #d4d2d0',
+            backgroundColor: '#fafaf8',
+            boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)',
+            padding: '8px',
+          }}
+        >
+          {/* Content - Name and Title */}
+          <div className="flex flex-col items-center text-center w-full pt-6 pb-2">
+            {/* Name - Green "To Be Hired" */}
+            <div
+              className="font-medium text-[15px] leading-[22px] w-full overflow-hidden text-ellipsis whitespace-nowrap mb-0"
+              style={{ fontFamily: 'Inter', color: '#2e7918' }}
+            >
+              To Be Hired
+            </div>
 
-        {/* Bottom right - Count with chevron if multiple positions */}
-        <div className="flex items-center justify-end w-full mt-2" style={{ minHeight: '19px' }}>
-          {count > 1 && (
-            <div className="flex gap-1 items-center">
+            {/* Title with edit affordance */}
+            <div className="flex items-center justify-center gap-[4px] w-full">
               <span
                 className="font-normal text-[13px] leading-[19px]"
-                style={{ fontFamily: 'Inter', color: '#38312f' }}
+                style={{ fontFamily: 'Inter', color: '#48413f' }}
               >
-                {count}
+                {currentTitle}
               </span>
-              <i className="fa-solid fa-chevron-down" style={{ fontSize: '12px', color: '#777270' }}></i>
+              <button
+                className="hover:opacity-70 transition-opacity cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsModalOpen(true);
+                }}
+                aria-label="Edit title"
+              >
+                <Icon name="pen" size={11} className="text-[#777270]" />
+              </button>
             </div>
-          )}
+          </div>
+
+          {/* Bottom right - Count with chevron if multiple positions */}
+          <div className="flex items-center justify-end w-full" style={{ minHeight: '19px' }}>
+            {count > 1 && (
+              <div className="flex gap-1 items-center">
+                <span
+                  className="font-normal text-[13px] leading-[19px]"
+                  style={{ fontFamily: 'Inter', color: '#38312f' }}
+                >
+                  {count}
+                </span>
+                <Icon name="chevron-down" size={12} className="text-[#777270]" />
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+
+      {/* Edit Title Modal */}
+      {isModalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.5)' }}
+          onClick={handleCancel}
+        >
+          <div
+            className="bg-white rounded-lg shadow-xl p-4"
+            style={{ width: '300px' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-[15px] font-medium text-[#38312f] mb-3">
+              Edit Job Title
+            </h3>
+            <input
+              type="text"
+              value={editedTitle}
+              onChange={(e) => setEditedTitle(e.target.value)}
+              className="w-full border border-[#d4d2d0] rounded px-3 py-2 text-[13px] text-[#38312f] focus:outline-none focus:border-[#2e7918]"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2 mt-4">
+              <button
+                onClick={handleCancel}
+                className="px-3 py-1.5 text-[13px] text-[#48413f] hover:bg-gray-100 rounded transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-3 py-1.5 text-[13px] text-white bg-[#2e7918] hover:bg-[#256614] rounded transition-colors"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 
