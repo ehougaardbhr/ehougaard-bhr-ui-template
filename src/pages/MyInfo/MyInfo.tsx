@@ -65,14 +65,14 @@ export function MyInfo() {
   }, []);
 
   return (
-    <div className="min-h-full">
+    <div className="h-full overflow-auto">
       {/* Floating Compact Header */}
       {showFloatingHeader && (
         <div
-          className="sticky top-0 z-50 py-4 flex items-center animate-[floatDown_220ms_ease-out]"
+          className="sticky top-0 z-50 flex items-start animate-[floatDown_220ms_ease-out]"
           style={floatingHeaderHeight ? { height: `${floatingHeaderHeight}px` } : undefined}
         >
-          <div className="bg-[var(--color-primary-strong)] rounded-[var(--radius-small)] pl-10 pr-8 py-2 shadow-[2px_2px_0px_2px_rgba(56,49,47,0.05)] w-full mt-[46px]">
+          <div className="bg-[var(--color-primary-strong)] rounded-[var(--radius-small)] pl-10 pr-8 py-2 shadow-[2px_2px_0px_2px_rgba(56,49,47,0.05)] w-full">
             <div className="flex items-center gap-3">
               {/* Avatar and Name */}
               <div className="flex items-center gap-3">

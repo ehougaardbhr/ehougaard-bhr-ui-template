@@ -29,7 +29,7 @@ export function PerformanceTabContent({ employeeName }: PerformanceTabContentPro
   ];
 
   return (
-    <div className="flex-1">
+    <>
       {/* Performance Section Header */}
       <div className="flex items-center gap-3 mb-6">
         <Icon name="chart-line" size={24} className="text-[var(--color-primary-strong)]" />
@@ -41,44 +41,47 @@ export function PerformanceTabContent({ employeeName }: PerformanceTabContentPro
         </h2>
       </div>
 
-      {/* Sub-navigation Tabs */}
-      <Tabs
-        tabs={subTabs}
-        activeTab={activeSubTab}
-        onTabChange={(id) => setActiveSubTab(id as 'goals' | 'feedback' | 'assessments')}
-        variant="default"
-      />
-
-      {/* Time Period Dropdown */}
-      <div className="mt-4">
-        <Dropdown
-          options={timePeriodOptions}
-          value={timePeriod}
-          onChange={setTimePeriod}
-          className="w-[212px] [&>button]:h-8"
+      {/* White Card Container */}
+      <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] p-6">
+        {/* Sub-navigation Tabs */}
+        <Tabs
+          tabs={subTabs}
+          activeTab={activeSubTab}
+          onTabChange={(id) => setActiveSubTab(id as 'goals' | 'feedback' | 'assessments')}
+          variant="default"
         />
-      </div>
 
-      {/* Divider */}
-      <div className="w-full h-px bg-[var(--border-neutral-x-weak)] my-4" />
+        {/* Time Period Dropdown */}
+        <div className="mt-4">
+          <Dropdown
+            options={timePeriodOptions}
+            value={timePeriod}
+            onChange={setTimePeriod}
+            className="w-[212px] [&>button]:h-8"
+          />
+        </div>
 
-      {/* Sub-tab Content */}
-      <div className="mt-4">
-        {activeSubTab === 'feedback' && (
-          <FeedbackTabContent employeeName={employeeName} />
-        )}
-        {activeSubTab === 'goals' && (
-          <div className="text-[15px] text-[var(--text-neutral-medium)]">
-            Goals coming soon
-          </div>
-        )}
-        {activeSubTab === 'assessments' && (
-          <div className="text-[15px] text-[var(--text-neutral-medium)]">
-            Assessments coming soon
-          </div>
-        )}
+        {/* Divider */}
+        <div className="w-full h-px bg-[var(--border-neutral-x-weak)] my-4" />
+
+        {/* Sub-tab Content */}
+        <div className="mt-4">
+          {activeSubTab === 'feedback' && (
+            <FeedbackTabContent employeeName={employeeName} />
+          )}
+          {activeSubTab === 'goals' && (
+            <div className="text-[15px] text-[var(--text-neutral-medium)]">
+              Goals coming soon
+            </div>
+          )}
+          {activeSubTab === 'assessments' && (
+            <div className="text-[15px] text-[var(--text-neutral-medium)]">
+              Assessments coming soon
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

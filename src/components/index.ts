@@ -20,3 +20,5 @@ export { RequestItem } from './RequestItem';
 export { Pagination } from './Pagination';
 export { EmployeeTableRow } from './EmployeeTableRow';
 export { PeopleListView } from './PeopleListView';
+export { FeedbackCard } from './FeedbackCard';
+export { PendingFeedbackCard } from './PendingFeedbackCard';
