@@ -47,11 +47,11 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
       {/* Right Section */}
       <div className="flex items-center gap-6 flex-1 justify-end">
         {/* Search Bar */}
-        <div className="flex-1 max-w-[999px]">
+        <div className="w-[288px]">
           <div
             className="
               flex items-center gap-2
-              h-8 px-4 py-2
+              h-[40px] px-4 py-2
               bg-[var(--surface-neutral-white)]
               border border-[var(--border-neutral-medium)]
               rounded-[var(--radius-full)]
@@ -97,6 +97,7 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
             <Icon
               name="inbox"
               size={24}
+              variant={isOnInbox ? 'solid' : 'regular'}
               className={isOnInbox ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}
             />
           </button>
@@ -114,6 +115,7 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
             <Icon
               name="circle-question"
               size={24}
+              variant="regular"
               className="text-[var(--icon-neutral-x-strong)]"
             />
           </button>
@@ -136,6 +138,7 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
             <Icon
               name="gear"
               size={24}
+              variant={isOnSettings ? 'solid' : 'regular'}
               className={isOnSettings ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}
             />
           </button>

@@ -73,6 +73,10 @@ import {
   faTemperatureHalf,
   faStar,
   faCircleXmark,
+  faPassport,
+  faPhone,
+  faCircle,
+  faCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -80,6 +84,11 @@ import {
   faFileLines as faFileLinesRegular,
   faFaceSmile as faFaceSmileRegular,
   faFolder as faFolderRegular,
+  faIdBadge as faIdBadgeRegular,
+  faCalendar as faCalendarRegular,
+  faClock as faClockRegular,
+  faCircle as faCircleRegular,
+  faCircleQuestion as faCircleQuestionRegular,
 } from '@fortawesome/free-regular-svg-icons';
 import {
   PanelLeftClose,
@@ -93,6 +102,9 @@ import {
   CircleDollarSign,
   Sun,
   Moon,
+  Grid2x2Plus,
+  Inbox,
+  Settings,
 } from 'lucide-react';
 
 export type IconName =
@@ -180,7 +192,12 @@ export type IconName =
   | 'eye'
   | 'temperature-half'
   | 'star'
-  | 'circle-x';
+  | 'circle-x'
+  | 'passport'
+  | 'phone'
+  | 'circle'
+  | 'check'
+  | 'grid-2-plus';
 
 interface IconProps {
   name: IconName;
@@ -196,6 +213,7 @@ const faIconMap = {
   'circle-user-regular': faCircleUserRegular,
   'user-group': faUserGroup,
   'id-badge': faIdBadge,
+  'id-badge-regular': faIdBadgeRegular,
   'chart-pie-simple': faChartPie,
   'file-lines': faFileLines,
   'file-lines-regular': faFileLinesRegular,
@@ -203,6 +221,7 @@ const faIconMap = {
   'magnifying-glass': faMagnifyingGlass,
   'inbox': faInbox,
   'circle-question': faCircleQuestion,
+  'circle-question-regular': faCircleQuestionRegular,
   'gear': faGear,
   'pen-to-square': faPenToSquare,
   'face-smile': faFaceSmile,
@@ -225,8 +244,10 @@ const faIconMap = {
   'mobile': faMobileScreen,
   'envelope': faEnvelope,
   'clock': faClock,
+  'clock-regular': faClockRegular,
   'wrench': faWrench,
   'calendar': faCalendar,
+  'calendar-regular': faCalendarRegular,
   'linkedin': faLinkedin,
   'ellipsis': faEllipsis,
   'pen': faPen,
@@ -269,6 +290,11 @@ const faIconMap = {
   'temperature-half': faTemperatureHalf,
   'star': faStar,
   'circle-x': faCircleXmark,
+  'passport': faPassport,
+  'phone': faPhone,
+  'circle': faCircle,
+  'circle-regular': faCircleRegular,
+  'check': faCheck,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
@@ -278,7 +304,7 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
       <PanelLeftOpen
         size={size}
         className={className}
-        strokeWidth={1.5}
+        strokeWidth={2.25}
       />
     );
   }
@@ -288,7 +314,7 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
       <PanelLeftClose
         size={size}
         className={className}
-        strokeWidth={1.5}
+        strokeWidth={2.25}
       />
     );
   }
@@ -323,11 +349,36 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
   }
 
   if (name === 'sun') {
-    return <Sun size={size} className={className} strokeWidth={1.5} />;
+    return <Sun size={size} className={className} strokeWidth={2.25} />;
   }
 
   if (name === 'moon') {
-    return <Moon size={size} className={className} strokeWidth={1.5} />;
+    return <Moon size={size} className={className} strokeWidth={2.25} />;
+  }
+
+  if (name === 'grid-2-plus') {
+    return <Grid2x2Plus size={size} className={className} strokeWidth={2.5} style={style} />;
+  }
+
+  // Handle icons that need Lucide for regular variant
+  if (name === 'inbox' && variant === 'regular') {
+    return <Inbox size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+
+  if (name === 'gear' && variant === 'regular') {
+    return <Settings size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+
+  if (name === 'home' && variant === 'regular') {
+    return <Home size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+
+  if (name === 'user-group' && variant === 'regular') {
+    return <Users size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+
+  if (name === 'chart-pie-simple' && variant === 'regular') {
+    return <PieChart size={size} className={className} strokeWidth={2.25} style={style} />;
   }
 
   // Handle Font Awesome icons

@@ -10,6 +10,7 @@ interface TextInputProps {
   size?: 'default' | 'small';
   className?: string;
   inputClassName?: string;
+  icon?: string;
 }
 
 export function TextInput({
@@ -22,6 +23,7 @@ export function TextInput({
   size = 'default',
   className = '',
   inputClassName = '',
+  icon,
 }: TextInputProps) {
   const isSmall = size === 'small';
 
@@ -44,6 +46,9 @@ export function TextInput({
         `}
         style={{ boxShadow: '1px 1px 0px 1px rgba(56,49,47,0.04)' }}
       >
+        {icon && (
+          <Icon name={icon as any} size={16} className="text-[var(--icon-neutral-strong)] shrink-0" />
+        )}
         <input
           type={type === 'date' ? 'text' : 'text'}
           value={value}

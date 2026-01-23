@@ -95,6 +95,7 @@ export function GlobalNav({ className = '' }: GlobalNavProps) {
               <Icon
                 name={item.icon}
                 size={24}
+                variant={isActive ? 'solid' : 'regular'}
                 className={`
                   shrink-0 transition-colors duration-200
                   ${isActive

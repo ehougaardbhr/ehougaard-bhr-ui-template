@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Icon, Button, TextInput } from '../../components';
 import { currentEmployee } from '../../data/currentEmployee';
 import { PerformanceTabContent } from './PerformanceTabContent';
+import { JobTabContent } from './JobTabContent';
 
 const profileTabs = [
   { id: 'personal', label: 'Personal' },
@@ -277,6 +278,8 @@ export function MyInfo() {
           {/* Conditional rendering based on active tab */}
           {activeTab === 'performance' ? (
             <PerformanceTabContent employeeName={employee.preferredName} />
+          ) : activeTab === 'job' ? (
+            <JobTabContent employeeName={employee.preferredName} />
           ) : (
             <>
               {/* Section Header */}
@@ -290,128 +293,177 @@ export function MyInfo() {
                     Personal
                   </h2>
                 </div>
-                <Button variant="standard" size="small">
-                  Edit fields
+                <Button variant="text" icon="grid-2-plus" iconPosition="left" showCaret={true}>
+                  Customize Layout
                 </Button>
               </div>
 
           {/* Basic Information Card */}
           <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] p-6 mb-8">
-            <h3
-              className="text-[22px] font-semibold text-[var(--color-primary-strong)] mb-6"
-              style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
-            >
-              Basic information
-            </h3>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 bg-[var(--surface-neutral-x-weak)] rounded-[var(--radius-x-small)] shrink-0">
+                <Icon name="address-card" size={16} className="text-[var(--color-primary-strong)]" />
+              </div>
+              <h3
+                className="text-[22px] font-semibold text-[var(--color-primary-strong)]"
+                style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
+              >
+                Basic Information
+              </h3>
+            </div>
 
-            {/* Name Row */}
+            {/* Name Row - 4 columns */}
             <div className="grid grid-cols-4 gap-4 mb-6">
               <TextInput label="Name" value={employee.firstName} />
-              <TextInput label="Middle name" value={employee.middleName} placeholder="" />
-              <TextInput label="Last name" value={employee.lastName} />
-              <TextInput label="Preferred name" value={employee.preferredName} />
+              <TextInput label="Middle Name" value={employee.middleName} placeholder="" />
+              <TextInput label="Last Name" value={employee.lastName} />
+              <TextInput label="Preferred Name" value={employee.preferredName} />
             </div>
 
-            {/* Birth Date Row */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
-              <TextInput label="Birth date" value={employee.birthDate} type="date" />
+            {/* Birth Date */}
+            <div className="mb-6 max-w-[200px]">
+              <TextInput label="Birth Date" value={employee.birthDate} type="date" />
             </div>
 
-            {/* SSN Row */}
-            <div className="grid grid-cols-4 gap-4 mb-6">
+            {/* SSN */}
+            <div className="mb-6 max-w-[200px]">
               <TextInput label="SSN" value={employee.ssn} />
             </div>
 
-            {/* Gender Row */}
+            {/* Gender Row - 3 columns */}
             <div className="grid grid-cols-3 gap-4 mb-6">
               <TextInput label="Gender" value={employee.gender} type="dropdown" />
-              <TextInput label="Gender identity" value={employee.genderIdentity} type="dropdown" />
+              <TextInput label="Gender Identity" value={employee.genderIdentity} type="dropdown" />
               <TextInput label="Pronouns" value={employee.pronouns} type="dropdown" />
             </div>
 
-            {/* Marital Status Row */}
-            <div className="grid grid-cols-4 gap-4">
-              <TextInput label="Marital status" value={employee.maritalStatus} type="dropdown" />
+            {/* Marital Status */}
+            <div className="max-w-[200px]">
+              <TextInput label="Marital Status" value={employee.maritalStatus} type="dropdown" />
             </div>
           </div>
 
           {/* Contact Card */}
           <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] p-6 mb-8">
-            <h3
-              className="text-[22px] font-semibold text-[var(--color-primary-strong)] mb-6"
-              style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
-            >
-              Contact
-            </h3>
-
-            <div className="grid grid-cols-4 gap-4 mb-4">
-              <div className="flex flex-col gap-2">
-                <TextInput label="Phone" value={employee.workPhone} />
-                <div className="pl-4 text-[13px] text-[var(--text-neutral-medium)]">Work</div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center justify-center w-10 h-10 bg-[var(--surface-neutral-x-weak)] rounded-[var(--radius-x-small)] shrink-0">
+                <Icon name="phone" size={16} className="text-[var(--color-primary-strong)]" />
               </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4 mb-4">
-              <TextInput label="Input label" value={employee.mobilePhone} />
-              <div className="flex items-end pb-3 text-[13px] text-[var(--text-neutral-medium)]">Mobile</div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4 mb-4">
-              <div className="col-span-2">
-                <TextInput label="Email" value={employee.personalEmail} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4 mb-4">
-              <div className="col-span-2">
-                <TextInput label="Input label" value={employee.workEmail} />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 gap-4 mb-4">
-              <TextInput label="T-shirt size" value={employee.tshirtSize} type="dropdown" />
-            </div>
-
-            <div className="grid grid-cols-4 gap-4">
-              <TextInput label="Favorite cold cereal" value={employee.favoriteCereal} type="dropdown" />
-            </div>
-          </div>
-
-          {/* Passport Table Section */}
-          <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] overflow-hidden">
-            {/* Table Header */}
-            <div className="flex items-center justify-between px-6 py-4">
               <h3
                 className="text-[22px] font-semibold text-[var(--color-primary-strong)]"
                 style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
               >
                 Contact
               </h3>
-              <Button variant="standard" size="small">
-                Add entry
-              </Button>
+            </div>
+
+            {/* Home Phone */}
+            <div className="mb-6 max-w-[224px]">
+              <TextInput
+                label="Home Phone"
+                value="648-555-2415"
+                icon="phone"
+              />
+            </div>
+
+            {/* Work Phone */}
+            <div className="mb-6 max-w-[224px]">
+              <TextInput
+                label="Work Phone"
+                value={employee.workPhone}
+                icon="building"
+              />
+            </div>
+
+            {/* Mobile Phone */}
+            <div className="mb-6 max-w-[224px]">
+              <TextInput
+                label="Mobile Phone"
+                value={employee.mobilePhone}
+                icon="mobile"
+              />
+            </div>
+
+            {/* Home Email */}
+            <div className="mb-6 max-w-[288px]">
+              <TextInput
+                label="Home Email"
+                value={employee.personalEmail}
+                icon="envelope"
+              />
+            </div>
+
+            {/* Work Email */}
+            <div className="mb-6 max-w-[288px]">
+              <TextInput
+                label="Work Email"
+                value={employee.workEmail}
+                icon="envelope"
+              />
+            </div>
+
+            {/* T-shirt Size */}
+            <div className="mb-6 max-w-[224px]">
+              <TextInput
+                label="T-shirt Size"
+                value={employee.tshirtSize}
+                type="dropdown"
+              />
+            </div>
+
+            {/* Favorite Cold Cereal */}
+            <div className="max-w-[224px]">
+              <TextInput
+                label="Favorite Cold Cereal"
+                value={employee.favoriteCereal}
+                type="dropdown"
+              />
+            </div>
+          </div>
+
+          {/* Visa Information Section */}
+          <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] p-8">
+            {/* Section Header */}
+            <div className="flex items-start gap-4 mb-6">
+              {/* Icon container */}
+              <div className="flex items-center justify-center w-10 h-10 bg-[var(--surface-neutral-x-weak)] rounded-[var(--radius-x-small)] shrink-0">
+                <Icon name="passport" size={16} className="text-[var(--color-primary-strong)]" />
+              </div>
+
+              {/* Title and Button */}
+              <div className="flex items-center justify-between flex-1">
+                <h3
+                  className="text-[24px] font-semibold text-[var(--color-primary-strong)]"
+                  style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
+                >
+                  Visa Information
+                </h3>
+                <Button variant="outlined" size="small">
+                  Add Entry
+                </Button>
+              </div>
             </div>
 
             {/* Table */}
-            <div className="px-6 pb-6">
+            <div>
               <table className="w-full">
                 <thead>
-                  <tr className="bg-[var(--surface-neutral-xx-weak)]">
-                    <th className="px-4 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)] rounded-tl-[8px] rounded-bl-[8px]">
-                      Passport number
+                  <tr className="bg-[var(--surface-neutral-x-weak)]">
+                    <th className="px-4 py-3 text-left text-[15px] font-semibold text-[var(--text-neutral-strong)] rounded-l-[var(--radius-xx-small)]">
+                      Passport Number
                     </th>
-                    <th className="px-4 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)]">
-                      Issued date
+                    <th className="px-4 py-3 text-left text-[15px] font-semibold text-[var(--text-neutral-strong)]">
+                      Issued Date
                     </th>
-                    <th className="px-4 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)]">
-                      Expiry date
+                    <th className="px-4 py-3 text-left text-[15px] font-semibold text-[var(--text-neutral-strong)]">
+                      Expiry Date
                     </th>
-                    <th className="px-4 py-4 text-left text-[15px] font-semibold text-[var(--text-neutral-x-strong)] rounded-tr-[8px] rounded-br-[8px]">
-                      Issuing country
+                    <th className="px-4 py-3 text-left text-[15px] font-semibold text-[var(--text-neutral-strong)] rounded-r-[var(--radius-xx-small)]">
+                      Issuing Country
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-neutral-x-weak)]">
+                <tbody className="divide-y divide-[var(--border-neutral-xx-weak)]">
                   {employee.passports.map((passport, index) => (
                     <tr key={index} className="hover:bg-[var(--surface-neutral-xx-weak)] transition-colors">
                       <td className="px-4 py-4 text-[15px] text-[var(--text-neutral-x-strong)]">

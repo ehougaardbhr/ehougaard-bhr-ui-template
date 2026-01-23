@@ -26,3 +26,4 @@ export { GoalCard } from './GoalCard';
 export { RatingCircles } from './RatingCircles';
 export { AssessmentBlock } from './AssessmentBlock';
 export { StarRating } from './StarRating';
+export { Checkbox } from './Checkbox';

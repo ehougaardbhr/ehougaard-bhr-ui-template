@@ -3,10 +3,11 @@ import { Icon, type IconName } from '../Icon';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  variant?: 'standard' | 'primary' | 'ghost';
+  variant?: 'standard' | 'primary' | 'ghost' | 'outlined' | 'text';
   size?: 'small' | 'medium';
   icon?: IconName;
   iconPosition?: 'left' | 'right';
+  showCaret?: boolean;
 }
 
 export function Button({
@@ -15,6 +16,7 @@ export function Button({
   size = 'medium',
   icon,
   iconPosition = 'left',
+  showCaret = false,
   className = '',
   ...props
 }: ButtonProps) {
@@ -45,6 +47,20 @@ export function Button({
       text-[var(--text-neutral-strong)]
       hover:bg-[var(--surface-neutral-xx-weak)]
     `,
+    outlined: `
+      bg-[var(--surface-neutral-white)]
+      border border-[var(--color-primary-strong)]
+      text-[var(--color-primary-strong)]
+      hover:bg-[var(--surface-neutral-xx-weak)]
+    `,
+    text: `
+      bg-transparent
+      border border-transparent
+      text-[#0b4fd1]
+      hover:underline
+      h-auto
+      px-0
+    `,
   };
 
   const sizeStyles = {
@@ -56,6 +72,8 @@ export function Button({
     standard: 'var(--icon-neutral-x-strong)',
     primary: 'white',
     ghost: 'var(--icon-neutral-x-strong)',
+    outlined: 'var(--color-primary-strong)',
+    text: '#0b4fd1',
   };
 
   return (
@@ -63,18 +81,21 @@ export function Button({
       className={`
         ${baseStyles}
         ${variantStyles[variant]}
-        ${sizeStyles[size]}
+        ${variant !== 'text' ? sizeStyles[size] : ''}
         ${className}
       `}
-      style={{ boxShadow: variant === 'standard' ? 'var(--shadow-100)' : undefined }}
+      style={{ boxShadow: variant === 'standard' || variant === 'outlined' ? 'var(--shadow-100)' : undefined }}
       {...props}
     >
       {icon && iconPosition === 'left' && (
-        <Icon name={icon} size={16} className={`text-[${iconColor[variant]}]`} />
+        <Icon name={icon} size={16} style={{ color: iconColor[variant] }} />
       )}
       {children}
       {icon && iconPosition === 'right' && (
-        <Icon name={icon} size={16} className={`text-[${iconColor[variant]}]`} />
+        <Icon name={icon} size={16} style={{ color: iconColor[variant] }} />
+      )}
+      {showCaret && (
+        <Icon name="caret-down" size={10} style={{ color: iconColor[variant] }} />
       )}
     </button>
   );
