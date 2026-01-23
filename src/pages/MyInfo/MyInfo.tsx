@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Icon, Button, TextInput } from '../../components';
 import { currentEmployee } from '../../data/currentEmployee';
+import { PerformanceTabContent } from './PerformanceTabContent';
 
 const profileTabs = [
   { id: 'personal', label: 'Personal' },
@@ -273,21 +274,26 @@ export function MyInfo() {
 
         {/* Main Content */}
         <main className="flex-1">
-          {/* Section Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Icon name="address-card" size={24} className="text-[var(--color-primary-strong)]" />
-              <h2
-                className="text-[26px] font-semibold text-[var(--color-primary-strong)]"
-                style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '34px' }}
-              >
-                Personal
-              </h2>
-            </div>
-            <Button variant="standard" size="small">
-              Edit fields
-            </Button>
-          </div>
+          {/* Conditional rendering based on active tab */}
+          {activeTab === 'performance' ? (
+            <PerformanceTabContent employeeName={employee.preferredName} />
+          ) : (
+            <>
+              {/* Section Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Icon name="address-card" size={24} className="text-[var(--color-primary-strong)]" />
+                  <h2
+                    className="text-[26px] font-semibold text-[var(--color-primary-strong)]"
+                    style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '34px' }}
+                  >
+                    Personal
+                  </h2>
+                </div>
+                <Button variant="standard" size="small">
+                  Edit fields
+                </Button>
+              </div>
 
           {/* Basic Information Card */}
           <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] p-6 mb-8">
@@ -426,6 +432,8 @@ export function MyInfo() {
               </table>
             </div>
           </div>
+            </>
+          )}
         </main>
       </div>
     </div>
