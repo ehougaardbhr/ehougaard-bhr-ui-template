@@ -48,6 +48,7 @@ import {
   faPlane,
   faGraduationCap,
   faShield,
+  faCheck,
   faCheckCircle,
   faLink,
   faArrowsRotate,
@@ -60,6 +61,18 @@ import {
   faXmark,
   faCircleArrowUp,
   faPaperPlane,
+  faHashtag,
+  faGripLines,
+  faGripVertical,
+  faGrip,
+  faFilter,
+  faEye,
+  faPassport,
+  faAddressBook,
+  faPhone,
+  faCircleMinus,
+  faCirclePlus,
+  faBoxArchive,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -134,6 +147,7 @@ export type IconName =
   | 'plane'
   | 'graduation-cap'
   | 'shield'
+  | 'check'
   | 'check-circle'
   | 'link'
   | 'arrows-rotate'
@@ -154,7 +168,19 @@ export type IconName =
   | 'down-left-and-up-right-to-center'
   | 'xmark'
   | 'circle-arrow-up'
-  | 'paper-plane';
+  | 'paper-plane'
+  | 'hashtag'
+  | 'grip-lines'
+  | 'grip-vertical'
+  | 'grip'
+  | 'filter'
+  | 'eye'
+  | 'passport'
+  | 'address-book'
+  | 'phone'
+  | 'circle-minus'
+  | 'circle-plus'
+  | 'archive';
 
 interface IconProps {
   name: IconName;
@@ -218,6 +244,7 @@ const faIconMap = {
   'plane': faPlane,
   'graduation-cap': faGraduationCap,
   'shield': faShield,
+  'check': faCheck,
   'check-circle': faCheckCircle,
   'link': faLink,
   'arrows-rotate': faArrowsRotate,
@@ -230,6 +257,18 @@ const faIconMap = {
   'xmark': faXmark,
   'circle-arrow-up': faCircleArrowUp,
   'paper-plane': faPaperPlane,
+  'hashtag': faHashtag,
+  'grip-lines': faGripLines,
+  'grip-vertical': faGripVertical,
+  'grip': faGrip,
+  'filter': faFilter,
+  'eye': faEye,
+  'passport': faPassport,
+  'address-book': faAddressBook,
+  'phone': faPhone,
+  'circle-minus': faCircleMinus,
+  'circle-plus': faCirclePlus,
+  'archive': faBoxArchive,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {

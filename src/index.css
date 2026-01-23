@@ -175,6 +175,16 @@ body {
   }
 }
 
+/* Hide scrollbar */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Headline/X-large (H1) */
 h1 {
   font-family: 'Fields', system-ui, sans-serif;

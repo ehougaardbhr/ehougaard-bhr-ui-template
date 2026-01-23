@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Icon, Button, TextInput, Tabs } from '../../components';
 import { currentEmployee } from '../../data/currentEmployee';
 
@@ -20,6 +21,7 @@ export function MyInfo() {
   const [floatingHeaderHeight, setFloatingHeaderHeight] = useState<number | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const employee = currentEmployee;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -284,7 +286,11 @@ export function MyInfo() {
                 Personal
               </h2>
             </div>
-            <Button variant="standard" size="small">
+            <Button
+              variant="standard"
+              size="small"
+              onClick={() => navigate('/settings')}
+            >
               Edit fields
             </Button>
           </div>
