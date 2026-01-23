@@ -1,6 +1,9 @@
+import { Icon } from '../Icon';
+
 interface Tab {
   id: string;
   label: string;
+  icon?: string;
 }
 
 interface TabsProps {
@@ -33,10 +36,11 @@ export function Tabs({ tabs, activeTab, onTabChange, className = '', variant = '
             key={tab.id}
             onClick={() => onTabChange(tab.id)}
             className={`
-              pb-3 px-1 text-[15px] font-medium transition-colors
+              pb-3 px-1 text-[15px] font-medium transition-colors flex items-center gap-2
               ${isActive ? activeStyles : inactiveStyles}
             `}
           >
+            {tab.icon && <Icon name={tab.icon as any} size={16} className="text-current" />}
             {tab.label}
           </button>
         );

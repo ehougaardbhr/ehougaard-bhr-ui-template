@@ -62,6 +62,17 @@ import {
   faXmark,
   faCircleArrowUp,
   faPaperPlane,
+  faEyeSlash,
+  faUsers,
+  faCirclePlus,
+  faBullseye,
+  faBullhorn,
+  faClipboard,
+  faCompass,
+  faEye,
+  faTemperatureHalf,
+  faStar,
+  faCircleXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -158,7 +169,18 @@ export type IconName =
   | 'down-left-and-up-right-to-center'
   | 'xmark'
   | 'circle-arrow-up'
-  | 'paper-plane';
+  | 'paper-plane'
+  | 'eye-slash'
+  | 'users'
+  | 'circle-plus'
+  | 'bullseye'
+  | 'bullhorn'
+  | 'clipboard'
+  | 'compass'
+  | 'eye'
+  | 'temperature-half'
+  | 'star'
+  | 'circle-x';
 
 interface IconProps {
   name: IconName;
@@ -236,6 +258,17 @@ const faIconMap = {
   'xmark': faXmark,
   'circle-arrow-up': faCircleArrowUp,
   'paper-plane': faPaperPlane,
+  'eye-slash': faEyeSlash,
+  'users': faUsers,
+  'circle-plus': faCirclePlus,
+  'bullseye': faBullseye,
+  'bullhorn': faBullhorn,
+  'clipboard': faClipboard,
+  'compass': faCompass,
+  'eye': faEye,
+  'temperature-half': faTemperatureHalf,
+  'star': faStar,
+  'circle-x': faCircleXmark,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {

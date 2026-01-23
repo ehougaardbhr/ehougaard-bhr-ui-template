@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Icon, Button, TextInput } from '../../components';
 import { currentEmployee } from '../../data/currentEmployee';
+import { PerformanceTabContent } from './PerformanceTabContent';
 
 const profileTabs = [
   { id: 'personal', label: 'Personal' },
@@ -64,14 +65,14 @@ export function MyInfo() {
   }, []);
 
   return (
-    <div className="min-h-full">
+    <div className="h-full overflow-auto">
       {/* Floating Compact Header */}
       {showFloatingHeader && (
         <div
-          className="sticky top-0 z-50 py-4 flex items-center animate-[floatDown_220ms_ease-out]"
+          className="sticky top-0 z-50 flex items-start animate-[floatDown_220ms_ease-out]"
           style={floatingHeaderHeight ? { height: `${floatingHeaderHeight}px` } : undefined}
         >
-          <div className="bg-[var(--color-primary-strong)] rounded-[var(--radius-small)] pl-10 pr-8 py-2 shadow-[2px_2px_0px_2px_rgba(56,49,47,0.05)] w-full mt-[46px]">
+          <div className="bg-[var(--color-primary-strong)] rounded-[var(--radius-small)] pl-10 pr-8 py-2 shadow-[2px_2px_0px_2px_rgba(56,49,47,0.05)] w-full">
             <div className="flex items-center gap-3">
               {/* Avatar and Name */}
               <div className="flex items-center gap-3">
@@ -273,21 +274,26 @@ export function MyInfo() {
 
         {/* Main Content */}
         <main className="flex-1">
-          {/* Section Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Icon name="address-card" size={24} className="text-[var(--color-primary-strong)]" />
-              <h2
-                className="text-[26px] font-semibold text-[var(--color-primary-strong)]"
-                style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '34px' }}
-              >
-                Personal
-              </h2>
-            </div>
-            <Button variant="standard" size="small">
-              Edit fields
-            </Button>
-          </div>
+          {/* Conditional rendering based on active tab */}
+          {activeTab === 'performance' ? (
+            <PerformanceTabContent employeeName={employee.preferredName} />
+          ) : (
+            <>
+              {/* Section Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <Icon name="address-card" size={24} className="text-[var(--color-primary-strong)]" />
+                  <h2
+                    className="text-[26px] font-semibold text-[var(--color-primary-strong)]"
+                    style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '34px' }}
+                  >
+                    Personal
+                  </h2>
+                </div>
+                <Button variant="standard" size="small">
+                  Edit fields
+                </Button>
+              </div>
 
           {/* Basic Information Card */}
           <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] p-6 mb-8">
@@ -426,6 +432,8 @@ export function MyInfo() {
               </table>
             </div>
           </div>
+            </>
+          )}
         </main>
       </div>
     </div>
