@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Icon, Tabs, Dropdown } from '../../components';
 import { FeedbackTabContent } from './FeedbackTabContent';
 import { GoalsTabContent } from './GoalsTabContent';
+import { AssessmentsTabContent } from './AssessmentsTabContent';
 
 interface PerformanceTabContentProps {
   employeeName: string;
@@ -9,7 +10,7 @@ interface PerformanceTabContentProps {
 
 export function PerformanceTabContent({ employeeName }: PerformanceTabContentProps) {
   // State for sub-tabs (Goals, Feedback, Assessments)
-  const [activeSubTab, setActiveSubTab] = useState<'goals' | 'feedback' | 'assessments'>('goals');
+  const [activeSubTab, setActiveSubTab] = useState<'goals' | 'feedback' | 'assessments'>('assessments');
 
   // State for time period filter
   const [timePeriod, setTimePeriod] = useState('last-6-months');
@@ -76,9 +77,7 @@ export function PerformanceTabContent({ employeeName }: PerformanceTabContentPro
             <GoalsTabContent employeeName={employeeName} />
           )}
           {activeSubTab === 'assessments' && (
-            <div className="text-[15px] text-[var(--text-neutral-medium)]">
-              Assessments coming soon
-            </div>
+            <AssessmentsTabContent employeeName={employeeName} />
           )}
         </div>
       </div>

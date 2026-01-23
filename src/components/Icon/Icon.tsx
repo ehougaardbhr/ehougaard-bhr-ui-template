@@ -68,6 +68,9 @@ import {
   faBullseye,
   faBullhorn,
   faClipboard,
+  faCompass,
+  faEye,
+  faTemperatureHalf,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -170,7 +173,10 @@ export type IconName =
   | 'circle-plus'
   | 'bullseye'
   | 'bullhorn'
-  | 'clipboard';
+  | 'clipboard'
+  | 'compass'
+  | 'eye'
+  | 'temperature-half';
 
 interface IconProps {
   name: IconName;
@@ -254,6 +260,9 @@ const faIconMap = {
   'bullseye': faBullseye,
   'bullhorn': faBullhorn,
   'clipboard': faClipboard,
+  'compass': faCompass,
+  'eye': faEye,
+  'temperature-half': faTemperatureHalf,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
