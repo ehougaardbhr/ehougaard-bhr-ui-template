@@ -71,6 +71,8 @@ import {
   faCompass,
   faEye,
   faTemperatureHalf,
+  faStar,
+  faCircleXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -176,7 +178,9 @@ export type IconName =
   | 'clipboard'
   | 'compass'
   | 'eye'
-  | 'temperature-half';
+  | 'temperature-half'
+  | 'star'
+  | 'circle-x';
 
 interface IconProps {
   name: IconName;
@@ -263,6 +267,8 @@ const faIconMap = {
   'compass': faCompass,
   'eye': faEye,
   'temperature-half': faTemperatureHalf,
+  'star': faStar,
+  'circle-x': faCircleXmark,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
