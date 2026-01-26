@@ -2,8 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { InlineArtifactCard } from '../InlineArtifactCard';
-import { recentConversations } from '../../data/chatData';
-import type { ChatConversation } from '../../data/chatData';
+import { useChat } from '../../contexts/ChatContext';
 import { useArtifact } from '../../contexts/ArtifactContext';
 import { chartTypeIcons } from '../../data/artifactData';
 import type { ChartSettings } from '../../data/artifactData';
@@ -20,22 +19,17 @@ const ARTIFACTS_INITIAL_COUNT = 3;
 export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIChatPanelProps) {
   const navigate = useNavigate();
   const { artifacts } = useArtifact();
+  const {
+    selectedConversation,
+    selectConversation,
+    conversations,
+    searchQuery: contextSearchQuery,
+    setSearchQuery: setContextSearchQuery,
+    filteredConversations
+  } = useChat();
   const [inputValue, setInputValue] = useState('');
-  const [selectedConversation, setSelectedConversation] = useState<ChatConversation>(() => {
-    // Check if there's a stored conversation ID from navigating back from artifact
-    const storedConversationId = localStorage.getItem('bhr-active-conversation');
-    if (storedConversationId) {
-      const conversation = recentConversations.find(c => c.id === storedConversationId);
-      if (conversation) {
-        localStorage.removeItem('bhr-active-conversation'); // Clear it after use
-        return conversation;
-      }
-    }
-    return recentConversations[0];
-  });
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [showAllArtifacts, setShowAllArtifacts] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -54,13 +48,8 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
     ? artifacts
     : artifacts.slice(0, ARTIFACTS_INITIAL_COUNT);
 
-  const messages = selectedConversation.messages;
-  const title = selectedConversation.title;
-
-  // Filter conversations based on search
-  const filteredConversations = recentConversations.filter(conv =>
-    conv.title.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const messages = selectedConversation?.messages || [];
+  const title = selectedConversation?.title || 'New Chat';
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -160,11 +149,11 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                     key={artifact.id}
                     onClick={() => {
                       // Find the conversation that contains this artifact
-                      const conversation = recentConversations.find(
+                      const conversation = conversations.find(
                         conv => conv.id === artifact.conversationId
                       );
                       if (conversation) {
-                        setSelectedConversation(conversation);
+                        selectConversation(conversation.id);
                         // Expand chat if collapsed
                         if (!isExpanded) {
                           onExpandChange(true);
@@ -216,8 +205,8 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
               <input
                 type="text"
                 placeholder="Search conversations..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                value={contextSearchQuery}
+                onChange={(e) => setContextSearchQuery(e.target.value)}
                 className="w-full px-3 py-2 text-[14px] bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-weak)] rounded-[var(--radius-xx-small)] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none focus:border-[var(--color-primary-strong)]"
                 autoFocus
               />
@@ -227,11 +216,11 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
           {/* Conversation List */}
           <div className="flex-1 overflow-y-auto px-2">
             {filteredConversations.map((conversation) => {
-              const isActive = conversation.id === selectedConversation.id;
+              const isActive = conversation.id === selectedConversation?.id;
               return (
                 <button
                   key={conversation.id}
-                  onClick={() => setSelectedConversation(conversation)}
+                  onClick={() => selectConversation(conversation.id)}
                   className={`
                     w-full text-left px-4 py-3 rounded-[var(--radius-xx-small)]
                     text-[15px] text-[var(--text-neutral-x-strong)]
@@ -292,11 +281,11 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
               {/* Dropdown menu */}
               {isDropdownOpen && (
                 <div className="absolute top-full left-0 right-0 z-50 mx-1 mb-1 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-[var(--radius-small)] shadow-lg overflow-hidden">
-                  {recentConversations.map((conversation) => (
+                  {conversations.map((conversation) => (
                     <button
                       key={conversation.id}
                       onClick={() => {
-                        setSelectedConversation(conversation);
+                        selectConversation(conversation.id);
                         setIsDropdownOpen(false);
                       }}
                       className={`
@@ -304,7 +293,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                         hover:bg-[var(--surface-neutral-xx-weak)]
                         transition-colors duration-150
                         ${
-                          conversation.id === selectedConversation.id
+                          conversation.id === selectedConversation?.id
                             ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--text-neutral-xx-strong)] font-medium'
                             : 'text-[var(--text-neutral-strong)]'
                         }

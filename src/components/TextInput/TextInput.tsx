@@ -1,4 +1,5 @@
 import { Icon } from '../Icon';
+import type { InputHTMLAttributes } from 'react';
 
 interface TextInputProps {
   label?: string;
@@ -11,6 +12,7 @@ interface TextInputProps {
   className?: string;
   inputClassName?: string;
   icon?: string;
+  onKeyPress?: InputHTMLAttributes<HTMLInputElement>['onKeyPress'];
 }
 
 export function TextInput({
@@ -24,6 +26,7 @@ export function TextInput({
   className = '',
   inputClassName = '',
   icon,
+  onKeyPress,
 }: TextInputProps) {
   const isSmall = size === 'small';
 
@@ -53,6 +56,7 @@ export function TextInput({
           type={type === 'date' ? 'text' : 'text'}
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
+          onKeyPress={onKeyPress}
           placeholder={placeholder}
           disabled={disabled}
           className={`flex-1 bg-transparent ${isSmall ? 'text-[14px] leading-[20px]' : 'text-[15px] leading-[22px]'} text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none min-w-0`}

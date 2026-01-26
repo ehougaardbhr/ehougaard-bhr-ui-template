@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Icon, TextInput, Button, PendingFeedbackCard, FeedbackCard } from '../../components';
+import { useChat } from '../../contexts/ChatContext';
 
 interface FeedbackTabContentProps {
   employeeName: string;
@@ -7,8 +8,62 @@ interface FeedbackTabContentProps {
 
 export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
   const [searchValue, setSearchValue] = useState('');
+  const [aiInputValue, setAiInputValue] = useState('');
+  const { createNewChat, addMessage } = useChat();
 
   const summaryText = `${employeeName}'s colleagues have shared positive feedback, praising her for her perseverance and dedication to protecting employee morale during times of transition. She is appreciated for her dependability, good questions, and ability to get work done on time. However, some suggest she should speak up about her ideas. Overall, she is seen as a great counselor and team member, with a notable sense of generosity and kindness.`;
+
+  const handleAiInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && aiInputValue.trim()) {
+      const question = aiInputValue.trim();
+
+      // Create a new chat conversation - this automatically selects it
+      const newConversation = createNewChat();
+
+      // Add user message
+      addMessage(newConversation.id, {
+        type: 'user',
+        text: question,
+      });
+
+      // Add AI response immediately
+      addMessage(newConversation.id, {
+        type: 'assistant',
+        text: generateMockResponse(question),
+      });
+
+      // Open chat panel - need to wait a moment for state to update
+      setTimeout(() => {
+        localStorage.setItem('bhr-chat-panel-open', 'true');
+      }, 100);
+
+      setAiInputValue('');
+    }
+  };
+
+  const generateMockResponse = (question: string): string => {
+    const lowerQuestion = question.toLowerCase();
+
+    if (lowerQuestion.includes('strength') || lowerQuestion.includes('does well')) {
+      return `Based on the feedback, ${employeeName}'s key strengths are:\n\n• **Perseverance** - Multiple colleagues noted her resilience during transitions\n• **Dependability** - She consistently meets deadlines and is reliable\n• **Team support** - Described as a great counselor with generosity and kindness\n\nHer ability to protect employee morale during difficult times stands out as particularly valuable.`;
+    }
+
+    if (lowerQuestion.includes('improve') || lowerQuestion.includes('growth') || lowerQuestion.includes('speak up')) {
+      return `The main area for growth mentioned is **speaking up about her ideas**. Some colleagues feel she has valuable insights but doesn't always share them.\n\n**Suggested approach:**\n• In your 1:1, ask about times she held back sharing ideas\n• Explore if it's confidence, timing, or team dynamics\n• Set a goal to contribute one idea per meeting\n• Create safe spaces for her to practice sharing`;
+    }
+
+    if (lowerQuestion.includes('1:1') || lowerQuestion.includes('one on one') || lowerQuestion.includes('questions')) {
+      return `Here are some good questions for your 1:1 with ${employeeName}:\n\n1. **Acknowledge strengths**: "Your colleagues really appreciate your dependability during transitions. How did you approach that?"\n\n2. **Explore growth area**: "Some feedback mentioned you could speak up more with your ideas. What holds you back?"\n\n3. **Action planning**: "What support would help you feel more comfortable sharing your perspective?"\n\n4. **Forward-looking**: "What would success look like for you this quarter?"`;
+    }
+
+    if (lowerQuestion.includes('pattern') || lowerQuestion.includes('theme')) {
+      return `The feedback reveals a clear pattern: **${employeeName} is a stabilizing force during change**.\n\n**What's working:**\n• She protects team morale during transitions\n• People rely on her for consistency\n• She asks good questions and gets work done\n\n**The tension:**\n• She may be so focused on stability that she holds back disruptive (but valuable) ideas\n• Her supportive nature might make her hesitant to challenge\n\nThis suggests she'd benefit from explicit permission to voice concerns and ideas.`;
+    }
+
+    // Default response
+    return `That's a great question about ${employeeName}'s feedback. Based on the summary, her colleagues consistently highlight her perseverance, dependability, and team support. The one area mentioned for growth is speaking up more about her ideas.\n\nWould you like me to elaborate on any specific aspect of her feedback?`;
+  };
+
 
   // Mock pending feedback requests
   const pendingRequests = [
@@ -131,6 +186,22 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
         <p className="text-[16px] leading-[24px] text-[var(--text-neutral-x-strong)] mt-2 pl-7">
           {summaryText}
         </p>
+
+        {/* AI Question Input */}
+        <div className="mt-4 pl-7">
+          <TextInput
+            value={aiInputValue}
+            onChange={setAiInputValue}
+            onKeyPress={handleAiInputKeyPress}
+            placeholder="Ask a follow-up question..."
+            size="default"
+            icon="sparkles"
+          />
+          <p className="text-[13px] text-[var(--text-neutral-medium)] mt-2">
+            <Icon name="keyboard" size={13} className="inline mr-1" />
+            Press Enter to open AI chat
+          </p>
+        </div>
       </div>
 
       {/* Pending Feedback Requests */}
