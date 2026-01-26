@@ -198,9 +198,9 @@ export function MyInfo() {
       {showFloatingHeader && (
         <div
           className="sticky top-0 z-50 flex items-start animate-[floatDown_220ms_ease-out]"
-          style={floatingHeaderHeight ? { height: `${floatingHeaderHeight}px` } : undefined}
+          style={floatingHeaderHeight ? { minHeight: `${floatingHeaderHeight}px` } : undefined}
         >
-          <div className="bg-[var(--color-primary-strong)] rounded-[var(--radius-small)] pl-10 pr-8 py-2 shadow-[2px_2px_0px_2px_rgba(56,49,47,0.05)] w-full">
+          <div className="bg-[var(--color-primary-strong)] rounded-[var(--radius-small)] pl-10 pr-8 py-2 shadow-[2px_2px_0px_2px_rgba(56,49,47,0.05)] w-full overflow-visible">
             <div className="flex items-center gap-3">
               {/* Avatar and Name */}
               <div className="flex items-center gap-3">
@@ -264,7 +264,7 @@ export function MyInfo() {
                           className="fixed inset-0 z-40"
                           onClick={() => setShowFloatingMoreDropdown(false)}
                         />
-                        <div className="absolute top-full right-0 mt-1 bg-white rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] py-1 z-50 min-w-[160px]">
+                        <div className="absolute top-full right-0 mt-1 bg-white rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] py-1 z-50 min-w-[160px] max-h-[400px] overflow-y-auto">
                           {profileTabs.slice(floatingVisibleTabCount).map((tab) => {
                             const isActive = tab.id === activeTab;
                             return (
@@ -379,7 +379,7 @@ export function MyInfo() {
 
                 {/* Dropdown menu */}
                 {showMoreDropdown && visibleTabCount < profileTabs.length && (
-                  <div className="absolute top-full left-0 mt-1 bg-white rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] py-1 z-[100] min-w-[160px]">
+                  <div className="absolute top-full left-0 mt-1 bg-white rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] py-1 z-[100] min-w-[160px] max-h-[400px] overflow-y-auto">
                     {profileTabs.slice(visibleTabCount).map((tab) => {
                       const isActive = tab.id === activeTab;
                       return (
