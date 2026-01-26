@@ -13,8 +13,6 @@ export { Tabs } from './Tabs';
 export { ProgressBar } from './ProgressBar';
 export { AIChatPanel } from './AIChatPanel';
 export { InlineArtifactCard } from './InlineArtifactCard';
-export { ChatSidebar } from './ChatSidebar';
-export { ChatContent } from './ChatContent';
 export { InboxSidebar } from './InboxSidebar';
 export { InboxContentCard } from './InboxContentCard';
 export { RequestItem } from './RequestItem';

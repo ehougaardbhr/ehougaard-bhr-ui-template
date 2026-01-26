@@ -3,7 +3,6 @@ import AppLayout from './layouts/AppLayout';
 import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings, Inbox } from './pages';
 import { ArtifactWorkspace } from './pages/ArtifactWorkspace';
 import { JobOpeningDetail } from './pages/JobOpeningDetail';
-import { Chat } from './pages/Chat';
 import { ChatTransitionsDemo } from './pages/ChatTransitionsDemo';
 import { TextReflowDemo } from './pages/TextReflowDemo';
 import { TextReflowDemo2 } from './pages/TextReflowDemo2';
