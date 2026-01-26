@@ -264,7 +264,7 @@ export function MyInfo() {
                           className="fixed inset-0 z-40"
                           onClick={() => setShowFloatingMoreDropdown(false)}
                         />
-                        <div className="absolute top-full right-0 mt-1 bg-white dark:bg-[var(--surface-neutral-strong)] rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] dark:border-[var(--border-neutral-medium)] py-1 z-50 min-w-[160px] max-h-[400px] overflow-y-auto flex flex-col">
+                        <div className="absolute top-full right-0 mt-1 bg-white dark:bg-[var(--surface-neutral-strong)] rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] dark:border-[var(--border-neutral-medium)] py-1 z-[9999] min-w-[160px] max-h-[400px] overflow-y-auto flex flex-col">
                           {profileTabs.slice(floatingVisibleTabCount).map((tab) => {
                             const isActive = tab.id === activeTab;
                             return (
@@ -379,7 +379,7 @@ export function MyInfo() {
 
                 {/* Dropdown menu */}
                 {showMoreDropdown && visibleTabCount < profileTabs.length && (
-                  <div className="absolute top-full left-0 mt-1 bg-white dark:bg-[var(--surface-neutral-strong)] rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] dark:border-[var(--border-neutral-medium)] py-1 z-[100] min-w-[160px] max-h-[400px] overflow-y-auto flex flex-col">
+                  <div className="absolute top-full left-0 mt-1 bg-white dark:bg-[var(--surface-neutral-strong)] rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] dark:border-[var(--border-neutral-medium)] py-1 z-[9999] min-w-[160px] max-h-[400px] overflow-y-auto flex flex-col">
                     {profileTabs.slice(visibleTabCount).map((tab) => {
                       const isActive = tab.id === activeTab;
                       return (
