@@ -5,7 +5,7 @@ import './Button.css';
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
   variant?: 'standard' | 'primary' | 'ghost' | 'outlined' | 'text' | 'ai';
-  size?: 'small' | 'medium';
+  size?: 'small' | 'medium' | 'large';
   icon?: IconName;
   iconPosition?: 'left' | 'right';
   showCaret?: boolean;
@@ -23,11 +23,17 @@ export function Button({
 }: ButtonProps) {
   const baseStyles = `
     inline-flex items-center justify-center gap-2
-    font-semibold text-[15px] leading-[22px]
+    font-semibold
     rounded-[var(--radius-full)]
     transition-all duration-200
     cursor-pointer
   `;
+
+  const fontSizeStyles = {
+    small: 'text-[13px] leading-[19px]',
+    medium: 'text-[15px] leading-[22px]',
+    large: 'text-[18px] leading-[26px]',
+  };
 
   const variantStyles = {
     standard: `
@@ -73,6 +79,7 @@ export function Button({
   const sizeStyles = {
     small: 'h-8 px-4',
     medium: 'h-10 px-5',
+    large: 'h-12 px-6',
   };
 
   const iconColor = {
@@ -88,6 +95,7 @@ export function Button({
     <button
       className={`
         ${baseStyles}
+        ${fontSizeStyles[size]}
         ${variantStyles[variant]}
         ${variant !== 'text' ? sizeStyles[size] : ''}
         ${variant === 'ai' ? 'ai-button' : ''}

@@ -9,36 +9,41 @@ export function AIButtonDemo() {
         </h1>
 
         <div className="space-y-12">
-          {/* Idle State */}
+          {/* Idle State - All Sizes */}
           <div className="bg-white p-8 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 text-[var(--text-neutral-x-strong)]">
-              Idle State
+              All Button Sizes
             </h2>
             <div className="flex gap-4 items-center">
-              <Button variant="ai" size="medium">
-                Button Label
-              </Button>
               <Button variant="ai" size="small">
-                Small Button
+                Small
+              </Button>
+              <Button variant="ai" size="medium">
+                Medium
+              </Button>
+              <Button variant="ai" size="large">
+                Large
               </Button>
             </div>
           </div>
 
-          {/* With Icons */}
+          {/* With Icons - All Sizes */}
           <div className="bg-white p-8 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 text-[var(--text-neutral-x-strong)]">
-              With Icons
+              AI Buttons with Icons - All Sizes
             </h2>
-            <div className="flex gap-4 items-center">
-              <Button variant="ai" size="medium" icon="sparkles" iconPosition="left">
-                AI Generate
-              </Button>
-              <Button variant="ai" size="medium" icon="wand-magic-sparkles" iconPosition="left">
-                Magic Button
-              </Button>
-              <Button variant="ai" size="medium" icon="arrow-right" iconPosition="right">
-                Next
-              </Button>
+            <div className="space-y-3">
+              <div className="flex gap-4 items-center">
+                <Button variant="ai" size="small" icon="sparkles" iconPosition="left">
+                  Small with Icon
+                </Button>
+                <Button variant="ai" size="medium" icon="sparkles" iconPosition="left">
+                  Medium with Icon
+                </Button>
+                <Button variant="ai" size="large" icon="sparkles" iconPosition="left">
+                  Large with Icon
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -81,32 +86,78 @@ export function AIButtonDemo() {
             </Button>
           </div>
 
-          {/* Disabled State */}
+          {/* Disabled State - All Sizes */}
           <div className="bg-white p-8 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 text-[var(--text-neutral-x-strong)]">
-              Disabled State
+              Disabled State - All Sizes
             </h2>
             <div className="flex gap-4 items-center">
-              <Button variant="ai" size="medium" disabled>
-                Disabled Button
+              <Button variant="ai" size="small" disabled>
+                Small Disabled
               </Button>
-              <Button variant="ai" size="small" disabled icon="sparkles">
-                Disabled with Icon
+              <Button variant="ai" size="medium" disabled>
+                Medium Disabled
+              </Button>
+              <Button variant="ai" size="large" disabled>
+                Large Disabled
               </Button>
             </div>
           </div>
 
-          {/* Comparison with Other Variants */}
+          {/* All Variants with All Sizes */}
           <div className="bg-white p-8 rounded-lg">
             <h2 className="text-xl font-semibold mb-4 text-[var(--text-neutral-x-strong)]">
-              Comparison with Other Button Variants
+              All Button Variants × All Sizes
             </h2>
-            <div className="flex flex-wrap gap-4">
-              <Button variant="standard">Standard</Button>
-              <Button variant="primary">Primary</Button>
-              <Button variant="outlined">Outlined</Button>
-              <Button variant="ghost">Ghost</Button>
-              <Button variant="ai">AI Button</Button>
+
+            {/* Standard */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold mb-2 text-[var(--text-neutral-strong)]">Standard</h3>
+              <div className="flex gap-4 items-center">
+                <Button variant="standard" size="small">Small</Button>
+                <Button variant="standard" size="medium">Medium</Button>
+                <Button variant="standard" size="large">Large</Button>
+              </div>
+            </div>
+
+            {/* Primary */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold mb-2 text-[var(--text-neutral-strong)]">Primary</h3>
+              <div className="flex gap-4 items-center">
+                <Button variant="primary" size="small">Small</Button>
+                <Button variant="primary" size="medium">Medium</Button>
+                <Button variant="primary" size="large">Large</Button>
+              </div>
+            </div>
+
+            {/* Outlined */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold mb-2 text-[var(--text-neutral-strong)]">Outlined</h3>
+              <div className="flex gap-4 items-center">
+                <Button variant="outlined" size="small">Small</Button>
+                <Button variant="outlined" size="medium">Medium</Button>
+                <Button variant="outlined" size="large">Large</Button>
+              </div>
+            </div>
+
+            {/* Ghost */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold mb-2 text-[var(--text-neutral-strong)]">Ghost</h3>
+              <div className="flex gap-4 items-center">
+                <Button variant="ghost" size="small">Small</Button>
+                <Button variant="ghost" size="medium">Medium</Button>
+                <Button variant="ghost" size="large">Large</Button>
+              </div>
+            </div>
+
+            {/* AI */}
+            <div>
+              <h3 className="text-sm font-semibold mb-2 text-[var(--text-neutral-strong)]">AI</h3>
+              <div className="flex gap-4 items-center">
+                <Button variant="ai" size="small">Small</Button>
+                <Button variant="ai" size="medium">Medium</Button>
+                <Button variant="ai" size="large">Large</Button>
+              </div>
             </div>
           </div>
 
