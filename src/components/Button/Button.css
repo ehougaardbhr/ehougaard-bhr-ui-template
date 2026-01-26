@@ -1,0 +1,36 @@
+/* AI Button gradient border styles */
+.ai-button {
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(90deg, #5BA8CF 0%, #9D7FC9 50%, #E89AB4 100%) border-box;
+  box-shadow: 1px 1px 0px 1px rgba(56, 49, 47, 0.04);
+}
+
+.ai-button:hover:not(:disabled) {
+  background:
+    linear-gradient(99.36deg, rgb(233, 243, 252) 0%, rgb(245, 238, 248) 100%) padding-box,
+    linear-gradient(90deg, #5BA8CF 0%, #9D7FC9 50%, #E89AB4 100%) border-box;
+}
+
+.ai-button:active:not(:disabled) {
+  background:
+    linear-gradient(99.36deg, rgb(233, 243, 252) 0%, rgb(245, 238, 248) 100%) padding-box,
+    linear-gradient(90deg, #5BA8CF 0%, #9D7FC9 50%, #E89AB4 100%) border-box;
+  box-shadow: inset 2px 2px 0px 1px rgba(56, 49, 47, 0.1);
+}
+
+.ai-button:focus-visible:not(:disabled) {
+  background:
+    linear-gradient(white, white) padding-box,
+    linear-gradient(90deg, #5BA8CF 0%, #9D7FC9 50%, #E89AB4 100%) border-box;
+  outline: none;
+  border-width: 2px;
+  box-shadow: 1px 1px 0px 2px rgba(56, 49, 47, 0.03);
+}
+
+.ai-button:disabled {
+  background: #E5E4E3;
+  border: 1px solid #B9B7B5;
+  color: #8B8784;
+  cursor: not-allowed;
+}

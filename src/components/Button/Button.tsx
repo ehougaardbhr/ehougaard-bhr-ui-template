@@ -1,9 +1,10 @@
 import type { ReactNode, ButtonHTMLAttributes } from 'react';
 import { Icon, type IconName } from '../Icon';
+import './Button.css';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children: ReactNode;
-  variant?: 'standard' | 'primary' | 'ghost' | 'outlined' | 'text';
+  variant?: 'standard' | 'primary' | 'ghost' | 'outlined' | 'text' | 'ai';
   size?: 'small' | 'medium';
   icon?: IconName;
   iconPosition?: 'left' | 'right';
@@ -61,6 +62,12 @@ export function Button({
       h-auto
       px-0
     `,
+    ai: `
+      border border-transparent
+      text-[#004876]
+      relative
+      disabled:opacity-100
+    `,
   };
 
   const sizeStyles = {
@@ -74,6 +81,7 @@ export function Button({
     ghost: 'var(--icon-neutral-x-strong)',
     outlined: 'var(--color-primary-strong)',
     text: '#0b4fd1',
+    ai: '#004876',
   };
 
   return (
@@ -82,9 +90,12 @@ export function Button({
         ${baseStyles}
         ${variantStyles[variant]}
         ${variant !== 'text' ? sizeStyles[size] : ''}
+        ${variant === 'ai' ? 'ai-button' : ''}
         ${className}
       `}
-      style={{ boxShadow: variant === 'standard' || variant === 'outlined' ? 'var(--shadow-100)' : undefined }}
+      style={{
+        ...(variant === 'standard' || variant === 'outlined' ? { boxShadow: 'var(--shadow-100)' } : {}),
+      }}
       {...props}
     >
       {icon && iconPosition === 'left' && (
