@@ -264,7 +264,7 @@ export function MyInfo() {
                           className="fixed inset-0 z-40"
                           onClick={() => setShowFloatingMoreDropdown(false)}
                         />
-                        <div className="absolute top-full right-0 mt-1 bg-white rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] py-1 z-50 min-w-[160px] max-h-[400px] overflow-y-auto flex flex-col">
+                        <div className="absolute top-full right-0 mt-1 bg-white dark:bg-[var(--surface-neutral-strong)] rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] dark:border-[var(--border-neutral-medium)] py-1 z-50 min-w-[160px] max-h-[400px] overflow-y-auto flex flex-col">
                           {profileTabs.slice(floatingVisibleTabCount).map((tab) => {
                             const isActive = tab.id === activeTab;
                             return (
@@ -277,8 +277,8 @@ export function MyInfo() {
                                 className={`
                                   w-full text-left px-4 py-2 text-[15px] transition-colors
                                   ${isActive
-                                    ? 'bg-[var(--surface-neutral-xx-weak)] text-[var(--color-primary-strong)] font-bold'
-                                    : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                                    ? 'bg-[var(--surface-neutral-xx-weak)] dark:bg-[var(--surface-neutral-medium)] text-[var(--color-primary-strong)] dark:text-[var(--color-primary-weak)] font-bold'
+                                    : 'text-[var(--text-neutral-strong)] dark:text-[var(--text-neutral-weak)] hover:bg-[var(--surface-neutral-xx-weak)] dark:hover:bg-[var(--surface-neutral-medium)]'
                                   }
                                 `}
                               >
@@ -379,7 +379,7 @@ export function MyInfo() {
 
                 {/* Dropdown menu */}
                 {showMoreDropdown && visibleTabCount < profileTabs.length && (
-                  <div className="absolute top-full left-0 mt-1 bg-white rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] py-1 z-[100] min-w-[160px] max-h-[400px] overflow-y-auto flex flex-col">
+                  <div className="absolute top-full left-0 mt-1 bg-white dark:bg-[var(--surface-neutral-strong)] rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] dark:border-[var(--border-neutral-medium)] py-1 z-[100] min-w-[160px] max-h-[400px] overflow-y-auto flex flex-col">
                     {profileTabs.slice(visibleTabCount).map((tab) => {
                       const isActive = tab.id === activeTab;
                       return (
@@ -392,8 +392,8 @@ export function MyInfo() {
                           className={`
                             w-full text-left px-4 py-2 text-[15px] transition-colors
                             ${isActive
-                              ? 'bg-[var(--surface-neutral-xx-weak)] text-[var(--color-primary-strong)] font-bold'
-                              : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                              ? 'bg-[var(--surface-neutral-xx-weak)] dark:bg-[var(--surface-neutral-medium)] text-[var(--color-primary-strong)] dark:text-[var(--color-primary-weak)] font-bold'
+                              : 'text-[var(--text-neutral-strong)] dark:text-[var(--text-neutral-weak)] hover:bg-[var(--surface-neutral-xx-weak)] dark:hover:bg-[var(--surface-neutral-medium)]'
                             }
                           `}
                         >
