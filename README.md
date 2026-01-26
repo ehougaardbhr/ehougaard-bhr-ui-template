@@ -30,6 +30,12 @@ Modern React + TypeScript UI template with AI chat and data visualization featur
 ## Quick Start
 
 ```bash
+# Clone the repo
+git clone https://github.com/mattcmorrell/bhr-ui-template.git
+cd bhr-ui-template
+```
+
+```bash
 npm install
 npm run dev
 ```

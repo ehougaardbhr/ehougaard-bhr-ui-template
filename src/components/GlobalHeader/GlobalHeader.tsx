@@ -11,6 +11,7 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const isOnSettings = location.pathname === '/settings';
+  const isOnInbox = location.pathname === '/inbox';
   const [isChatPanelOpen, setIsChatPanelOpen] = useState(() => {
     return localStorage.getItem('bhr-chat-panel-open') === 'true';
   });
@@ -46,11 +47,11 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
       {/* Right Section */}
       <div className="flex items-center gap-6 flex-1 justify-end">
         {/* Search Bar */}
-        <div className="flex-1 max-w-[999px]">
+        <div className="w-[288px]">
           <div
             className="
               flex items-center gap-2
-              h-8 px-4 py-2
+              h-[40px] px-4 py-2
               bg-[var(--surface-neutral-white)]
               border border-[var(--border-neutral-medium)]
               rounded-[var(--radius-full)]
@@ -79,19 +80,25 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
         {/* Utility Icons */}
         <div className="flex items-start gap-1">
           <button
-            className="
+            className={`
               flex items-center justify-center
               w-[42px] h-[42px] px-[9px] py-[10px]
               rounded-[var(--radius-xx-small)]
-              hover:bg-[var(--surface-neutral-xx-weak)]
               transition-colors duration-200
-            "
+              ${
+                isOnInbox
+                  ? 'bg-[var(--surface-neutral-xx-weak)]'
+                  : 'hover:bg-[var(--surface-neutral-xx-weak)]'
+              }
+            `}
             aria-label="Inbox"
+            onClick={() => navigate('/inbox')}
           >
             <Icon
               name="inbox"
               size={24}
-              className="text-[var(--icon-neutral-x-strong)]"
+              variant={isOnInbox ? 'solid' : 'regular'}
+              className={isOnInbox ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}
             />
           </button>
 
@@ -108,6 +115,7 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
             <Icon
               name="circle-question"
               size={24}
+              variant="regular"
               className="text-[var(--icon-neutral-x-strong)]"
             />
           </button>
@@ -130,6 +138,7 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
             <Icon
               name="gear"
               size={24}
+              variant={isOnSettings ? 'solid' : 'regular'}
               className={isOnSettings ? 'text-[var(--color-primary-strong)]' : 'text-[var(--icon-neutral-x-strong)]'}
             />
           </button>

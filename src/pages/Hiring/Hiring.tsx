@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Icon, Dropdown } from '../../components';
 import { jobOpenings } from '../../data/jobOpenings';
+import { CandidatesTabContent } from './CandidatesTabContent';
+import { TalentPoolsTabContent } from './TalentPoolsTabContent';
 
 export function Hiring() {
   const [activeTab, setActiveTab] = useState<'openings' | 'candidates' | 'pools'>('openings');
@@ -71,7 +74,11 @@ export function Hiring() {
         </div>
       </div>
 
-      {/* Card with Table */}
+      {/* Render Candidates Tab Content */}
+      {activeTab === 'candidates' && <CandidatesTabContent />}
+
+      {/* Card with Table - Job Openings */}
+      {activeTab === 'openings' && (
       <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] overflow-hidden">
         {/* Actions Bar */}
         <div className="flex items-center justify-between px-6 py-4">
@@ -139,13 +146,12 @@ export function Hiring() {
                   </div>
                 </td>
                 <td className="px-4 py-4">
-                  <a
-                    href="#"
+                  <Link
+                    to={`/hiring/job/${job.id}`}
                     className="block text-[15px] font-medium text-[#2563eb] hover:underline"
-                    onClick={(e) => e.preventDefault()}
                   >
                     {job.title}
-                  </a>
+                  </Link>
                   <span className="text-[14px] text-[var(--text-neutral-medium)]">{job.location}</span>
                 </td>
                 <td className="px-4 py-4">
@@ -163,6 +169,10 @@ export function Hiring() {
         </table>
         </div>
       </div>
+      )}
+
+      {/* Talent Pools Tab */}
+      {activeTab === 'pools' && <TalentPoolsTabContent />}
     </div>
   );
 }

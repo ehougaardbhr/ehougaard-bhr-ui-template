@@ -7,8 +7,10 @@ interface TextInputProps {
   placeholder?: string;
   disabled?: boolean;
   type?: 'text' | 'dropdown' | 'date';
+  size?: 'default' | 'small';
   className?: string;
   inputClassName?: string;
+  icon?: string;
 }
 
 export function TextInput({
@@ -18,9 +20,13 @@ export function TextInput({
   placeholder,
   disabled = false,
   type = 'text',
+  size = 'default',
   className = '',
   inputClassName = '',
+  icon,
 }: TextInputProps) {
+  const isSmall = size === 'small';
+
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       {label && (
@@ -31,22 +37,25 @@ export function TextInput({
       <div
         className={`
           flex items-center gap-4
-          h-10 pl-4 pr-3 py-2
+          ${isSmall ? 'h-8 px-4 py-2' : 'h-10 pl-4 pr-3 py-2'}
           bg-[var(--surface-neutral-white)]
           border border-[var(--border-neutral-medium)]
-          rounded-[var(--radius-xx-small)]
+          ${isSmall ? 'rounded-full' : 'rounded-[var(--radius-xx-small)]'}
           ${disabled ? 'opacity-60 cursor-not-allowed' : ''}
           ${inputClassName}
         `}
-        style={{ boxShadow: 'var(--shadow-100)' }}
+        style={{ boxShadow: '1px 1px 0px 1px rgba(56,49,47,0.04)' }}
       >
+        {icon && (
+          <Icon name={icon as any} size={16} className="text-[var(--icon-neutral-strong)] shrink-0" />
+        )}
         <input
           type={type === 'date' ? 'text' : 'text'}
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className="flex-1 bg-transparent text-[15px] leading-[22px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none min-w-0"
+          className={`flex-1 bg-transparent ${isSmall ? 'text-[14px] leading-[20px]' : 'text-[15px] leading-[22px]'} text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none min-w-0`}
         />
         {type === 'dropdown' && (
           <div className="flex items-center gap-2 h-full shrink-0">
