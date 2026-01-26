@@ -13,15 +13,41 @@ const profileTabs = [
   { id: 'performance', label: 'Performance' },
   { id: 'emergency', label: 'Emergency' },
   { id: 'training', label: 'Training' },
-  { id: 'more', label: 'More' },
 ];
+
+const MORE_TAB = { id: 'more', label: 'More' };
 
 export function MyInfo() {
   const [activeTab, setActiveTab] = useState('personal');
   const [showFloatingHeader, setShowFloatingHeader] = useState(false);
   const [floatingHeaderHeight, setFloatingHeaderHeight] = useState<number | null>(null);
+  const [visibleTabCount, setVisibleTabCount] = useState(profileTabs.length);
+  const [floatingVisibleTabCount, setFloatingVisibleTabCount] = useState(profileTabs.length);
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
+  const [showFloatingMoreDropdown, setShowFloatingMoreDropdown] = useState(false);
+  const [tabWidths, setTabWidths] = useState<number[]>([]);
   const headerRef = useRef<HTMLDivElement>(null);
+  const tabContainerRef = useRef<HTMLDivElement>(null);
+  const floatingTabContainerRef = useRef<HTMLDivElement>(null);
+  const measurementTabsRef = useRef<HTMLDivElement>(null);
+  const moreButtonRef = useRef<HTMLDivElement>(null);
+  const floatingMoreButtonRef = useRef<HTMLDivElement>(null);
   const employee = currentEmployee;
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (moreButtonRef.current && !moreButtonRef.current.contains(event.target as Node)) {
+        setShowMoreDropdown(false);
+      }
+      if (floatingMoreButtonRef.current && !floatingMoreButtonRef.current.contains(event.target as Node)) {
+        setShowFloatingMoreDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -65,6 +91,107 @@ export function MyInfo() {
     };
   }, []);
 
+  // Measure tab widths once on mount
+  useEffect(() => {
+    const measurementContainer = measurementTabsRef.current;
+    if (!measurementContainer) return;
+
+    const tabs = Array.from(measurementContainer.children) as HTMLElement[];
+    const widths = tabs.map((tab) => tab.offsetWidth);
+    setTabWidths(widths);
+  }, []);
+
+  // Responsive tabs for main header
+  useEffect(() => {
+    const container = tabContainerRef.current;
+    if (!container || tabWidths.length === 0) return;
+
+    const calculateVisibleTabs = () => {
+      // Get the actual content width (excluding padding)
+      const computedStyle = getComputedStyle(container);
+      const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+      const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
+      const contentWidth = container.offsetWidth - paddingLeft - paddingRight;
+
+      const GAP = 4; // gap-1 = 4px
+      const MORE_BUTTON_WIDTH = 90; // Approximate width for "More" button (always visible)
+
+      let totalWidth = MORE_BUTTON_WIDTH; // Start with More button width
+      let visibleCount = 0;
+
+      // Add tabs one by one until they don't fit (always reserve space for More button)
+      for (let i = 0; i < tabWidths.length; i++) {
+        const tabWidth = tabWidths[i];
+        const gapWidth = GAP; // Always add gap before each tab (including before More button)
+
+        if (totalWidth + tabWidth + gapWidth <= contentWidth) {
+          totalWidth += tabWidth + gapWidth;
+          visibleCount++;
+        } else {
+          break;
+        }
+      }
+
+      setVisibleTabCount(Math.max(0, visibleCount));
+    };
+
+    calculateVisibleTabs();
+
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(calculateVisibleTabs);
+    });
+    resizeObserver.observe(container);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [tabWidths]);
+
+  // Responsive tabs for floating header
+  useEffect(() => {
+    const container = floatingTabContainerRef.current;
+    if (!container || !showFloatingHeader || tabWidths.length === 0) return;
+
+    const calculateVisibleTabs = () => {
+      // Get the actual content width (excluding padding)
+      const computedStyle = getComputedStyle(container);
+      const paddingLeft = parseFloat(computedStyle.paddingLeft) || 0;
+      const paddingRight = parseFloat(computedStyle.paddingRight) || 0;
+      const contentWidth = container.offsetWidth - paddingLeft - paddingRight;
+
+      const GAP = 4;
+      const MORE_BUTTON_WIDTH = 90;
+
+      let totalWidth = MORE_BUTTON_WIDTH; // Start with More button width
+      let visibleCount = 0;
+
+      for (let i = 0; i < tabWidths.length; i++) {
+        const tabWidth = tabWidths[i];
+        const gapWidth = GAP;
+
+        if (totalWidth + tabWidth + gapWidth <= contentWidth) {
+          totalWidth += tabWidth + gapWidth;
+          visibleCount++;
+        } else {
+          break;
+        }
+      }
+
+      setFloatingVisibleTabCount(Math.max(0, visibleCount));
+    };
+
+    calculateVisibleTabs();
+
+    const resizeObserver = new ResizeObserver(() => {
+      requestAnimationFrame(calculateVisibleTabs);
+    });
+    resizeObserver.observe(container);
+
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [showFloatingHeader, tabWidths]);
+
   return (
     <div className="h-full overflow-auto">
       {/* Floating Compact Header */}
@@ -91,29 +218,79 @@ export function MyInfo() {
               </div>
 
               {/* Compact Tabs */}
-              <div className="flex items-center gap-1 overflow-clip pl-[22px]">
-                {profileTabs.map((tab) => {
-                  const isActive = tab.id === activeTab;
-                  return (
+              <div
+                ref={floatingTabContainerRef}
+                className="pl-[22px] flex-1 min-w-0 relative"
+              >
+                <div className="flex items-center gap-1 whitespace-nowrap">
+                  {profileTabs.slice(0, floatingVisibleTabCount).map((tab) => {
+                    const isActive = tab.id === activeTab;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`
+                          flex items-center justify-center gap-3 px-4 py-4 rounded-[var(--radius-small)] shrink-0
+                          ${isActive
+                            ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--color-primary-strong)] font-bold'
+                            : 'text-white font-medium hover:bg-white/10'
+                          }
+                          text-[15px] leading-[22px] transition-colors
+                        `}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+
+                  {/* More dropdown - always visible */}
+                  <div ref={floatingMoreButtonRef} className="relative">
                     <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
+                      onClick={() => setShowFloatingMoreDropdown(!showFloatingMoreDropdown)}
                       className={`
-                        flex items-center justify-center gap-3 px-4 py-4 rounded-[var(--radius-small)]
-                        ${isActive
-                          ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--color-primary-strong)] font-bold'
-                          : 'text-white font-medium hover:bg-white/10'
-                        }
+                        flex items-center justify-center gap-3 px-4 py-4 rounded-[var(--radius-small)] shrink-0
+                        text-white font-medium hover:bg-white/10
                         text-[15px] leading-[22px] transition-colors
                       `}
                     >
-                      {tab.label}
-                      {tab.id === 'more' && (
-                        <Icon name="caret-down" size={10} className="text-current" />
-                      )}
+                      {MORE_TAB.label}
+                      <Icon name="caret-down" size={10} className="text-current" />
                     </button>
-                  );
-                })}
+
+                    {/* Dropdown menu */}
+                    {showFloatingMoreDropdown && floatingVisibleTabCount < profileTabs.length && (
+                      <>
+                        <div
+                          className="fixed inset-0 z-40"
+                          onClick={() => setShowFloatingMoreDropdown(false)}
+                        />
+                        <div className="absolute top-full right-0 mt-1 bg-white rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] py-1 z-50 min-w-[160px]">
+                          {profileTabs.slice(floatingVisibleTabCount).map((tab) => {
+                            const isActive = tab.id === activeTab;
+                            return (
+                              <button
+                                key={tab.id}
+                                onClick={() => {
+                                  setActiveTab(tab.id);
+                                  setShowFloatingMoreDropdown(false);
+                                }}
+                                className={`
+                                  w-full text-left px-4 py-2 text-[15px] transition-colors
+                                  ${isActive
+                                    ? 'bg-[var(--surface-neutral-xx-weak)] text-[var(--color-primary-strong)] font-bold'
+                                    : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                                  }
+                                `}
+                              >
+                                {tab.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -161,29 +338,73 @@ export function MyInfo() {
           </div>
 
           {/* Tabs - Filled style */}
-          <div className="flex items-center gap-1 overflow-clip pl-[256px]">
-            {profileTabs.map((tab) => {
-              const isActive = tab.id === activeTab;
-              return (
+          <div
+            ref={tabContainerRef}
+            className="pl-[256px] flex-1 min-w-0 relative"
+          >
+            <div className="flex items-center gap-1 whitespace-nowrap">
+              {profileTabs.slice(0, visibleTabCount).map((tab) => {
+                const isActive = tab.id === activeTab;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`
+                      flex items-center justify-center gap-3 px-4 py-4 rounded-t-[var(--radius-xx-small)] shrink-0
+                      ${isActive
+                        ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--color-primary-strong)] font-bold'
+                        : 'text-white font-medium hover:bg-white/10'
+                      }
+                      text-[15px] leading-[22px] transition-colors
+                    `}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+
+              {/* More dropdown - always visible */}
+              <div ref={moreButtonRef} className="relative">
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => setShowMoreDropdown(!showMoreDropdown)}
                   className={`
-                    flex items-center justify-center gap-3 px-4 py-4 rounded-t-[var(--radius-xx-small)]
-                    ${isActive
-                      ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--color-primary-strong)] font-bold'
-                      : 'text-white font-medium hover:bg-white/10'
-                    }
+                    flex items-center justify-center gap-3 px-4 py-4 rounded-t-[var(--radius-xx-small)] shrink-0
+                    text-white font-medium hover:bg-white/10
                     text-[15px] leading-[22px] transition-colors
                   `}
                 >
-                  {tab.label}
-                  {tab.id === 'more' && (
-                    <Icon name="caret-down" size={10} className="text-current" />
-                  )}
+                  {MORE_TAB.label}
+                  <Icon name="caret-down" size={10} className="text-current" />
                 </button>
-              );
-            })}
+
+                {/* Dropdown menu */}
+                {showMoreDropdown && visibleTabCount < profileTabs.length && (
+                  <div className="absolute top-full left-0 mt-1 bg-white rounded-[var(--radius-small)] shadow-lg border border-[var(--border-neutral-weak)] py-1 z-[100] min-w-[160px]">
+                    {profileTabs.slice(visibleTabCount).map((tab) => {
+                      const isActive = tab.id === activeTab;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setShowMoreDropdown(false);
+                          }}
+                          className={`
+                            w-full text-left px-4 py-2 text-[15px] transition-colors
+                            ${isActive
+                              ? 'bg-[var(--surface-neutral-xx-weak)] text-[var(--color-primary-strong)] font-bold'
+                              : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                            }
+                          `}
+                        >
+                          {tab.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -487,6 +708,22 @@ export function MyInfo() {
             </>
           )}
         </main>
+      </div>
+
+      {/* Hidden measurement container for tab widths */}
+      <div
+        ref={measurementTabsRef}
+        className="fixed invisible pointer-events-none flex items-center gap-1"
+        aria-hidden="true"
+      >
+        {profileTabs.map((tab) => (
+          <button
+            key={tab.id}
+            className="flex items-center justify-center gap-3 px-4 py-4 rounded-[var(--radius-small)] shrink-0 text-white font-medium text-[15px] leading-[22px]"
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
     </div>
   );
