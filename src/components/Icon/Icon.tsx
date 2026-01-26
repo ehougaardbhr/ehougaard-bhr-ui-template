@@ -22,7 +22,6 @@ import {
   faChevronUp,
   faChevronRight,
   faChevronLeft,
-  faChevronUp,
   faArrowDown,
   faTrashCan,
   faFile,
@@ -150,7 +149,6 @@ export type IconName =
   | 'chevron-up'
   | 'chevron-right'
   | 'chevron-left'
-  | 'chevron-up'
   | 'arrow-down-to-line'
   | 'trash-can'
   | 'file'
@@ -273,7 +271,6 @@ const faIconMap = {
   'chevron-up': faChevronUp,
   'chevron-right': faChevronRight,
   'chevron-left': faChevronLeft,
-  'chevron-up': faChevronUp,
   'arrow-down-to-line': faArrowDown,
   'trash-can': faTrashCan,
   'file': faFile,
