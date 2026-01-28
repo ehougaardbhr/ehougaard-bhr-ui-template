@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Button, Icon, EmployeeCard, Dropdown, PeopleListView } from '../../components';
+import { Button, Icon, EmployeeCard, Dropdown, PeopleListView, OrgChartView } from '../../components';
 import { employees } from '../../data/employees';
 
 type GroupBy = 'name' | 'department' | 'location' | 'division';
@@ -108,8 +108,8 @@ export function People() {
       {/* Actions Bar with Tabs */}
       <div className="flex items-end justify-between border-b border-[var(--border-neutral-x-weak)] mb-6">
         <div className="pb-4">
-          <Button icon="circle-user" variant="standard">
-            New employee
+          <Button icon="circle-plus-lined" variant="outlined">
+            New Employee
           </Button>
         </div>
 
@@ -273,10 +273,8 @@ export function People() {
       )}
 
       {viewMode === 'orgChart' && (
-        <div className="text-center py-12">
-          <p className="text-[15px] text-[var(--text-neutral-medium)]">
-            Org chart view coming soon...
-          </p>
+        <div className="h-[calc(100vh-280px)]">
+          <OrgChartView employees={employees} />
         </div>
       )}
     </div>

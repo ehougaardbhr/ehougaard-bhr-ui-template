@@ -122,6 +122,7 @@ import {
   Grid2x2Plus,
   Inbox,
   Settings,
+  CirclePlus,
 } from 'lucide-react';
 
 export type IconName =
@@ -218,6 +219,7 @@ export type IconName =
   | 'eye-slash'
   | 'users'
   | 'circle-plus'
+  | 'circle-plus-lined'
   | 'bullseye'
   | 'bullhorn'
   | 'clipboard'
@@ -409,6 +411,10 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
 
   if (name === 'grid-2-plus') {
     return <Grid2x2Plus size={size} className={className} strokeWidth={2.5} style={style} />;
+  }
+
+  if (name === 'circle-plus-lined') {
+    return <CirclePlus size={size} className={className} strokeWidth={1.5} style={style} />;
   }
 
   // Handle icons that need Lucide for regular variant
