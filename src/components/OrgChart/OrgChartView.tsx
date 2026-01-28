@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import type { Employee } from '../../data/employees';
 import { OrgChartTree } from './OrgChartTree';
 import { OrgChartControls } from './OrgChartControls';
@@ -14,13 +14,69 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>();
 
-  // Initialize expanded nodes to show CEO
+  // Track the root of the visible tree (who appears at top)
+  const [rootEmployee, setRootEmployee] = useState<number | 'all'>(() => {
+    const ceo = employees.find((emp) => emp.reportsTo === null);
+    return ceo ? ceo.id : 'all';
+  });
+
+  // Initialize expanded nodes to show CEO's direct reports
   const [expandedNodes, setExpandedNodes] = useState<Set<number>>(() => {
     const ceo = employees.find((emp) => emp.reportsTo === null);
     return new Set(ceo ? [ceo.id] : []);
   });
 
-  const [depth, setDepth] = useState<number | 'all'>(1);
+  // Helper: get direct reports of an employee
+  const getDirectReports = useCallback((employeeId: number) => {
+    return employees.filter(e => e.reportsTo === employeeId);
+  }, [employees]);
+
+  // Helper: expand all nodes to a given depth from root
+  const expandToDepth = useCallback((rootId: number, targetDepth: number | 'all') => {
+    const newExpanded = new Set<number>();
+
+    const expandLevel = (id: number, currentDepth: number) => {
+      const reports = getDirectReports(id);
+      if (reports.length === 0) return;
+
+      if (targetDepth === 'all' || currentDepth < targetDepth) {
+        newExpanded.add(id);
+        reports.forEach(report => {
+          expandLevel(report.id, currentDepth + 1);
+        });
+      }
+    };
+
+    expandLevel(rootId, 0);
+    return newExpanded;
+  }, [getDirectReports]);
+
+  // Calculate current visible depth from expanded nodes
+  const currentDepth = useMemo(() => {
+    if (typeof rootEmployee !== 'number') return 1;
+
+    let maxDepth = 0;
+
+    const measureDepth = (id: number, depth: number) => {
+      if (!expandedNodes.has(id)) {
+        maxDepth = Math.max(maxDepth, depth);
+        return;
+      }
+
+      const reports = getDirectReports(id);
+      if (reports.length === 0) {
+        maxDepth = Math.max(maxDepth, depth);
+        return;
+      }
+
+      reports.forEach(report => {
+        measureDepth(report.id, depth + 1);
+      });
+    };
+
+    measureDepth(rootEmployee, 0);
+    return maxDepth || 1;
+  }, [rootEmployee, expandedNodes, getDirectReports]);
   const [zoomLevel, setZoomLevel] = useState(1);
   const [panX, setPanX] = useState(0);
   const [panY, setPanY] = useState(0);
@@ -77,48 +133,45 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
     setExpandedNodes(newExpanded);
   };
 
-  // Handle jump to employee
+  // Handle jump to employee - make them the root of the visible tree
   const handleEmployeeJump = (id: number) => {
     setSelectedEmployee(id);
+    setRootEmployee(id);
 
-    // Build expanded set to show path to this employee
+    // Only expand the target employee to show their direct reports
     const newExpanded = new Set<number>();
     const targetEmployee = employees.find(e => e.id === id);
 
-    if (targetEmployee) {
-      // Add all ancestors
-      let currentId: number | null = targetEmployee.reportsTo;
-      while (currentId !== null) {
-        newExpanded.add(currentId);
-        const manager = employees.find((e) => e.id === currentId);
-        currentId = manager?.reportsTo ?? null;
-      }
-
-      // Expand the target if it has reports
-      if (targetEmployee.directReports > 0) {
-        newExpanded.add(id);
-      }
+    if (targetEmployee && targetEmployee.directReports > 0) {
+      newExpanded.add(id);
     }
 
     setExpandedNodes(newExpanded);
 
-    // Center the view (simplified - would need proper calculation for exact positioning)
-    setPanX(50);
-    setPanY(100);
+    // Center the view - employee will be at top center
+    if (canvasRef.current) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const estimatedTreeWidth = 185; // Single node width initially
+      const centerX = (rect.width - estimatedTreeWidth) / 2;
+      setPanX(Math.max(centerX, 50));
+      setPanY(50);
+    }
   };
 
-  // Handle depth change
+  // Handle depth change - expand/collapse to match selected depth
   const handleDepthChange = (newDepth: number | 'all') => {
-    setDepth(newDepth);
+    if (typeof rootEmployee === 'number') {
+      const newExpanded = expandToDepth(rootEmployee, newDepth);
+      setExpandedNodes(newExpanded);
+    }
   };
 
-  // Handle go up (navigate to parent)
+  // Handle go up (navigate to parent of current root)
   const handleGoUp = () => {
-    // Find the parent of the current selected employee and navigate to them
-    if (selectedEmployee) {
-      const employee = employees.find(e => e.id === selectedEmployee);
-      if (employee?.reportsTo) {
-        handleEmployeeJump(employee.reportsTo);
+    if (typeof rootEmployee === 'number') {
+      const currentRoot = employees.find(e => e.id === rootEmployee);
+      if (currentRoot?.reportsTo) {
+        handleEmployeeJump(currentRoot.reportsTo);
       }
     }
   };
@@ -155,7 +208,7 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
       {/* Controls Bar */}
       <OrgChartControls
         employees={employees}
-        depth={depth}
+        depth={currentDepth}
         onDepthChange={handleDepthChange}
         onEmployeeJump={handleEmployeeJump}
         onGoUp={handleGoUp}
@@ -171,8 +224,8 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
         >
           <OrgChartTree
             employees={employees}
-            rootEmployee="all"
-            depth={depth}
+            rootEmployee={rootEmployee}
+            depth="all"
             focusedEmployee={undefined}
             selectedEmployee={selectedEmployee}
             expandedNodes={expandedNodes}

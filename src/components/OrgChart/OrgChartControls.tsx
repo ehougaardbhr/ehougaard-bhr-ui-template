@@ -23,6 +23,7 @@ export function OrgChartControls({
 }: OrgChartControlsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
   const [depthDropdownOpen, setDepthDropdownOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const depthRef = useRef<HTMLDivElement>(null);
@@ -33,6 +34,41 @@ export function OrgChartControls({
         emp.name.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
+
+  // Reset highlighted index when search results change
+  useEffect(() => {
+    setHighlightedIndex(0);
+  }, [searchResults.length]);
+
+  // Handle keyboard navigation
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showSearchResults || searchResults.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex((prev) =>
+          prev < searchResults.length - 1 ? prev + 1 : prev
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : 0));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        const selectedEmployee = searchResults[highlightedIndex];
+        if (selectedEmployee) {
+          onEmployeeJump(selectedEmployee.id);
+          setSearchQuery('');
+          setShowSearchResults(false);
+        }
+        break;
+      case 'Escape':
+        setShowSearchResults(false);
+        break;
+    }
+  };
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -80,6 +116,7 @@ export function OrgChartControls({
               setShowSearchResults(true);
             }}
             onFocus={() => setShowSearchResults(true)}
+            onKeyDown={handleKeyDown}
             className="w-full h-10 pl-11 pr-4 rounded-full
                      bg-white dark:bg-neutral-800
                      border border-gray-300 dark:border-neutral-600
@@ -99,7 +136,7 @@ export function OrgChartControls({
           <div
             className="absolute left-0 top-full mt-1 w-full rounded-lg shadow-lg py-1 z-50 max-h-64 overflow-y-auto bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700"
           >
-            {searchResults.map((emp) => (
+            {searchResults.map((emp, index) => (
               <button
                 key={emp.id}
                 onClick={() => {
@@ -107,7 +144,12 @@ export function OrgChartControls({
                   setSearchQuery('');
                   setShowSearchResults(false);
                 }}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 flex items-center gap-3"
+                onMouseEnter={() => setHighlightedIndex(index)}
+                className={`w-full px-3 py-2 text-left text-sm flex items-center gap-3 ${
+                  index === highlightedIndex
+                    ? 'bg-gray-100 dark:bg-neutral-700'
+                    : 'hover:bg-gray-100 dark:hover:bg-neutral-700'
+                }`}
               >
                 <img
                   src={emp.avatar}
