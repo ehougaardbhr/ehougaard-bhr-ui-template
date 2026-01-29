@@ -4,6 +4,7 @@ import { OrgChartTree } from './OrgChartTree';
 import { OrgChartControls } from './OrgChartControls';
 import { OrgChartZoom } from './OrgChartZoom';
 import { OrgChartAIInput } from '../OrgChartAIInput';
+import { AIInlineMessage } from '../AIInlineMessage';
 import { Card } from '../Card';
 
 interface OrgChartViewProps {
@@ -14,7 +15,7 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
   // Local state for UI
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>();
-  const [affordanceMode, setAffordanceMode] = useState<'input' | 'toolbar'>('input');
+  const [affordanceMode, setAffordanceMode] = useState<'input' | 'toolbar' | 'inline'>('input');
 
   // Track the root of the visible tree (who appears at top)
   const [rootEmployee, setRootEmployee] = useState<number | 'all'>(() => {
@@ -224,6 +225,12 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
     // TODO: Open AI chat with context
   };
 
+  // Handle inline message suggestion click
+  const handleInlineSuggestionClick = (suggestion: { label: string }) => {
+    console.log('Inline suggestion clicked:', suggestion.label, 'Selected:', selectedEmployee);
+    // TODO: Open AI chat with context
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Controls Bar */}
@@ -239,6 +246,31 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
         selectedEmployeeName={selectedEmployeeName}
         onAIButtonClick={handleAIButtonClick}
       />
+
+      {/* AI Inline Message - Below Toolbar */}
+      {affordanceMode === 'inline' && (
+        <div className="pb-3">
+          <AIInlineMessage
+            title={selectedEmployeeName
+              ? `Explore ${selectedEmployeeName}'s team scenarios`
+              : "Explore staffing scenarios"
+            }
+            suggestions={selectedEmployeeName
+              ? [
+                  { label: `What if ${selectedEmployeeName}'s team grew?`, variant: 'standard' },
+                  { label: `Analyze ${selectedEmployeeName}'s span of control`, variant: 'standard' },
+                  { label: "Ask about anything...", variant: 'ai' },
+                ]
+              : [
+                  { label: "Plan team expansion", variant: 'standard' },
+                  { label: "Analyze span of control", variant: 'standard' },
+                  { label: "Ask about anything...", variant: 'ai' },
+                ]
+            }
+            onSuggestionClick={handleInlineSuggestionClick}
+          />
+        </div>
+      )}
 
       {/* Main Canvas */}
       <Card className="flex-1 relative overflow-hidden">
@@ -297,6 +329,18 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
               `}
             >
               Toolbar
+            </button>
+            <button
+              onClick={() => setAffordanceMode('inline')}
+              className={`
+                px-4 py-2 text-sm font-medium transition-colors
+                ${affordanceMode === 'inline'
+                  ? 'bg-[var(--color-primary-strong)] text-white'
+                  : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                }
+              `}
+            >
+              Inline
             </button>
           </div>
 
