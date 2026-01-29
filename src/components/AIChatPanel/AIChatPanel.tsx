@@ -25,7 +25,8 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
     conversations,
     searchQuery: contextSearchQuery,
     setSearchQuery: setContextSearchQuery,
-    filteredConversations
+    filteredConversations,
+    addMessage
   } = useChat();
   const [inputValue, setInputValue] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -90,6 +91,107 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
     // Auto-resize textarea
     e.target.style.height = 'auto';
     e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
+  };
+
+  // Generate AI response based on the prompt
+  const generateAIResponse = (prompt: string): string => {
+    const lowerPrompt = prompt.toLowerCase();
+
+    // Team growth scenarios
+    if (lowerPrompt.includes('grew') || lowerPrompt.includes('expansion') || lowerPrompt.includes('grow')) {
+      return `I'll analyze the impact of team growth. Based on current span of control metrics and industry benchmarks, here are some scenarios:
+
+**Scenario 1: Add 2 Team Members**
+• Estimated Cost: $180K annually
+• Structure: Direct reports to current manager
+• Impact: Span of control increases to 7 (within healthy range)
+
+**Scenario 2: Add 5 Team Members**
+• Estimated Cost: $320K annually
+• Structure: Requires intermediate manager layer
+• Impact: Creates two sub-teams of 3-4 people each
+
+I recommend Scenario 1 for now, with plans to reassess in Q3.`;
+    }
+
+    // Span of control analysis
+    if (lowerPrompt.includes('span of control') || lowerPrompt.includes('analyze')) {
+      return `Looking at the span of control metrics:
+
+**Current State:**
+• Direct Reports: 5 people
+• Span Ratio: 1:5
+• Industry Benchmark: 1:5-8 (healthy range)
+
+**Analysis:**
+• ✓ Within optimal range for hands-on management
+• ✓ Allows for regular 1-on-1s and mentorship
+• ⚠️ May become stretched if team grows beyond 8
+
+**Recommendations:**
+• Current structure is sustainable
+• Consider adding a team lead if expanding beyond 8 direct reports
+• Monitor workload distribution across reports`;
+    }
+
+    // Succession planning
+    if (lowerPrompt.includes('succession') || lowerPrompt.includes('replacement')) {
+      return `Here's a succession analysis:
+
+**Internal Candidates:**
+
+**Alex Chen** (Senior Engineer)
+• Readiness: 6-9 months
+• Strengths: Technical excellence, respected by peers
+• Development needs: Project management, stakeholder communication
+
+**Jordan Kim** (Team Lead)
+• Readiness: 3-6 months
+• Strengths: Leadership experience, cross-functional collaboration
+• Development needs: Deeper technical architecture knowledge
+
+**Recommendations:**
+• Start mentorship program for Alex focusing on leadership
+• Give Jordan exposure to architecture decisions
+• Document key processes and relationships`;
+    }
+
+    // Industry benchmarks
+    if (lowerPrompt.includes('benchmark') || lowerPrompt.includes('industry') || lowerPrompt.includes('compare')) {
+      return `Here's how this team compares to industry benchmarks:
+
+**Team Structure:**
+• Your Span: 1:5 | Industry Avg: 1:6.2 ✓
+• Your Levels: 3 | Industry Avg: 3.5 ✓
+
+**Performance Metrics:**
+• Delivery Velocity: Above average (85th percentile)
+• Employee Retention: 94% vs 87% industry avg ✓
+• Promotion Rate: On par with industry
+
+**Recommendations:**
+• Team structure is well-optimized
+• Consider slight expansion to match industry norms
+• Continue investing in retention initiatives`;
+    }
+
+    // Default response
+    return `I'll help you with that. Let me analyze the relevant org chart data and get back to you with insights and recommendations.`;
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    if (!selectedConversation) return;
+
+    // Add user message
+    addMessage(selectedConversation.id, { type: 'user', text: suggestion });
+
+    // Add AI response after brief delay
+    setTimeout(() => {
+      addMessage(selectedConversation.id, {
+        type: 'ai',
+        text: generateAIResponse(suggestion),
+      });
+    }, 500);
   };
 
   // Don't render if not open
@@ -374,7 +476,8 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                                   {message.suggestions.map((suggestion, index) => (
                                     <button
                                       key={index}
-                                      className="px-4 py-2 text-[14px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                                      onClick={() => handleSuggestionClick(suggestion)}
+                                      className="px-4 py-2 text-[14px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors cursor-pointer"
                                       style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
                                     >
                                       {suggestion}
@@ -448,7 +551,8 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
                                 {message.suggestions.map((suggestion, index) => (
                                   <button
                                     key={index}
-                                    className="self-start px-4 py-2 text-[14px] leading-[20px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                                    onClick={() => handleSuggestionClick(suggestion)}
+                                    className="self-start px-4 py-2 text-[14px] leading-[20px] text-[var(--text-neutral-x-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full hover:bg-[var(--surface-neutral-xx-weak)] transition-colors cursor-pointer"
                                     style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
                                   >
                                     {suggestion}

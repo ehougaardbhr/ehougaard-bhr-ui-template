@@ -433,6 +433,7 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
                     ]
                 }
                 onSubmit={handleAISubmit}
+                onSuggestionClick={(suggestion) => handleAISubmit(suggestion.label)}
               />
             </div>
           )}
