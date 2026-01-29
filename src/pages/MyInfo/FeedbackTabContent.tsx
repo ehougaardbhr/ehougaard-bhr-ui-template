@@ -6,40 +6,100 @@ interface FeedbackTabContentProps {
   employeeName: string;
 }
 
+// Feedback themes extracted from peer feedback
+interface FeedbackTheme {
+  id: string;
+  label: string;
+  icon: 'heart' | 'users' | 'check-circle' | 'circle-question' | 'bullhorn';
+  details: {
+    title: string;
+    description: string;
+    quotes?: string[];
+  };
+}
+
 export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
   const [searchValue, setSearchValue] = useState('');
-  const [aiInputValue, setAiInputValue] = useState('');
+  const [expandedTheme, setExpandedTheme] = useState<string | null>(null);
+  const [showAllChips, setShowAllChips] = useState(false);
   const { createNewChat, addMessage } = useChat();
 
-  const summaryText = `${employeeName}'s colleagues have shared positive feedback, praising her for her perseverance and dedication to protecting employee morale during times of transition. She is appreciated for her dependability, good questions, and ability to get work done on time. However, some suggest she should speak up about her ideas. Overall, she is seen as a great counselor and team member, with a notable sense of generosity and kindness.`;
+  // Themes extracted from peer feedback
+  const feedbackThemes: FeedbackTheme[] = [
+    {
+      id: 'perseverance',
+      label: 'Praised for perseverance',
+      icon: 'heart',
+      details: {
+        title: 'Perseverance',
+        description: 'Multiple colleagues noted her resilience during transitions and dedication to protecting team morale.',
+        quotes: ['"Her dedication during the transition period really helped maintain team morale."'],
+      },
+    },
+    {
+      id: 'dependability',
+      label: 'Dependable teammate',
+      icon: 'check-circle',
+      details: {
+        title: 'Dependability',
+        description: 'Consistently meets deadlines, reliable follow-through, and gets work done on time.',
+        quotes: ['"I appreciate her dependability and how she always asks good questions."'],
+      },
+    },
+    {
+      id: 'team-support',
+      label: 'Strong team supporter',
+      icon: 'users',
+      details: {
+        title: 'Team Support',
+        description: 'Described as a great counselor and team member, generous and kind.',
+        quotes: ['"She does a great job of keeping things afloat and making everyone feel welcome."'],
+      },
+    },
+    {
+      id: 'good-questions',
+      label: 'Asks good questions',
+      icon: 'circle-question',
+      details: {
+        title: 'Curiosity & Inquiry',
+        description: 'Known for asking thoughtful questions that help clarify requirements and improve outcomes.',
+      },
+    },
+    {
+      id: 'speak-up',
+      label: 'Could speak up more',
+      icon: 'bullhorn',
+      details: {
+        title: 'Growth Area: Speaking Up',
+        description: 'Some colleagues suggest she should be more vocal about sharing her ideas and perspectives.',
+        quotes: ['"She has great insights but sometimes holds back from sharing them."'],
+      },
+    },
+  ];
 
-  const handleAiInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && aiInputValue.trim()) {
-      const question = aiInputValue.trim();
-
-      // Create a new chat conversation - this automatically selects it
-      const newConversation = createNewChat();
-
-      // Add user message
-      addMessage(newConversation.id, {
-        type: 'user',
-        text: question,
-      });
-
-      // Add AI response immediately
-      addMessage(newConversation.id, {
-        type: 'assistant',
-        text: generateMockResponse(question),
-      });
-
-      // Open chat panel - need to wait a moment for state to update
-      setTimeout(() => {
-        localStorage.setItem('bhr-chat-panel-open', 'true');
-      }, 100);
-
-      setAiInputValue('');
-    }
+  const handleThemeClick = (themeId: string) => {
+    setExpandedTheme(expandedTheme === themeId ? null : themeId);
   };
+
+  const handleOpenAIChat = () => {
+    const newConversation = createNewChat();
+
+    addMessage(newConversation.id, {
+      type: 'user',
+      text: `Tell me more about ${employeeName}'s feedback`,
+    });
+
+    addMessage(newConversation.id, {
+      type: 'assistant',
+      text: generateMockResponse('patterns'),
+    });
+
+    setTimeout(() => {
+      localStorage.setItem('bhr-chat-panel-open', 'true');
+    }, 100);
+  };
+
+  const summaryText = `${employeeName}'s colleagues have shared positive feedback, praising her for her perseverance and dedication to protecting employee morale during times of transition. She is appreciated for her dependability, good questions, and ability to get work done on time. However, some suggest she should speak up about her ideas. Overall, she is seen as a great counselor and team member, with a notable sense of generosity and kindness.`;
 
   const generateMockResponse = (question: string): string => {
     const lowerQuestion = question.toLowerCase();
@@ -187,20 +247,84 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
           {summaryText}
         </p>
 
-        {/* AI Question Input */}
+        {/* Feedback Themes - Option 3: Chips + AI Button */}
         <div className="mt-4 pl-7">
-          <TextInput
-            value={aiInputValue}
-            onChange={setAiInputValue}
-            onKeyPress={handleAiInputKeyPress}
-            placeholder="Ask a follow-up question..."
-            size="default"
-            icon="sparkles"
-          />
-          <p className="text-[13px] text-[var(--text-neutral-medium)] mt-2">
-            <Icon name="keyboard" size={13} className="inline mr-1" />
-            Press Enter to open AI chat
-          </p>
+          {/* Chips Container */}
+          <div className="flex gap-2 flex-wrap items-center">
+            {/* Theme Chips - show 3 or all based on state */}
+            {(showAllChips ? feedbackThemes : feedbackThemes.slice(0, 3)).map((theme) => (
+              <button
+                key={theme.id}
+                onClick={() => handleThemeClick(theme.id)}
+                className={`
+                  px-3 py-1.5 rounded-full text-[13px] transition-all inline-flex items-center gap-1.5
+                  ${expandedTheme === theme.id
+                    ? 'bg-[var(--surface-primary-weak)] text-[var(--color-primary-strong)] border border-[var(--color-primary-strong)]'
+                    : 'bg-[var(--surface-neutral-x-weak)] text-[var(--text-neutral-strong)] border border-[var(--border-neutral-weak)] hover:border-[var(--border-neutral-medium)]'
+                  }
+                `}
+              >
+                <Icon name={theme.icon} size={12} className="opacity-70" />
+                {theme.label}
+              </button>
+            ))}
+
+            {/* +X More Button */}
+            {!showAllChips && feedbackThemes.length > 3 && (
+              <button
+                onClick={() => setShowAllChips(true)}
+                className="px-3 py-1.5 text-[13px] text-[var(--color-primary-strong)] hover:underline"
+              >
+                +{feedbackThemes.length - 3} more
+              </button>
+            )}
+
+            {/* Show Less button when expanded */}
+            {showAllChips && feedbackThemes.length > 3 && (
+              <button
+                onClick={() => setShowAllChips(false)}
+                className="px-3 py-1.5 text-[13px] text-[var(--color-primary-strong)] hover:underline"
+              >
+                Show less
+              </button>
+            )}
+
+            {/* AI Button */}
+            <Button
+              variant="ai"
+              size="small"
+              icon="sparkles"
+              onClick={handleOpenAIChat}
+            >
+              Ask about feedback
+            </Button>
+          </div>
+
+          {/* Expanded Theme Content */}
+          {expandedTheme && (() => {
+            const theme = feedbackThemes.find(t => t.id === expandedTheme);
+            if (!theme) return null;
+            const isGrowthArea = theme.id === 'speak-up';
+            return (
+              <div className={`mt-4 p-4 bg-[var(--surface-neutral-xx-weak)] rounded-lg border-l-4 ${isGrowthArea ? 'border-[#9D7FC9]' : 'border-[var(--color-primary-strong)]'}`}>
+                <div className={`font-semibold text-[15px] ${isGrowthArea ? 'text-[#9D7FC9]' : 'text-[var(--color-primary-strong)]'}`}>
+                  {theme.details.title}
+                </div>
+                <div className="text-[14px] text-[var(--text-neutral-medium)] mt-1">
+                  {theme.details.description}
+                </div>
+                {theme.details.quotes && theme.details.quotes.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {theme.details.quotes.map((quote, idx) => (
+                      <div key={idx} className="text-[13px] text-[var(--text-neutral-strong)] italic pl-3 border-l-2 border-[var(--border-neutral-weak)]">
+                        {quote}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div>
       </div>
 
