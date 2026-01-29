@@ -111,11 +111,6 @@ export function OrgChartAIInput({
               "
               style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
             >
-              <Icon
-                name="sparkles"
-                size={16}
-                className="text-[var(--icon-neutral-x-strong)]"
-              />
               <span className="text-[13px] font-semibold leading-[19px] text-[var(--text-neutral-strong)]">
                 {suggestion.label}
               </span>
@@ -136,10 +131,10 @@ export function OrgChartAIInput({
         style={{ boxShadow: '1px 1px 0px 0px rgba(56, 49, 47, 0.04)' }}
       >
         <div className="flex items-center gap-3 flex-1 h-12 pl-3 pr-4 py-2">
-          {/* Plus Icon */}
+          {/* Sparkles Icon */}
           <div className="flex items-center justify-center w-5 h-5 shrink-0">
             <Icon
-              name="plus"
+              name="sparkles"
               size={20}
               className="text-[var(--icon-neutral-xx-strong)]"
             />

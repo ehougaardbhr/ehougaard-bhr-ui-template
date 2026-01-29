@@ -3,6 +3,7 @@ import type { Employee } from '../../data/employees';
 import { OrgChartTree } from './OrgChartTree';
 import { OrgChartControls } from './OrgChartControls';
 import { OrgChartZoom } from './OrgChartZoom';
+import { OrgChartAIInput } from '../OrgChartAIInput';
 import { Card } from '../Card';
 
 interface OrgChartViewProps {
@@ -13,6 +14,7 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
   // Local state for UI
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>();
+  const [affordanceMode, setAffordanceMode] = useState<'input' | 'toolbar'>('input');
 
   // Track the root of the visible tree (who appears at top)
   const [rootEmployee, setRootEmployee] = useState<number | 'all'>(() => {
@@ -203,6 +205,25 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
     setPanY(y);
   };
 
+  // Get selected employee's first name for contextual text
+  const selectedEmployeeName = useMemo(() => {
+    if (!selectedEmployee) return undefined;
+    const employee = employees.find(e => e.id === selectedEmployee);
+    return employee?.name.split(' ')[0];
+  }, [selectedEmployee, employees]);
+
+  // Handle AI input submit
+  const handleAISubmit = (value: string) => {
+    console.log('AI Submit:', value, 'Selected:', selectedEmployee);
+    // TODO: Open AI chat with context
+  };
+
+  // Handle AI button click
+  const handleAIButtonClick = () => {
+    console.log('AI Button clicked', 'Selected:', selectedEmployee);
+    // TODO: Open AI chat with context
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Controls Bar */}
@@ -214,6 +235,9 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
         onGoUp={handleGoUp}
         onFilterOpen={handleFilterOpen}
         onExportOpen={handleExportOpen}
+        showAIButton={affordanceMode === 'toolbar'}
+        selectedEmployeeName={selectedEmployeeName}
+        onAIButtonClick={handleAIButtonClick}
       />
 
       {/* Main Canvas */}
@@ -247,6 +271,57 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
           />
+
+          {/* Affordance Mode Switcher */}
+          <div className="absolute left-6 top-6 flex rounded-full bg-[var(--surface-neutral-white)] dark:bg-neutral-800 border border-[var(--border-neutral-medium)] shadow-md overflow-hidden">
+            <button
+              onClick={() => setAffordanceMode('input')}
+              className={`
+                px-4 py-2 text-sm font-medium transition-colors
+                ${affordanceMode === 'input'
+                  ? 'bg-[var(--color-primary-strong)] text-white'
+                  : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                }
+              `}
+            >
+              Input
+            </button>
+            <button
+              onClick={() => setAffordanceMode('toolbar')}
+              className={`
+                px-4 py-2 text-sm font-medium transition-colors
+                ${affordanceMode === 'toolbar'
+                  ? 'bg-[var(--color-primary-strong)] text-white'
+                  : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                }
+              `}
+            >
+              Toolbar
+            </button>
+          </div>
+
+          {/* AI Input - Bottom of Canvas */}
+          {affordanceMode === 'input' && (
+            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2" style={{ width: '540px' }}>
+              <OrgChartAIInput
+                placeholder={selectedEmployeeName
+                  ? `Ask about ${selectedEmployeeName}'s team`
+                  : "Ask about your org chart"
+                }
+                suggestions={selectedEmployeeName
+                  ? [
+                      { label: `What if ${selectedEmployeeName}'s team grew?` },
+                      { label: "Show succession plan" }
+                    ]
+                  : [
+                      { label: "Plan team expansion" },
+                      { label: "Analyze span of control" }
+                    ]
+                }
+                onSubmit={handleAISubmit}
+              />
+            </div>
+          )}
         </div>
       </Card>
     </div>
