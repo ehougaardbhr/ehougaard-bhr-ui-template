@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback Chip Visual Treatments</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #0D7377;
+      --color-primary-strong: #0A5C5F;
+      --surface-primary-weak: #E8F4F4;
+      --surface-neutral-x-weak: #F5F5F5;
+      --surface-neutral-xx-weak: #FAFAFA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-strong: #404040;
+      --text-neutral-medium: #737373;
+      --text-neutral-x-strong: #171717;
+
+      /* Positive/Strength colors */
+      --color-positive: #0D7377;
+      --color-positive-light: #E8F4F4;
+      --color-positive-border: #B8DCDD;
+
+      /* Growth area colors */
+      --color-growth: #9D7FC9;
+      --color-growth-light: #F3EFF8;
+      --color-growth-border: #D4C4E8;
+
+      /* Alternative growth - amber */
+      --color-amber: #B45309;
+      --color-amber-light: #FEF3C7;
+      --color-amber-border: #FCD34D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #fff;
+      padding: 40px;
+      color: var(--text-neutral-x-strong);
+    }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: var(--text-neutral-medium);
+      margin-bottom: 40px;
+      font-size: 14px;
+    }
+
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 48px 0 24px 0;
+      padding-top: 24px;
+      border-top: 2px solid var(--border-neutral-weak);
+      color: var(--text-neutral-x-strong);
+    }
+
+    h2:first-of-type {
+      margin-top: 0;
+      padding-top: 0;
+      border-top: none;
+    }
+
+    .treatment-section {
+      margin-bottom: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+
+    .treatment-section:last-child {
+      border-bottom: none;
+    }
+
+    .treatment-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .treatment-description {
+      font-size: 13px;
+      color: var(--text-neutral-medium);
+      margin-bottom: 16px;
+    }
+
+    .chip-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .more-link {
+      color: var(--color-primary);
+      font-size: 13px;
+      cursor: pointer;
+      padding: 6px 12px;
+    }
+
+    .more-link:hover {
+      text-decoration: underline;
+    }
+
+    .ai-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-size: 13px;
+      font-weight: 500;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .ai-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    /* ========================================
+       SECTION 1: "Click to learn more" treatments
+       ======================================== */
+
+    /* Treatment A: Explicit "details" link */
+    .chip-details {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-details:hover {
+      border-color: var(--color-primary);
+      background: var(--surface-primary-weak);
+    }
+
+    .chip-details i.icon {
+      opacity: 0.6;
+      font-size: 11px;
+    }
+
+    .chip-details .details-link {
+      font-size: 11px;
+      color: var(--color-primary);
+      margin-left: 4px;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* Treatment B: "View quotes" appears on hover */
+    .chip-hover-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chip-hover-action:hover {
+      padding-right: 80px;
+      border-color: var(--color-primary);
+      background: var(--surface-primary-weak);
+    }
+
+    .chip-hover-action i.icon {
+      opacity: 0.6;
+      font-size: 11px;
+    }
+
+    .chip-hover-action .hover-text {
+      position: absolute;
+      right: 12px;
+      font-size: 11px;
+      color: var(--color-primary);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+
+    .chip-hover-action:hover .hover-text {
+      opacity: 1;
+    }
+
+    /* Treatment C: Arrow indicator */
+    .chip-arrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-arrow:hover {
+      border-color: var(--color-primary);
+      background: var(--surface-primary-weak);
+    }
+
+    .chip-arrow:hover .arrow {
+      transform: translateX(2px);
+      color: var(--color-primary);
+    }
+
+    .chip-arrow i.icon {
+      opacity: 0.6;
+      font-size: 11px;
+    }
+
+    .chip-arrow .arrow {
+      font-size: 10px;
+      opacity: 0.5;
+      transition: all 0.15s ease;
+      margin-left: 2px;
+    }
+
+    /* Treatment D: Info tooltip style */
+    .chip-tooltip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .chip-tooltip:hover {
+      border-color: var(--border-neutral-medium);
+    }
+
+    .chip-tooltip i.icon {
+      opacity: 0.6;
+      font-size: 11px;
+    }
+
+    .chip-tooltip .info-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-primary);
+      margin-left: 4px;
+    }
+
+    .chip-tooltip::after {
+      content: "Click for details";
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 10px;
+      background: var(--text-neutral-x-strong);
+      color: white;
+      font-size: 11px;
+      border-radius: 4px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .chip-tooltip::before {
+      content: "";
+      position: absolute;
+      bottom: calc(100% + 4px);
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: var(--text-neutral-x-strong);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .chip-tooltip:hover::after,
+    .chip-tooltip:hover::before {
+      opacity: 1;
+    }
+
+    /* Treatment E: Expandable card with chevron */
+    .chip-expandable {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 10px 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: white;
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-expandable:hover {
+      border-color: var(--color-primary);
+      box-shadow: 0 2px 8px rgba(13, 115, 119, 0.15);
+    }
+
+    .chip-expandable i.icon {
+      color: var(--color-primary);
+      font-size: 12px;
+    }
+
+    .chip-expandable .expand-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      background: var(--surface-neutral-x-weak);
+      margin-left: 4px;
+      transition: all 0.15s ease;
+    }
+
+    .chip-expandable .expand-indicator i {
+      font-size: 8px;
+      color: var(--text-neutral-medium);
+    }
+
+    .chip-expandable:hover .expand-indicator {
+      background: var(--surface-primary-weak);
+    }
+
+    .chip-expandable:hover .expand-indicator i {
+      color: var(--color-primary);
+    }
+
+    /* Treatment F: "Learn more" as secondary text */
+    .chip-learn-more {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-learn-more:hover {
+      border-color: var(--color-primary);
+      background: var(--surface-primary-weak);
+    }
+
+    .chip-learn-more .label-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-learn-more i.icon {
+      opacity: 0.6;
+      font-size: 11px;
+    }
+
+    .chip-learn-more .learn-text {
+      font-size: 10px;
+      color: var(--color-primary);
+      margin-left: 17px;
+    }
+
+    /* ========================================
+       SECTION 2: Positive vs Growth Area treatments
+       ======================================== */
+
+    /* Style 1: Tinted backgrounds */
+    .chip-positive-tint {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--color-positive-light);
+      color: var(--color-positive-strong);
+      border: 1px solid var(--color-positive-border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-positive-tint:hover {
+      border-color: var(--color-positive);
+    }
+
+    .chip-positive-tint i.icon {
+      font-size: 11px;
+    }
+
+    .chip-positive-tint .arrow {
+      font-size: 10px;
+      opacity: 0.6;
+      margin-left: 2px;
+    }
+
+    .chip-growth-tint {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--color-growth-light);
+      color: var(--color-growth);
+      border: 1px solid var(--color-growth-border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-growth-tint:hover {
+      border-color: var(--color-growth);
+    }
+
+    .chip-growth-tint i.icon {
+      font-size: 11px;
+    }
+
+    .chip-growth-tint .arrow {
+      font-size: 10px;
+      opacity: 0.6;
+      margin-left: 2px;
+    }
+
+    /* Style 2: Icon-differentiated (neutral bg) */
+    .chip-positive-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-positive-icon:hover {
+      border-color: var(--color-positive);
+      background: var(--color-positive-light);
+    }
+
+    .chip-positive-icon i.icon {
+      color: var(--color-positive);
+      font-size: 11px;
+    }
+
+    .chip-positive-icon .arrow {
+      font-size: 10px;
+      opacity: 0.5;
+      margin-left: 2px;
+    }
+
+    .chip-growth-icon {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-growth-icon:hover {
+      border-color: var(--color-growth);
+      background: var(--color-growth-light);
+    }
+
+    .chip-growth-icon i.icon {
+      color: var(--color-growth);
+      font-size: 11px;
+    }
+
+    .chip-growth-icon .arrow {
+      font-size: 10px;
+      opacity: 0.5;
+      margin-left: 2px;
+    }
+
+    /* Style 3: Left border accent */
+    .chip-positive-accent {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      background: white;
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      border-left: 3px solid var(--color-positive);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-positive-accent:hover {
+      background: var(--color-positive-light);
+      border-color: var(--color-positive-border);
+      border-left-color: var(--color-positive);
+    }
+
+    .chip-positive-accent i.icon {
+      color: var(--color-positive);
+      font-size: 11px;
+    }
+
+    .chip-positive-accent .arrow {
+      font-size: 10px;
+      opacity: 0.5;
+      margin-left: 4px;
+    }
+
+    .chip-growth-accent {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px 8px 14px;
+      border-radius: 6px;
+      font-size: 13px;
+      background: white;
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      border-left: 3px solid var(--color-growth);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-growth-accent:hover {
+      background: var(--color-growth-light);
+      border-color: var(--color-growth-border);
+      border-left-color: var(--color-growth);
+    }
+
+    .chip-growth-accent i.icon {
+      color: var(--color-growth);
+      font-size: 11px;
+    }
+
+    .chip-growth-accent .arrow {
+      font-size: 10px;
+      opacity: 0.5;
+      margin-left: 4px;
+    }
+
+    /* Style 4: Badge prefix */
+    .chip-positive-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      overflow: hidden;
+    }
+
+    .chip-positive-badge:hover {
+      border-color: var(--color-positive);
+    }
+
+    .chip-positive-badge .badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 8px;
+      background: var(--color-positive);
+      color: white;
+    }
+
+    .chip-positive-badge .badge i {
+      font-size: 10px;
+    }
+
+    .chip-positive-badge .label {
+      padding: 6px 10px 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-positive-badge .arrow {
+      font-size: 10px;
+      opacity: 0.5;
+    }
+
+    .chip-growth-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--surface-neutral-x-weak);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-weak);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      overflow: hidden;
+    }
+
+    .chip-growth-badge:hover {
+      border-color: var(--color-growth);
+    }
+
+    .chip-growth-badge .badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 8px;
+      background: var(--color-growth);
+      color: white;
+    }
+
+    .chip-growth-badge .badge i {
+      font-size: 10px;
+    }
+
+    .chip-growth-badge .label {
+      padding: 6px 10px 6px 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip-growth-badge .arrow {
+      font-size: 10px;
+      opacity: 0.5;
+    }
+
+    /* Style 5: Amber for growth (alternative) */
+    .chip-growth-amber {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--color-amber-light);
+      color: var(--color-amber);
+      border: 1px solid var(--color-amber-border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-growth-amber:hover {
+      border-color: var(--color-amber);
+    }
+
+    .chip-growth-amber i.icon {
+      font-size: 11px;
+    }
+
+    .chip-growth-amber .arrow {
+      font-size: 10px;
+      opacity: 0.6;
+      margin-left: 2px;
+    }
+
+    /* ========================================
+       SECTION 3: Combined treatments
+       ======================================== */
+
+    .chip-combined-positive {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--color-positive-light);
+      color: var(--color-positive-strong);
+      border: 1px solid var(--color-positive-border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .chip-combined-positive:hover {
+      border-color: var(--color-positive);
+    }
+
+    .chip-combined-positive i.icon {
+      font-size: 11px;
+    }
+
+    .chip-combined-positive .chevron {
+      font-size: 9px;
+      opacity: 0.7;
+      margin-left: 2px;
+      transition: transform 0.15s ease;
+    }
+
+    .chip-combined-positive.active .chevron {
+      transform: rotate(180deg);
+    }
+
+    .chip-combined-growth {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px 6px 12px;
+      border-radius: 9999px;
+      font-size: 13px;
+      background: var(--color-growth-light);
+      color: var(--color-growth);
+      border: 1px solid var(--color-growth-border);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .chip-combined-growth:hover {
+      border-color: var(--color-growth);
+    }
+
+    .chip-combined-growth i.icon {
+      font-size: 11px;
+    }
+
+    .chip-combined-growth .chevron {
+      font-size: 9px;
+      opacity: 0.7;
+      margin-left: 2px;
+    }
+
+    /* Expanded panels */
+    .expanded-panel {
+      margin-top: 16px;
+      padding: 16px;
+      background: var(--surface-neutral-xx-weak);
+      border-radius: 8px;
+      border-left: 4px solid var(--color-positive);
+      max-width: 500px;
+    }
+
+    .expanded-panel.growth {
+      border-left-color: var(--color-growth);
+    }
+
+    .expanded-panel .title {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--color-positive);
+      margin-bottom: 4px;
+    }
+
+    .expanded-panel.growth .title {
+      color: var(--color-growth);
+    }
+
+    .expanded-panel .description {
+      font-size: 13px;
+      color: var(--text-neutral-medium);
+      margin-bottom: 12px;
+    }
+
+    .expanded-panel .quote {
+      font-size: 13px;
+      color: var(--text-neutral-strong);
+      font-style: italic;
+      padding-left: 12px;
+      border-left: 2px solid var(--border-neutral-weak);
+    }
+
+    /* Divider */
+    .divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border-neutral-weak);
+      margin: 0 4px;
+    }
+
+    /* Section label */
+    .section-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-neutral-medium);
+      margin-bottom: 12px;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Feedback Chip Visual Treatments</h1>
+  <p class="subtitle">Exploring "click to learn more" affordances and positive vs growth area differentiation</p>
+
+  <h2>Part 1: "Click to Learn More" Treatments</h2>
+  <p class="treatment-description" style="margin-bottom: 32px;">Making it clear that clicking reveals more information</p>
+
+  <!-- Treatment A: Explicit details link -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">A. Explicit "details" link</h3>
+    <p class="treatment-description">Underlined text makes the action obvious. Very clear but adds visual noise.</p>
+    <div class="chip-container">
+      <button class="chip-details"><i class="fas fa-heart icon"></i> Praised for perseverance <span class="details-link">details</span></button>
+      <button class="chip-details"><i class="fas fa-check-circle icon"></i> Dependable teammate <span class="details-link">details</span></button>
+      <button class="chip-details"><i class="fas fa-users icon"></i> Strong team supporter <span class="details-link">details</span></button>
+      <span class="more-link">+2 more</span>
+    </div>
+  </div>
+
+  <!-- Treatment B: Hover reveals action -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">B. "View quotes" appears on hover</h3>
+    <p class="treatment-description">Clean by default, action revealed on hover. Discoverable but requires interaction.</p>
+    <div class="chip-container">
+      <button class="chip-hover-action"><i class="fas fa-heart icon"></i> Praised for perseverance <span class="hover-text">View quotes →</span></button>
+      <button class="chip-hover-action"><i class="fas fa-check-circle icon"></i> Dependable teammate <span class="hover-text">View quotes →</span></button>
+      <button class="chip-hover-action"><i class="fas fa-users icon"></i> Strong team supporter <span class="hover-text">View quotes →</span></button>
+      <span class="more-link">+2 more</span>
+    </div>
+  </div>
+
+  <!-- Treatment C: Arrow indicator -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">C. Right arrow indicator</h3>
+    <p class="treatment-description">Arrow suggests "go deeper" or "see more". Subtle but familiar pattern.</p>
+    <div class="chip-container">
+      <button class="chip-arrow"><i class="fas fa-heart icon"></i> Praised for perseverance <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-arrow"><i class="fas fa-check-circle icon"></i> Dependable teammate <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-arrow"><i class="fas fa-users icon"></i> Strong team supporter <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="more-link">+2 more</span>
+    </div>
+  </div>
+
+  <!-- Treatment D: Tooltip hint -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">D. Tooltip hint + dot indicator</h3>
+    <p class="treatment-description">Small dot hints at more info. Tooltip on hover explains the action.</p>
+    <div class="chip-container">
+      <button class="chip-tooltip"><i class="fas fa-heart icon"></i> Praised for perseverance <span class="info-dot"></span></button>
+      <button class="chip-tooltip"><i class="fas fa-check-circle icon"></i> Dependable teammate <span class="info-dot"></span></button>
+      <button class="chip-tooltip"><i class="fas fa-users icon"></i> Strong team supporter <span class="info-dot"></span></button>
+      <span class="more-link">+2 more</span>
+    </div>
+  </div>
+
+  <!-- Treatment E: Expandable card -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">E. Card with expand indicator</h3>
+    <p class="treatment-description">More prominent card style with clear expand button. Best for important content.</p>
+    <div class="chip-container">
+      <button class="chip-expandable"><i class="fas fa-heart icon"></i> Praised for perseverance <span class="expand-indicator"><i class="fas fa-chevron-down"></i></span></button>
+      <button class="chip-expandable"><i class="fas fa-check-circle icon"></i> Dependable teammate <span class="expand-indicator"><i class="fas fa-chevron-down"></i></span></button>
+      <button class="chip-expandable"><i class="fas fa-users icon"></i> Strong team supporter <span class="expand-indicator"><i class="fas fa-chevron-down"></i></span></button>
+      <span class="more-link">+2 more</span>
+    </div>
+  </div>
+
+  <!-- Treatment F: Secondary text -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">F. "Learn more" as secondary text</h3>
+    <p class="treatment-description">Two-line layout with explicit action text. Very clear but takes more space.</p>
+    <div class="chip-container">
+      <button class="chip-learn-more">
+        <span class="label-row"><i class="fas fa-heart icon"></i> Praised for perseverance</span>
+        <span class="learn-text">Learn more →</span>
+      </button>
+      <button class="chip-learn-more">
+        <span class="label-row"><i class="fas fa-check-circle icon"></i> Dependable teammate</span>
+        <span class="learn-text">Learn more →</span>
+      </button>
+      <button class="chip-learn-more">
+        <span class="label-row"><i class="fas fa-users icon"></i> Strong team supporter</span>
+        <span class="learn-text">Learn more →</span>
+      </button>
+    </div>
+  </div>
+
+  <h2>Part 2: Positive vs Growth Area Treatments</h2>
+  <p class="treatment-description" style="margin-bottom: 32px;">Visual differentiation between strengths and areas for improvement</p>
+
+  <!-- Style 1: Tinted backgrounds -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">Style 1: Tinted backgrounds</h3>
+    <p class="treatment-description">Teal for strengths, purple for growth areas. Color immediately signals the type.</p>
+    <div class="chip-container">
+      <button class="chip-positive-tint"><i class="fas fa-heart icon"></i> Praised for perseverance <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-positive-tint"><i class="fas fa-check-circle icon"></i> Dependable teammate <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-positive-tint"><i class="fas fa-users icon"></i> Strong team supporter <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="divider"></span>
+      <button class="chip-growth-tint"><i class="fas fa-bullhorn icon"></i> Could speak up more <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="more-link">+1 more</span>
+    </div>
+  </div>
+
+  <!-- Style 2: Icon-differentiated -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">Style 2: Colored icons, neutral background</h3>
+    <p class="treatment-description">Neutral until hover, then reveals color. Subtler but still differentiated.</p>
+    <div class="chip-container">
+      <button class="chip-positive-icon"><i class="fas fa-heart icon"></i> Praised for perseverance <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-positive-icon"><i class="fas fa-check-circle icon"></i> Dependable teammate <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-positive-icon"><i class="fas fa-users icon"></i> Strong team supporter <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="divider"></span>
+      <button class="chip-growth-icon"><i class="fas fa-bullhorn icon"></i> Could speak up more <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="more-link">+1 more</span>
+    </div>
+  </div>
+
+  <!-- Style 3: Left border accent -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">Style 3: Left border accent</h3>
+    <p class="treatment-description">Card-like with colored left border. Clear differentiation, more prominent.</p>
+    <div class="chip-container">
+      <button class="chip-positive-accent"><i class="fas fa-heart icon"></i> Praised for perseverance <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-positive-accent"><i class="fas fa-check-circle icon"></i> Dependable teammate <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-positive-accent"><i class="fas fa-users icon"></i> Strong team supporter <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="divider"></span>
+      <button class="chip-growth-accent"><i class="fas fa-bullhorn icon"></i> Could speak up more <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="more-link">+1 more</span>
+    </div>
+  </div>
+
+  <!-- Style 4: Badge prefix -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">Style 4: Badge prefix</h3>
+    <p class="treatment-description">Colored badge on the left makes the type very obvious.</p>
+    <div class="chip-container">
+      <button class="chip-positive-badge">
+        <span class="badge"><i class="fas fa-thumbs-up"></i></span>
+        <span class="label">Praised for perseverance <i class="fas fa-chevron-right arrow"></i></span>
+      </button>
+      <button class="chip-positive-badge">
+        <span class="badge"><i class="fas fa-thumbs-up"></i></span>
+        <span class="label">Dependable teammate <i class="fas fa-chevron-right arrow"></i></span>
+      </button>
+      <button class="chip-growth-badge">
+        <span class="badge"><i class="fas fa-arrow-up"></i></span>
+        <span class="label">Could speak up more <i class="fas fa-chevron-right arrow"></i></span>
+      </button>
+      <span class="more-link">+2 more</span>
+    </div>
+  </div>
+
+  <!-- Style 5: Amber alternative -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">Style 5: Amber for growth areas</h3>
+    <p class="treatment-description">Using amber/yellow instead of purple for growth. More "caution" feeling.</p>
+    <div class="chip-container">
+      <button class="chip-positive-tint"><i class="fas fa-heart icon"></i> Praised for perseverance <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-positive-tint"><i class="fas fa-check-circle icon"></i> Dependable teammate <i class="fas fa-chevron-right arrow"></i></button>
+      <button class="chip-positive-tint"><i class="fas fa-users icon"></i> Strong team supporter <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="divider"></span>
+      <button class="chip-growth-amber"><i class="fas fa-lightbulb icon"></i> Could speak up more <i class="fas fa-chevron-right arrow"></i></button>
+      <span class="more-link">+1 more</span>
+    </div>
+  </div>
+
+  <h2>Part 3: Combined Recommendation</h2>
+  <p class="treatment-description" style="margin-bottom: 32px;">Combining the best elements: color differentiation + chevron for expand</p>
+
+  <div class="treatment-section">
+    <h3 class="treatment-title">Recommended: Tinted + Chevron</h3>
+    <p class="treatment-description">Tinted backgrounds for type, chevron for expand action. Shows expanded state.</p>
+
+    <div class="section-label">Strengths</div>
+    <div class="chip-container">
+      <button class="chip-combined-positive active"><i class="fas fa-heart icon"></i> Praised for perseverance <i class="fas fa-chevron-down chevron"></i></button>
+      <button class="chip-combined-positive"><i class="fas fa-check-circle icon"></i> Dependable teammate <i class="fas fa-chevron-down chevron"></i></button>
+      <button class="chip-combined-positive"><i class="fas fa-users icon"></i> Strong team supporter <i class="fas fa-chevron-down chevron"></i></button>
+      <span class="more-link">+1 more</span>
+    </div>
+
+    <div class="expanded-panel">
+      <div class="title">Perseverance</div>
+      <div class="description">Multiple colleagues noted her resilience during transitions and dedication to protecting team morale.</div>
+      <div class="quote">"Her dedication during the transition period really helped maintain team morale."</div>
+    </div>
+
+    <div class="section-label" style="margin-top: 24px;">Growth Areas</div>
+    <div class="chip-container">
+      <button class="chip-combined-growth"><i class="fas fa-bullhorn icon"></i> Could speak up more <i class="fas fa-chevron-down chevron"></i></button>
+    </div>
+  </div>
+
+  <!-- Alternative with AI button -->
+  <div class="treatment-section">
+    <h3 class="treatment-title">With AI Button Integration</h3>
+    <p class="treatment-description">Full layout with all chips and AI button for deeper exploration.</p>
+
+    <div class="chip-container">
+      <button class="chip-combined-positive"><i class="fas fa-heart icon"></i> Perseverance <i class="fas fa-chevron-down chevron"></i></button>
+      <button class="chip-combined-positive"><i class="fas fa-check-circle icon"></i> Dependable <i class="fas fa-chevron-down chevron"></i></button>
+      <button class="chip-combined-positive"><i class="fas fa-users icon"></i> Team support <i class="fas fa-chevron-down chevron"></i></button>
+      <button class="chip-combined-growth"><i class="fas fa-bullhorn icon"></i> Speak up more <i class="fas fa-chevron-down chevron"></i></button>
+      <span class="more-link">+1 more</span>
+      <button class="ai-button"><i class="fas fa-wand-magic-sparkles"></i> Ask about feedback</button>
+    </div>
+  </div>
+
+</body>
+</html>

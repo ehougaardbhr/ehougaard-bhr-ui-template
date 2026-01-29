@@ -10,11 +10,15 @@ interface FeedbackTabContentProps {
 interface FeedbackTheme {
   id: string;
   label: string;
-  icon: 'heart' | 'users' | 'check-circle' | 'circle-question' | 'bullhorn';
+  type: 'positive' | 'growth';
   details: {
     title: string;
     description: string;
-    quotes?: string[];
+    quotes?: Array<{
+      text: string;
+      author: string;
+      role: string;
+    }>;
   };
 }
 
@@ -29,37 +33,65 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
     {
       id: 'perseverance',
       label: 'Praised for perseverance',
-      icon: 'heart',
+      type: 'positive',
       details: {
         title: 'Perseverance',
         description: 'Multiple colleagues noted her resilience during transitions and dedication to protecting team morale.',
-        quotes: ['"Her dedication during the transition period really helped maintain team morale."'],
+        quotes: [
+          {
+            text: 'Her dedication during the transition period really helped maintain team morale. She kept everyone focused when things got tough.',
+            author: 'Sarah Chen',
+            role: 'Engineering Manager',
+          },
+          {
+            text: 'Even when the project timeline shifted, she stayed positive and helped others adapt to the changes.',
+            author: 'Marcus Johnson',
+            role: 'Senior Developer',
+          },
+        ],
       },
     },
     {
       id: 'dependability',
       label: 'Dependable teammate',
-      icon: 'check-circle',
+      type: 'positive',
       details: {
         title: 'Dependability',
-        description: 'Consistently meets deadlines, reliable follow-through, and gets work done on time.',
-        quotes: ['"I appreciate her dependability and how she always asks good questions."'],
+        description: 'Consistently meets deadlines and follows through on commitments. Team members trust her to deliver.',
+        quotes: [
+          {
+            text: 'I can always count on her to get things done on time. She\'s the person I go to when something absolutely needs to ship.',
+            author: 'Rachel Kim',
+            role: 'Director of Engineering',
+          },
+          {
+            text: 'She asks good questions upfront which means her work rarely needs revisions. Very reliable.',
+            author: 'James Wilson',
+            role: 'Staff Engineer',
+          },
+        ],
       },
     },
     {
       id: 'team-support',
       label: 'Strong team supporter',
-      icon: 'users',
+      type: 'positive',
       details: {
         title: 'Team Support',
         description: 'Described as a great counselor and team member, generous and kind.',
-        quotes: ['"She does a great job of keeping things afloat and making everyone feel welcome."'],
+        quotes: [
+          {
+            text: 'She does a great job of keeping things afloat and making everyone feel welcome.',
+            author: 'Lisa Patel',
+            role: 'Project Manager',
+          },
+        ],
       },
     },
     {
       id: 'good-questions',
       label: 'Asks good questions',
-      icon: 'circle-question',
+      type: 'positive',
       details: {
         title: 'Curiosity & Inquiry',
         description: 'Known for asking thoughtful questions that help clarify requirements and improve outcomes.',
@@ -68,11 +100,22 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
     {
       id: 'speak-up',
       label: 'Could speak up more',
-      icon: 'bullhorn',
+      type: 'growth',
       details: {
-        title: 'Growth Area: Speaking Up',
-        description: 'Some colleagues suggest she should be more vocal about sharing her ideas and perspectives.',
-        quotes: ['"She has great insights but sometimes holds back from sharing them."'],
+        title: 'Speaking Up',
+        description: 'Some colleagues feel she has valuable insights but doesn\'t always share them in group settings.',
+        quotes: [
+          {
+            text: 'She has great ideas but sometimes holds back in meetings. I\'d love to hear her perspective more often.',
+            author: 'David Park',
+            role: 'Product Manager',
+          },
+          {
+            text: 'In 1:1s she shares brilliant suggestions, but I wish she\'d bring those to the team discussions too.',
+            author: 'Emily Torres',
+            role: 'Tech Lead',
+          },
+        ],
       },
     },
   ];
@@ -252,22 +295,36 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
           {/* Chips Container */}
           <div className="flex gap-2 flex-wrap items-center">
             {/* Theme Chips - show 3 or all based on state */}
-            {(showAllChips ? feedbackThemes : feedbackThemes.slice(0, 3)).map((theme) => (
-              <button
-                key={theme.id}
-                onClick={() => handleThemeClick(theme.id)}
-                className={`
-                  px-3 py-1.5 rounded-full text-[13px] transition-all inline-flex items-center gap-1.5
-                  ${expandedTheme === theme.id
-                    ? 'bg-[var(--surface-primary-weak)] text-[var(--color-primary-strong)] border border-[var(--color-primary-strong)]'
-                    : 'bg-[var(--surface-neutral-x-weak)] text-[var(--text-neutral-strong)] border border-[var(--border-neutral-weak)] hover:border-[var(--border-neutral-medium)]'
-                  }
-                `}
-              >
-                <Icon name={theme.icon} size={12} className="opacity-70" />
-                {theme.label}
-              </button>
-            ))}
+            {(showAllChips ? feedbackThemes : feedbackThemes.slice(0, 3)).map((theme) => {
+              const isPositive = theme.type === 'positive';
+              const isActive = expandedTheme === theme.id;
+
+              return (
+                <button
+                  key={theme.id}
+                  onClick={() => handleThemeClick(theme.id)}
+                  className={`
+                    px-3 py-[6px] rounded-full text-[13px] transition-all inline-flex items-center gap-1.5
+                    ${isPositive
+                      ? isActive
+                        ? 'bg-[#E8F4F4] text-[#0A5C5F] border border-[#0D7377] shadow-[0_0_0_1px_#0D7377]'
+                        : 'bg-[#E8F4F4] text-[#0A5C5F] border border-[#B8DCDD] hover:border-[#0D7377]'
+                      : isActive
+                        ? 'bg-[#FFF4ED] text-[#CD4A00] border border-[#CD4A00] shadow-[0_0_0_1px_#CD4A00]'
+                        : 'bg-[#FFF4ED] text-[#CD4A00] border border-[#FDCDB8] hover:border-[#CD4A00]'
+                    }
+                  `}
+                >
+                  <Icon name={isPositive ? 'thumbs-up' : 'compass'} size={11} />
+                  {theme.label}
+                  <Icon
+                    name="chevron-down"
+                    size={9}
+                    className={`opacity-70 transition-transform ${isActive ? 'rotate-180' : ''}`}
+                  />
+                </button>
+              );
+            })}
 
             {/* +X More Button */}
             {!showAllChips && feedbackThemes.length > 3 && (
@@ -283,11 +340,14 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
             {showAllChips && feedbackThemes.length > 3 && (
               <button
                 onClick={() => setShowAllChips(false)}
-                className="px-3 py-1.5 text-[13px] text-[var(--color-primary-strong)] hover:underline"
+                className="px-3 py-1.5 text-[13px] text-[var(--text-neutral-strong)] hover:underline"
               >
                 Show less
               </button>
             )}
+
+            {/* Spacer to push AI button to the right */}
+            <div className="flex-1 min-w-[20px]"></div>
 
             {/* AI Button */}
             <Button
@@ -304,20 +364,35 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
           {expandedTheme && (() => {
             const theme = feedbackThemes.find(t => t.id === expandedTheme);
             if (!theme) return null;
-            const isGrowthArea = theme.id === 'speak-up';
+            const isGrowthArea = theme.type === 'growth';
+            const borderColor = isGrowthArea ? '#CD4A00' : '#0D7377';
+            const titleColor = isGrowthArea ? '#CD4A00' : '#0D7377';
+
             return (
-              <div className={`mt-4 p-4 bg-[var(--surface-neutral-xx-weak)] rounded-lg border-l-4 ${isGrowthArea ? 'border-[#9D7FC9]' : 'border-[var(--color-primary-strong)]'}`}>
-                <div className={`font-semibold text-[15px] ${isGrowthArea ? 'text-[#9D7FC9]' : 'text-[var(--color-primary-strong)]'}`}>
+              <div
+                className="mt-4 p-4 bg-[var(--surface-neutral-xx-weak)] rounded-lg border-l-4"
+                style={{ borderLeftColor: borderColor }}
+              >
+                <div className="font-semibold text-[15px] mb-1" style={{ color: titleColor }}>
                   {theme.details.title}
                 </div>
-                <div className="text-[14px] text-[var(--text-neutral-medium)] mt-1">
+                {/* Description is prominent */}
+                <div className="text-[14px] text-[var(--text-neutral-strong)] leading-[1.5] mb-4">
                   {theme.details.description}
                 </div>
+                {/* Quotes are secondary/supporting */}
                 {theme.details.quotes && theme.details.quotes.length > 0 && (
-                  <div className="mt-3 space-y-2">
+                  <div className="space-y-[14px]">
                     {theme.details.quotes.map((quote, idx) => (
-                      <div key={idx} className="text-[13px] text-[var(--text-neutral-strong)] italic pl-3 border-l-2 border-[var(--border-neutral-weak)]">
-                        {quote}
+                      <div key={idx}>
+                        <div className="text-[13px] text-[var(--text-neutral-medium)] italic leading-[1.5] mb-1">
+                          "{quote.text}"
+                        </div>
+                        <div className="flex items-center gap-[6px] text-[12px]">
+                          <Icon name="circle-user" size={16} className="text-[var(--text-neutral-medium)]" />
+                          <span className="font-medium text-[var(--text-neutral-strong)]">{quote.author}</span>
+                          <span className="text-[var(--text-neutral-medium)]">· {quote.role}</span>
+                        </div>
                       </div>
                     ))}
                   </div>
