@@ -9,6 +9,7 @@ import { TextReflowDemo2 } from './pages/TextReflowDemo2';
 import { OrgChartCollapsedMocks } from './components/OrgChart/OrgChartCollapsedMocks';
 import { AIButtonDemo } from './pages/AIButtonDemo';
 import { FeedbackUXMockups } from './pages/FeedbackUXMockups';
+import { OrgChartAIDemo } from './pages/OrgChartAIDemo/OrgChartAIDemo';
 import { ChatProvider } from './contexts/ChatContext';
 import { ArtifactProvider } from './contexts/ArtifactContext';
 import { ArtifactTransitionProvider } from './contexts/ArtifactTransitionContext';
@@ -31,6 +32,7 @@ function App() {
             <Route path="/org-chart-mocks" element={<OrgChartCollapsedMocks />} />
             <Route path="/ai-button-demo" element={<AIButtonDemo />} />
             <Route path="/feedback-ux-mockups" element={<FeedbackUXMockups />} />
+            <Route path="/org-chart-ai-demo" element={<OrgChartAIDemo />} />
 
             {/* Regular routes with AppLayout */}
             <Route

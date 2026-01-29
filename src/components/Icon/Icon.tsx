@@ -48,6 +48,7 @@ import {
   faPalette,
   faDoorOpen,
   faRightToBracket,
+  faPlus,
   faChartLine,
   faPlane,
   faGraduationCap,
@@ -218,6 +219,7 @@ export type IconName =
   | 'sitemap'
   | 'eye-slash'
   | 'users'
+  | 'plus'
   | 'circle-plus'
   | 'circle-plus-lined'
   | 'bullseye'
@@ -332,6 +334,7 @@ const faIconMap = {
   'sitemap': faSitemap,
   'eye-slash': faEyeSlash,
   'users': faUsers,
+  'plus': faPlus,
   'circle-plus': faCirclePlus,
   'bullseye': faBullseye,
   'bullhorn': faBullhorn,
