@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Icon } from '../Icon';
 import { Button } from '../Button';
 
@@ -24,6 +25,22 @@ export function AIInlineMessage({
   onSuggestionClick,
   className = '',
 }: AIInlineMessageProps) {
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  useEffect(() => {
+    const checkDarkMode = () => {
+      setIsDarkMode(document.documentElement.classList.contains('dark'));
+    };
+
+    checkDarkMode();
+
+    // Watch for dark mode changes
+    const observer = new MutationObserver(checkDarkMode);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+
+    return () => observer.disconnect();
+  }, []);
+
   const handleSuggestionClick = (suggestion: Suggestion) => {
     if (onSuggestionClick) {
       onSuggestionClick(suggestion);
@@ -32,17 +49,20 @@ export function AIInlineMessage({
     }
   };
 
+  const lightGradient = 'linear-gradient(137.805deg, rgb(233, 243, 252) 0%, rgb(245, 238, 248) 100%)';
+  const darkGradient = 'linear-gradient(137.805deg, rgb(30, 41, 50) 0%, rgb(45, 35, 48) 100%)';
+
   return (
     <div
       className={`
         flex items-center gap-3
         px-5 py-3
         rounded-lg
+        border-4 border-white dark:border-gray-700
         ${className}
       `}
       style={{
-        background: 'linear-gradient(137.805deg, rgb(233, 243, 252) 0%, rgb(245, 238, 248) 100%)',
-        border: '4px solid var(--surface-neutral-white)',
+        background: isDarkMode ? darkGradient : lightGradient,
       }}
     >
       {/* Icon and Title */}
@@ -50,9 +70,9 @@ export function AIInlineMessage({
         <Icon
           name="sparkles"
           size={16}
-          className="text-[var(--icon-brand-strong)]"
+          className="text-[var(--icon-brand-strong)] dark:text-blue-400"
         />
-        <span className="text-[14px] leading-5 font-semibold text-[var(--text-neutral-xx-strong)]">
+        <span className="text-[14px] leading-5 font-semibold text-[var(--text-neutral-xx-strong)] dark:text-gray-100">
           {title}
         </span>
       </div>

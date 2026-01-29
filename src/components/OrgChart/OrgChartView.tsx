@@ -6,6 +6,7 @@ import { OrgChartZoom } from './OrgChartZoom';
 import { OrgChartAIInput } from '../OrgChartAIInput';
 import { AIInlineMessage } from '../AIInlineMessage';
 import { Card } from '../Card';
+import { useChat } from '../../contexts/ChatContext';
 
 interface OrgChartViewProps {
   employees: Employee[];
@@ -16,6 +17,9 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<number | undefined>();
   const [affordanceMode, setAffordanceMode] = useState<'input' | 'toolbar' | 'inline'>('input');
+
+  // Chat context
+  const { createNewChat, addMessage, selectConversation } = useChat();
 
   // Track the root of the visible tree (who appears at top)
   const [rootEmployee, setRootEmployee] = useState<number | 'all'>(() => {
@@ -213,22 +217,80 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
     return employee?.name.split(' ')[0];
   }, [selectedEmployee, employees]);
 
-  // Handle AI input submit
+  // Helper to open the chat panel via localStorage
+  const openChatPanel = () => {
+    localStorage.setItem('bhr-chat-panel-open', 'true');
+    window.dispatchEvent(new Event('storage'));
+  };
+
+  // Generate AI response based on prompt
+  const generateAIResponse = (prompt: string, employeeName?: string) => {
+    const promptLower = prompt.toLowerCase();
+
+    if (promptLower.includes('grew') || promptLower.includes('expansion') || promptLower.includes('team expansion')) {
+      if (employeeName) {
+        return `Looking at ${employeeName}'s team structure, I can model several growth scenarios:\n\n**Current state:** ${employeeName} manages 4 direct reports with a healthy span of control.\n\n**Scenario 1: Add 2 IC roles**\n• Maintains current structure\n• ${employeeName} would manage 6 direct reports (still optimal)\n• Cost impact: ~$180K annually\n\n**Scenario 2: Add 1 manager + 3 ICs**\n• Creates new management layer\n• ${employeeName} manages 5 direct reports\n• Enables future scaling\n• Cost impact: ~$320K annually\n\nWhich scenario would you like to explore further?`;
+      }
+      return `I can help you model team expansion scenarios. Here's what I'll analyze:\n\n• Current team composition and reporting structures\n• Optimal span of control ratios\n• Budget implications\n• Impact on management layers\n• Comparison with similar teams\n\nWhich team would you like to focus on?`;
+    }
+
+    if (promptLower.includes('span of control') || promptLower.includes('analyze')) {
+      if (employeeName) {
+        return `**${employeeName}'s Span of Control Analysis**\n\nCurrent: 4 direct reports\n\n✓ **Healthy range** (recommended: 4-8 for this level)\n\nBreakdown:\n• 2 Senior ICs (5+ years experience)\n• 1 Mid-level IC (2-4 years)\n• 1 Junior IC (<2 years)\n\nBenchmark comparison:\n• Company average: 5.2 reports\n• Industry standard: 4-6 reports\n• Your team: Within optimal range\n\n**Recommendations:**\n• Current structure is sustainable\n• Can accommodate 1-2 additional reports\n• Consider adding senior IC for mentorship\n\nWould you like to see peer comparisons?`;
+      }
+      return `I'll analyze span of control metrics across your organization:\n\n• Average spans by level\n• Comparison to industry benchmarks\n• Identify over/under-managed teams\n• Recommendations for rebalancing\n\nWhich area would you like me to focus on?`;
+    }
+
+    if (promptLower.includes('succession')) {
+      if (employeeName) {
+        return `**Succession Planning for ${employeeName}'s Role**\n\n**Critical factors:**\n• Role: VP/Director level\n• Team size: 4 direct reports\n• Key responsibilities: Team leadership, strategic planning\n\n**Internal candidates:**\n\n1. **Sarah Anderson** (Senior IC on team)\n   • Readiness: 6-12 months\n   • Strengths: Technical expertise, team mentorship\n   • Development needs: Strategic planning exposure\n\n2. **Cross-functional candidate**\n   • Readiness: 12-18 months\n   • Would bring fresh perspective\n   • Requires team familiarization\n\n**Recommendations:**\n• Begin leadership development program\n• Assign strategic projects to Sarah\n• Create 90-day transition plan\n\nWould you like a detailed development plan?`;
+      }
+      return `I can help you build succession plans for key roles. I'll analyze:\n\n• Critical positions and risk\n• Internal candidate pipelines\n• Skill gaps and development needs\n• Timeline recommendations\n\nWhich role should we focus on first?`;
+    }
+
+    if (promptLower.includes('benchmark') || promptLower.includes('compare') || promptLower.includes('industry')) {
+      return `**Industry Benchmark Comparison**\n\nYour organization vs. industry standards:\n\n**Span of control:**\n• Your avg: 5.8 reports per manager\n• Industry avg: 5.2 reports\n• Status: Slightly above average ✓\n\n**Organizational depth:**\n• Your layers: 4 levels\n• Industry avg: 4-5 levels\n• Status: Optimal ✓\n\n**Manager ratio:**\n• Your ratio: 1:6.2 (managers:ICs)\n• Industry avg: 1:5.5\n• Status: Lean structure ✓\n\n**Key insights:**\n• Efficient organizational design\n• Room for strategic growth\n• Strong individual contributor focus\n\nWould you like department-specific comparisons?`;
+    }
+
+    return `I'll help you with that. I can analyze:\n\n• Team structures and reporting lines\n• Growth and expansion scenarios\n• Span of control metrics\n• Succession planning\n• Industry benchmarks\n\nWhat specific aspect would you like to explore?`;
+  };
+
+  // Handle AI input submit - open chat with user's message
   const handleAISubmit = (value: string) => {
-    console.log('AI Submit:', value, 'Selected:', selectedEmployee);
-    // TODO: Open AI chat with context
+    const chat = createNewChat();
+    addMessage(chat.id, { type: 'user', text: value });
+
+    // Add AI response after brief delay
+    setTimeout(() => {
+      addMessage(chat.id, {
+        type: 'ai',
+        text: generateAIResponse(value, selectedEmployeeName),
+      });
+    }, 500);
+
+    selectConversation(chat.id);
+    openChatPanel();
   };
 
-  // Handle AI button click
-  const handleAIButtonClick = () => {
-    console.log('AI Button clicked', 'Selected:', selectedEmployee);
-    // TODO: Open AI chat with context
-  };
-
-  // Handle inline message suggestion click
+  // Handle inline message suggestion click - same as text input
   const handleInlineSuggestionClick = (suggestion: { label: string }) => {
-    console.log('Inline suggestion clicked:', suggestion.label, 'Selected:', selectedEmployee);
-    // TODO: Open AI chat with context
+    handleAISubmit(suggestion.label);
+  };
+
+  // Handle AI button click (no prompt) - open chat with AI greeting
+  const handleAIButtonClick = () => {
+    const chat = createNewChat();
+    addMessage(chat.id, {
+      type: 'ai',
+      text: selectedEmployeeName
+        ? `What would you like to know about ${selectedEmployeeName}'s team?`
+        : "What can I help you with regarding your org chart?",
+      suggestions: selectedEmployeeName
+        ? [`What if ${selectedEmployeeName}'s team grew?`, `Analyze ${selectedEmployeeName}'s span of control`, "Show succession plan"]
+        : ["Plan team expansion", "Analyze span of control", "Compare to industry benchmarks"]
+    });
+    selectConversation(chat.id);
+    openChatPanel();
   };
 
   return (
@@ -304,44 +366,52 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
             onZoomOut={handleZoomOut}
           />
 
-          {/* Affordance Mode Switcher */}
-          <div className="absolute left-6 top-6 flex rounded-full bg-[var(--surface-neutral-white)] dark:bg-neutral-800 border border-[var(--border-neutral-medium)] shadow-md overflow-hidden">
-            <button
-              onClick={() => setAffordanceMode('input')}
-              className={`
-                px-4 py-2 text-sm font-medium transition-colors
-                ${affordanceMode === 'input'
-                  ? 'bg-[var(--color-primary-strong)] text-white'
-                  : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
-                }
-              `}
-            >
-              Input
-            </button>
-            <button
-              onClick={() => setAffordanceMode('toolbar')}
-              className={`
-                px-4 py-2 text-sm font-medium transition-colors
-                ${affordanceMode === 'toolbar'
-                  ? 'bg-[var(--color-primary-strong)] text-white'
-                  : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
-                }
-              `}
-            >
-              Toolbar
-            </button>
-            <button
-              onClick={() => setAffordanceMode('inline')}
-              className={`
-                px-4 py-2 text-sm font-medium transition-colors
-                ${affordanceMode === 'inline'
-                  ? 'bg-[var(--color-primary-strong)] text-white'
-                  : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
-                }
-              `}
-            >
-              Inline
-            </button>
+          {/* Affordance Mode Switcher - Dev Toolbar Style */}
+          <div
+            className="absolute left-6 top-6 rounded-md border-2 border-dashed border-gray-400 dark:border-gray-500 bg-gray-100/95 dark:bg-gray-900/95 backdrop-blur-sm shadow-lg"
+            style={{ fontFamily: 'monospace' }}
+          >
+            <div className="px-3 py-1 border-b border-dashed border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 text-xs font-bold tracking-wider">
+              🔧 AFFORDANCE OPTIONS
+            </div>
+            <div className="flex p-2 gap-1">
+              <button
+                onClick={() => setAffordanceMode('input')}
+                className={`
+                  px-3 py-1.5 text-xs font-mono transition-colors rounded
+                  ${affordanceMode === 'input'
+                    ? 'bg-gray-600 dark:bg-gray-500 text-white font-bold'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700/50'
+                  }
+                `}
+              >
+                Text Input
+              </button>
+              <button
+                onClick={() => setAffordanceMode('toolbar')}
+                className={`
+                  px-3 py-1.5 text-xs font-mono transition-colors rounded
+                  ${affordanceMode === 'toolbar'
+                    ? 'bg-gray-600 dark:bg-gray-500 text-white font-bold'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700/50'
+                  }
+                `}
+              >
+                Button
+              </button>
+              <button
+                onClick={() => setAffordanceMode('inline')}
+                className={`
+                  px-3 py-1.5 text-xs font-mono transition-colors rounded
+                  ${affordanceMode === 'inline'
+                    ? 'bg-gray-600 dark:bg-gray-500 text-white font-bold'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700/50'
+                  }
+                `}
+              >
+                Inline msg
+              </button>
+            </div>
           </div>
 
           {/* AI Input - Bottom of Canvas */}
