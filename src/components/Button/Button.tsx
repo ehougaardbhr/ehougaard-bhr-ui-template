@@ -70,7 +70,7 @@ export function Button({
     `,
     ai: `
       border border-transparent
-      text-[#004876]
+      text-[#004876] dark:text-[#7DD3D7]
       relative
       disabled:opacity-100
     `,
@@ -88,7 +88,7 @@ export function Button({
     ghost: 'var(--icon-neutral-x-strong)',
     outlined: 'var(--color-primary-strong)',
     text: '#0b4fd1',
-    ai: '#004876',
+    ai: 'currentColor', // Inherit from CSS which handles dark mode
   };
 
   return (

@@ -313,7 +313,7 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
                   key={theme.id}
                   onClick={() => handleThemeClick(theme.id)}
                   className={`
-                    px-2.5 py-1 rounded-full text-[12px] transition-all inline-flex items-center gap-1
+                    px-2.5 py-1 rounded-full text-[12px] font-medium transition-all inline-flex items-center gap-1
                     ${isPositive
                       ? isActive
                         ? 'bg-[#E8F4F4] dark:bg-[#0D4548] text-[#0A5C5F] dark:text-[#7DD3D7] border border-[#0D7377] dark:border-[#0D7377] shadow-[0_0_0_1px_#0D7377]'
