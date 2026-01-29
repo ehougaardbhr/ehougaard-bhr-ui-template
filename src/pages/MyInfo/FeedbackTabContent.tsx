@@ -276,13 +276,22 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
 
       {/* Feedback Summary Section */}
       <div>
-        {/* Section Header with Icon and Tooltip */}
+        {/* Section Header with Icon, Tooltip, and AI Button */}
         <div className="flex items-center gap-2">
           <Icon name="sparkles" size={20} className="text-[var(--text-neutral-x-strong)]" />
           <span className="text-[16px] leading-[24px] font-medium text-[var(--text-neutral-x-strong)]">
             Summary of feedback about {employeeName}
           </span>
           <Icon name="circle-question" size={16} className="text-[var(--icon-neutral-strong)]" />
+          <div className="flex-1" />
+          <Button
+            variant="ai"
+            size="small"
+            icon="sparkles"
+            onClick={handleOpenAIChat}
+          >
+            Ask about feedback
+          </Button>
         </div>
 
         {/* Summary Text */}
@@ -304,22 +313,22 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
                   key={theme.id}
                   onClick={() => handleThemeClick(theme.id)}
                   className={`
-                    px-3 py-[6px] rounded-full text-[13px] transition-all inline-flex items-center gap-1.5
+                    px-2.5 py-1 rounded-full text-[12px] transition-all inline-flex items-center gap-1
                     ${isPositive
                       ? isActive
-                        ? 'bg-[#E8F4F4] text-[#0A5C5F] border border-[#0D7377] shadow-[0_0_0_1px_#0D7377]'
-                        : 'bg-[#E8F4F4] text-[#0A5C5F] border border-[#B8DCDD] hover:border-[#0D7377]'
+                        ? 'bg-[#E8F4F4] dark:bg-[#0D4548] text-[#0A5C5F] dark:text-[#7DD3D7] border border-[#0D7377] dark:border-[#0D7377] shadow-[0_0_0_1px_#0D7377]'
+                        : 'bg-[#E8F4F4] dark:bg-[#0A3A3D] text-[#0A5C5F] dark:text-[#7DD3D7] border border-[#B8DCDD] dark:border-[#0A5C5F] hover:border-[#0D7377]'
                       : isActive
-                        ? 'bg-[#FFF4ED] text-[#CD4A00] border border-[#CD4A00] shadow-[0_0_0_1px_#CD4A00]'
-                        : 'bg-[#FFF4ED] text-[#CD4A00] border border-[#FDCDB8] hover:border-[#CD4A00]'
+                        ? 'bg-[#FFF4ED] dark:bg-[#4A2400] text-[#CD4A00] dark:text-[#FF9D66] border border-[#CD4A00] dark:border-[#CD4A00] shadow-[0_0_0_1px_#CD4A00]'
+                        : 'bg-[#FFF4ED] dark:bg-[#3D1E00] text-[#CD4A00] dark:text-[#FF9D66] border border-[#FDCDB8] dark:border-[#9D3A00] hover:border-[#CD4A00]'
                     }
                   `}
                 >
-                  <Icon name={isPositive ? 'thumbs-up' : 'compass'} size={11} />
+                  <Icon name={isPositive ? 'thumbs-up' : 'compass'} size={10} />
                   {theme.label}
                   <Icon
                     name="chevron-down"
-                    size={9}
+                    size={8}
                     className={`opacity-70 transition-transform ${isActive ? 'rotate-180' : ''}`}
                   />
                 </button>
@@ -330,7 +339,7 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
             {!showAllChips && feedbackThemes.length > 3 && (
               <button
                 onClick={() => setShowAllChips(true)}
-                className="px-3 py-1.5 text-[13px] text-[var(--color-primary-strong)] hover:underline"
+                className="px-3 py-1 text-[13px] text-[var(--color-primary)] hover:underline"
               >
                 +{feedbackThemes.length - 3} more
               </button>
@@ -340,24 +349,11 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
             {showAllChips && feedbackThemes.length > 3 && (
               <button
                 onClick={() => setShowAllChips(false)}
-                className="px-3 py-1.5 text-[13px] text-[var(--text-neutral-strong)] hover:underline"
+                className="px-3 py-1 text-[13px] text-[var(--text-neutral-strong)] hover:underline"
               >
                 Show less
               </button>
             )}
-
-            {/* Spacer to push AI button to the right */}
-            <div className="flex-1 min-w-[20px]"></div>
-
-            {/* AI Button */}
-            <Button
-              variant="ai"
-              size="small"
-              icon="sparkles"
-              onClick={handleOpenAIChat}
-            >
-              Ask about feedback
-            </Button>
           </div>
 
           {/* Expanded Theme Content */}
@@ -371,9 +367,18 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
             return (
               <div
                 className="mt-4 p-4 bg-[var(--surface-neutral-xx-weak)] rounded-lg border-l-4"
-                style={{ borderLeftColor: borderColor }}
+                style={{
+                  borderLeftColor: borderColor,
+                  borderLeftWidth: '4px'
+                }}
               >
-                <div className="font-semibold text-[15px] mb-1" style={{ color: titleColor }}>
+                <div
+                  className={`font-semibold text-[15px] mb-1 ${
+                    isGrowthArea
+                      ? 'text-[#CD4A00] dark:text-[#FF9D66]'
+                      : 'text-[#0D7377] dark:text-[#7DD3D7]'
+                  }`}
+                >
                   {theme.details.title}
                 </div>
                 {/* Description is prominent */}
