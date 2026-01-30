@@ -79,6 +79,9 @@ import {
   faPhone,
   faCircle,
   faCheck,
+  faUserLock,
+  faUserCheck,
+  faBan,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -209,7 +212,10 @@ export type IconName =
   | 'phone'
   | 'circle'
   | 'check'
-  | 'grid-2-plus';
+  | 'grid-2-plus'
+  | 'user-lock'
+  | 'user-check'
+  | 'ban';
 
 interface IconProps {
   name: IconName;
@@ -310,6 +316,9 @@ const faIconMap = {
   'circle': faCircle,
   'circle-regular': faCircleRegular,
   'check': faCheck,
+  'user-lock': faUserLock,
+  'user-check': faUserCheck,
+  'ban': faBan,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
