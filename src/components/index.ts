@@ -30,3 +30,5 @@ export { TalentPoolCard } from './TalentPoolCard';
 export { Checkbox } from './Checkbox';
 export { Card } from './Card';
 export { OrgChartView } from './OrgChart';
+export { FormSectionHeader } from './FormSectionHeader';
+export { InfoBanner } from './InfoBanner';

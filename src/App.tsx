@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
-import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings, Inbox } from './pages';
+import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings, Inbox, NewEmployeePage } from './pages';
 import { JobOpeningDetail } from './pages/JobOpeningDetail';
 import { Chat } from './pages/Chat';
 import { ChatTransitionsDemo } from './pages/ChatTransitionsDemo';
@@ -31,6 +31,7 @@ function App() {
                   <Route path="/" element={<Home />} />
                   <Route path="/my-info" element={<MyInfo />} />
                   <Route path="/people" element={<People />} />
+                  <Route path="/people/new" element={<NewEmployeePage />} />
                   <Route path="/hiring" element={<Hiring />} />
                   <Route path="/hiring/job/:id" element={<JobOpeningDetail />} />
                   <Route path="/reports" element={<Reports />} />
