@@ -289,7 +289,7 @@ export const recentConversations: ChatConversation[] = [
       {
         id: '2',
         type: 'ai',
-        text: "I've analyzed the implications of adding 3 Financial Analysts to the Finance team reporting to Frank Rodriguez:\n\n**Impact Summary:**\n• Total Finance headcount: 6 → 9 (50% increase)\n• Frank's direct reports: 2 → 5\n• Span of control: Still manageable (within 5-7 range)\n• Department budget impact: ~$270K annually (assuming $90K avg)\n\n**Considerations:**\n• Frank may need support with people management\n• Could enable better workload distribution\n• Aligns with Q1 revenue growth targets\n• May need additional workspace/equipment\n\nHere's the updated org chart showing the 3 open positions:",
+        text: "I've analyzed the implications of adding **3 Financial Analysts** to the Finance team reporting to **Frank Rodriguez**:\n\n### Impact Summary\n\n- **Total Finance headcount:** 6 → 9 (50% increase)\n- **Frank's direct reports:** 2 → 5\n- **Span of control:** Still manageable (within 5-7 range)\n- **Department budget impact:** ~$270K annually (assuming $90K avg)\n\n### Considerations\n\n- Frank may need support with people management\n- Could enable better workload distribution\n- Aligns with Q1 revenue growth targets\n- May need additional workspace/equipment\n\nHere's the updated org chart showing the 3 open positions:",
         artifactId: 'artifact-10', // Links to full company org chart with TBH cards
         suggestions: [
           'Show me span of control across all teams',
@@ -424,6 +424,121 @@ export const recentConversations: ChatConversation[] = [
         id: '2',
         type: 'ai',
         text: 'To request a leave of absence:\n\n1. Submit request 30 days in advance\n2. Include start and end dates\n3. Specify leave type (FMLA, personal, etc.)\n4. Get manager approval\n5. HR will confirm eligibility',
+      },
+    ],
+  },
+  {
+    id: '16',
+    title: 'Markdown Test',
+    messages: [
+      {
+        id: '1',
+        type: 'user',
+        text: 'Show me all markdown formatting options',
+      },
+      {
+        id: '2',
+        type: 'ai',
+        text: `# Markdown Formatting Guide
+
+## Headers
+This demonstrates different header levels.
+
+### Level 3 Header
+#### Level 4 Header
+##### Level 5 Header
+###### Level 6 Header
+
+## Text Emphasis
+
+**Bold text** shows strong emphasis.
+
+*Italic text* adds subtle emphasis.
+
+***Bold and italic*** combines both.
+
+~~Strikethrough~~ marks deleted content.
+
+## Lists
+
+### Unordered List
+- First item
+- Second item
+- Third item
+  - Nested item A
+  - Nested item B
+- Fourth item
+
+### Ordered List
+1. First step
+2. Second step
+3. Third step
+   1. Sub-step 3.1
+   2. Sub-step 3.2
+4. Fourth step
+
+## Code
+
+Inline code example: \`const greeting = "Hello World";\`
+
+Block code example:
+\`\`\`javascript
+function calculatePTO(employee) {
+  const yearsOfService = employee.tenure;
+  const basePTO = 15;
+  const bonus = yearsOfService * 2;
+  return basePTO + bonus;
+}
+\`\`\`
+
+## Links
+
+Visit [BambooHR](https://www.bamboohr.com) for more information.
+
+Check out [our documentation](https://docs.bamboohr.com) to learn more.
+
+## Blockquotes
+
+> "Great things in business are never done by one person. They're done by a team of people."
+>
+> — Steve Jobs
+
+## Tables
+
+| Employee | Department | Years | PTO Days |
+|----------|-----------|-------|----------|
+| Alice Chen | Engineering | 5 | 25 |
+| Bob Smith | Marketing | 3 | 21 |
+| Carol Davis | Sales | 7 | 29 |
+| David Kim | HR | 2 | 19 |
+
+## Horizontal Rule
+
+---
+
+## Task Lists
+
+- [x] Complete onboarding documentation
+- [x] Set up employee profiles
+- [ ] Schedule team introductions
+- [ ] Send welcome emails
+
+## Combined Example
+
+**Important Notice:** The Q1 benefits enrollment period is ~~January 1-15~~ **January 15-31**.
+
+Key actions:
+1. Review your *current benefits*
+2. Compare with **new options**
+3. Submit changes by deadline
+4. Contact HR with questions
+
+For help, visit [benefits portal](https://benefits.bamboohr.com) or run:
+\`\`\`bash
+npm run benefits-calculator
+\`\`\`
+
+> Remember: Enrollment is mandatory for all employees.`,
       },
     ],
   },

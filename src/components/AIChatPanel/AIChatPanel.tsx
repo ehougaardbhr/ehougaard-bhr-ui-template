@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { InlineArtifactCard } from '../InlineArtifactCard';
+import MarkdownContent from '../MarkdownContent';
 import { useChat } from '../../contexts/ChatContext';
 import { useArtifact } from '../../contexts/ArtifactContext';
 import { chartTypeIcons } from '../../data/artifactData';
@@ -462,9 +463,7 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                             </div>
                             {/* AI Message */}
                             <div className="pl-8">
-                              <p className="text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)] whitespace-pre-line">
-                                {message.text}
-                              </p>
+                              <MarkdownContent text={message.text} />
                               {/* Inline Artifact Card */}
                               {message.artifactId && (() => {
                                 const artifact = artifacts.find(a => a.id === message.artifactId);
@@ -538,9 +537,7 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                           </div>
                         ) : (
                           <div className="flex flex-col gap-4">
-                            <p className="text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)] whitespace-pre-line">
-                              {message.text}
-                            </p>
+                            <MarkdownContent text={message.text} />
                             {/* Inline Artifact Card */}
                             {message.artifactId && (() => {
                               const artifact = artifacts.find(a => a.id === message.artifactId);
