@@ -7,6 +7,7 @@ import {
   FormDropdown,
   Checkbox,
 } from '../../components';
+import { employees } from '../../data/employees';
 
 // Dropdown options
 const genderOptions = [
@@ -118,11 +119,14 @@ const jobTitleOptions = [
   { value: 'accountant', label: 'Accountant' },
 ];
 
-const reportsToOptions = [
-  { value: 'john-doe', label: 'John Doe' },
-  { value: 'jane-smith', label: 'Jane Smith' },
-  { value: 'bob-johnson', label: 'Bob Johnson' },
-];
+// Generate Reports To options from employees with direct reports
+const reportsToOptions = employees
+  .filter(emp => emp.directReports > 0 && !emp.isTBH)
+  .map(emp => ({
+    value: emp.id.toString(),
+    label: `${emp.name} - ${emp.title}`,
+  }))
+  .sort((a, b) => a.label.localeCompare(b.label));
 
 const departmentOptions = [
   { value: 'engineering', label: 'Engineering' },
