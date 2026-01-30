@@ -93,7 +93,7 @@ export default function NewEmployeePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--surface-neutral-xx-weak)]">
+    <div className="h-full overflow-y-auto bg-[var(--surface-neutral-xx-weak)]">
       {/* Page Header */}
       <div className="px-8 pt-8 pb-6 bg-[var(--surface-neutral-white)]">
         <div className="max-w-[1248px] mx-auto">
