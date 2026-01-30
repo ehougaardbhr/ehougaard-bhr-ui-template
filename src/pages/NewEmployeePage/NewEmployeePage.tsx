@@ -189,6 +189,7 @@ export default function NewEmployeePage() {
                   value={formData.gender}
                   onChange={(value) => handleInputChange('gender', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
               <div className="w-[248px]">
@@ -197,6 +198,7 @@ export default function NewEmployeePage() {
                   value={formData.maritalStatus}
                   onChange={(value) => handleInputChange('maritalStatus', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -251,6 +253,7 @@ export default function NewEmployeePage() {
                   value={formData.state}
                   onChange={(value) => handleInputChange('state', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
               <div className="w-[180px]">
@@ -275,6 +278,7 @@ export default function NewEmployeePage() {
                   value={formData.paySchedule}
                   onChange={(value) => handleInputChange('paySchedule', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -285,6 +289,7 @@ export default function NewEmployeePage() {
                   value={formData.payType}
                   onChange={(value) => handleInputChange('payType', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -305,6 +310,7 @@ export default function NewEmployeePage() {
                   value={formData.payRateType}
                   onChange={(value) => handleInputChange('payRateType', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
               <div className="w-[248px]">
@@ -313,6 +319,7 @@ export default function NewEmployeePage() {
                   value={formData.payPeriod}
                   onChange={(value) => handleInputChange('payPeriod', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -411,6 +418,7 @@ export default function NewEmployeePage() {
                   value={formData.employmentStatus}
                   onChange={(value) => handleInputChange('employmentStatus', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -427,6 +435,7 @@ export default function NewEmployeePage() {
                   value={formData.jobTitle}
                   onChange={(value) => handleInputChange('jobTitle', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
               <div className="w-[248px]">
@@ -435,6 +444,7 @@ export default function NewEmployeePage() {
                   value={formData.reportsTo}
                   onChange={(value) => handleInputChange('reportsTo', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -445,6 +455,7 @@ export default function NewEmployeePage() {
                   value={formData.department}
                   onChange={(value) => handleInputChange('department', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
               <div className="w-[248px]">
@@ -453,6 +464,7 @@ export default function NewEmployeePage() {
                   value={formData.division}
                   onChange={(value) => handleInputChange('division', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -463,6 +475,7 @@ export default function NewEmployeePage() {
                   value={formData.location}
                   onChange={(value) => handleInputChange('location', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -525,6 +538,7 @@ export default function NewEmployeePage() {
                   value={formData.dependentGender}
                   onChange={(value) => handleInputChange('dependentGender', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
               <div className="w-[248px]">
@@ -533,6 +547,7 @@ export default function NewEmployeePage() {
                   value={formData.dependentRelationship}
                   onChange={(value) => handleInputChange('dependentRelationship', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -562,6 +577,7 @@ export default function NewEmployeePage() {
                   value={formData.emergencyRelationship}
                   onChange={(value) => handleInputChange('emergencyRelationship', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -630,6 +646,7 @@ export default function NewEmployeePage() {
                   value={formData.emergencyState}
                   onChange={(value) => handleInputChange('emergencyState', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
               <div className="w-[180px]">
@@ -648,6 +665,7 @@ export default function NewEmployeePage() {
                   value={formData.emergencyCountry}
                   onChange={(value) => handleInputChange('emergencyCountry', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
             </div>
@@ -679,6 +697,7 @@ export default function NewEmployeePage() {
                   value={formData.degree}
                   onChange={(value) => handleInputChange('degree', value)}
                   type="dropdown"
+                  placeholder="-Select-"
                 />
               </div>
               <div className="w-[369px]">
