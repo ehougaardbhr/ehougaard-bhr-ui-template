@@ -11,8 +11,8 @@ interface DatePickerProps {
 }
 
 const MONTHS = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December'
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
 ];
 
 const DAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -149,98 +149,123 @@ export function DatePicker({
         {isOpen && !disabled && (
           <div
             className="
-              absolute z-50 top-full left-0 mt-1
+              absolute z-50 top-full left-0 mt-2
               w-[320px]
               bg-[var(--surface-neutral-white)]
               border border-[var(--border-neutral-medium)]
-              rounded-[var(--radius-small)]
-              shadow-lg
-              p-4
+              rounded-[12px]
             "
+            style={{
+              boxShadow: '3px 3px 10px 2px rgba(56, 49, 47, 0.1)',
+            }}
           >
-            {/* Header with navigation */}
-            <div className="flex items-center gap-2 mb-4">
-              <button
-                type="button"
-                onClick={handlePrevMonth}
-                className="flex items-center justify-center w-8 h-8 rounded hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
-              >
-                <Icon name="chevron-left" size={16} className="text-[var(--icon-neutral-strong)]" />
-              </button>
-
-              <select
-                value={viewDate.getMonth()}
-                onChange={(e) => handleMonthChange(Number(e.target.value))}
-                className="flex-1 h-8 px-2 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded text-[13px] text-[var(--text-neutral-strong)]"
-              >
-                {MONTHS.map((month, index) => (
-                  <option key={month} value={index}>
-                    {month}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                value={viewDate.getFullYear()}
-                onChange={(e) => handleYearChange(Number(e.target.value))}
-                className="w-20 h-8 px-2 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded text-[13px] text-[var(--text-neutral-strong)]"
-              >
-                {years.map((year) => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                type="button"
-                onClick={handleNextMonth}
-                className="flex items-center justify-center w-8 h-8 rounded hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
-              >
-                <Icon name="chevron-right" size={16} className="text-[var(--icon-neutral-strong)]" />
-              </button>
-            </div>
-
-            {/* Days of week */}
-            <div className="grid grid-cols-7 gap-1 mb-2">
-              {DAYS.map((day, index) => (
-                <div
-                  key={`day-header-${index}`}
-                  className="flex items-center justify-center h-8 text-[11px] font-medium text-[var(--text-neutral-medium)]"
+            {/* Header with navigation and day labels */}
+            <div className="bg-[var(--surface-neutral-xx-weak)] rounded-t-[8px] pt-2 pb-3 px-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={handlePrevMonth}
+                  className="flex items-center justify-center w-10 h-8 rounded-full bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors px-3"
+                  style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
                 >
-                  {day}
+                  <Icon name="chevron-left" size={16} className="text-[var(--icon-neutral-x-strong)]" />
+                </button>
+
+                <div className="relative">
+                  <select
+                    value={viewDate.getMonth()}
+                    onChange={(e) => handleMonthChange(Number(e.target.value))}
+                    className="w-[88px] h-8 pl-4 pr-9 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full text-[14px] font-normal leading-[20px] text-[var(--text-neutral-strong)] appearance-none cursor-pointer"
+                    style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.03)' }}
+                  >
+                    {MONTHS.map((month, index) => (
+                      <option key={month} value={index}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-2">
+                    <div className="w-px h-4 bg-[var(--surface-neutral-weak)]"></div>
+                    <Icon name="caret-down" size={16} className="text-[var(--icon-neutral-weak)]" />
+                  </div>
                 </div>
-              ))}
+
+                <div className="relative">
+                  <select
+                    value={viewDate.getFullYear()}
+                    onChange={(e) => handleYearChange(Number(e.target.value))}
+                    className="w-[96px] h-8 pl-4 pr-9 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] rounded-full text-[14px] font-normal leading-[20px] text-[var(--text-neutral-strong)] appearance-none cursor-pointer"
+                    style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.03)' }}
+                  >
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none flex items-center gap-2">
+                    <div className="w-px h-4 bg-[var(--surface-neutral-weak)]"></div>
+                    <Icon name="caret-down" size={16} className="text-[var(--icon-neutral-weak)]" />
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleNextMonth}
+                  className="flex items-center justify-center w-10 h-8 rounded-full bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors px-3"
+                  style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
+                >
+                  <Icon name="chevron-right" size={16} className="text-[var(--icon-neutral-x-strong)]" />
+                </button>
+              </div>
+
+              {/* Days of week */}
+              <div className="flex items-center justify-between px-1">
+                {DAYS.map((day, index) => (
+                  <div
+                    key={`day-header-${index}`}
+                    className="flex items-center justify-center text-[13px] font-semibold leading-[19px] text-[var(--text-neutral-weak)]"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Calendar days */}
-            <div className="grid grid-cols-7 gap-1">
-              {calendarDays.map((day, index) => (
-                <div key={index} className="flex items-center justify-center">
-                  {day ? (
-                    <button
-                      type="button"
-                      onClick={() => handleDateSelect(day)}
-                      className={`
-                        flex items-center justify-center
-                        w-10 h-10
-                        rounded
-                        text-[13px]
-                        transition-colors
-                        ${
-                          isSelected(day)
-                            ? 'bg-[var(--color-primary-strong)] text-white font-semibold'
-                            : isToday(day)
-                            ? 'bg-[var(--surface-neutral-x-weak)] text-[var(--text-neutral-xx-strong)] font-medium'
-                            : 'text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
-                        }
-                      `}
-                    >
-                      {day}
-                    </button>
-                  ) : (
-                    <div className="w-10 h-10" />
-                  )}
+            <div className="flex flex-col gap-1 p-1">
+              {Array.from({ length: Math.ceil(calendarDays.length / 7) }, (_, weekIndex) => (
+                <div key={`week-${weekIndex}`} className="flex gap-1">
+                  {calendarDays.slice(weekIndex * 7, (weekIndex + 1) * 7).map((day, dayIndex) => {
+                    const actualIndex = weekIndex * 7 + dayIndex;
+                    return (
+                      <div key={actualIndex} className="flex items-center justify-center w-10 h-10">
+                        {day ? (
+                          <button
+                            type="button"
+                            onClick={() => handleDateSelect(day)}
+                            className={`
+                              flex items-center justify-center
+                              w-10 h-10
+                              text-[14px] leading-[20px]
+                              transition-all
+                              ${
+                                isSelected(day)
+                                  ? 'bg-[#2E7918] text-white font-bold rounded-[8px]'
+                                  : isToday(day)
+                                  ? 'border border-[var(--border-neutral-weak)] text-[var(--text-neutral-x-strong)] font-semibold rounded-[8px]'
+                                  : 'text-[var(--text-neutral-x-strong)] font-medium hover:border hover:border-[var(--border-neutral-weak)] rounded-[8px]'
+                              }
+                            `}
+                          >
+                            {day}
+                          </button>
+                        ) : (
+                          <div className="w-10 h-10" />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
             </div>
