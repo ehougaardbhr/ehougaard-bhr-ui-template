@@ -20,7 +20,7 @@ export function Checkbox({ label, checked, onChange, disabled = false }: Checkbo
         />
         <div
           className={`
-            w-5 h-5 rounded-[var(--radius-xx-small)] flex items-center justify-center transition-colors
+            w-5 h-5 rounded-[var(--radius-xx-small)] flex items-center justify-center
             ${checked
               ? 'bg-[var(--color-primary-strong)] border border-[var(--color-primary-strong)]'
               : 'bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-medium)]'

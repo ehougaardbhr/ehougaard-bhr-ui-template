@@ -943,7 +943,6 @@ export default function NewEmployeePage() {
                   p-5
                   flex items-start gap-4
                   cursor-pointer
-                  transition-colors
                 `}
                 style={{ boxShadow: '1px 1px 0px 2px rgba(56, 49, 47, 0.03)' }}
               >
@@ -971,7 +970,6 @@ export default function NewEmployeePage() {
                   p-5
                   flex items-start gap-4
                   cursor-pointer
-                  transition-colors
                 `}
                 style={{ boxShadow: '1px 1px 0px 2px rgba(56, 49, 47, 0.03)' }}
               >
