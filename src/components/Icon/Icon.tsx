@@ -79,6 +79,9 @@ import {
   faPhone,
   faCircle,
   faCheck,
+  faUserLock,
+  faUserCheck,
+  faBan,
   faAngleLeft,
   faHouse,
   faLaptop,
@@ -213,6 +216,9 @@ export type IconName =
   | 'circle'
   | 'check'
   | 'grid-2-plus'
+  | 'user-lock'
+  | 'user-check'
+  | 'ban'
   | 'angle-left'
   | 'house'
   | 'laptop'
@@ -318,6 +324,9 @@ const faIconMap = {
   'circle': faCircle,
   'circle-regular': faCircleRegular,
   'check': faCheck,
+  'user-lock': faUserLock,
+  'user-check': faUserCheck,
+  'ban': faBan,
   'angle-left': faAngleLeft,
   'house': faHouse,
   'laptop': faLaptop,

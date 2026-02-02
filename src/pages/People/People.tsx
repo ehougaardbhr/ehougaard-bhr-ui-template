@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button, Icon, EmployeeCard, Dropdown, PeopleListView, OrgChartView } from '../../components';
 import { employees } from '../../data/employees';
 
@@ -6,6 +7,7 @@ type GroupBy = 'name' | 'department' | 'location' | 'division';
 type ViewMode = 'list' | 'directory' | 'orgChart';
 
 export function People() {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [searchQuery, setSearchQuery] = useState('');
   const [groupBy, setGroupBy] = useState<GroupBy>('name');
@@ -108,7 +110,7 @@ export function People() {
       {/* Actions Bar with Tabs */}
       <div className="flex items-end justify-between border-b border-[var(--border-neutral-x-weak)] mb-6">
         <div className="pb-4">
-          <Button icon="circle-plus-lined" variant="outlined">
+          <Button icon="circle-plus-lined" variant="outlined" onClick={() => navigate('/people/new')}>
             New Employee
           </Button>
         </div>
