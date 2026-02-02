@@ -283,7 +283,8 @@ export default function NewEmployeePage() {
       </div>
 
       {/* Form Content */}
-      <div className="max-w-[1248px] mx-auto px-8 py-6 space-y-5">
+      <div className="px-8 py-6">
+        <div className="max-w-[1248px] mx-auto space-y-5">
         {/* New Hire Packet Banner */}
         <InfoBanner
           title="Make everyone's life a little bit easier and send a New Hire Packet."
@@ -1000,6 +1001,7 @@ export default function NewEmployeePage() {
           <Button variant="text">
             Cancel
           </Button>
+        </div>
         </div>
       </div>
     </div>
