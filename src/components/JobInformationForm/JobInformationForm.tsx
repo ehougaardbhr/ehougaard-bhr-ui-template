@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Icon, Button } from '../../components';
 import { JobLocationOption } from '../JobLocationOption';
+import { SuccessNotification } from '../SuccessNotification';
 import type { JobSuggestion } from '../../types/jobAI';
 import { fetchJobSuggestions } from '../../services/jobAIService';
 
@@ -71,36 +72,31 @@ export function JobInformationForm() {
     return () => clearTimeout(timer);
   }, [postingTitle]);
 
-  const fillItIn = async () => {
+  const fillItIn = () => {
     if (!suggestion) return;
 
-    const fields = [
-      { set: setDepartment, value: suggestion.department, name: 'department' },
-      { set: setEmploymentType, value: suggestion.employmentType, name: 'employmentType' },
-      { set: setMinimumExperience, value: suggestion.experienceLevel, name: 'minimumExperience' },
-      {
-        set: setCompensation,
-        value: suggestion.salaryMin && suggestion.salaryMax
-          ? `$${parseInt(suggestion.salaryMin, 10).toLocaleString()}-${parseInt(suggestion.salaryMax, 10).toLocaleString()}/yr`
-          : '',
-        name: 'compensation'
-      },
-      {
-        set: () => {
-          setLocationInOffice(suggestion.workSchedule === 'In Office');
-          setLocationHybrid(suggestion.workSchedule === 'Hybrid');
-          setLocationRemote(suggestion.workSchedule === 'Remote');
-        },
-        value: true,
-        name: 'location'
-      }
-    ];
+    // Format job description from responsibilities
+    const formattedJobDescription = suggestion.responsibilities && suggestion.responsibilities.length > 0
+      ? suggestion.responsibilities.map(resp => `• ${resp}`).join('\n')
+      : '';
 
-    for (const field of fields) {
-      field.set(field.value);
-      setFilledFields(prev => new Set([...prev, field.name]));
-      await new Promise(r => setTimeout(r, 100));
+    // Fill all fields at once
+    setDepartment(suggestion.department);
+    setEmploymentType(suggestion.employmentType);
+    setMinimumExperience(suggestion.experienceLevel);
+
+    if (suggestion.salaryMin && suggestion.salaryMax) {
+      const formattedComp = `$${parseInt(suggestion.salaryMin, 10).toLocaleString()}-${parseInt(suggestion.salaryMax, 10).toLocaleString()}/yr`;
+      setCompensation(formattedComp);
     }
+
+    setLocationInOffice(suggestion.workSchedule === 'In Office');
+    setLocationHybrid(suggestion.workSchedule === 'Hybrid');
+    setLocationRemote(suggestion.workSchedule === 'Remote');
+
+    setJobDescription(formattedJobDescription);
+
+    setFilledFields(new Set(['department', 'employmentType', 'minimumExperience', 'compensation', 'location', 'jobDescription']));
 
     // Show toast
     setShowToast(true);
@@ -114,8 +110,11 @@ export function JobInformationForm() {
     setLocationInOffice(false);
     setLocationHybrid(false);
     setLocationRemote(false);
+    setJobDescription('');
     setFilledFields(new Set());
     setShowToast(false);
+    setSuggestion(null);
+    setShowAssistantBubble(false);
   };
 
   const clearField = (fieldName: string, setter: (val: any) => void, defaultValue: any = '') => {
@@ -245,7 +244,7 @@ export function JobInformationForm() {
           <div className="flex items-center gap-2">
             {filledFields.size > 0 ? (
               <Button onClick={undoAll} variant="standard" size="small">
-                Clear all
+                Undo
               </Button>
             ) : (
               <>
@@ -270,29 +269,15 @@ export function JobInformationForm() {
         </div>
       )}
 
-      {/* Toast */}
-      {showToast && (
-        <div className="fixed top-6 right-6 z-50 flex items-center gap-3 p-4 bg-[var(--surface-neutral-white)] rounded-lg border border-[var(--border-neutral-medium)] animate-slideIn" style={{ boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)' }}>
-          <Icon name="check-circle" size={20} className="text-green-600 flex-shrink-0" />
-          <div className="flex-1">
-            <div className="text-[14px] font-semibold text-[var(--text-neutral-x-strong)]">
-              Filled {filledFields.size} fields
-            </div>
-            <button
-              onClick={() => setShowReviewModal(true)}
-              className="text-[13px] text-[var(--color-primary-strong)] hover:underline"
-            >
-              Review changes
-            </button>
-          </div>
-          <button
-            onClick={() => setShowToast(false)}
-            className="w-6 h-6 flex items-center justify-center rounded-full hover:bg-[var(--surface-neutral-x-weak)]"
-          >
-            <Icon name="xmark" size={12} />
-          </button>
-        </div>
-      )}
+      {/* Success Notification */}
+      <SuccessNotification
+        show={showToast}
+        title={`Filled ${filledFields.size} fields`}
+        description="How's that for speedy?"
+        actionLabel="Review Changes"
+        onAction={() => setShowReviewModal(true)}
+        onDismiss={() => setShowToast(false)}
+      />
 
       {/* Job Status */}
       <div className="flex flex-col gap-1 w-full max-w-[720px]">
@@ -554,12 +539,21 @@ export function JobInformationForm() {
           <textarea
             value={jobDescription}
             onChange={(e) => setJobDescription(e.target.value)}
-            placeholder="Add your job description here..."
+            placeholder={
+              suggestion && !jobDescription && filledFields.size === 0 && suggestion.responsibilities?.length > 0
+                ? ''
+                : 'Add your job description here...'
+            }
             className="flex-1 h-full bg-transparent text-[15px] leading-[22px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-weak)] outline-none resize-none"
           />
+          {suggestion && !jobDescription && filledFields.size === 0 && suggestion.responsibilities?.length > 0 && (
+            <div className="absolute left-4 top-[9px] pointer-events-none text-[15px] leading-[22px] text-[var(--text-neutral-weak)] italic whitespace-pre-line">
+              {suggestion.responsibilities.map(resp => `• ${resp}`).join('\n')}
+            </div>
+          )}
           {jobDescription && (
             <button
-              onClick={() => setJobDescription('')}
+              onClick={() => clearField('jobDescription', setJobDescription)}
               type="button"
               className="absolute right-3 top-3 w-6 h-6 flex items-center justify-center text-[var(--icon-neutral-strong)] hover:text-[var(--text-neutral-x-strong)]"
             >

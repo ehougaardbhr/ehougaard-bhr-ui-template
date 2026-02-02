@@ -201,12 +201,59 @@ body {
   }
 }
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -100%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.3s ease-out;
 }
 
 .animate-slideIn {
   animation: slideIn 0.3s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* AI Inline Message */
+.ai-inline-message {
+  background: linear-gradient(122.835deg, rgb(233, 243, 252) 0%, rgb(245, 238, 248) 100%);
+  border-color: rgba(56, 49, 47, 0.08);
+  box-shadow: 1px 1px 0px 1px rgba(56, 49, 47, 0.04);
+}
+
+.ai-inline-message-text {
+  color: #0066CC;
+}
+
+:root.dark .ai-inline-message {
+  background: linear-gradient(122.835deg, rgba(30, 58, 95, 0.8) 0%, rgba(55, 35, 70, 0.8) 100%);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 1px 1px 0px 1px rgba(0, 0, 0, 0.2);
+}
+
+:root.dark .ai-inline-message-text {
+  color: #7CB3F0;
+}
+
+/* AI Fill Button */
+.ai-fill-button {
+  background-image: linear-gradient(white, white), linear-gradient(135deg, #AFD6A3 0%, #A6D0F3 34%, #D5BAE3 67%, #F6C499 96%);
+  color: #00618b;
+}
+
+:root.dark .ai-fill-button {
+  background-image: linear-gradient(#1a1a1a, #1a1a1a), linear-gradient(135deg, #AFD6A3 0%, #A6D0F3 34%, #D5BAE3 67%, #F6C499 96%);
+  color: #7CB3F0;
 }
 
 /* Headline/X-large (H1) */
