@@ -3,6 +3,7 @@ import AppLayout from './layouts/AppLayout';
 import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings, Inbox } from './pages';
 import { ArtifactWorkspace } from './pages/ArtifactWorkspace';
 import { JobOpeningDetail } from './pages/JobOpeningDetail';
+import { CreateJobOpening } from './pages/CreateJobOpening';
 import { ChatTransitionsDemo } from './pages/ChatTransitionsDemo';
 import { TextReflowDemo } from './pages/TextReflowDemo';
 import { TextReflowDemo2 } from './pages/TextReflowDemo2';
@@ -45,6 +46,7 @@ function App() {
                     <Route path="/people" element={<People />} />
                     <Route path="/hiring" element={<Hiring />} />
                     <Route path="/hiring/job/:id" element={<JobOpeningDetail />} />
+                    <Route path="/hiring/create" element={<CreateJobOpening />} />
                     <Route path="/reports" element={<Reports />} />
                     <Route path="/files" element={<Files />} />
                     <Route path="/payroll" element={<Payroll />} />

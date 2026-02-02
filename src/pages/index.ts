@@ -7,3 +7,4 @@ export { Files } from './Files';
 export { Payroll } from './Payroll';
 export { Settings } from './Settings';
 export { Inbox } from './Inbox';
+export { CreateJobOpening } from './CreateJobOpening';
