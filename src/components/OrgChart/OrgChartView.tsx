@@ -414,9 +414,9 @@ export function OrgChartView({ employees }: OrgChartViewProps) {
             </div>
           </div>
 
-          {/* AI Input - Bottom of Canvas */}
+          {/* AI Input - Fixed to Viewport Bottom */}
           {affordanceMode === 'input' && (
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2" style={{ width: '540px' }}>
+            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50" style={{ width: '540px' }}>
               <OrgChartAIInput
                 placeholder={selectedEmployeeName
                   ? `Ask about ${selectedEmployeeName}'s team`
