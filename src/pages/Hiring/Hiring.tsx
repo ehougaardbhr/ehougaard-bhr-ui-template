@@ -82,9 +82,11 @@ export function Hiring() {
       <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] overflow-hidden">
         {/* Actions Bar */}
         <div className="flex items-center justify-between px-6 py-4">
-          <Button icon="circle-user" variant="standard">
-            New job opening
-          </Button>
+          <Link to="/hiring/create">
+            <Button icon="circle-user" variant="standard">
+              New job opening
+            </Button>
+          </Link>
 
           <div className="flex items-center gap-4">
             <span className="text-[15px] text-[var(--text-neutral-medium)]">

@@ -62,7 +62,7 @@ export function CreateJobOpening() {
         />
 
         {/* Right Content */}
-        <div className="flex-1 bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] overflow-hidden"
+        <div className="flex-1 bg-[var(--surface-neutral-white)] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)]"
           style={{ boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)' }}
         >
           {/* Section Header */}

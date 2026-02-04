@@ -4,14 +4,14 @@ interface JobLocationOptionProps {
   icon: IconName;
   label: string;
   checked: boolean;
-  onChange: (checked: boolean) => void;
+  onChange: () => void;
 }
 
 export function JobLocationOption({ icon, label, checked, onChange }: JobLocationOptionProps) {
   return (
     <button
       type="button"
-      onClick={() => onChange(!checked)}
+      onClick={onChange}
       className={`
         flex items-center gap-4 p-5 flex-1 min-w-[200px] max-w-[223px]
         bg-[var(--surface-neutral-white)]
@@ -25,8 +25,10 @@ export function JobLocationOption({ icon, label, checked, onChange }: JobLocatio
       style={{ boxShadow: 'var(--shadow-300)' }}
     >
       <div className="flex-1 flex items-center gap-4">
-        <div className="flex items-center justify-center w-12 h-12 rounded-[var(--radius-x-small)] bg-[var(--surface-neutral-x-weak)]">
-          <Icon name={icon} size={24} className="text-[var(--color-primary-strong)]" />
+        <div className={`flex items-center justify-center w-12 h-12 rounded-[var(--radius-x-small)] ${
+          checked ? 'bg-[var(--color-primary-strong)]' : 'bg-[var(--surface-neutral-x-weak)]'
+        }`}>
+          <Icon name={icon} size={24} className={checked ? 'text-white' : 'text-[var(--color-primary-strong)]'} />
         </div>
         <span className="text-[16px] font-medium leading-[24px] text-[var(--color-primary-strong)]">
           {label}

@@ -16,9 +16,7 @@ export function JobInformationForm() {
   const [compensation, setCompensation] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [internalJobCode, setInternalJobCode] = useState('');
-  const [locationInOffice, setLocationInOffice] = useState(false);
-  const [locationHybrid, setLocationHybrid] = useState(false);
-  const [locationRemote, setLocationRemote] = useState(false);
+  const [jobLocation, setJobLocation] = useState<'in-office' | 'hybrid' | 'remote' | null>(null);
 
   // AI state
   const [isGenerating, setIsGenerating] = useState(false);
@@ -90,9 +88,9 @@ export function JobInformationForm() {
       setCompensation(formattedComp);
     }
 
-    setLocationInOffice(suggestion.workSchedule === 'In Office');
-    setLocationHybrid(suggestion.workSchedule === 'Hybrid');
-    setLocationRemote(suggestion.workSchedule === 'Remote');
+    if (suggestion.workSchedule === 'In Office') setJobLocation('in-office');
+    else if (suggestion.workSchedule === 'Hybrid') setJobLocation('hybrid');
+    else if (suggestion.workSchedule === 'Remote') setJobLocation('remote');
 
     setJobDescription(formattedJobDescription);
 
@@ -107,9 +105,7 @@ export function JobInformationForm() {
     setEmploymentType('');
     setMinimumExperience('');
     setCompensation('');
-    setLocationInOffice(false);
-    setLocationHybrid(false);
-    setLocationRemote(false);
+    setJobLocation(null);
     setJobDescription('');
     setFilledFields(new Set());
     setShowToast(false);
@@ -127,9 +123,7 @@ export function JobInformationForm() {
   };
 
   const clearLocation = () => {
-    setLocationInOffice(false);
-    setLocationHybrid(false);
-    setLocationRemote(false);
+    setJobLocation(null);
     setFilledFields(prev => {
       const next = new Set(prev);
       next.delete('location');
@@ -488,7 +482,7 @@ export function JobInformationForm() {
           <label className="text-[14px] font-medium leading-[20px] text-[var(--text-neutral-x-strong)]">
             Job Location<span className="text-[var(--text-neutral-strong)]">*</span>
           </label>
-          {(locationInOffice || locationHybrid || locationRemote) && (
+          {jobLocation && (
             <button
               onClick={clearLocation}
               className="flex items-center gap-1 text-[12px] font-medium text-[var(--color-primary-strong)] hover:underline"
@@ -507,20 +501,20 @@ export function JobInformationForm() {
             <JobLocationOption
               icon="building"
               label="In Office"
-              checked={locationInOffice}
-              onChange={setLocationInOffice}
+              checked={jobLocation === 'in-office'}
+              onChange={() => setJobLocation('in-office')}
             />
             <JobLocationOption
-              icon="house-building"
+              icon="door-open"
               label="Hybrid"
-              checked={locationHybrid}
-              onChange={setLocationHybrid}
+              checked={jobLocation === 'hybrid'}
+              onChange={() => setJobLocation('hybrid')}
             />
             <JobLocationOption
-              icon="house-laptop"
+              icon="home"
               label="Remote"
-              checked={locationRemote}
-              onChange={setLocationRemote}
+              checked={jobLocation === 'remote'}
+              onChange={() => setJobLocation('remote')}
             />
           </div>
           <FieldExplanation fieldName="location" />
