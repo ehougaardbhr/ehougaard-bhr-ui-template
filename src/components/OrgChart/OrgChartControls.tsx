@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Employee } from '../../data/employees';
 import { Icon } from '../Icon';
+import { Button } from '../Button';
 
 interface OrgChartControlsProps {
   employees: Employee[];
@@ -10,6 +11,9 @@ interface OrgChartControlsProps {
   onGoUp?: () => void;
   onFilterOpen?: () => void;
   onExportOpen?: () => void;
+  showAIButton?: boolean;
+  selectedEmployeeName?: string;
+  onAIButtonClick?: () => void;
 }
 
 export function OrgChartControls({
@@ -20,6 +24,9 @@ export function OrgChartControls({
   onGoUp,
   onFilterOpen,
   onExportOpen,
+  showAIButton = false,
+  selectedEmployeeName,
+  onAIButtonClick,
 }: OrgChartControlsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -229,8 +236,8 @@ export function OrgChartControls({
         )}
       </div>
 
-      {/* Right: Filter and Export */}
-      {(onFilterOpen || onExportOpen) && (
+      {/* Right: Filter, Export, and AI Button */}
+      {(onFilterOpen || onExportOpen || showAIButton) && (
         <div className="flex items-center gap-2 ml-auto">
           {/* Filter Button */}
           {onFilterOpen && (
@@ -253,6 +260,21 @@ export function OrgChartControls({
               <span className="font-semibold">Export</span>
               <Icon name="caret-down" size={10} />
             </button>
+          )}
+
+          {/* AI Button */}
+          {showAIButton && onAIButtonClick && (
+            <Button
+              variant="ai"
+              size="medium"
+              icon="sparkles"
+              onClick={onAIButtonClick}
+            >
+              {selectedEmployeeName
+                ? `Ask about ${selectedEmployeeName}'s team`
+                : "Explore scenarios"
+              }
+            </Button>
           )}
         </div>
       )}
