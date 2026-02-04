@@ -78,6 +78,37 @@
 - Mock data: Settings nav items, account info, subscription details in `src/data/settingsData.ts`
 - Settings gear icon in GlobalHeader shows selected state (gray background + green icon) when on /settings
 
+### 9. Create Job Opening (`/hiring/new`)
+- Multi-step wizard with sidebar navigation (Job Information, Application Questions, Job Pipeline, Automated Emails, Job Boards)
+- **AI-Assisted Job Posting** - Main feature of this page:
+  - Type job title → AI suggests field values after 600ms debounce
+  - "Looking at similar roles..." loading message appears inline next to title input
+  - Inline message banner with gradient background (blue-to-purple)
+  - Confidence levels: High/Medium/Low based on similar roles found
+  - "Fill it In" button with rainbow gradient border (green→blue→purple→peach)
+  - Auto-fills 5 fields: Department, Employment Type, Experience Level, Compensation, Work Location
+  - Field highlighting shows which fields were AI-filled
+  - Individual "Undo" buttons per field
+  - Field explanations appear on focus (shows AI reasoning)
+  - "Clear all" button to undo all AI-filled fields
+  - Toast notification: "Filled X fields" with "Review changes" link
+  - Review modal shows all filled values in grid layout
+  - **Full dark mode support** for inline message and button
+
+### 10. AI Job Description Prototype (`/job-ai-prototype`)
+- Research page showcasing 8 different UX patterns for AI-assisted job posting:
+  1. **Autocomplete Dropdown** - Select from dropdown to fill all fields
+  2. **Ghost Text** - Preview suggestions as ghost text in fields
+  3. **Suggestion Chips** - Accept individual field chips
+  4. **Side Panel** - Review all suggestions in panel
+  5. **Progressive Fill** - Animated field-by-field population
+  6. **Preview Card** ⭐ - Preview all before applying with granular control
+  7. **Conversational** ⭐ - AI asks permission then highlights changes (implemented in `/hiring/new`)
+  8. **Inline Contextual** ⭐ - Tab to accept field-by-field suggestions
+- Tab-based interface to switch between variations
+- Dark mode toggle
+- Link back to normal flow (`/hiring/new`)
+
 ## Reusable Components Created
 
 ### TextArea (`src/components/TextArea/`)
@@ -90,9 +121,19 @@
 - Wraps Font Awesome + Lucide icons
 - **Settings page icons**: lock, thumbs-up, heart, sliders, bell, spa, palette, door-open, door-closed, chart-line, plane, graduation-cap, shield, check-circle, link
 - **Payroll page icons**: chevron-right, arrows-rotate (refresh icon for Updates section)
-- **Other icons**: folder, chevron-down, arrow-up-from-bracket, table-cells, arrow-down-to-line, trash-can, file, file-audio, image, circle-info
+- **Other icons**: folder, chevron-down, arrow-up-from-bracket, table-cells, arrow-down-to-line, trash-can, file, file-audio, image, circle-info, sparkles, rotate-left, check-circle, xmark
 - Supports `style` prop for custom colors
 - Lucide icons: PanelLeftOpen, PanelLeftClose, Home, UserCircle, Users, IdCard, PieChart, FileText, CircleDollarSign, Sun, Moon
+
+### JobInformationForm (`src/components/JobInformationForm/`)
+- Main form component for Create Job Opening page
+- Integrates AI suggestion system
+- Inner components: FieldHighlight, FieldExplanation, UndoLink
+- Handles debounced AI generation on title input
+
+### JobLocationOption (`src/components/JobLocationOption/`)
+- Card-style location selector (In Office, Hybrid, Remote)
+- Icon + label + checkbox layout
 
 ### ProgressBar (`src/components/ProgressBar/`)
 - Created for Settings page (not yet implemented in UI)
@@ -110,6 +151,75 @@
 - Theme toggle button (sun/moon icon)
 - Account section with avatar
 - Expand/collapse functionality with localStorage persistence
+
+## AI Job Posting System
+
+### Architecture
+```
+src/
+├── types/jobAI.ts           # TypeScript interfaces
+├── services/jobAIService.ts # Mock AI service (ready for API swap)
+└── components/JobInformationForm/
+    └── JobInformationForm.tsx # Main form with AI integration
+```
+
+### Types (`src/types/jobAI.ts`)
+```typescript
+interface FieldReasoning {
+  field: string;
+  value: string;
+  reason: string;
+}
+
+interface JobSuggestion {
+  title: string;
+  department: string;
+  location: string;
+  employmentType: string;
+  experienceLevel: string;
+  workSchedule: string;
+  compensationType: string;
+  salaryMin: string;
+  salaryMax: string;
+  benefits: string[];
+  requiredSkills: string[];
+  responsibilities: string[];
+  confidence: 'high' | 'medium' | 'low';
+  matchCount: number;
+  reasoning: FieldReasoning[];
+}
+```
+
+### Service (`src/services/jobAIService.ts`)
+- `fetchJobSuggestions(title: string)` - Returns AI suggestions based on job title
+- Mock database with 4 pre-defined jobs: Product Designer I/II, Senior Software Engineer, Marketing Manager
+- Keyword fallback for design/engineer/marketing titles
+- Generic fallback for unknown titles
+- Simulated 800-1200ms delay for realistic UX
+- **Ready for real API integration** - just replace mock with fetch
+
+### CSS Classes (`src/index.css`)
+```css
+/* AI Inline Message - light/dark mode */
+.ai-inline-message { /* gradient background, border, shadow */ }
+.ai-inline-message-text { color: #0066CC; }
+:root.dark .ai-inline-message { /* dark gradient */ }
+:root.dark .ai-inline-message-text { color: #7CB3F0; }
+
+/* AI Fill Button - gradient border preserved in both modes */
+.ai-fill-button {
+  background-image: linear-gradient(white, white),
+    linear-gradient(135deg, #AFD6A3 0%, #A6D0F3 34%, #D5BAE3 67%, #F6C499 96%);
+}
+:root.dark .ai-fill-button {
+  background-image: linear-gradient(#1a1a1a, #1a1a1a),
+    linear-gradient(135deg, #AFD6A3 0%, #A6D0F3 34%, #D5BAE3 67%, #F6C499 96%);
+}
+
+/* Animations */
+.animate-fadeIn { animation: fadeIn 0.3s ease-out; }
+.animate-slideIn { animation: slideIn 0.3s ease-out; }
+```
 
 ## Global Styles (`src/index.css`)
 
@@ -142,6 +252,7 @@ h1 {
 - `src/data/files.ts` - 16 files with categories and types
 - `src/data/payrollData.ts` - 12 payroll dates (Jan-April for wide screens), stats, reminders (with functional checkboxes), details
 - `src/data/settingsData.ts` - Settings navigation items (27 categories), account info, subscription, add-ons, upgrades
+- `src/services/jobAIService.ts` - Mock job database (4 jobs) with AI suggestion logic
 
 ## Layout Patterns
 
@@ -160,13 +271,14 @@ h1 {
 
 ## Git Repository
 - Remote: https://github.com/mattcmorrell/bhr-ui-template.git
-- All changes committed and pushed
+- Branch: `new-job-description` - AI job posting feature development
 
 ## Dark Mode Implementation
 - Uses CSS variables defined in `src/index.css` with `:root.dark` selector
 - All components should use CSS variables like `var(--surface-neutral-white)` instead of hardcoded colors
 - Do NOT use Tailwind `dark:` prefix classes - they don't work correctly with this setup
 - Variables automatically swap values when `.dark` class is on root element
+- **AI components** use dedicated CSS classes (`.ai-inline-message`, `.ai-fill-button`) for dark mode
 
 ## Responsive Patterns
 
@@ -187,7 +299,7 @@ const visibleDates = payrollDates.slice(0, visibleCardCount);
 </div>
 ```
 
-## AI Chat Feature (In Progress)
+## AI Chat Feature
 
 ### Overview
 Building a dual-mode AI chat interface:
@@ -242,55 +354,9 @@ Building a dual-mode AI chat interface:
 - `src/data/chatData.ts` - 15 mock conversations (Employee Onboarding, PTO Policy, Benefits, etc.)
 - Interfaces: `ChatMessage`, `ChatConversation`
 
-### Transition Research (Demo Pages)
-
-#### `/chat-transitions-demo`
-Testing 5 different transition styles for panel → full-screen:
-1. **Expand** - Panel physically grows from right edge (380px → full width)
-2. **Slide Handoff** - Panel exits left, full-screen enters from right
-3. **Slide Fade** - Panel fades in place, full-screen slides over from right
-4. **Zoom** - Panel zooms/scales out from right (0.95 → 1.0 scale)
-5. **Crossfade** - Simple opacity transition
-
-**Current speeds**: 2.7 seconds (slowed 9x for analysis)
-**Findings**:
-- Expand and Zoom anchored to right edge work smoothly
-- Slide-handoff avoids conflicting motion
-- All transitions use `ease-out` timing
-
-#### `/text-reflow-demo-2`
-Testing 7 solutions for text reflow during expansion:
-1. **None** - Standard behavior (distracting line jumps)
-2. **Never Reflow** - Fixed 600px width, content never reflows
-3. **Slide Away/Back** - Content slides off during transition
-4. **Scale Transform** - Content scales (0.95) instead of reflowing
-5. **Delayed Reveal** - Fade out → animate → fade in
-6. **Shell Only** - Container animates, content "snaps" at end
-7. **Crossfade Layouts** - Two versions (narrow/wide) crossfade
-
-**Problem**: Text wrapping/unwrapping during width changes draws eye away from main animation
-**Goal**: Find solution that keeps focus on panel expansion, not text reflow
-
-### Current Status
-- ✅ Slide-in panel functional with localStorage persistence
-- ✅ Full-screen view with sidebar navigation
-- ✅ Conversation list, search, new chat working
-- ✅ URL routing and state management
-- ✅ Expand/collapse buttons wired correctly
-- 🔄 Testing transition styles (Expand and Zoom are favorites)
-- 🔄 Evaluating text reflow solutions
-- ⏳ Need to finalize transition and apply to production components
-
-### Technical Details
-- Animations use CSS `transition-all` with custom durations
-- Right-edge anchoring: `right: 16px` stays constant, width expands leftward
-- Transform origin: `right center` for zoom effects
-- Opacity transitions: Half the duration of main animation (450ms vs 900ms)
-- Background: Grey rounded container (20px radius) on white outer padding
-
-## Next Steps
-1. Choose final transition style and text reflow solution
-2. Apply chosen transition to production Chat components
-3. Speed up animations to production speed (~300ms)
-4. Test dark mode compatibility for all chat components
-5. Polish any remaining styling details
+## Figma Design Reference
+- Main file: https://www.figma.com/design/3Vs1Yo2HwNrSFJoqBIr6ya/2026-AI-Framework
+- Key nodes:
+  - Create Job page: `node-id=999-30921`
+  - Inline message: `node-id=999-31248`
+  - Fill it In button: `node-id=1006-206561`
