@@ -4,14 +4,23 @@ interface JobLocationOptionProps {
   icon: IconName;
   label: string;
   checked: boolean;
-  onChange: () => void;
+  onChange: (() => void) | ((value: boolean) => void);
 }
 
 export function JobLocationOption({ icon, label, checked, onChange }: JobLocationOptionProps) {
+  const handleClick = () => {
+    // Support both () => void and (value: boolean) => void signatures
+    if (onChange.length === 0) {
+      (onChange as () => void)();
+    } else {
+      (onChange as (value: boolean) => void)(!checked);
+    }
+  };
+
   return (
     <button
       type="button"
-      onClick={onChange}
+      onClick={handleClick}
       className={`
         flex items-center gap-4 p-5 flex-1 min-w-[200px] max-w-[223px]
         bg-[var(--surface-neutral-white)]
