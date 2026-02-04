@@ -25,6 +25,7 @@ export function OrgChartArtifact({
     showPhotos: rawSettings?.showPhotos ?? true,
     compact: rawSettings?.compact ?? false,
     filter: rawSettings?.filter ?? 'all',
+    layout: rawSettings?.layout ?? 'top-down',
     selectedEmployee: rawSettings?.selectedEmployee,
     expandedEmployees: rawSettings?.expandedEmployees,
   };

@@ -85,6 +85,21 @@ import {
   faSpinner,
   faArrowLeft,
   faRotateLeft,
+  faBold,
+  faItalic,
+  faUnderline,
+  faListUl,
+  faListOl,
+  faList,
+  faCopy,
+  faComment,
+  faKeyboard,
+  faLightbulb,
+  faSitemap,
+  faUserTie,
+  faUser,
+  faChartSimple,
+  faTextHeight,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -223,7 +238,22 @@ export type IconName =
   | 'house-laptop'
   | 'spinner'
   | 'arrow-left'
-  | 'rotate-left';
+  | 'rotate-left'
+  | 'bold'
+  | 'italic'
+  | 'underline'
+  | 'list-ul'
+  | 'list-ol'
+  | 'list'
+  | 'copy'
+  | 'comment'
+  | 'keyboard'
+  | 'lightbulb'
+  | 'sitemap'
+  | 'user-tie'
+  | 'user'
+  | 'chart-simple'
+  | 'text-size';
 
 interface IconProps {
   name: IconName;
@@ -332,6 +362,21 @@ const faIconMap = {
   'spinner': faSpinner,
   'arrow-left': faArrowLeft,
   'rotate-left': faRotateLeft,
+  'bold': faBold,
+  'italic': faItalic,
+  'underline': faUnderline,
+  'list-ul': faListUl,
+  'list-ol': faListOl,
+  'list': faList,
+  'copy': faCopy,
+  'comment': faComment,
+  'keyboard': faKeyboard,
+  'lightbulb': faLightbulb,
+  'sitemap': faSitemap,
+  'user-tie': faUserTie,
+  'user': faUser,
+  'chart-simple': faChartSimple,
+  'text-size': faTextHeight,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {

@@ -1,10 +1,10 @@
-import { Icon } from '../Icon';
+import { Icon, type IconName } from '../Icon';
 
 interface FeedbackCardProps {
   authorName: string;
   authorTitle: string;
   date: string;
-  iconName?: string;
+  iconName?: IconName;
   avatar?: string;
   strengths: {
     question: string;

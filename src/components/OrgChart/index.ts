@@ -4,3 +4,5 @@ export { OrgChartNode } from './OrgChartNode';
 export { OrgChartControls } from './OrgChartControls';
 export { OrgChartZoom } from './OrgChartZoom';
 export { TBHCard } from './TBHCard';
+export { OrgChartThumbnail } from './OrgChartThumbnail';
+export { OrgChartArtifact } from './OrgChartArtifact';
