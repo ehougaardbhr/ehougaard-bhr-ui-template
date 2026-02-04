@@ -1,5 +1,5 @@
 import { hierarchy, tree } from 'd3-hierarchy';
-import type { HierarchyNode, HierarchyPointNode } from 'd3-hierarchy';
+import type { HierarchyPointNode } from 'd3-hierarchy';
 import type { Employee } from '../data/employees';
 
 // Node spacing constants

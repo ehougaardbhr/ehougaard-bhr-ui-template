@@ -26,10 +26,10 @@ export const defaultConversation: ChatConversation = {
       type: 'ai',
       text: `Here are a few improvements I recommend:
 
-1. Personalize the onboarding journey
-2. Streamline administrative tasks
-3. Strengthen human connection
-4. Provide clear milestones and progress tracking`,
+1. **Personalize the onboarding journey** - Tailor experiences to each new hire's role and background
+2. **Streamline administrative tasks** - Reduce paperwork with automation and digital workflows
+3. **Strengthen human connection** - Foster meaningful relationships from day one
+4. **Provide clear milestones** - Track progress transparently with defined checkpoints`,
       suggestions: [
         'Set up employee welcome dashboard',
         'Assign onboarding buddies',
@@ -74,6 +74,140 @@ export const suggestionChips = [
 
 export const recentConversations: ChatConversation[] = [
   {
+    id: '0',
+    title: 'Markdown Check',
+    messages: [
+      {
+        id: '1',
+        type: 'user',
+        text: 'Show me all the markdown formatting features you support',
+      },
+      {
+        id: '2',
+        type: 'ai',
+        text: `# Markdown Features Demo
+
+I support a wide range of markdown formatting. Here's a comprehensive showcase:
+
+## Text Formatting
+
+- **Bold text** using double asterisks
+- *Italic text* using single asterisks
+- ***Bold and italic*** combined
+- ~~Strikethrough text~~ using double tildes
+
+## Headers
+
+We support multiple heading levels:
+
+### This is H3
+#### This is H4
+##### This is H5
+
+## Lists
+
+**Unordered list:**
+- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item
+
+**Ordered list:**
+1. First step
+2. Second step
+3. Third step
+4. Fourth step
+
+## Task Lists
+
+Here's a task checklist:
+
+- [x] Completed task
+- [x] Another completed task
+- [ ] Pending task
+- [ ] Another pending task
+
+## Code
+
+**Inline code:** Use \`const variable = "value"\` for inline code snippets.
+
+**Code block:**
+
+\`\`\`javascript
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}
+
+const message = greet("World");
+console.log(message);
+\`\`\`
+
+\`\`\`json
+{
+  "name": "BambooHR",
+  "type": "HRIS",
+  "features": ["onboarding", "PTO", "payroll"]
+}
+\`\`\`
+
+## Blockquotes
+
+> This is a blockquote. It's great for highlighting important information or quotes from other sources.
+>
+> *You can also use formatting inside blockquotes.*
+
+## Tables
+
+Here's a comparison table:
+
+| Feature | Basic Plan | Pro Plan | Enterprise |
+|---------|-----------|----------|------------|
+| Users | Up to 10 | Up to 50 | Unlimited |
+| Storage | 10 GB | 100 GB | 1 TB |
+| Support | Email | Priority | 24/7 Dedicated |
+| Price | $29/mo | $99/mo | Custom |
+
+## Links
+
+Visit [BambooHR](https://www.bamboohr.com) for more information.
+
+You can also check out our [documentation](https://help.bamboohr.com) or [contact support](https://www.bamboohr.com/contact).
+
+## Horizontal Rule
+
+Use horizontal rules to separate sections:
+
+---
+
+## Mixed Content
+
+Here's an example combining multiple features:
+
+**Project Status Update:**
+
+1. **Phase 1: Planning** ✅
+   - [x] Requirements gathering
+   - [x] Architecture design
+   - [x] Team allocation
+
+2. **Phase 2: Development** 🚧
+   - [x] Backend API setup
+   - [ ] Frontend implementation
+   - [ ] Database migration
+
+3. **Phase 3: Testing** ⏳
+   - [ ] Unit tests
+   - [ ] Integration tests
+   - [ ] User acceptance testing
+
+> 💡 **Pro tip:** Use markdown to make your messages more readable and organized!
+
+For questions, contact the development team at \`dev-team@company.com\`.`,
+      },
+    ],
+  },
+  {
     id: '1',
     title: 'Employee Onboarding',
     messages: [
@@ -87,10 +221,10 @@ export const recentConversations: ChatConversation[] = [
         type: 'ai',
         text: `Here are a few improvements I recommend:
 
-1. Personalize the onboarding journey
-2. Streamline administrative tasks
-3. Strengthen human connection
-4. Provide clear milestones and progress tracking`,
+1. **Personalize the onboarding journey** - Tailor experiences to each new hire's role and background
+2. **Streamline administrative tasks** - Reduce paperwork with automation and digital workflows
+3. **Strengthen human connection** - Foster meaningful relationships from day one
+4. **Provide clear milestones** - Track progress transparently with defined checkpoints`,
         suggestions: [
           'Set up employee welcome dashboard',
           'Assign onboarding buddies',
@@ -138,7 +272,15 @@ export const recentConversations: ChatConversation[] = [
       {
         id: '2',
         type: 'ai',
-        text: 'Here are the recent PTO policy updates for 2026:\n\n1. Unlimited PTO for employees with 3+ years tenure\n2. Minimum 2 weeks vacation required annually\n3. Rollover policy extended to 10 days',
+        text: `## Recent PTO Policy Updates
+
+Here are the key changes for **2026**:
+
+- **Unlimited PTO** for employees with 3+ years tenure
+- *Minimum 2 weeks* vacation required annually
+- Rollover policy extended to **10 days**
+
+You can view the full policy document [here](https://bamboohr.com/pto-policy).`,
       },
       {
         id: '3',
@@ -208,7 +350,16 @@ export const recentConversations: ChatConversation[] = [
       {
         id: '2',
         type: 'ai',
-        text: 'Here are key steps to prepare for performance reviews:\n\n1. Review goal completion from last quarter\n2. Gather peer feedback\n3. Document key achievements\n4. Identify areas for growth',
+        text: `### Performance Review Preparation
+
+Here are the **key steps** to prepare:
+
+1. **Review goal completion** from last quarter
+2. **Gather peer feedback** and testimonials
+3. **Document key achievements** with metrics
+4. **Identify areas for growth** and development opportunities
+
+> *Pro tip:* Use the STAR method (Situation, Task, Action, Result) when describing achievements.`,
       },
       {
         id: '3',
@@ -251,7 +402,15 @@ export const recentConversations: ChatConversation[] = [
       {
         id: '2',
         type: 'ai',
-        text: 'I found 3 potential payroll anomalies:\n\n1. John Smith - Overtime exceeds 40 hours\n2. Sarah Johnson - Missing timesheet approval\n3. Mike Williams - Duplicate expense entry',
+        text: `I found **3 potential payroll anomalies** for the upcoming pay period:
+
+| Employee | Issue | Status |
+|----------|-------|--------|
+| John Smith | Overtime exceeds 40 hours | ⚠️ Review needed |
+| Sarah Johnson | Missing timesheet approval | ❌ Action required |
+| Mike Williams | Duplicate expense entry | ⚠️ Review needed |
+
+Please review these before processing payroll.`,
       },
     ],
   },
@@ -359,7 +518,16 @@ export const recentConversations: ChatConversation[] = [
       {
         id: '2',
         type: 'ai',
-        text: "I'll help you onboard Maddy Matthews. Here's the checklist:\n\n1. ☐ Send welcome email\n2. ☐ Set up workstation\n3. ☐ Schedule orientation\n4. ☐ Assign onboarding buddy",
+        text: `I'll help you onboard **Maddy Matthews**. Here's the checklist:
+
+- [ ] Send welcome email
+- [ ] Set up workstation
+- [ ] Schedule orientation
+- [ ] Assign onboarding buddy
+- [ ] Create system accounts
+- [ ] Order business cards
+
+Use the command \`/onboarding start --employee="Maddy Matthews"\` to begin the automated process.`,
       },
     ],
   },
@@ -391,7 +559,26 @@ export const recentConversations: ChatConversation[] = [
       {
         id: '2',
         type: 'ai',
-        text: "Here's a draft welcome email:\n\nSubject: Welcome to BambooHR, Cesar!\n\nDear Cesar,\n\nWe're thrilled to have you join our team! Your first day is Monday, and we've prepared everything for your arrival...",
+        text: `Here's a draft welcome email:
+
+---
+
+**Subject:** Welcome to BambooHR, Cesar! 🎉
+
+Dear Cesar,
+
+We're *thrilled* to have you join our team! Your first day is **Monday, February 3rd**, and we've prepared everything for your arrival.
+
+**What to expect on Day 1:**
+- 9:00 AM - Team meet & greet
+- 10:30 AM - HR orientation
+- 12:00 PM - Lunch with your manager
+- 2:00 PM - Technology setup
+
+Looking forward to seeing you soon!
+
+Best regards,
+*The BambooHR Team*`,
       },
     ],
   },

@@ -8,3 +8,4 @@ export { Payroll } from './Payroll';
 export { Settings } from './Settings';
 export { Inbox } from './Inbox';
 export { CreateJobOpening } from './CreateJobOpening';
+export { JobAIPrototype } from './JobAIPrototype';

@@ -158,13 +158,7 @@ export function PeopleListView({ employees }: PeopleListViewProps) {
 
       {/* Table Card */}
       <div
-        style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '16px',
-          border: '1px solid #e0e0e0',
-          boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08)',
-          overflow: 'hidden',
-        }}
+        className="bg-white dark:bg-neutral-800 rounded-2xl border border-gray-200 dark:border-neutral-700 shadow-sm overflow-hidden"
       >
         <table className="w-full">
           <thead>

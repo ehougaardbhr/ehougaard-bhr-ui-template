@@ -4,6 +4,7 @@ import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings, Inbox 
 import { ArtifactWorkspace } from './pages/ArtifactWorkspace';
 import { JobOpeningDetail } from './pages/JobOpeningDetail';
 import { CreateJobOpening } from './pages/CreateJobOpening';
+import { JobAIPrototype } from './pages/JobAIPrototype';
 import { ChatTransitionsDemo } from './pages/ChatTransitionsDemo';
 import { TextReflowDemo } from './pages/TextReflowDemo';
 import { TextReflowDemo2 } from './pages/TextReflowDemo2';
@@ -34,6 +35,7 @@ function App() {
             <Route path="/ai-button-demo" element={<AIButtonDemo />} />
             <Route path="/feedback-ux-mockups" element={<FeedbackUXMockups />} />
             <Route path="/org-chart-ai-demo" element={<OrgChartAIDemo />} />
+            <Route path="/job-ai-prototype" element={<JobAIPrototype />} />
 
             {/* Regular routes with AppLayout */}
             <Route

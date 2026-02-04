@@ -129,7 +129,7 @@ function AppLayout({ children }: AppLayoutProps) {
               min-h-0
               bg-[var(--surface-neutral-xx-weak)]
               rounded-[var(--radius-large)]
-              overflow-hidden
+              overflow-y-auto
             "
           >
             {children}

@@ -56,12 +56,7 @@ export function EmployeeTableRow({ employee }: EmployeeTableRowProps) {
       >
         <a
           href="#"
-          style={{
-            color: '#0b4fd1',
-            textDecoration: 'none',
-          }}
-          onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-          onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+          className="text-blue-600 dark:text-blue-400 no-underline hover:underline"
         >
           {employee.lastName}, {employee.firstName}
         </a>

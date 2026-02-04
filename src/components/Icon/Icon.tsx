@@ -8,8 +8,6 @@ import {
   faFileLines,
   faDollarSign,
   faMagnifyingGlass,
-  faMagnifyingGlassPlus,
-  faMagnifyingGlassMinus,
   faInbox,
   faCircleQuestion,
   faGear,
@@ -19,9 +17,9 @@ import {
   faTableCells,
   faFolder,
   faChevronDown,
-  faChevronUp,
   faChevronRight,
   faChevronLeft,
+  faChevronUp,
   faArrowDown,
   faTrashCan,
   faFile,
@@ -48,7 +46,6 @@ import {
   faPalette,
   faDoorOpen,
   faRightToBracket,
-  faPlus,
   faChartLine,
   faPlane,
   faGraduationCap,
@@ -65,18 +62,6 @@ import {
   faXmark,
   faCircleArrowUp,
   faPaperPlane,
-  faArrowLeft,
-  faArrowUp,
-  faCheck,
-  faChartSimple,
-  faTable,
-  faCopy,
-  faBold,
-  faItalic,
-  faUnderline,
-  faListUl,
-  faListOl,
-  faSitemap,
   faEyeSlash,
   faUsers,
   faCirclePlus,
@@ -93,6 +78,13 @@ import {
   faPassport,
   faPhone,
   faCircle,
+  faCheck,
+  faAngleLeft,
+  faHouse,
+  faLaptop,
+  faSpinner,
+  faArrowLeft,
+  faRotateLeft,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -137,8 +129,6 @@ export type IconName =
   | 'arrow-right-from-line'
   | 'arrow-left-from-line'
   | 'magnifying-glass'
-  | 'magnifying-glass-plus'
-  | 'magnifying-glass-minus'
   | 'inbox'
   | 'circle-question'
   | 'gear'
@@ -148,9 +138,9 @@ export type IconName =
   | 'table-cells'
   | 'folder'
   | 'chevron-down'
-  | 'chevron-up'
   | 'chevron-right'
   | 'chevron-left'
+  | 'chevron-up'
   | 'arrow-down-to-line'
   | 'trash-can'
   | 'file'
@@ -196,6 +186,7 @@ export type IconName =
   | 'moon'
   | 'zoom-in'
   | 'zoom-out'
+  | 'file-export'
   | 'sparkles'
   | 'paperclip'
   | 'microphone'
@@ -205,21 +196,8 @@ export type IconName =
   | 'xmark'
   | 'circle-arrow-up'
   | 'paper-plane'
-  | 'arrow-left'
-  | 'arrow-up'
-  | 'check'
-  | 'chart-simple'
-  | 'table'
-  | 'copy'
-  | 'bold'
-  | 'italic'
-  | 'underline'
-  | 'list-ul'
-  | 'list-ol'
-  | 'sitemap'
   | 'eye-slash'
   | 'users'
-  | 'plus'
   | 'circle-plus'
   | 'circle-plus-lined'
   | 'bullseye'
@@ -236,7 +214,16 @@ export type IconName =
   | 'passport'
   | 'phone'
   | 'circle'
-  | 'grid-2-plus';
+  | 'check'
+  | 'grid-2-plus'
+  | 'angle-left'
+  | 'house'
+  | 'laptop'
+  | 'house-building'
+  | 'house-laptop'
+  | 'spinner'
+  | 'arrow-left'
+  | 'rotate-left';
 
 interface IconProps {
   name: IconName;
@@ -258,8 +245,6 @@ const faIconMap = {
   'file-lines-regular': faFileLinesRegular,
   'circle-dollar': faDollarSign,
   'magnifying-glass': faMagnifyingGlass,
-  'magnifying-glass-plus': faMagnifyingGlassPlus,
-  'magnifying-glass-minus': faMagnifyingGlassMinus,
   'inbox': faInbox,
   'circle-question': faCircleQuestion,
   'circle-question-regular': faCircleQuestionRegular,
@@ -272,9 +257,9 @@ const faIconMap = {
   'folder': faFolder,
   'folder-regular': faFolderRegular,
   'chevron-down': faChevronDown,
-  'chevron-up': faChevronUp,
   'chevron-right': faChevronRight,
   'chevron-left': faChevronLeft,
+  'chevron-up': faChevronUp,
   'arrow-down-to-line': faArrowDown,
   'trash-can': faTrashCan,
   'file': faFile,
@@ -320,21 +305,8 @@ const faIconMap = {
   'xmark': faXmark,
   'circle-arrow-up': faCircleArrowUp,
   'paper-plane': faPaperPlane,
-  'arrow-left': faArrowLeft,
-  'arrow-up': faArrowUp,
-  'check': faCheck,
-  'chart-simple': faChartSimple,
-  'table': faTable,
-  'copy': faCopy,
-  'bold': faBold,
-  'italic': faItalic,
-  'underline': faUnderline,
-  'list-ul': faListUl,
-  'list-ol': faListOl,
-  'sitemap': faSitemap,
   'eye-slash': faEyeSlash,
   'users': faUsers,
-  'plus': faPlus,
   'circle-plus': faCirclePlus,
   'bullseye': faBullseye,
   'bullhorn': faBullhorn,
@@ -351,6 +323,15 @@ const faIconMap = {
   'phone': faPhone,
   'circle': faCircle,
   'circle-regular': faCircleRegular,
+  'check': faCheck,
+  'angle-left': faAngleLeft,
+  'house': faHouse,
+  'laptop': faLaptop,
+  'house-building': faBuilding,
+  'house-laptop': faLaptop,
+  'spinner': faSpinner,
+  'arrow-left': faArrowLeft,
+  'rotate-left': faRotateLeft,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
@@ -412,6 +393,19 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
     return <Moon size={size} className={className} strokeWidth={2.25} />;
   }
 
+  if (name === 'zoom-in') {
+    return <ZoomIn size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'zoom-out') {
+    return <ZoomOut size={size} className={className} strokeWidth={1.5} />;
+  }
+
+  if (name === 'file-export') {
+    // Use arrow-up-from-bracket as export icon
+    return <FontAwesomeIcon icon={faArrowUpFromBracket} fontSize={size} className={className} />;
+  }
+
   if (name === 'grid-2-plus') {
     return <Grid2x2Plus size={size} className={className} strokeWidth={2.5} style={style} />;
   }
@@ -439,14 +433,6 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
 
   if (name === 'chart-pie-simple' && variant === 'regular') {
     return <PieChart size={size} className={className} strokeWidth={2.25} style={style} />;
-  }
-
-  if (name === 'zoom-in') {
-    return <ZoomIn size={size} className={className} strokeWidth={1.5} />;
-  }
-
-  if (name === 'zoom-out') {
-    return <ZoomOut size={size} className={className} strokeWidth={1.5} />;
   }
 
   // Handle Font Awesome icons

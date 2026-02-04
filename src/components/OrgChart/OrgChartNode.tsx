@@ -1,5 +1,4 @@
 import type { Employee } from '../../data/employees';
-import { Icon } from '../Icon';
 import { TBHCard } from './TBHCard';
 
 export interface OrgChartNodeProps {
@@ -22,7 +21,7 @@ export function OrgChartNode({
   onExpandClick,
   onNodeClick,
   showPhoto = true,
-  compact = false,
+  compact: _compact = false,
   isExpanded = true,
 }: OrgChartNodeProps) {
   // Render TBH card for unfilled positions

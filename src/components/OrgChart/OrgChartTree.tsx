@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState, useRef, useEffect } from 'react';
 import type { Employee } from '../../data/employees';
 import { OrgChartNode } from './OrgChartNode';
 import { buildVisibleTree, calculateTreeLayout } from '../../utils/orgChartLayout';
@@ -112,8 +112,8 @@ export function OrgChartTree({
   }, [isDragging]);
 
   // Render connecting lines between nodes
-  const renderConnections = (nodes: TreeNode[]) => {
-    const lines: JSX.Element[] = [];
+  const renderConnections = (_nodes: TreeNode[]) => {
+    const lines: React.JSX.Element[] = [];
 
     // Detect dark mode
     const isDarkMode = typeof window !== 'undefined' &&

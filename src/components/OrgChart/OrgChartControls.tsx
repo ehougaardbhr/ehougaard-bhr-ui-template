@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import type { Employee } from '../../data/employees';
 import { Icon } from '../Icon';
-import { Button } from '../Button';
 
 interface OrgChartControlsProps {
   employees: Employee[];
@@ -11,9 +10,6 @@ interface OrgChartControlsProps {
   onGoUp?: () => void;
   onFilterOpen?: () => void;
   onExportOpen?: () => void;
-  showAIButton?: boolean;
-  selectedEmployeeName?: string;
-  onAIButtonClick?: () => void;
 }
 
 export function OrgChartControls({
@@ -24,9 +20,6 @@ export function OrgChartControls({
   onGoUp,
   onFilterOpen,
   onExportOpen,
-  showAIButton = false,
-  selectedEmployeeName,
-  onAIButtonClick,
 }: OrgChartControlsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -128,11 +121,10 @@ export function OrgChartControls({
                      bg-white dark:bg-neutral-800
                      border border-gray-300 dark:border-neutral-600
                      focus:outline-none focus:ring-2 focus:ring-blue-500
-                     placeholder:text-[#777270]"
+                     placeholder:text-[#777270] text-gray-900 dark:text-neutral-100"
             style={{
               fontSize: '15px',
               lineHeight: '22px',
-              color: '#48413f',
               padding: '8px 16px 8px 44px'
             }}
           />
@@ -237,8 +229,8 @@ export function OrgChartControls({
         )}
       </div>
 
-      {/* Right: Filter, Export, and AI Button */}
-      {(onFilterOpen || onExportOpen || showAIButton) && (
+      {/* Right: Filter and Export */}
+      {(onFilterOpen || onExportOpen) && (
         <div className="flex items-center gap-2 ml-auto">
           {/* Filter Button */}
           {onFilterOpen && (
@@ -261,21 +253,6 @@ export function OrgChartControls({
               <span className="font-semibold">Export</span>
               <Icon name="caret-down" size={10} />
             </button>
-          )}
-
-          {/* AI Button */}
-          {showAIButton && onAIButtonClick && (
-            <Button
-              variant="ai"
-              size="medium"
-              icon="sparkles"
-              onClick={onAIButtonClick}
-            >
-              {selectedEmployeeName
-                ? `Ask about ${selectedEmployeeName}'s team`
-                : "Explore scenarios"
-              }
-            </Button>
           )}
         </div>
       )}
