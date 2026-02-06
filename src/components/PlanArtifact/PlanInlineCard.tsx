@@ -113,7 +113,7 @@ function InlineActionItem({
 }) {
   return (
     <div
-      className="flex items-center gap-1.5 py-1 cursor-pointer hover:opacity-75 transition-opacity"
+      className={`flex items-center gap-1.5 py-1 ${!isProposal ? 'cursor-pointer hover:opacity-75' : ''} transition-opacity`}
       onClick={() => !isProposal && onToggle(item.id)}
       style={{
         fontFamily: 'Inter, system-ui, sans-serif',
@@ -138,11 +138,13 @@ function InlineActionItem({
 function ReviewStepRow({
   step,
   onReview,
+  isProposal,
 }: {
   step: ReviewStep;
   onReview: () => void;
+  isProposal?: boolean;
 }) {
-  const isReady = step.status === 'ready';
+  const isReady = step.status === 'ready' && !isProposal;
 
   return (
     <div
@@ -684,6 +686,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
                 <ReviewStepRow
                   step={reviewStep}
                   onReview={() => handleReviewStep(reviewStep.id)}
+                  isProposal={isProposal}
                 />
               )}
             </div>
