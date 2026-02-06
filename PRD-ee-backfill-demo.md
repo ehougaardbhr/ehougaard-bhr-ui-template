@@ -675,3 +675,85 @@ These 5 workstreams touch completely different files and can run simultaneously.
 1. **After Sprint 1:** Quick visual check — plan card, notification, chat input (~5 min)
 2. **During Sprint 2:** Review system prompts (~15 min)
 3. **Sprint 3:** End-to-end demo walkthrough (collaborative)
+
+---
+
+## Plan Artifact UX — Collapsed Chat View (Design Intent)
+
+**Status:** In active design exploration (v3 mockups complete, v4 next).
+**Mockup files:** `demos/plan-in-collapsed-chat.html` (v1), `demos/plan-in-collapsed-chat-v2.html` (v2), `demos/plan-in-collapsed-chat-v3.html` (v3)
+
+### Core Mental Model
+
+The Plan artifact in the collapsed chat is NOT a to-do list for the human. It's a **live dashboard of AI execution** with clear **review gates** where the AI pauses and asks for human sign-off.
+
+The flow is:
+1. **AI works autonomously** through plan items (queued → working → done)
+2. **AI pauses at review gates** — these are checkpoints where it needs human input before continuing
+3. **Human reviews AI output** (not "goes and does work") — e.g., reviews the job posting draft the AI wrote, reviews the candidate shortlist the AI prepared
+4. **After review, AI continues** to the next batch of work
+
+### Four Item States
+
+| State | Visual | Meaning |
+|-------|--------|---------|
+| **Queued** | Grey dot/circle | AI hasn't started this yet |
+| **Working** | Blue spinner | AI is currently executing this |
+| **Done** | Green check, strikethrough text | AI completed this |
+| **Needs Review** | Amber callout/gate | AI paused here — waiting for human to review output |
+
+### Review Gates (Key Concept)
+
+Review gates are **visually distinct from AI task items**. They are NOT another checkbox — they're a different kind of element entirely. Design principles:
+
+- **Amber/yellow color** — warm, attention-getting, distinct from the blue/green/grey of AI states
+- **Full-width break** — the gate cuts across the card/timeline to create a hard visual separation
+- **Brief context label** — tells the human what they're reviewing (e.g., "Job posting draft, candidate shortlist") but doesn't tell them what to do. The human knows their job.
+- **Not prescriptive** — the AI doesn't say "You must approve the job posting." It says "Here's the job posting draft for your review."
+
+### Multiple Review Gates and Multiple Reviewers
+
+Plans can have **multiple review gates** at different points in the workflow. The AI should do as much work as possible (or as much as is prudent) before hitting a review gate.
+
+Different gates may require **different humans** to review:
+- Manager reviews candidate shortlist
+- HR Admin approves new job posting
+- Finance approves salary range for new hire
+- etc.
+
+The plan edit mode (full artifact workspace) should allow humans to **insert additional review gates** at points where they want to be consulted. This is handled in the Plan workspace, not in the collapsed chat view.
+
+### Design Direction (from 3 rounds of mockups)
+
+**Round 1 (v1):** Explored 5 basic approaches — Checklist Card, Section Progress, Kanban Mini, Timeline, Inline Flat List. Favorites: B (Section Progress) and D (Timeline) for grouping/structure.
+
+**Round 2 (v2):** Explored AI vs Human role distinction — Two-Zone Split, Sections+Chips, Timeline Handoffs, Summary Counts, Color-Bar Items. Favorites: B (Sections+Chips) and C (Timeline Handoffs) for clear role separation.
+
+**Round 3 (v3):** Refined to "AI runs, human reviews" model with 4 states and review gates — Progress Pipeline, Sections+States, Timeline+Gates, Compact+Banner, Phase Blocks. **Winner: B (Sections + States)** — groups items by plan section, shows live status per item, amber review gate callout between sections, last section shows "After review" state.
+
+### Why B (Sections + States) Won
+
+- **Preserves plan structure** — sections like "Immediate Actions", "Hiring Strategy", "Retention" give the user a mental map of the plan
+- **Per-section status badges** (Done / Working / After review) give quick section-level overview
+- **Per-item status** (check / spinner / dot) shows granular progress within sections
+- **Review gate as visual break** between sections — not another list item, but a callout that interrupts the flow
+- **Scales to multiple workstreams** — different sections can be at different stages (one Done, one Working, one blocked on review)
+- **Scales to multiple review gates** — can have a gate between any two sections
+
+### Next Step (v4 — 3 more mockups)
+
+Refine approach B with these considerations:
+- Multiple review gates in one plan (not just one)
+- Different reviewers for different gates (show who needs to review)
+- The "After review" section should make clear that AI will resume automatically after review
+- Consider: should the card show section headers even when all items in the section are done? (progressive collapse?)
+
+### What This Means for Implementation
+
+The current `PlanInlineCard.tsx` and `PlanFullView.tsx` from Sprint 1 need to be updated to match this new design. The data model may also need updates:
+
+- `ActionItem.status` should support: `'queued' | 'working' | 'done' | 'needs_review'`
+- Need a `ReviewGate` concept — either as a special ActionItem type or a separate field on PlanSection
+- `ActionItem.reviewer` or `ReviewGate.reviewer` — who needs to review (role or person)
+- Sections should show their aggregate status (computed from child items)
+- The collapsed chat card should be a live-updating view, not static

@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Items in Collapsed Chat — 5 Approaches</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-strong: #256314;
+      --color-primary-weak: #5a9e47;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --icon-neutral-xx-strong: #292524;
+      --icon-neutral-medium: #78716C;
+      --color-warning: #D97706;
+      --color-warning-light: #FEF3C7;
+      --color-positive: #059669;
+      --color-positive-light: #D1FAE5;
+      --color-info: #2563EB;
+      --color-info-light: #DBEAFE;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #E8E5E3;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* --- Top nav tabs --- */
+    .tab-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .tab-bar h1 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-right: 24px;
+      padding: 14px 0;
+      white-space: nowrap;
+      color: var(--text-neutral-xx-strong);
+    }
+    .tab {
+      padding: 14px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-neutral-medium);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .tab:hover { color: var(--text-neutral-strong); }
+    .tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    /* --- Layout --- */
+    .viewport {
+      display: flex;
+      justify-content: center;
+      padding: 40px 32px 80px;
+    }
+    .mock-panel {
+      display: none;
+    }
+    .mock-panel.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* --- Simulated collapsed chat panel --- */
+    .chat-panel {
+      width: 383px;
+      background: var(--surface-neutral-xx-weak);
+      border-radius: 20px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      max-height: 700px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+
+    /* Header */
+    .panel-header {
+      background: var(--surface-neutral-white);
+      border-radius: 16px 16px 0 0;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: between;
+    }
+    .panel-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .panel-header-left .title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-neutral-x-strong);
+    }
+    .panel-header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .panel-header-right button {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--icon-neutral-xx-strong);
+    }
+    .panel-header-right button:hover {
+      background: var(--surface-neutral-x-weak);
+    }
+
+    /* Messages area */
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--surface-neutral-white);
+      padding: 20px;
+    }
+    .message-user {
+      display: flex;
+      justify-content: flex-end;
+      padding-left: 34px;
+      margin-bottom: 16px;
+    }
+    .message-user .bubble {
+      background: var(--surface-neutral-xx-weak);
+      padding: 10px 16px;
+      border-radius: 16px 16px 0 16px;
+      font-size: 15px;
+      line-height: 22px;
+      color: var(--text-neutral-x-strong);
+    }
+    .message-ai {
+      margin-bottom: 16px;
+    }
+    .message-ai p {
+      font-size: 15px;
+      line-height: 22px;
+      color: var(--text-neutral-strong);
+      margin-bottom: 8px;
+    }
+
+    /* Input area */
+    .input-area {
+      padding: 16px;
+      background: var(--surface-neutral-white);
+      border-radius: 0 0 16px 16px;
+    }
+    .input-border {
+      border-radius: 8px;
+      padding: 2px;
+      background: linear-gradient(93deg, #87C276 0%, #7AB8EE 33.65%, #C198D4 66.83%, #F2A766 96.15%);
+    }
+    .input-inner {
+      background: var(--surface-neutral-white);
+      border-radius: 6px;
+      padding: 12px 16px 10px;
+    }
+    .input-inner .placeholder {
+      font-size: 15px;
+      color: var(--text-neutral-medium);
+      margin-bottom: 12px;
+    }
+    .input-icons {
+      display: flex;
+      justify-content: space-between;
+      color: var(--icon-neutral-xx-strong);
+      font-size: 14px;
+    }
+    .input-icons .group { display: flex; gap: 16px; }
+
+    /* --- Label for each approach --- */
+    .approach-meta {
+      width: 383px;
+      margin-bottom: 16px;
+    }
+    .approach-meta h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+      margin-bottom: 4px;
+    }
+    .approach-meta p {
+      font-size: 13px;
+      color: var(--text-neutral-medium);
+      line-height: 1.5;
+    }
+
+    /* ==============================
+       APPROACH-SPECIFIC STYLES
+       ============================== */
+
+    /* --- A: Checklist Card --- */
+    .plan-card-a {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .plan-card-a .card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+      background: var(--surface-neutral-xx-weak);
+    }
+    .plan-card-a .card-header .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #87C276, #5a9e47);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 13px;
+    }
+    .plan-card-a .card-header .title-block {
+      flex: 1;
+    }
+    .plan-card-a .card-header .title-block .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+    }
+    .plan-card-a .card-header .title-block .subtitle {
+      font-size: 12px;
+      color: var(--text-neutral-medium);
+    }
+    .plan-card-a .card-header .status-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: var(--color-warning-light);
+      color: var(--color-warning);
+    }
+    .plan-card-a .item-list {
+      padding: 4px 0;
+    }
+    .plan-card-a .item-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 16px;
+      font-size: 13px;
+      line-height: 18px;
+      color: var(--text-neutral-strong);
+    }
+    .plan-card-a .item-row .check {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      border: 1.5px solid var(--border-neutral-medium);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+    .plan-card-a .item-row .check.done {
+      background: var(--color-positive);
+      border-color: var(--color-positive);
+      color: white;
+      font-size: 9px;
+    }
+    .plan-card-a .item-row .check.in-progress {
+      border-color: var(--color-info);
+      color: var(--color-info);
+      font-size: 8px;
+    }
+    .plan-card-a .item-row .text.done {
+      text-decoration: line-through;
+      color: var(--text-neutral-weak);
+    }
+    .plan-card-a .card-footer {
+      border-top: 1px solid var(--border-neutral-weak);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .plan-card-a .card-footer .progress-text {
+      font-size: 12px;
+      color: var(--text-neutral-medium);
+    }
+    .plan-card-a .card-footer .review-btn {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .plan-card-a .card-footer .review-btn:hover { text-decoration: underline; }
+
+    /* --- B: Compact Progress Rows --- */
+    .plan-card-b {
+      margin-top: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border-neutral-weak);
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+    }
+    .plan-card-b .section-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .plan-card-b .section-row:last-child {
+      border-bottom: none;
+    }
+    .plan-card-b .section-row .section-icon {
+      font-size: 14px;
+      width: 20px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .plan-card-b .section-row .section-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .plan-card-b .section-row .section-info .name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-neutral-x-strong);
+      margin-bottom: 2px;
+    }
+    .plan-card-b .section-row .section-info .meta {
+      font-size: 11px;
+      color: var(--text-neutral-medium);
+    }
+    .plan-card-b .section-row .progress-bar-wrap {
+      width: 48px;
+      height: 4px;
+      background: var(--surface-neutral-x-weak);
+      border-radius: 2px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .plan-card-b .section-row .progress-bar-fill {
+      height: 100%;
+      background: var(--color-primary);
+      border-radius: 2px;
+      transition: width 0.3s;
+    }
+    .plan-card-b .review-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border-neutral-weak);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .plan-card-b .review-footer .btn {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      text-align: center;
+    }
+    .plan-card-b .review-footer .btn-primary {
+      background: var(--color-primary);
+      color: white;
+    }
+    .plan-card-b .review-footer .btn-secondary {
+      background: var(--surface-neutral-xx-weak);
+      color: var(--text-neutral-strong);
+    }
+
+    /* --- C: Kanban Mini --- */
+    .plan-card-c {
+      margin-top: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border-neutral-weak);
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+      padding: 12px;
+    }
+    .plan-card-c .kanban-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .plan-card-c .kanban-header .plan-icon {
+      font-size: 14px;
+      color: var(--color-primary);
+    }
+    .plan-card-c .kanban-header .plan-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+      flex: 1;
+    }
+    .plan-card-c .kanban-header .badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: var(--color-warning-light);
+      color: var(--color-warning);
+    }
+    .plan-card-c .kanban-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .plan-card-c .kanban-col .col-header {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-neutral-medium);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .plan-card-c .kanban-col .col-header .count {
+      background: var(--surface-neutral-x-weak);
+      border-radius: 99px;
+      padding: 0 5px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .plan-card-c .kanban-item {
+      background: var(--surface-neutral-xx-weak);
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 11px;
+      line-height: 15px;
+      color: var(--text-neutral-strong);
+      margin-bottom: 4px;
+      border-left: 3px solid transparent;
+    }
+    .plan-card-c .kanban-item.pending { border-left-color: var(--border-neutral-medium); }
+    .plan-card-c .kanban-item.in-progress { border-left-color: var(--color-info); }
+    .plan-card-c .kanban-item.done { border-left-color: var(--color-positive); }
+    .plan-card-c .kanban-item .owner {
+      font-size: 10px;
+      color: var(--text-neutral-medium);
+      margin-top: 2px;
+    }
+    .plan-card-c .review-link {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-primary);
+      text-align: center;
+      display: block;
+      cursor: pointer;
+    }
+
+    /* --- D: Timeline / Accordion --- */
+    .plan-card-d {
+      margin-top: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border-neutral-weak);
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+    }
+    .plan-card-d .timeline-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+      background: var(--surface-neutral-xx-weak);
+    }
+    .plan-card-d .timeline-header .plan-icon {
+      color: var(--color-primary);
+      font-size: 14px;
+    }
+    .plan-card-d .timeline-header .plan-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+      flex: 1;
+    }
+    .plan-card-d .timeline-header .badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 99px;
+      background: var(--color-warning-light);
+      color: var(--color-warning);
+    }
+    .plan-card-d .timeline-body {
+      padding: 0 16px;
+    }
+    .plan-card-d .timeline-section {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .plan-card-d .timeline-section:last-child {
+      border-bottom: none;
+    }
+    .plan-card-d .timeline-dot-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 20px;
+      padding-top: 3px;
+    }
+    .plan-card-d .timeline-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--surface-neutral-x-weak);
+      border: 2px solid var(--border-neutral-medium);
+      flex-shrink: 0;
+    }
+    .plan-card-d .timeline-dot.active {
+      background: var(--color-info);
+      border-color: var(--color-info);
+    }
+    .plan-card-d .timeline-dot.done {
+      background: var(--color-positive);
+      border-color: var(--color-positive);
+    }
+    .plan-card-d .timeline-line {
+      width: 2px;
+      flex: 1;
+      background: var(--border-neutral-weak);
+      margin-top: 4px;
+    }
+    .plan-card-d .timeline-content {
+      flex: 1;
+      min-width: 0;
+    }
+    .plan-card-d .timeline-content .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-neutral-x-strong);
+      margin-bottom: 4px;
+    }
+    .plan-card-d .timeline-content .section-summary {
+      font-size: 12px;
+      color: var(--text-neutral-medium);
+      line-height: 17px;
+    }
+    .plan-card-d .timeline-content .item-count {
+      font-size: 11px;
+      color: var(--text-neutral-medium);
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .plan-card-d .timeline-content .item-count i {
+      font-size: 10px;
+    }
+    .plan-card-d .timeline-footer {
+      border-top: 1px solid var(--border-neutral-weak);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .plan-card-d .timeline-footer .progress-text {
+      font-size: 12px;
+      color: var(--text-neutral-medium);
+    }
+    .plan-card-d .timeline-footer .review-btn {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-primary);
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* --- E: Inline Flat List (ultra minimal) --- */
+    .plan-card-e {
+      margin-top: 8px;
+    }
+    .plan-card-e .plan-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-neutral-medium);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+    .plan-card-e .plan-label i {
+      font-size: 12px;
+      color: var(--color-primary);
+    }
+    .plan-card-e .flat-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 5px 0;
+      font-size: 13px;
+      line-height: 18px;
+      color: var(--text-neutral-strong);
+    }
+    .plan-card-e .flat-item .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 5px;
+    }
+    .plan-card-e .flat-item .status-dot.pending { background: var(--border-neutral-medium); }
+    .plan-card-e .flat-item .status-dot.in-progress { background: var(--color-info); }
+    .plan-card-e .flat-item .status-dot.done { background: var(--color-positive); }
+    .plan-card-e .flat-item .text.done {
+      text-decoration: line-through;
+      color: var(--text-neutral-weak);
+    }
+    .plan-card-e .flat-item .owner-tag {
+      font-size: 11px;
+      color: var(--text-neutral-medium);
+      margin-left: auto;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .plan-card-e .plan-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-neutral-weak);
+    }
+    .plan-card-e .plan-footer .count {
+      font-size: 12px;
+      color: var(--text-neutral-medium);
+    }
+    .plan-card-e .plan-footer .expand-link {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--color-primary);
+      cursor: pointer;
+    }
+
+    /* scroll styling */
+    .messages-area::-webkit-scrollbar {
+      width: 4px;
+    }
+    .messages-area::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .messages-area::-webkit-scrollbar-thumb {
+      background: var(--border-neutral-medium);
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Tab bar -->
+<div class="tab-bar">
+  <h1>Plan in Collapsed Chat</h1>
+  <div class="tab active" data-tab="a">A. Checklist Card</div>
+  <div class="tab" data-tab="b">B. Section Progress</div>
+  <div class="tab" data-tab="c">C. Kanban Mini</div>
+  <div class="tab" data-tab="d">D. Timeline</div>
+  <div class="tab" data-tab="e">E. Inline Flat List</div>
+</div>
+
+<!-- ===================== A: CHECKLIST CARD ===================== -->
+<div class="viewport">
+  <div class="mock-panel active" data-panel="a">
+    <div class="approach-meta">
+      <h2>A. Checklist Card</h2>
+      <p>Full plan card embedded in chat. Shows every action item as a checkbox with status. Richest information density — the user sees exactly what's in the plan without leaving the chat.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>I've created a comprehensive backfill plan for Tony Ramirez's Senior Software Engineer role. Here's what I'm recommending:</p>
+        </div>
+
+        <!-- APPROACH A: Checklist card -->
+        <div class="plan-card-a">
+          <div class="card-header">
+            <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+            <div class="title-block">
+              <div class="name">Backfill Plan: Senior SWE</div>
+              <div class="subtitle">4 sections · 8 action items</div>
+            </div>
+            <div class="status-badge">Pending Approval</div>
+          </div>
+          <div class="item-list">
+            <div class="item-row">
+              <div class="check in-progress"><i class="fa-solid fa-play"></i></div>
+              <span class="text">Redistribute Tony's active projects</span>
+            </div>
+            <div class="item-row">
+              <div class="check"></div>
+              <span class="text">Complete knowledge transfer docs</span>
+            </div>
+            <div class="item-row">
+              <div class="check done"><i class="fa-solid fa-check"></i></div>
+              <span class="text done">Set up interim code review process</span>
+            </div>
+            <div class="item-row">
+              <div class="check"></div>
+              <span class="text">Post job req to LinkedIn + careers page</span>
+            </div>
+            <div class="item-row">
+              <div class="check"></div>
+              <span class="text">Review internal candidates with EM</span>
+            </div>
+            <div class="item-row">
+              <div class="check"></div>
+              <span class="text">Screen Technology talent pool</span>
+            </div>
+            <div class="item-row">
+              <div class="check"></div>
+              <span class="text">Run compensation analysis for team</span>
+            </div>
+            <div class="item-row">
+              <div class="check"></div>
+              <span class="text">Schedule team morale check-ins</span>
+            </div>
+          </div>
+          <div class="card-footer">
+            <span class="progress-text">1 of 8 completed</span>
+            <button class="review-btn">Review Plan <i class="fa-solid fa-arrow-right" style="font-size:11px"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-border">
+          <div class="input-inner">
+            <div class="placeholder">Reply...</div>
+            <div class="input-icons">
+              <div class="group">
+                <i class="fa-solid fa-paperclip"></i>
+                <i class="fa-solid fa-image"></i>
+              </div>
+              <div class="group">
+                <i class="fa-solid fa-microphone"></i>
+                <i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== B: SECTION PROGRESS ===================== -->
+  <div class="mock-panel" data-panel="b">
+    <div class="approach-meta">
+      <h2>B. Section Progress Rows</h2>
+      <p>One row per plan section with mini progress bars. Focuses on the "shape" of the plan — what categories exist and how far along each is. Less granular than A but much more scannable. Includes approve/review CTAs inline.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>I've prepared a backfill plan covering immediate actions, hiring, retention, and timeline:</p>
+        </div>
+
+        <div class="plan-card-b">
+          <div class="section-row">
+            <div class="section-icon" style="color: var(--color-info)"><i class="fa-solid fa-bolt"></i></div>
+            <div class="section-info">
+              <div class="name">Immediate Actions</div>
+              <div class="meta">1 of 3 done · 1 in progress</div>
+            </div>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width: 33%"></div></div>
+          </div>
+          <div class="section-row">
+            <div class="section-icon" style="color: var(--color-primary)"><i class="fa-solid fa-user-plus"></i></div>
+            <div class="section-info">
+              <div class="name">Hiring Strategy</div>
+              <div class="meta">0 of 3 done · Internal + external tracks</div>
+            </div>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width: 0%"></div></div>
+          </div>
+          <div class="section-row">
+            <div class="section-icon" style="color: var(--color-warning)"><i class="fa-solid fa-shield-heart"></i></div>
+            <div class="section-info">
+              <div class="name">Retention & Team Health</div>
+              <div class="meta">0 of 2 done · Comp + morale review</div>
+            </div>
+            <div class="progress-bar-wrap"><div class="progress-bar-fill" style="width: 0%"></div></div>
+          </div>
+          <div class="section-row">
+            <div class="section-icon" style="color: var(--text-neutral-medium)"><i class="fa-solid fa-calendar"></i></div>
+            <div class="section-info">
+              <div class="name">Timeline</div>
+              <div class="meta">6-8 weeks total</div>
+            </div>
+            <div class="progress-bar-wrap" style="visibility: hidden"><div class="progress-bar-fill"></div></div>
+          </div>
+          <div class="review-footer">
+            <button class="btn btn-secondary">View Details</button>
+            <button class="btn btn-primary">Approve Plan</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-border">
+          <div class="input-inner">
+            <div class="placeholder">Reply...</div>
+            <div class="input-icons">
+              <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+              <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== C: KANBAN MINI ===================== -->
+  <div class="mock-panel" data-panel="c">
+    <div class="approach-meta">
+      <h2>C. Kanban Mini</h2>
+      <p>Three-column kanban layout (To Do / In Progress / Done) showing items as mini cards. Gives immediate visual sense of workload distribution. Very recognizable pattern from project tools like Jira/Trello. Compact but information-rich.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>Here's the backfill plan — you can see the status of each item at a glance:</p>
+        </div>
+
+        <div class="plan-card-c">
+          <div class="kanban-header">
+            <i class="fa-solid fa-list-check plan-icon"></i>
+            <span class="plan-title">Backfill Plan</span>
+            <span class="badge">Pending Approval</span>
+          </div>
+          <div class="kanban-cols">
+            <div class="kanban-col">
+              <div class="col-header">To Do <span class="count">6</span></div>
+              <div class="kanban-item pending">Knowledge transfer docs</div>
+              <div class="kanban-item pending">Post job req</div>
+              <div class="kanban-item pending">Review internal candidates</div>
+              <div class="kanban-item pending">Screen talent pool</div>
+              <div class="kanban-item pending" style="opacity:0.6; font-style: italic">+2 more</div>
+            </div>
+            <div class="kanban-col">
+              <div class="col-header">In Progress <span class="count">1</span></div>
+              <div class="kanban-item in-progress">
+                Redistribute projects
+                <div class="owner">Uma Patel</div>
+              </div>
+            </div>
+            <div class="kanban-col">
+              <div class="col-header">Done <span class="count">1</span></div>
+              <div class="kanban-item done">
+                Interim code review
+                <div class="owner">Uma Patel</div>
+              </div>
+            </div>
+          </div>
+          <span class="review-link">Review Full Plan →</span>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-border">
+          <div class="input-inner">
+            <div class="placeholder">Reply...</div>
+            <div class="input-icons">
+              <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+              <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== D: TIMELINE ===================== -->
+  <div class="mock-panel" data-panel="d">
+    <div class="approach-meta">
+      <h2>D. Timeline / Steps</h2>
+      <p>Vertical timeline showing plan sections as sequential phases. Emphasizes the order/progression of work. Dot states indicate which phase is active. Good for plans that have clear sequencing. Feels like a "journey" through the work.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>Here's my recommended backfill plan, organized into phases:</p>
+        </div>
+
+        <div class="plan-card-d">
+          <div class="timeline-header">
+            <i class="fa-solid fa-list-check plan-icon"></i>
+            <span class="plan-title">Backfill Plan: Senior SWE</span>
+            <span class="badge">Pending Approval</span>
+          </div>
+          <div class="timeline-body">
+            <div class="timeline-section">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot active"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="section-title">Immediate Actions</div>
+                <div class="section-summary">Redistribute projects, knowledge transfer, code review setup</div>
+                <div class="item-count"><i class="fa-solid fa-check-circle" style="color:var(--color-positive)"></i> 1/3 items complete</div>
+              </div>
+            </div>
+            <div class="timeline-section">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="section-title">Hiring Strategy</div>
+                <div class="section-summary">Internal promotions + external job posting, talent pool screen</div>
+                <div class="item-count"><i class="fa-solid fa-circle" style="color:var(--border-neutral-medium); font-size: 8px"></i> 0/3 items complete</div>
+              </div>
+            </div>
+            <div class="timeline-section">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="section-title">Retention & Team Health</div>
+                <div class="section-summary">Compensation review, morale check-ins</div>
+                <div class="item-count"><i class="fa-solid fa-circle" style="color:var(--border-neutral-medium); font-size: 8px"></i> 0/2 items complete</div>
+              </div>
+            </div>
+            <div class="timeline-section">
+              <div class="timeline-dot-col">
+                <div class="timeline-dot"></div>
+              </div>
+              <div class="timeline-content">
+                <div class="section-title">Timeline</div>
+                <div class="section-summary">6-8 weeks: posting → interviews → offer → onboarding</div>
+              </div>
+            </div>
+          </div>
+          <div class="timeline-footer">
+            <span class="progress-text">1 of 8 items completed</span>
+            <button class="review-btn">Review Plan →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-border">
+          <div class="input-inner">
+            <div class="placeholder">Reply...</div>
+            <div class="input-icons">
+              <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+              <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== E: INLINE FLAT LIST ===================== -->
+  <div class="mock-panel" data-panel="e">
+    <div class="approach-meta">
+      <h2>E. Inline Flat List</h2>
+      <p>No card at all — plan items render directly in the message flow as a styled list with colored status dots. Lightest weight, feels like the AI is just "saying" the plan items. No visual separation from the conversation. Easiest to scan quickly but hardest to interact with.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>I've created a backfill plan for Tony's Senior Software Engineer role. Here are the key action items:</p>
+
+          <div class="plan-card-e">
+            <div class="plan-label"><i class="fa-solid fa-list-check"></i> Action Items</div>
+            <div class="flat-item">
+              <div class="status-dot in-progress"></div>
+              <span class="text">Redistribute Tony's active projects</span>
+              <span class="owner-tag">Uma P.</span>
+            </div>
+            <div class="flat-item">
+              <div class="status-dot pending"></div>
+              <span class="text">Complete knowledge transfer documentation</span>
+              <span class="owner-tag">Daniel K.</span>
+            </div>
+            <div class="flat-item">
+              <div class="status-dot done"></div>
+              <span class="text done">Set up interim code review process</span>
+              <span class="owner-tag">Uma P.</span>
+            </div>
+            <div class="flat-item">
+              <div class="status-dot pending"></div>
+              <span class="text">Post job requisition to LinkedIn</span>
+              <span class="owner-tag">HR</span>
+            </div>
+            <div class="flat-item">
+              <div class="status-dot pending"></div>
+              <span class="text">Review internal candidates with EM</span>
+              <span class="owner-tag">Uma P.</span>
+            </div>
+            <div class="flat-item">
+              <div class="status-dot pending"></div>
+              <span class="text">Screen Technology talent pool</span>
+              <span class="owner-tag">HR</span>
+            </div>
+            <div class="flat-item">
+              <div class="status-dot pending"></div>
+              <span class="text">Run compensation analysis for team</span>
+              <span class="owner-tag">HR</span>
+            </div>
+            <div class="flat-item">
+              <div class="status-dot pending"></div>
+              <span class="text">Schedule team morale check-ins</span>
+              <span class="owner-tag">Uma P.</span>
+            </div>
+            <div class="plan-footer">
+              <span class="count"><i class="fa-solid fa-circle-check" style="color:var(--color-positive); font-size:11px"></i> 1 of 8 done</span>
+              <span class="expand-link">Open full plan →</span>
+            </div>
+          </div>
+
+          <p style="margin-top: 12px">Should I adjust any of these items, or shall I proceed with this plan?</p>
+        </div>
+      </div>
+
+      <div class="input-area">
+        <div class="input-border">
+          <div class="input-inner">
+            <div class="placeholder">Reply...</div>
+            <div class="input-icons">
+              <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+              <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.mock-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      panels.forEach(p => {
+        p.classList.toggle('active', p.dataset.panel === target);
+      });
+    });
+  });
+</script>
+
+</body>
+</html>

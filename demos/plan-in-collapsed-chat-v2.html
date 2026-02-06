@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan in Collapsed Chat v2 — AI Does vs Human Decides</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-strong: #256314;
+      --color-primary-weak: #5a9e47;
+      --color-primary-light: #EBF5E8;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --icon-neutral-xx-strong: #292524;
+      --icon-neutral-medium: #78716C;
+      --color-warning: #D97706;
+      --color-warning-light: #FEF3C7;
+      --color-positive: #059669;
+      --color-positive-light: #D1FAE5;
+      --color-info: #2563EB;
+      --color-info-light: #DBEAFE;
+      --color-human: #7C3AED;
+      --color-human-light: #EDE9FE;
+      --color-ai: #0891B2;
+      --color-ai-light: #E0F7FA;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #E8E5E3;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* --- Tab bar --- */
+    .tab-bar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .tab-bar h1 {
+      font-size: 15px;
+      font-weight: 600;
+      margin-right: 24px;
+      padding: 14px 0;
+      white-space: nowrap;
+      color: var(--text-neutral-xx-strong);
+    }
+    .tab {
+      padding: 14px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-neutral-medium);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+      white-space: nowrap;
+      user-select: none;
+    }
+    .tab:hover { color: var(--text-neutral-strong); }
+    .tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+
+    /* --- Layout --- */
+    .viewport {
+      display: flex;
+      justify-content: center;
+      padding: 40px 32px 80px;
+    }
+    .mock-panel { display: none; }
+    .mock-panel.active { display: flex; flex-direction: column; }
+
+    /* --- Chat panel shell --- */
+    .chat-panel {
+      width: 383px;
+      background: var(--surface-neutral-xx-weak);
+      border-radius: 20px;
+      padding: 4px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+    .panel-header {
+      background: var(--surface-neutral-white);
+      border-radius: 16px 16px 0 0;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+    }
+    .panel-header-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+    .panel-header-left .title {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-neutral-x-strong);
+    }
+    .panel-header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .panel-header-right button {
+      width: 32px; height: 32px;
+      border: none; background: none;
+      border-radius: 6px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--icon-neutral-xx-strong);
+    }
+    .panel-header-right button:hover { background: var(--surface-neutral-x-weak); }
+
+    .messages-area {
+      flex: 1;
+      overflow-y: auto;
+      background: var(--surface-neutral-white);
+      padding: 20px;
+    }
+    .message-user {
+      display: flex;
+      justify-content: flex-end;
+      padding-left: 34px;
+      margin-bottom: 16px;
+    }
+    .message-user .bubble {
+      background: var(--surface-neutral-xx-weak);
+      padding: 10px 16px;
+      border-radius: 16px 16px 0 16px;
+      font-size: 15px;
+      line-height: 22px;
+      color: var(--text-neutral-x-strong);
+    }
+    .message-ai {
+      margin-bottom: 16px;
+    }
+    .message-ai p {
+      font-size: 15px;
+      line-height: 22px;
+      color: var(--text-neutral-strong);
+      margin-bottom: 8px;
+    }
+
+    .input-area {
+      padding: 16px;
+      background: var(--surface-neutral-white);
+      border-radius: 0 0 16px 16px;
+    }
+    .input-border {
+      border-radius: 8px;
+      padding: 2px;
+      background: linear-gradient(93deg, #87C276 0%, #7AB8EE 33.65%, #C198D4 66.83%, #F2A766 96.15%);
+    }
+    .input-inner {
+      background: var(--surface-neutral-white);
+      border-radius: 6px;
+      padding: 12px 16px 10px;
+    }
+    .input-inner .placeholder {
+      font-size: 15px;
+      color: var(--text-neutral-medium);
+      margin-bottom: 12px;
+    }
+    .input-icons {
+      display: flex;
+      justify-content: space-between;
+      color: var(--icon-neutral-xx-strong);
+      font-size: 14px;
+    }
+    .input-icons .group { display: flex; gap: 16px; }
+
+    .approach-meta {
+      width: 383px;
+      margin-bottom: 16px;
+    }
+    .approach-meta h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+      margin-bottom: 4px;
+    }
+    .approach-meta p {
+      font-size: 13px;
+      color: var(--text-neutral-medium);
+      line-height: 1.5;
+    }
+
+    .messages-area::-webkit-scrollbar { width: 4px; }
+    .messages-area::-webkit-scrollbar-track { background: transparent; }
+    .messages-area::-webkit-scrollbar-thumb { background: var(--border-neutral-medium); border-radius: 2px; }
+
+    /* ==============================
+       SHARED: Role badges
+       ============================== */
+    .badge-ai {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 600;
+      padding: 2px 6px; border-radius: 99px;
+      background: var(--color-ai-light); color: var(--color-ai);
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .badge-human {
+      display: inline-flex; align-items: center; gap: 3px;
+      font-size: 10px; font-weight: 600;
+      padding: 2px 6px; border-radius: 99px;
+      background: var(--color-human-light); color: var(--color-human);
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .badge-status {
+      font-size: 11px; font-weight: 500;
+      padding: 3px 8px; border-radius: 99px;
+      background: var(--color-warning-light); color: var(--color-warning);
+    }
+
+    /* ==============================
+       A: TWO-ZONE SPLIT
+       ============================== */
+    .card-a {
+      border-radius: 12px;
+      border: 1px solid var(--border-neutral-weak);
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+      margin-top: 4px;
+    }
+    .card-a .card-title-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      background: var(--surface-neutral-xx-weak);
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-a .card-title-bar .icon {
+      width: 24px; height: 24px; border-radius: 6px;
+      background: linear-gradient(135deg, #87C276, #5a9e47);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 11px;
+    }
+    .card-a .card-title-bar .title {
+      flex: 1; font-size: 14px; font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+    }
+    .card-a .zone {
+      padding: 10px 16px 8px;
+    }
+    .card-a .zone-label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 8px; padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-a .zone-ai .zone-label {
+      color: var(--color-ai);
+    }
+    .card-a .zone-ai {
+      background: color-mix(in srgb, var(--color-ai-light) 30%, white);
+    }
+    .card-a .zone-human .zone-label {
+      color: var(--color-human);
+    }
+    .card-a .zone-human {
+      background: color-mix(in srgb, var(--color-human-light) 30%, white);
+      border-top: 1px solid var(--border-neutral-weak);
+    }
+    .card-a .zone-item {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 5px 0;
+      font-size: 13px; line-height: 18px;
+      color: var(--text-neutral-strong);
+    }
+    .card-a .zone-item .dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 6px;
+    }
+    .card-a .zone-ai .dot { background: var(--color-ai); }
+    .card-a .zone-human .dot { background: var(--color-human); }
+    .card-a .zone-item .owner {
+      font-size: 11px; color: var(--text-neutral-medium);
+      margin-left: auto; white-space: nowrap; flex-shrink: 0;
+    }
+    .card-a .card-footer {
+      border-top: 1px solid var(--border-neutral-weak);
+      padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-a .card-footer .counts {
+      display: flex; gap: 10px;
+    }
+    .card-a .card-footer .counts span {
+      font-size: 11px; display: flex; align-items: center; gap: 4px;
+    }
+    .card-a .card-footer .review-btn {
+      font-size: 13px; font-weight: 500;
+      color: var(--color-primary);
+      background: none; border: none; cursor: pointer;
+    }
+
+    /* ==============================
+       B: SECTION ROWS WITH ROLE CHIPS
+       ============================== */
+    .card-b {
+      border-radius: 12px;
+      border: 1px solid var(--border-neutral-weak);
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+      margin-top: 4px;
+    }
+    .card-b .card-title-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      background: var(--surface-neutral-xx-weak);
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-b .card-title-bar .icon {
+      font-size: 14px; color: var(--color-primary);
+    }
+    .card-b .card-title-bar .title {
+      flex: 1; font-size: 14px; font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+    }
+    .card-b .section-row {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-b .section-row:last-of-type { border-bottom: none; }
+    .card-b .section-row .section-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px;
+    }
+    .card-b .section-row .section-header .s-icon {
+      font-size: 13px; width: 18px; text-align: center;
+    }
+    .card-b .section-row .section-header .s-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-neutral-x-strong); flex: 1;
+    }
+    .card-b .section-items {
+      padding-left: 26px;
+    }
+    .card-b .section-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 0;
+      font-size: 12px; line-height: 17px;
+      color: var(--text-neutral-strong);
+    }
+    .card-b .section-item .check {
+      width: 14px; height: 14px; border-radius: 3px;
+      border: 1.5px solid var(--border-neutral-medium);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-b .section-item .check.done {
+      background: var(--color-positive);
+      border-color: var(--color-positive);
+      color: white; font-size: 8px;
+    }
+    .card-b .section-item .text { flex: 1; }
+    .card-b .section-item .text.done {
+      text-decoration: line-through;
+      color: var(--text-neutral-weak);
+    }
+    .card-b .card-footer {
+      border-top: 1px solid var(--border-neutral-weak);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-b .card-footer .btn {
+      flex: 1; padding: 8px; border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+      border: none; cursor: pointer; text-align: center;
+    }
+    .card-b .btn-primary {
+      background: var(--color-primary); color: white;
+    }
+    .card-b .btn-secondary {
+      background: var(--surface-neutral-xx-weak); color: var(--text-neutral-strong);
+    }
+
+    /* ==============================
+       C: TIMELINE WITH HANDOFF POINTS
+       ============================== */
+    .card-c {
+      border-radius: 12px;
+      border: 1px solid var(--border-neutral-weak);
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+      margin-top: 4px;
+    }
+    .card-c .card-title-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      background: var(--surface-neutral-xx-weak);
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-c .card-title-bar .icon {
+      font-size: 14px; color: var(--color-primary);
+    }
+    .card-c .card-title-bar .title {
+      flex: 1; font-size: 14px; font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+    }
+    .card-c .tl-body { padding: 4px 16px; }
+    .card-c .tl-step {
+      display: flex; gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-c .tl-step:last-child { border-bottom: none; }
+    .card-c .tl-dot-col {
+      display: flex; flex-direction: column; align-items: center;
+      width: 24px; padding-top: 2px;
+    }
+    .card-c .tl-dot {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; flex-shrink: 0;
+    }
+    .card-c .tl-dot.ai {
+      background: var(--color-ai-light); color: var(--color-ai);
+    }
+    .card-c .tl-dot.human {
+      background: var(--color-human-light); color: var(--color-human);
+    }
+    .card-c .tl-dot.done {
+      background: var(--color-positive-light); color: var(--color-positive);
+    }
+    .card-c .tl-line {
+      width: 2px; flex: 1; margin-top: 4px;
+      background: var(--border-neutral-weak);
+    }
+    .card-c .tl-content { flex: 1; min-width: 0; }
+    .card-c .tl-content .step-title {
+      font-size: 13px; font-weight: 500;
+      color: var(--text-neutral-x-strong);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .card-c .tl-content .step-desc {
+      font-size: 12px; color: var(--text-neutral-medium);
+      line-height: 17px; margin-top: 2px;
+    }
+    .card-c .tl-legend {
+      display: flex; gap: 16px; padding: 8px 16px;
+      border-top: 1px solid var(--border-neutral-weak);
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-c .tl-legend .legend-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text-neutral-medium);
+    }
+    .card-c .tl-legend .legend-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .card-c .tl-legend .legend-dot.ai { background: var(--color-ai); }
+    .card-c .tl-legend .legend-dot.human { background: var(--color-human); }
+    .card-c .card-footer {
+      padding: 10px 16px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-c .card-footer .progress-text {
+      font-size: 12px; color: var(--text-neutral-medium);
+    }
+    .card-c .card-footer .review-btn {
+      font-size: 13px; font-weight: 500;
+      color: var(--color-primary);
+      background: none; border: none; cursor: pointer;
+    }
+
+    /* ==============================
+       D: SUMMARY COUNTS + EXPANDABLE
+       ============================== */
+    .card-d {
+      border-radius: 12px;
+      border: 1px solid var(--border-neutral-weak);
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+      margin-top: 4px;
+    }
+    .card-d .card-title-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      background: var(--surface-neutral-xx-weak);
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-d .card-title-bar .icon {
+      width: 24px; height: 24px; border-radius: 6px;
+      background: linear-gradient(135deg, #87C276, #5a9e47);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-size: 11px;
+    }
+    .card-d .card-title-bar .title {
+      flex: 1; font-size: 14px; font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+    }
+    .card-d .summary-row {
+      display: flex; gap: 8px; padding: 14px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-d .summary-box {
+      flex: 1;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    .card-d .summary-box.ai-box {
+      background: var(--color-ai-light);
+    }
+    .card-d .summary-box.human-box {
+      background: var(--color-human-light);
+    }
+    .card-d .summary-box .big-num {
+      font-size: 24px; font-weight: 700;
+      line-height: 1;
+    }
+    .card-d .summary-box.ai-box .big-num { color: var(--color-ai); }
+    .card-d .summary-box.human-box .big-num { color: var(--color-human); }
+    .card-d .summary-box .box-label {
+      font-size: 11px; font-weight: 500;
+      margin-top: 4px;
+    }
+    .card-d .summary-box.ai-box .box-label { color: var(--color-ai); }
+    .card-d .summary-box.human-box .box-label { color: var(--color-human); }
+    .card-d .detail-section {
+      padding: 10px 16px;
+    }
+    .card-d .detail-section .detail-label {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 6px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .card-d .detail-section.ai-detail .detail-label { color: var(--color-ai); }
+    .card-d .detail-section.human-detail .detail-label { color: var(--color-human); }
+    .card-d .detail-section.human-detail {
+      border-top: 1px solid var(--border-neutral-weak);
+    }
+    .card-d .detail-item {
+      font-size: 12px; line-height: 17px;
+      color: var(--text-neutral-strong);
+      padding: 3px 0;
+      display: flex; align-items: flex-start; gap: 6px;
+    }
+    .card-d .detail-item .di-icon {
+      flex-shrink: 0; margin-top: 2px; font-size: 10px;
+    }
+    .card-d .detail-section.ai-detail .di-icon { color: var(--color-ai); }
+    .card-d .detail-section.human-detail .di-icon { color: var(--color-human); }
+    .card-d .card-footer {
+      border-top: 1px solid var(--border-neutral-weak);
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-d .btn {
+      flex: 1; padding: 8px; border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+      border: none; cursor: pointer; text-align: center;
+    }
+    .card-d .btn-primary { background: var(--color-primary); color: white; }
+    .card-d .btn-secondary { background: var(--surface-neutral-xx-weak); color: var(--text-neutral-strong); }
+
+    /* ==============================
+       E: STACKED PHASES WITH INLINE ROLE
+       ============================== */
+    .card-e {
+      border-radius: 12px;
+      border: 1px solid var(--border-neutral-weak);
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+      margin-top: 4px;
+    }
+    .card-e .card-title-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px;
+      background: var(--surface-neutral-xx-weak);
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-e .card-title-bar .icon {
+      font-size: 14px; color: var(--color-primary);
+    }
+    .card-e .card-title-bar .title {
+      flex: 1; font-size: 14px; font-weight: 600;
+      color: var(--text-neutral-xx-strong);
+    }
+    .card-e .phase {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-e .phase:last-of-type { border-bottom: none; }
+    .card-e .phase-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px;
+    }
+    .card-e .phase-header .p-icon {
+      font-size: 13px; width: 18px; text-align: center;
+      color: var(--text-neutral-medium);
+    }
+    .card-e .phase-header .p-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-neutral-x-strong); flex: 1;
+    }
+    .card-e .phase-items { padding-left: 26px; }
+    .card-e .phase-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 0;
+      font-size: 12px; line-height: 17px;
+      color: var(--text-neutral-strong);
+    }
+    .card-e .phase-item .left-mark {
+      width: 3px; height: 18px;
+      border-radius: 2px; flex-shrink: 0;
+    }
+    .card-e .phase-item .left-mark.ai { background: var(--color-ai); }
+    .card-e .phase-item .left-mark.human { background: var(--color-human); }
+    .card-e .phase-item .left-mark.done { background: var(--color-positive); }
+    .card-e .phase-item .item-text { flex: 1; }
+    .card-e .phase-item .item-text.done {
+      text-decoration: line-through;
+      color: var(--text-neutral-weak);
+    }
+    .card-e .tl-legend {
+      display: flex; gap: 16px; padding: 8px 16px;
+      border-top: 1px solid var(--border-neutral-weak);
+    }
+    .card-e .tl-legend .legend-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text-neutral-medium);
+    }
+    .card-e .tl-legend .legend-dot {
+      width: 3px; height: 12px; border-radius: 2px;
+    }
+    .card-e .tl-legend .legend-dot.ai { background: var(--color-ai); }
+    .card-e .tl-legend .legend-dot.human { background: var(--color-human); }
+    .card-e .tl-legend .legend-dot.done { background: var(--color-positive); }
+    .card-e .card-footer {
+      padding: 10px 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-e .btn {
+      flex: 1; padding: 8px; border-radius: 8px;
+      font-size: 13px; font-weight: 500;
+      border: none; cursor: pointer; text-align: center;
+    }
+    .card-e .btn-primary { background: var(--color-primary); color: white; }
+    .card-e .btn-secondary { background: var(--surface-neutral-xx-weak); color: var(--text-neutral-strong); }
+  </style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <h1>Plan v2: AI vs Human</h1>
+  <div class="tab active" data-tab="a">A. Two-Zone Split</div>
+  <div class="tab" data-tab="b">B. Sections + Chips</div>
+  <div class="tab" data-tab="c">C. Timeline Handoffs</div>
+  <div class="tab" data-tab="d">D. Summary Counts</div>
+  <div class="tab" data-tab="e">E. Color-Bar Items</div>
+</div>
+
+<!-- ===================== A: TWO-ZONE SPLIT ===================== -->
+<div class="viewport">
+  <div class="mock-panel active" data-panel="a">
+    <div class="approach-meta">
+      <h2>A. Two-Zone Split</h2>
+      <p>Card is literally divided into two zones: top is tinted cyan "AI will handle", bottom is tinted purple "Needs your input". Unmistakable visual separation. The user immediately sees what's on their plate.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>Here's the backfill plan. I can handle most of this automatically — just a few items need your input:</p>
+        </div>
+
+        <div class="card-a">
+          <div class="card-title-bar">
+            <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status">Pending Approval</span>
+          </div>
+
+          <div class="zone zone-ai">
+            <div class="zone-label">
+              <i class="fa-solid fa-robot"></i> AI will handle
+            </div>
+            <div class="zone-item">
+              <div class="dot"></div>
+              <span>Post job requisition to LinkedIn + careers page</span>
+            </div>
+            <div class="zone-item">
+              <div class="dot"></div>
+              <span>Screen Technology talent pool for qualified candidates</span>
+            </div>
+            <div class="zone-item">
+              <div class="dot"></div>
+              <span>Run compensation analysis for Technology team</span>
+            </div>
+            <div class="zone-item">
+              <div class="dot"></div>
+              <span>Draft knowledge transfer documentation template</span>
+            </div>
+            <div class="zone-item">
+              <div class="dot"></div>
+              <span>Generate team workload redistribution plan</span>
+            </div>
+          </div>
+
+          <div class="zone zone-human">
+            <div class="zone-label">
+              <i class="fa-solid fa-user"></i> Needs your input
+            </div>
+            <div class="zone-item">
+              <div class="dot"></div>
+              <span>Review internal candidates (Daniel Kim, Rachel Green)</span>
+              <span class="owner">Decision</span>
+            </div>
+            <div class="zone-item">
+              <div class="dot"></div>
+              <span>Approve final job description and salary range</span>
+              <span class="owner">Approval</span>
+            </div>
+            <div class="zone-item">
+              <div class="dot"></div>
+              <span>Schedule team morale check-ins</span>
+              <span class="owner">Action</span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="counts">
+              <span style="color: var(--color-ai)"><i class="fa-solid fa-robot" style="font-size:10px"></i> 5 automated</span>
+              <span style="color: var(--color-human)"><i class="fa-solid fa-user" style="font-size:10px"></i> 3 need you</span>
+            </div>
+            <button class="review-btn">Review Plan →</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-border"><div class="input-inner">
+          <div class="placeholder">Reply...</div>
+          <div class="input-icons">
+            <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+            <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== B: SECTIONS + ROLE CHIPS ===================== -->
+  <div class="mock-panel" data-panel="b">
+    <div class="approach-meta">
+      <h2>B. Sections + Role Chips</h2>
+      <p>Grouped by plan section (like v1's approach B) but each action item has an inline "AI" or "You" chip. Preserves the section structure while making the role assignment visible at the item level. Balanced info density.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>Here's a backfill plan organized by phase. Items tagged with who's responsible:</p>
+        </div>
+
+        <div class="card-b">
+          <div class="card-title-bar">
+            <i class="fa-solid fa-list-check icon"></i>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status">Pending Approval</span>
+          </div>
+
+          <div class="section-row">
+            <div class="section-header">
+              <i class="fa-solid fa-bolt s-icon" style="color: var(--color-info)"></i>
+              <span class="s-title">Immediate Actions</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="check done"><i class="fa-solid fa-check"></i></div>
+                <span class="text done">Set up interim code review process</span>
+                <span class="badge-ai"><i class="fa-solid fa-robot" style="font-size:8px"></i> AI</span>
+              </div>
+              <div class="section-item">
+                <div class="check"></div>
+                <span class="text">Generate workload redistribution plan</span>
+                <span class="badge-ai"><i class="fa-solid fa-robot" style="font-size:8px"></i> AI</span>
+              </div>
+              <div class="section-item">
+                <div class="check"></div>
+                <span class="text">Complete knowledge transfer docs</span>
+                <span class="badge-ai"><i class="fa-solid fa-robot" style="font-size:8px"></i> AI</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-row">
+            <div class="section-header">
+              <i class="fa-solid fa-user-plus s-icon" style="color: var(--color-primary)"></i>
+              <span class="s-title">Hiring Strategy</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="check"></div>
+                <span class="text">Post job requisition to LinkedIn</span>
+                <span class="badge-ai"><i class="fa-solid fa-robot" style="font-size:8px"></i> AI</span>
+              </div>
+              <div class="section-item">
+                <div class="check"></div>
+                <span class="text">Screen talent pool candidates</span>
+                <span class="badge-ai"><i class="fa-solid fa-robot" style="font-size:8px"></i> AI</span>
+              </div>
+              <div class="section-item">
+                <div class="check"></div>
+                <span class="text">Review internal candidates with EM</span>
+                <span class="badge-human"><i class="fa-solid fa-user" style="font-size:8px"></i> You</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-row">
+            <div class="section-header">
+              <i class="fa-solid fa-shield-heart s-icon" style="color: var(--color-warning)"></i>
+              <span class="s-title">Retention & Team Health</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="check"></div>
+                <span class="text">Run compensation analysis</span>
+                <span class="badge-ai"><i class="fa-solid fa-robot" style="font-size:8px"></i> AI</span>
+              </div>
+              <div class="section-item">
+                <div class="check"></div>
+                <span class="text">Schedule team morale check-ins</span>
+                <span class="badge-human"><i class="fa-solid fa-user" style="font-size:8px"></i> You</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button class="btn btn-secondary">View Details</button>
+            <button class="btn btn-primary">Approve Plan</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-border"><div class="input-inner">
+          <div class="placeholder">Reply...</div>
+          <div class="input-icons">
+            <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+            <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== C: TIMELINE WITH HANDOFF POINTS ===================== -->
+  <div class="mock-panel" data-panel="c">
+    <div class="approach-meta">
+      <h2>C. Timeline Handoffs</h2>
+      <p>Each step on the timeline uses a colored dot to show whether it's an AI step (cyan) or a human handoff (purple). Legend at top. The user can visually scan down and instantly spot where they need to step in — like checkpoints on a race track.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>Here's the execution plan — I'll handle the automated steps and flag you when I need a decision:</p>
+        </div>
+
+        <div class="card-c">
+          <div class="card-title-bar">
+            <i class="fa-solid fa-list-check icon"></i>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status">Pending Approval</span>
+          </div>
+
+          <div class="tl-legend">
+            <div class="legend-item"><div class="legend-dot ai"></div> AI handles</div>
+            <div class="legend-item"><div class="legend-dot human"></div> Needs you</div>
+          </div>
+
+          <div class="tl-body">
+            <div class="tl-step">
+              <div class="tl-dot-col">
+                <div class="tl-dot done"><i class="fa-solid fa-check"></i></div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-content">
+                <div class="step-title">Set up interim code review <span class="badge-ai" style="font-size:9px"><i class="fa-solid fa-check" style="font-size:7px"></i> Done</span></div>
+              </div>
+            </div>
+
+            <div class="tl-step">
+              <div class="tl-dot-col">
+                <div class="tl-dot ai"><i class="fa-solid fa-robot"></i></div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-content">
+                <div class="step-title">Generate workload redistribution</div>
+                <div class="step-desc">Analyze Tony's projects and propose assignments</div>
+              </div>
+            </div>
+
+            <div class="tl-step">
+              <div class="tl-dot-col">
+                <div class="tl-dot ai"><i class="fa-solid fa-robot"></i></div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-content">
+                <div class="step-title">Draft knowledge transfer docs</div>
+                <div class="step-desc">Template from Tony's systems and project notes</div>
+              </div>
+            </div>
+
+            <div class="tl-step">
+              <div class="tl-dot-col">
+                <div class="tl-dot ai"><i class="fa-solid fa-robot"></i></div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-content">
+                <div class="step-title">Post job req + screen talent pool</div>
+                <div class="step-desc">LinkedIn, careers page, and internal pool</div>
+              </div>
+            </div>
+
+            <div class="tl-step">
+              <div class="tl-dot-col">
+                <div class="tl-dot human"><i class="fa-solid fa-user"></i></div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-content">
+                <div class="step-title">Review internal candidates <span class="badge-human" style="font-size:9px">Decision</span></div>
+                <div class="step-desc">Daniel Kim (ready now) vs Rachel Green (6 months)</div>
+              </div>
+            </div>
+
+            <div class="tl-step">
+              <div class="tl-dot-col">
+                <div class="tl-dot ai"><i class="fa-solid fa-robot"></i></div>
+                <div class="tl-line"></div>
+              </div>
+              <div class="tl-content">
+                <div class="step-title">Run compensation analysis</div>
+                <div class="step-desc">Market benchmarks for Technology team</div>
+              </div>
+            </div>
+
+            <div class="tl-step">
+              <div class="tl-dot-col">
+                <div class="tl-dot human"><i class="fa-solid fa-user"></i></div>
+              </div>
+              <div class="tl-content">
+                <div class="step-title">Schedule team check-ins <span class="badge-human" style="font-size:9px">Action</span></div>
+                <div class="step-desc">1:1s with team members to assess morale</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span class="progress-text">5 automated · 2 need you</span>
+            <button class="review-btn">Review Plan →</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-border"><div class="input-inner">
+          <div class="placeholder">Reply...</div>
+          <div class="input-icons">
+            <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+            <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== D: SUMMARY COUNTS ===================== -->
+  <div class="mock-panel" data-panel="d">
+    <div class="approach-meta">
+      <h2>D. Summary Counts + Details</h2>
+      <p>Big number cards at top (5 AI / 3 You) for instant scannability, then itemized lists below. The hero numbers answer the question "how much work is this for me?" in under a second. Details are there if you want to drill in.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>Here's the plan breakdown — I'll handle most of it, just need your input on a few key decisions:</p>
+        </div>
+
+        <div class="card-d">
+          <div class="card-title-bar">
+            <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status">Pending Approval</span>
+          </div>
+
+          <div class="summary-row">
+            <div class="summary-box ai-box">
+              <div class="big-num">5</div>
+              <div class="box-label"><i class="fa-solid fa-robot" style="font-size:10px"></i> AI handles</div>
+            </div>
+            <div class="summary-box human-box">
+              <div class="big-num">3</div>
+              <div class="box-label"><i class="fa-solid fa-user" style="font-size:10px"></i> Need you</div>
+            </div>
+          </div>
+
+          <div class="detail-section ai-detail">
+            <div class="detail-label"><i class="fa-solid fa-robot"></i> AI will handle</div>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle di-icon" style="font-size:5px; margin-top:6px"></i>
+              <span>Post job requisition to LinkedIn + careers page</span>
+            </div>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle di-icon" style="font-size:5px; margin-top:6px"></i>
+              <span>Screen talent pool for qualified candidates</span>
+            </div>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle di-icon" style="font-size:5px; margin-top:6px"></i>
+              <span>Run compensation analysis for team</span>
+            </div>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle di-icon" style="font-size:5px; margin-top:6px"></i>
+              <span>Draft knowledge transfer documentation</span>
+            </div>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle di-icon" style="font-size:5px; margin-top:6px"></i>
+              <span>Generate workload redistribution plan</span>
+            </div>
+          </div>
+
+          <div class="detail-section human-detail">
+            <div class="detail-label"><i class="fa-solid fa-user"></i> Needs your input</div>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle-exclamation di-icon" style="margin-top:2px"></i>
+              <span>Review internal candidates — Daniel Kim vs Rachel Green</span>
+            </div>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle-exclamation di-icon" style="margin-top:2px"></i>
+              <span>Approve job description and salary range ($130K-$170K)</span>
+            </div>
+            <div class="detail-item">
+              <i class="fa-solid fa-circle-exclamation di-icon" style="margin-top:2px"></i>
+              <span>Schedule team morale check-ins with direct reports</span>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <button class="btn btn-secondary">View Details</button>
+            <button class="btn btn-primary">Approve Plan</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-border"><div class="input-inner">
+          <div class="placeholder">Reply...</div>
+          <div class="input-icons">
+            <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+            <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== E: COLOR-BAR ITEMS ===================== -->
+  <div class="mock-panel" data-panel="e">
+    <div class="approach-meta">
+      <h2>E. Color-Bar Items</h2>
+      <p>Sections with items — each item has a colored left bar (cyan = AI, purple = you, green = done). Subtle but consistent visual pattern. Preserves section structure from v1-B but adds the role dimension without chips taking up text space. Legend at bottom.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user">
+          <div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div>
+        </div>
+        <div class="message-ai">
+          <p>Here's the plan — cyan items I'll handle automatically, purple items need your input:</p>
+        </div>
+
+        <div class="card-e">
+          <div class="card-title-bar">
+            <i class="fa-solid fa-list-check icon"></i>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status">Pending Approval</span>
+          </div>
+
+          <div class="phase">
+            <div class="phase-header">
+              <i class="fa-solid fa-bolt p-icon"></i>
+              <span class="p-title">Immediate Actions</span>
+            </div>
+            <div class="phase-items">
+              <div class="phase-item">
+                <div class="left-mark done"></div>
+                <span class="item-text done">Set up interim code review process</span>
+              </div>
+              <div class="phase-item">
+                <div class="left-mark ai"></div>
+                <span class="item-text">Generate workload redistribution plan</span>
+              </div>
+              <div class="phase-item">
+                <div class="left-mark ai"></div>
+                <span class="item-text">Draft knowledge transfer documentation</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="phase">
+            <div class="phase-header">
+              <i class="fa-solid fa-user-plus p-icon"></i>
+              <span class="p-title">Hiring Strategy</span>
+            </div>
+            <div class="phase-items">
+              <div class="phase-item">
+                <div class="left-mark ai"></div>
+                <span class="item-text">Post job requisition to LinkedIn</span>
+              </div>
+              <div class="phase-item">
+                <div class="left-mark ai"></div>
+                <span class="item-text">Screen talent pool for candidates</span>
+              </div>
+              <div class="phase-item">
+                <div class="left-mark human"></div>
+                <span class="item-text">Review internal candidates with EM</span>
+              </div>
+              <div class="phase-item">
+                <div class="left-mark human"></div>
+                <span class="item-text">Approve job description + salary range</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="phase">
+            <div class="phase-header">
+              <i class="fa-solid fa-shield-heart p-icon"></i>
+              <span class="p-title">Retention & Team Health</span>
+            </div>
+            <div class="phase-items">
+              <div class="phase-item">
+                <div class="left-mark ai"></div>
+                <span class="item-text">Run compensation analysis for team</span>
+              </div>
+              <div class="phase-item">
+                <div class="left-mark human"></div>
+                <span class="item-text">Schedule team morale check-ins</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tl-legend">
+            <div class="legend-item"><div class="legend-dot ai"></div> AI handles</div>
+            <div class="legend-item"><div class="legend-dot human"></div> Needs you</div>
+            <div class="legend-item"><div class="legend-dot done"></div> Done</div>
+          </div>
+
+          <div class="card-footer">
+            <button class="btn btn-secondary">View Details</button>
+            <button class="btn btn-primary">Approve Plan</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area">
+        <div class="input-border"><div class="input-inner">
+          <div class="placeholder">Reply...</div>
+          <div class="input-icons">
+            <div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div>
+            <div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color: var(--text-neutral-weak)"></i></div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.mock-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      panels.forEach(p => p.classList.toggle('active', p.dataset.panel === tab.dataset.tab));
+    });
+  });
+</script>
+
+</body>
+</html>
