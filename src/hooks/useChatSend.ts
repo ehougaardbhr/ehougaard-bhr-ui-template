@@ -57,10 +57,13 @@ export function useChatSend() {
 
       for await (const chunk of streamChat(messages)) {
         fullText += chunk;
-        updateMessage(conversationId, aiMessageId, fullText);
+
+        // Parse on each chunk to hide :::plan blocks during streaming
+        const parsed = parseAIResponse(fullText);
+        updateMessage(conversationId, aiMessageId, parsed.displayText || '...');
       }
 
-      // 4. Parse completed response
+      // 4. Parse final response
       const parsed = parseAIResponse(fullText);
 
       // 5. If plan detected, create artifact

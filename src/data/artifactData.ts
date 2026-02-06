@@ -59,6 +59,7 @@ export interface PlanSection {
   id: string;
   title: string;
   description?: string;
+  content?: string; // Legacy field, use description for new plans
   actionItems: ActionItem[];
 }
 
@@ -343,35 +344,35 @@ export const mockArtifacts: Artifact[] = [
     conversationId: '20',
     createdAt: new Date('2026-01-25T09:00:00'),
     settings: {
-      status: 'pending_approval',
+      status: 'proposed',
       sections: [
         {
           id: 'section-1',
           title: 'Immediate Actions',
-          content: 'Address critical gaps left by Tony\'s departure and ensure business continuity.',
+          description: 'Address critical gaps left by Tony\'s departure and ensure business continuity.',
           actionItems: [
-            { id: 'ai-1', description: 'Redistribute Tony\'s active projects among team members', owner: 'Uma Patel', status: 'in_progress' },
-            { id: 'ai-2', description: 'Complete knowledge transfer documentation for undocumented systems', owner: 'Daniel Kim', status: 'pending' },
-            { id: 'ai-3', description: 'Set up interim code review process', owner: 'Uma Patel', status: 'completed' },
+            { id: 'ai-1', description: 'Redistribute Tony\'s active projects among team members', owner: 'Uma Patel', status: 'planned' },
+            { id: 'ai-2', description: 'Complete knowledge transfer documentation for undocumented systems', owner: 'Daniel Kim', status: 'planned' },
+            { id: 'ai-3', description: 'Set up interim code review process', owner: 'Uma Patel', status: 'planned' },
           ],
         },
         {
           id: 'section-2',
           title: 'Hiring Strategy',
-          content: 'Pursue parallel internal and external hiring tracks to fill the Senior Software Engineer role.\n\n**Internal Track:** Evaluate Daniel Kim (ready now) and Rachel Green (ready in 6 months) for promotion.\n\n**External Track:** Post to job boards and engage Technology talent pool. Target 2-week posting period.',
+          description: 'Pursue parallel internal and external hiring tracks to fill the Senior Software Engineer role.\n\n**Internal Track:** Evaluate Daniel Kim (ready now) and Rachel Green (ready in 6 months) for promotion.\n\n**External Track:** Post to job boards and engage Technology talent pool. Target 2-week posting period.',
           actionItems: [
-            { id: 'ai-4', description: 'Post job requisition to LinkedIn and company careers page', owner: 'HR', status: 'pending' },
-            { id: 'ai-5', description: 'Review internal candidates with Engineering Manager', owner: 'Uma Patel', status: 'pending' },
-            { id: 'ai-6', description: 'Screen Technology talent pool for qualified candidates', owner: 'HR', status: 'pending' },
+            { id: 'ai-4', description: 'Post job requisition to LinkedIn and company careers page', owner: 'HR', status: 'planned' },
+            { id: 'ai-5', description: 'Review internal candidates with Engineering Manager', owner: 'Uma Patel', status: 'planned' },
+            { id: 'ai-6', description: 'Screen Technology talent pool for qualified candidates', owner: 'HR', status: 'planned' },
           ],
         },
         {
           id: 'section-3',
           title: 'Retention & Team Health',
-          content: 'Tony\'s departure signals potential retention risks. His salary was below market midpoint, which may affect other team members.\n\nRecommend:\n- Review compensation for remaining senior engineers\n- Schedule 1:1s with team members to assess morale\n- Address workload distribution concerns',
+          description: 'Tony\'s departure signals potential retention risks. His salary was below market midpoint, which may affect other team members.\n\nRecommend:\n- Review compensation for remaining senior engineers\n- Schedule 1:1s with team members to assess morale\n- Address workload distribution concerns',
           actionItems: [
-            { id: 'ai-7', description: 'Run compensation analysis for Technology team', owner: 'HR', status: 'pending' },
-            { id: 'ai-8', description: 'Schedule team morale check-ins', owner: 'Uma Patel', status: 'pending' },
+            { id: 'ai-7', description: 'Run compensation analysis for Technology team', owner: 'HR', status: 'planned' },
+            { id: 'ai-8', description: 'Schedule team morale check-ins', owner: 'Uma Patel', status: 'planned' },
           ],
         },
         {
