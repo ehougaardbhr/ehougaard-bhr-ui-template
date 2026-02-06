@@ -45,21 +45,21 @@ export interface OrgChartSettings {
 }
 
 // Plan artifact types
-export type PlanStatus = 'draft' | 'pending_approval' | 'approved' | 'in_progress' | 'completed';
+export type PlanStatus = 'proposed' | 'running' | 'paused' | 'completed';
 
 export interface ActionItem {
   id: string;
   description: string;
   owner?: string;
-  status: 'pending' | 'in_progress' | 'completed';
+  status: 'planned' | 'queued' | 'working' | 'done';
   dueDate?: string;
 }
 
 export interface PlanSection {
   id: string;
   title: string;
-  content: string; // markdown
-  actionItems?: ActionItem[];
+  description?: string;
+  actionItems: ActionItem[];
 }
 
 export interface ReviewStep {

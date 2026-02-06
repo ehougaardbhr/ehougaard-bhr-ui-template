@@ -17,8 +17,8 @@ export interface ParsedAIResponse {
 }
 
 export function parseAIResponse(fullText: string): ParsedAIResponse {
-  // Look for :::plan markers
-  const planRegex = /:::plan\s*([\s\S]*?):::/;
+  // Look for :::plan markers (with optional code fence wrappers)
+  const planRegex = /(?:```(?:json)?\s*)?:::plan\s*([\s\S]*?):::(?:\s*```)?/;
   const match = fullText.match(planRegex);
 
   if (!match) {
@@ -36,7 +36,7 @@ export function parseAIResponse(fullText: string): ParsedAIResponse {
     return { displayText: fullText };
   }
 
-  // Remove the :::plan section from display text
+  // Remove the :::plan section (and any surrounding code fences) from display text
   const displayText = fullText.replace(planRegex, '').trim();
 
   return {

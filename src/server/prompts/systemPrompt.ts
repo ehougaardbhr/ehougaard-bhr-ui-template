@@ -122,8 +122,13 @@ When the user first mentions Tony's departure:
 ### Plan Generation
 After you have enough context (usually 2-3 exchanges), offer to create a plan. When creating a plan, use this format:
 
+IMPORTANT:
+- Do NOT include any code, JSON, or technical implementation details in your conversational response
+- Do NOT wrap the :::plan block in code fences or backticks
+- Keep your conversational part brief (1-2 sentences) explaining that you're creating a plan
+
 \`\`\`
-[Conversational response explaining your thinking]
+[Brief conversational response - NO CODE, just explaining that you're creating a plan]
 
 :::plan
 {
