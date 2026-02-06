@@ -1,0 +1,262 @@
+### Page state
+- Page URL: http://localhost:5404/hiring/job/1
+- Page Title: BambooHR
+- Page Snapshot:
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - link "Home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic: Home
+      - link "My Info" [ref=e9] [cursor=pointer]:
+        - /url: /my-info
+        - img [ref=e10]
+        - generic: My Info
+      - link "People" [ref=e12] [cursor=pointer]:
+        - /url: /people
+        - img [ref=e13]
+        - generic: People
+      - link "Hiring" [ref=e15] [cursor=pointer]:
+        - /url: /hiring
+        - img [ref=e16]
+        - generic: Hiring
+      - link "Reports" [ref=e18] [cursor=pointer]:
+        - /url: /reports
+        - img [ref=e19]
+        - generic: Reports
+      - link "Files" [ref=e21] [cursor=pointer]:
+        - /url: /files
+        - img [ref=e22]
+        - generic: Files
+      - link "Payroll" [ref=e24] [cursor=pointer]:
+        - /url: /payroll
+        - img [ref=e25]
+        - generic: Payroll
+    - generic [ref=e27]:
+      - button "Switch to light mode" [ref=e28]:
+        - img [ref=e29]
+        - generic: Light mode
+      - generic [ref=e35]:
+        - img "Account" [ref=e36]
+        - generic: Account
+      - button "Expand navigation" [ref=e37]:
+        - img [ref=e38]
+        - generic: Collapse
+  - banner [ref=e42]:
+    - img "BambooHR" [ref=e43]
+    - generic [ref=e44]:
+      - generic [ref=e46]:
+        - img [ref=e47]
+        - textbox "Ask or search for anything..." [ref=e49]
+      - generic [ref=e50]:
+        - button "Inbox" [ref=e51]:
+          - img [ref=e52]
+        - button "Help" [ref=e54]:
+          - img [ref=e55]
+        - button "Settings" [ref=e57]:
+          - img [ref=e58]
+        - button "Ask" [ref=e60]:
+          - img [ref=e61]
+          - text: Ask
+  - main [ref=e64]:
+    - generic [ref=e177]:
+      - generic [ref=e178]:
+        - button "Job Openings" [ref=e179]:
+          - img [ref=e180]
+          - text: Job Openings
+        - generic [ref=e182]:
+          - heading "Medical Assistant" [level=1] [ref=e183]
+          - button "Web Designer Northridge, CA" [ref=e184]:
+            - generic [ref=e185]:
+              - generic [ref=e186]: Web Designer
+              - generic [ref=e187]: Northridge, CA
+            - img [ref=e188]
+        - paragraph [ref=e190]: Engineering – Northridge, CA
+      - generic [ref=e191]:
+        - generic [ref=e192]:
+          - button "Edit Job Opening" [ref=e193] [cursor=pointer]:
+            - img [ref=e194]
+            - text: Edit Job Opening
+          - button [ref=e196]:
+            - img [ref=e197]
+          - button [ref=e199]:
+            - img [ref=e200]
+            - img [ref=e202]
+          - button "Share Job Link" [ref=e204] [cursor=pointer]
+          - link "View Job Description" [ref=e205] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=e206]:
+          - generic [ref=e209]:
+            - generic [ref=e210]: Hiring Lead
+            - generic [ref=e211]: Kathryn Murphy
+          - generic [ref=e213]:
+            - generic [ref=e214]: Status
+            - generic [ref=e215]: Open
+          - generic [ref=e217]:
+            - generic [ref=e218]: Open
+            - generic [ref=e219]: 23 days
+      - generic [ref=e220]:
+        - generic [ref=e221]:
+          - heading "6 Candidates (5 New)" [level=2] [ref=e222]
+          - generic [ref=e223]:
+            - button [ref=e224]:
+              - img [ref=e225]
+              - img [ref=e227]
+            - button [ref=e229]:
+              - img [ref=e230]
+              - img [ref=e232]
+            - button "New Candidate" [ref=e234] [cursor=pointer]:
+              - img [ref=e235]
+              - text: New Candidate
+        - table [ref=e238]:
+          - rowgroup [ref=e239]:
+            - row "Candidate Info Status Rating Applied Last Email" [ref=e240]:
+              - columnheader [ref=e241]:
+                - checkbox [ref=e242]
+              - columnheader "Candidate Info" [ref=e243]
+              - columnheader "Status" [ref=e244]
+              - columnheader "Rating" [ref=e245]
+              - columnheader "Applied" [ref=e246]
+              - columnheader "Last Email" [ref=e247]
+          - rowgroup [ref=e248]:
+            - row "Miracle Gouse Lindon, UT 801-724-6600 Reviewed Sent 2 days ago Dec 28, 2023 Request for follow-up Sent 2 days ago" [ref=e249]:
+              - cell [ref=e250]:
+                - checkbox [ref=e251]
+              - cell "Miracle Gouse Lindon, UT 801-724-6600" [ref=e252]:
+                - link "Miracle Gouse" [ref=e253] [cursor=pointer]:
+                  - /url: "#"
+                - generic [ref=e254]: Lindon, UT
+                - generic [ref=e255]: 801-724-6600
+              - cell "Reviewed Sent 2 days ago" [ref=e256]:
+                - generic [ref=e257]: Reviewed
+                - generic [ref=e258]: Sent 2 days ago
+              - cell [ref=e259]:
+                - generic [ref=e260]:
+                  - img [ref=e261]
+                  - img [ref=e263]
+                  - img [ref=e265]
+                  - img [ref=e267]
+                  - img [ref=e269]
+              - cell "Dec 28, 2023" [ref=e271]:
+                - generic [ref=e272]: Dec 28, 2023
+              - cell "Request for follow-up Sent 2 days ago" [ref=e273]:
+                - generic [ref=e274]: Request for follow-up
+                - generic [ref=e275]: Sent 2 days ago
+            - row "Corey Dorwart Lindon, UT 801-724-6600 Interviewed Sent 2 days ago Dec 28, 2023 Request for follow-up Sent 2 days ago" [ref=e276]:
+              - cell [ref=e277]:
+                - checkbox [ref=e278]
+              - cell "Corey Dorwart Lindon, UT 801-724-6600" [ref=e279]:
+                - link "Corey Dorwart" [ref=e280] [cursor=pointer]:
+                  - /url: "#"
+                - generic [ref=e281]: Lindon, UT
+                - generic [ref=e282]: 801-724-6600
+              - cell "Interviewed Sent 2 days ago" [ref=e283]:
+                - generic [ref=e284]: Interviewed
+                - generic [ref=e285]: Sent 2 days ago
+              - cell [ref=e286]:
+                - generic [ref=e287]:
+                  - img [ref=e288]
+                  - img [ref=e290]
+                  - img [ref=e292]
+                  - img [ref=e294]
+                  - img [ref=e296]
+              - cell "Dec 28, 2023" [ref=e298]:
+                - generic [ref=e299]: Dec 28, 2023
+              - cell "Request for follow-up Sent 2 days ago" [ref=e300]:
+                - generic [ref=e301]: Request for follow-up
+                - generic [ref=e302]: Sent 2 days ago
+            - row "Marley George Lindon, UT 801-724-6600 Checking References Sent 2 days ago Dec 28, 2023 Request for follow-up Sent 2 days ago" [ref=e303]:
+              - cell [ref=e304]:
+                - checkbox [ref=e305]
+              - cell "Marley George Lindon, UT 801-724-6600" [ref=e306]:
+                - link "Marley George" [ref=e307] [cursor=pointer]:
+                  - /url: "#"
+                - generic [ref=e308]: Lindon, UT
+                - generic [ref=e309]: 801-724-6600
+              - cell "Checking References Sent 2 days ago" [ref=e310]:
+                - generic [ref=e311]: Checking References
+                - generic [ref=e312]: Sent 2 days ago
+              - cell [ref=e313]:
+                - generic [ref=e314]:
+                  - img [ref=e315]
+                  - img [ref=e317]
+                  - img [ref=e319]
+                  - img [ref=e321]
+                  - img [ref=e323]
+              - cell "Dec 28, 2023" [ref=e325]:
+                - generic [ref=e326]: Dec 28, 2023
+              - cell "Request for follow-up Sent 2 days ago" [ref=e327]:
+                - generic [ref=e328]: Request for follow-up
+                - generic [ref=e329]: Sent 2 days ago
+            - row "Tiana Botosh Lindon, UT 801-724-6600 Offer Sent Sent 2 days ago Dec 28, 2023 Request for follow-up Sent 2 days ago" [ref=e330]:
+              - cell [ref=e331]:
+                - checkbox [ref=e332]
+              - cell "Tiana Botosh Lindon, UT 801-724-6600" [ref=e333]:
+                - link "Tiana Botosh" [ref=e334] [cursor=pointer]:
+                  - /url: "#"
+                - generic [ref=e335]: Lindon, UT
+                - generic [ref=e336]: 801-724-6600
+              - cell "Offer Sent Sent 2 days ago" [ref=e337]:
+                - generic [ref=e338]: Offer Sent
+                - generic [ref=e339]: Sent 2 days ago
+              - cell [ref=e340]:
+                - generic [ref=e341]:
+                  - img [ref=e342]
+                  - img [ref=e344]
+                  - img [ref=e346]
+                  - img [ref=e348]
+                  - img [ref=e350]
+              - cell "Dec 28, 2023" [ref=e352]:
+                - generic [ref=e353]: Dec 28, 2023
+              - cell "Request for follow-up Sent 2 days ago" [ref=e354]:
+                - generic [ref=e355]: Request for follow-up
+                - generic [ref=e356]: Sent 2 days ago
+            - row "Adison Donin Lindon, UT 801-724-6600 Offer Sent Sent 2 days ago Dec 28, 2023 Request for follow-up Sent 2 days ago" [ref=e357]:
+              - cell [ref=e358]:
+                - checkbox [ref=e359]
+              - cell "Adison Donin Lindon, UT 801-724-6600" [ref=e360]:
+                - link "Adison Donin" [ref=e361] [cursor=pointer]:
+                  - /url: "#"
+                - generic [ref=e362]: Lindon, UT
+                - generic [ref=e363]: 801-724-6600
+              - cell "Offer Sent Sent 2 days ago" [ref=e364]:
+                - generic [ref=e365]: Offer Sent
+                - generic [ref=e366]: Sent 2 days ago
+              - cell [ref=e367]:
+                - generic [ref=e368]:
+                  - img [ref=e369]
+                  - img [ref=e371]
+                  - img [ref=e373]
+                  - img [ref=e375]
+                  - img [ref=e377]
+              - cell "Dec 28, 2023" [ref=e379]:
+                - generic [ref=e380]: Dec 28, 2023
+              - cell "Request for follow-up Sent 2 days ago" [ref=e381]:
+                - generic [ref=e382]: Request for follow-up
+                - generic [ref=e383]: Sent 2 days ago
+            - row "Abram Franci Lindon, UT 801-724-6600 Offer Sent Sent 2 days ago Dec 28, 2023 Request for follow-up Sent 2 days ago" [ref=e384]:
+              - cell [ref=e385]:
+                - checkbox [ref=e386]
+              - cell "Abram Franci Lindon, UT 801-724-6600" [ref=e387]:
+                - link "Abram Franci" [ref=e388] [cursor=pointer]:
+                  - /url: "#"
+                - generic [ref=e389]: Lindon, UT
+                - generic [ref=e390]: 801-724-6600
+              - cell "Offer Sent Sent 2 days ago" [ref=e391]:
+                - generic [ref=e392]: Offer Sent
+                - generic [ref=e393]: Sent 2 days ago
+              - cell [ref=e394]:
+                - generic [ref=e395]:
+                  - img [ref=e396]
+                  - img [ref=e398]
+                  - img [ref=e400]
+                  - img [ref=e402]
+                  - img [ref=e404]
+              - cell "Dec 28, 2023" [ref=e406]:
+                - generic [ref=e407]: Dec 28, 2023
+              - cell "Request for follow-up Sent 2 days ago" [ref=e408]:
+                - generic [ref=e409]: Request for follow-up
+                - generic [ref=e410]: Sent 2 days ago
+```

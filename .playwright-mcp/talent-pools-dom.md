@@ -1,0 +1,95 @@
+### Page state
+- Page URL: http://localhost:5404/hiring
+- Page Title: BambooHR
+- Page Snapshot:
+```yaml
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - link "Home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic: Home
+      - link "My Info" [ref=e9] [cursor=pointer]:
+        - /url: /my-info
+        - img [ref=e10]
+        - generic: My Info
+      - link "People" [ref=e12] [cursor=pointer]:
+        - /url: /people
+        - img [ref=e13]
+        - generic: People
+      - link "Hiring" [ref=e15] [cursor=pointer]:
+        - /url: /hiring
+        - img [ref=e16]
+        - generic: Hiring
+      - link "Reports" [ref=e18] [cursor=pointer]:
+        - /url: /reports
+        - img [ref=e19]
+        - generic: Reports
+      - link "Files" [ref=e21] [cursor=pointer]:
+        - /url: /files
+        - img [ref=e22]
+        - generic: Files
+      - link "Payroll" [ref=e24] [cursor=pointer]:
+        - /url: /payroll
+        - img [ref=e25]
+        - generic: Payroll
+    - generic [ref=e27]:
+      - button "Switch to dark mode" [ref=e28]:
+        - img [ref=e29]
+        - generic: Dark mode
+      - generic [ref=e31]:
+        - img "Account" [ref=e32]
+        - generic: Account
+      - button "Expand navigation" [ref=e33]:
+        - img [ref=e34]
+        - generic: Collapse
+  - banner [ref=e38]:
+    - img "BambooHR" [ref=e39]
+    - generic [ref=e40]:
+      - generic [ref=e42]:
+        - img [ref=e43]
+        - textbox "Ask or search for anything..." [ref=e45]
+      - generic [ref=e46]:
+        - button "Inbox" [ref=e47]:
+          - img [ref=e48]
+        - button "Help" [ref=e50]:
+          - img [ref=e51]
+        - button "Settings" [ref=e53]:
+          - img [ref=e54]
+        - button "Ask" [ref=e56]:
+          - img [ref=e57]
+          - text: Ask
+  - main [ref=e60]:
+    - generic [ref=e62]:
+      - heading "Hiring" [level=1] [ref=e64]
+      - generic [ref=e65]:
+        - generic [ref=e66]:
+          - button "Job openings" [ref=e67]
+          - button "Candidates" [ref=e68]
+          - button "Talent pools" [active] [ref=e69]
+        - generic [ref=e70]:
+          - generic [ref=e71]: View Careers Website
+          - generic [ref=e72]: ·
+          - generic [ref=e73]: Get Embed Code
+      - generic [ref=e173]:
+        - button "New Talent Pool" [ref=e175] [cursor=pointer]:
+          - img [ref=e176]
+          - text: New Talent Pool
+        - generic [ref=e179]:
+          - button "Finance 2 Candidates" [ref=e180] [cursor=pointer]:
+            - img [ref=e182]
+            - generic [ref=e184]:
+              - paragraph [ref=e185]: Finance
+              - paragraph [ref=e186]: 2 Candidates
+          - button "Marketing 2 Candidates" [ref=e187] [cursor=pointer]:
+            - img [ref=e189]
+            - generic [ref=e191]:
+              - paragraph [ref=e192]: Marketing
+              - paragraph [ref=e193]: 2 Candidates
+          - button "Software Engineer 2 Candidates" [ref=e194] [cursor=pointer]:
+            - img [ref=e196]
+            - generic [ref=e198]:
+              - paragraph [ref=e199]: Software Engineer
+              - paragraph [ref=e200]: 2 Candidates
+```

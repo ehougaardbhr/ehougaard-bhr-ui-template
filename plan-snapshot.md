@@ -1,0 +1,262 @@
+- generic [ref=e3]:
+  - navigation [ref=e4]:
+    - generic [ref=e5]:
+      - link "Home" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic: Home
+      - link "My Info" [ref=e9] [cursor=pointer]:
+        - /url: /my-info
+        - img [ref=e10]
+        - generic: My Info
+      - link "People" [ref=e12] [cursor=pointer]:
+        - /url: /people
+        - img [ref=e13]
+        - generic: People
+      - link "Hiring" [ref=e18] [cursor=pointer]:
+        - /url: /hiring
+        - img [ref=e19]
+        - generic: Hiring
+      - link "Reports" [ref=e21] [cursor=pointer]:
+        - /url: /reports
+        - img [ref=e22]
+        - generic: Reports
+      - link "Files" [ref=e25] [cursor=pointer]:
+        - /url: /files
+        - img [ref=e26]
+        - generic: Files
+      - link "Payroll" [ref=e28] [cursor=pointer]:
+        - /url: /payroll
+        - img [ref=e29]
+        - generic: Payroll
+    - generic [ref=e31]:
+      - button "Switch to dark mode" [ref=e32]:
+        - img [ref=e33]
+        - generic: Dark mode
+      - generic [ref=e35]:
+        - img "Account" [ref=e36]
+        - generic: Account
+      - button "Expand navigation" [ref=e37]:
+        - img [ref=e38]
+        - generic: Collapse
+  - banner [ref=e42]:
+    - img "BambooHR" [ref=e43]
+    - generic [ref=e44]:
+      - generic [ref=e46]:
+        - img [ref=e47]
+        - textbox "Ask or search for anything..." [ref=e49]
+      - generic [ref=e50]:
+        - button "Inbox" [ref=e51]:
+          - img [ref=e52]
+        - button "Help" [ref=e55]:
+          - img [ref=e56]
+        - button "Settings" [ref=e58]:
+          - img [ref=e59]
+        - button "Ask" [ref=e62]:
+          - img [ref=e63]
+          - text: Ask
+  - main [ref=e66]:
+    - generic [ref=e68]:
+      - generic [ref=e69]:
+        - generic [ref=e72]:
+          - generic [ref=e74]: Hi, Jess
+          - paragraph [ref=e75]: Director, Demand Generation in Marketing
+        - button "Edit" [ref=e76] [cursor=pointer]:
+          - img [ref=e77]
+          - text: Edit
+      - generic [ref=e79]:
+        - generic [ref=e82]:
+          - img [ref=e83]
+          - heading "Timesheet" [level=3] [ref=e86]
+        - generic [ref=e90]:
+          - img [ref=e91]
+          - heading "What's happening at BambooHR" [level=3] [ref=e94]
+        - generic [ref=e98]:
+          - img [ref=e99]
+          - heading "Time off" [level=3] [ref=e102]
+        - generic [ref=e106]:
+          - img [ref=e107]
+          - heading "Welcome to BambooHR" [level=3] [ref=e110]
+        - generic [ref=e114]:
+          - img [ref=e115]
+          - heading "Celebrations" [level=3] [ref=e118]
+        - generic [ref=e122]:
+          - img [ref=e123]
+          - heading "Who's out" [level=3] [ref=e126]
+        - generic [ref=e130]:
+          - img [ref=e131]
+          - heading "Starting soon" [level=3] [ref=e134]
+        - generic [ref=e138]:
+          - img [ref=e139]
+          - heading "Company links" [level=3] [ref=e142]
+        - generic [ref=e144]:
+          - generic [ref=e146]:
+            - img [ref=e147]
+            - heading "AI Tasks" [level=3] [ref=e150]
+          - generic [ref=e153]:
+            - generic [ref=e154] [cursor=pointer]:
+              - img [ref=e156]
+              - generic [ref=e158]: Generating backfill plan
+              - generic [ref=e159]: Done
+            - generic [ref=e160] [cursor=pointer]:
+              - generic [ref=e163]: Screening talent pool candidates
+              - generic [ref=e164]: Running
+      - generic [ref=e168]:
+        - img [ref=e170]
+        - textbox "Ask me anything..." [ref=e172]
+        - button [ref=e173] [cursor=pointer]:
+          - img [ref=e174]
+  - generic [ref=e177]:
+    - generic [ref=e178]:
+      - button "New Chat" [ref=e180]:
+        - img [ref=e181]
+        - text: New Chat
+      - generic [ref=e183]: Artifacts
+      - generic [ref=e184]:
+        - 'button "Backfill Plan: Senior Software Engineer (Tony Ramirez)" [ref=e185]':
+          - img [ref=e186]
+          - generic [ref=e188]: "Backfill Plan: Senior Software Engineer (Tony Ramirez)"
+        - button "Headcount by Department" [ref=e189]:
+          - img [ref=e190]
+          - generic [ref=e192]: Headcount by Department
+        - button "Salary by Location" [ref=e193]:
+          - img [ref=e194]
+          - generic [ref=e196]: Salary by Location
+        - button "See 8 more" [ref=e197]
+      - generic [ref=e198]:
+        - generic [ref=e199]: Chats
+        - button "Search chats" [ref=e200]:
+          - img [ref=e201]
+      - generic [ref=e203]:
+        - button "Markdown Check" [ref=e204]
+        - button "Employee Onboarding" [ref=e205]
+        - button "PTO Policy Updates" [ref=e206]
+        - button "Benefits Enrollment" [ref=e207]
+        - button "Performance Reviews" [ref=e208]
+        - button "Review Upcoming Payroll Anomalies" [ref=e209]
+        - button "Technology Team Structure Q1 2026" [ref=e210]
+        - button "Finance Team Expansion Planning" [ref=e211]
+        - button "Upcoming Certificates Expiration" [ref=e212]
+        - button "Benefit Plan Set Up" [ref=e213]
+        - button "Engineering department org chart" [ref=e214]
+        - button "Onboarding Maddy Matthews" [ref=e215]
+        - button "Offboarding departing employees" [ref=e216]
+        - button "Welcome email to Cesar Berhow" [ref=e217]
+        - button "Remote work eligibility policies" [ref=e218]
+        - button "Leave of absence inquiry" [ref=e219]
+        - button "Markdown Test" [ref=e220]
+        - button "Backfill Plan for Tony Ramirez" [ref=e221]
+    - generic [ref=e223]:
+      - generic [ref=e224]:
+        - heading "Backfill Plan for Tony Ramirez" [level=2] [ref=e225]
+        - generic [ref=e226]:
+          - button "Collapse to panel" [ref=e227]:
+            - img [ref=e228]
+          - button "Close chat" [ref=e230]:
+            - img [ref=e231]
+      - generic [ref=e233]:
+        - generic [ref=e235]:
+          - paragraph [ref=e239]: Tony Ramirez just gave his two weeks notice. He's a Senior Software Engineer on Uma Patel's team. Can you help me figure out a backfill plan?
+          - generic [ref=e241]:
+            - generic [ref=e242]:
+              - img [ref=e244]
+              - generic [ref=e246]: BambooHR Assistant
+            - generic [ref=e247]:
+              - generic [ref=e248]:
+                - paragraph [ref=e455]: "I'm sorry to hear about Tony's departure. Let me help you put together a comprehensive backfill plan. I have a few questions first:"
+                - list [ref=e456]:
+                  - listitem [ref=e457]:
+                    - strong [ref=e458]: What's driving Tony's departure?
+                    - text: Understanding the reason can help us address potential retention risks for the rest of the team.
+                  - listitem [ref=e459]:
+                    - strong [ref=e460]: Are there any critical projects
+                    - text: Tony is currently leading that need immediate coverage?
+                  - listitem [ref=e461]:
+                    - strong [ref=e462]: Do you have a preference
+                    - text: for internal promotion vs. external hire?
+                - paragraph [ref=e463]: While you think about those, I'll start pulling together relevant data on the team, compensation benchmarks, and potential internal candidates.
+              - generic [ref=e258]:
+                - button "He got a better offer elsewhere" [ref=e259] [cursor=pointer]
+                - button "Show me the team structure" [ref=e260] [cursor=pointer]
+                - button "Check internal candidates first" [ref=e261] [cursor=pointer]
+          - paragraph [ref=e265]: He got a better offer — higher comp at a competitor. I'm open to either internal or external candidates. Let's see what makes sense.
+          - generic [ref=e267]:
+            - generic [ref=e268]:
+              - img [ref=e270]
+              - generic [ref=e272]: BambooHR Assistant
+            - generic [ref=e273]:
+              - generic [ref=e274]:
+                - paragraph [ref=e464]: That's helpful context. Compensation-driven departures are something we should address proactively for the remaining team.
+                - paragraph [ref=e465]: "I've analyzed the situation and put together a comprehensive backfill plan. Here's what I found:"
+                - list [ref=e466]:
+                  - listitem [ref=e467]:
+                    - strong [ref=e468]: Tony's salary was $135,000
+                    - text: — below the market midpoint of $145,000 for his role
+                  - listitem [ref=e469]:
+                    - strong [ref=e470]: Daniel Kim
+                    - text: on the same team shows strong promotion readiness and could be an internal candidate
+                  - listitem [ref=e471]:
+                    - strong [ref=e472]: Rachel Green
+                    - text: could be ready in ~6 months with targeted development
+                  - listitem [ref=e473]:
+                    - text: We have
+                    - strong [ref=e474]: 5 qualified candidates
+                    - text: in the Technology talent pool worth screening
+                - paragraph [ref=e475]: "I've created a detailed plan with action items. Take a look:"
+              - generic [ref=e287]:
+                - generic [ref=e288]:
+                  - img [ref=e289]
+                  - generic [ref=e291]: "Backfill Plan: Senior Software Engineer (Tony Ramirez)"
+                  - generic [ref=e292]: Working
+                - generic [ref=e402]:
+                  - img [ref=e403]
+                  - text: Started 12 days ago
+                - generic [ref=e295]:
+                  - generic [ref=e296]:
+                    - generic [ref=e297]:
+                      - img [ref=e298]
+                      - generic [ref=e300]: Immediate Actions
+                    - generic [ref=e301]:
+                      - generic [ref=e302] [cursor=pointer]:
+                        - img [ref=e453]
+                        - generic [ref=e304]: Redistribute Tony's active projects among team members
+                      - generic [ref=e305] [cursor=pointer]:
+                        - img [ref=e476]
+                        - generic [ref=e307]: Complete knowledge transfer documentation for undocumented systems
+                      - generic [ref=e308] [cursor=pointer]:
+                        - img [ref=e408]
+                        - generic [ref=e310]: Set up interim code review process
+                  - generic [ref=e311]:
+                    - img [ref=e313]
+                    - generic [ref=e315]: Review — Uma Patel
+                - generic [ref=e316]:
+                  - generic [ref=e317]:
+                    - generic [ref=e318]:
+                      - img [ref=e319]
+                      - generic [ref=e321]: Hiring Strategy
+                    - generic [ref=e322]:
+                      - generic [ref=e325] [cursor=pointer]: Post job requisition to LinkedIn and company careers page
+                      - generic [ref=e328] [cursor=pointer]: Review internal candidates with Engineering Manager
+                      - generic [ref=e331] [cursor=pointer]: Screen Technology talent pool for qualified candidates
+                  - generic [ref=e332]:
+                    - img [ref=e334]
+                    - generic [ref=e336]: Review — Uma Patel
+                - generic [ref=e337]:
+                  - generic [ref=e338]:
+                    - generic [ref=e339]:
+                      - img [ref=e340]
+                      - generic [ref=e342]: Retention & Team Health
+                    - generic [ref=e343]:
+                      - generic [ref=e346] [cursor=pointer]: Run compensation analysis for Technology team
+                      - generic [ref=e349] [cursor=pointer]: Schedule team morale check-ins
+                  - generic [ref=e350]:
+                    - img [ref=e352]
+                    - generic [ref=e354]: Review — HR Director
+                - generic [ref=e357]:
+                  - img [ref=e358]
+                  - generic [ref=e360]: Timeline
+                - generic [ref=e363]: 3 of 8 complete
+        - generic [ref=e372]:
+          - textbox "Ask Anything" [ref=e373]
+          - button "Send message" [disabled] [ref=e374]:
+            - img [ref=e375]

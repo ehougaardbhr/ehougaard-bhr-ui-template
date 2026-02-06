@@ -1,8 +1,29 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Icon } from '../Icon';
+import { Icon, type IconName } from '../Icon';
+import { Button } from '../Button';
 import { useArtifact } from '../../contexts/ArtifactContext';
 import type { Artifact, PlanSettings, PlanStatus, ActionItem, PlanSection, ReviewStep } from '../../data/artifactData';
+
+// Map section titles to icons based on keywords
+function getSectionIcon(title: string): IconName {
+  const lower = title.toLowerCase();
+  if (lower.includes('immediate') || lower.includes('urgent') || lower.includes('critical')) return 'bolt';
+  if (lower.includes('hiring') || lower.includes('recruit') || lower.includes('candidate')) return 'user-plus';
+  if (lower.includes('retention') || lower.includes('health') || lower.includes('morale') || lower.includes('wellness')) return 'shield-heart';
+  if (lower.includes('timeline') || lower.includes('schedule') || lower.includes('milestone')) return 'calendar';
+  if (lower.includes('budget') || lower.includes('cost') || lower.includes('compensation') || lower.includes('salary')) return 'circle-dollar';
+  if (lower.includes('training') || lower.includes('development') || lower.includes('learning')) return 'graduation-cap';
+  if (lower.includes('communication') || lower.includes('announce') || lower.includes('notify')) return 'bullhorn';
+  if (lower.includes('compliance') || lower.includes('legal') || lower.includes('policy')) return 'shield';
+  if (lower.includes('onboard') || lower.includes('welcome')) return 'door-open';
+  if (lower.includes('review') || lower.includes('assess') || lower.includes('evaluat')) return 'clipboard';
+  if (lower.includes('strateg') || lower.includes('plan')) return 'compass';
+  if (lower.includes('team') || lower.includes('people') || lower.includes('staff')) return 'users';
+  if (lower.includes('report') || lower.includes('analys') || lower.includes('data')) return 'chart-simple';
+  if (lower.includes('document') || lower.includes('knowledge') || lower.includes('transfer')) return 'file-lines';
+  return 'list-check'; // fallback
+}
 
 interface PlanInlineCardProps {
   artifact: Artifact;
@@ -70,32 +91,45 @@ function ActionItemIcon({ status }: { status: 'planned' | 'queued' | 'working' |
   }
 
   if (status === 'queued') {
+    // Solid dot for queued — avoids checkbox affordance
     return (
       <div
-        className="flex-shrink-0"
+        className="flex items-center justify-center flex-shrink-0"
         style={{
           width: '16px',
           height: '16px',
-          borderRadius: '50%',
-          border: '1.5px solid #A8A29E',
-          backgroundColor: 'transparent',
         }}
-      />
+      >
+        <div
+          style={{
+            width: '5px',
+            height: '5px',
+            borderRadius: '50%',
+            backgroundColor: '#A8A29E',
+          }}
+        />
+      </div>
     );
   }
 
-  // planned (proposal state)
+  // planned (proposal state) — solid dot, not an empty circle (avoids checkbox affordance)
   return (
     <div
-      className="flex-shrink-0"
+      className="flex items-center justify-center flex-shrink-0"
       style={{
         width: '16px',
         height: '16px',
-        borderRadius: '50%',
-        border: '1.5px solid #D6D3D1',
-        backgroundColor: 'transparent',
       }}
-    />
+    >
+      <div
+        style={{
+          width: '5px',
+          height: '5px',
+          borderRadius: '50%',
+          backgroundColor: '#D6D3D1',
+        }}
+      />
+    </div>
   );
 }
 
@@ -118,8 +152,8 @@ function InlineActionItem({
       <span
         className={displayStatus === 'done' ? 'line-through' : ''}
         style={{
-          fontSize: '12px',
-          lineHeight: '17px',
+          fontSize: '14px',
+          lineHeight: '20px',
           color: displayStatus === 'done' ? 'var(--text-neutral-weak)' : 'var(--text-neutral-strong)',
         }}
       >
@@ -163,7 +197,7 @@ function ReviewStepRow({
           border: isReady ? '1.5px solid #2e7918' : 'none',
         }}
       >
-        <Icon name="hand" size={7} />
+        <Icon name="eye" size={9} />
         {step.status === 'passed' && (
           <div
             style={{
@@ -187,8 +221,8 @@ function ReviewStepRow({
       <span
         style={{
           flex: 1,
-          fontSize: '12px',
-          lineHeight: '17px',
+          fontSize: '14px',
+          lineHeight: '20px',
           color:
             step.status === 'ready'
               ? '#256314'
@@ -221,7 +255,7 @@ function ReviewStepRow({
             flexShrink: 0,
           }}
         >
-          <Icon name="hand" size={9} />
+          <Icon name="eye" size={9} />
           Needs review
         </button>
       )}
@@ -251,11 +285,11 @@ function CollapsedSectionRow({
       }}
     >
       <Icon name="chevron-right" size={10} style={{ color: 'var(--text-neutral-weak)' }} />
-      <Icon name="bolt" size={13} style={{ color: '#059669' }} />
+      <Icon name={getSectionIcon(section.title)} size={15} style={{ color: '#059669' }} />
       <span
         style={{
           flex: 1,
-          fontSize: '12px',
+          fontSize: '14px',
           color: 'var(--text-neutral-weak)',
         }}
       >
@@ -281,7 +315,6 @@ function CollapsedSectionRow({
 // Section row (expanded)
 function InlineSectionRow({
   section,
-  sectionIndex,
   isProposal,
   isCompleted,
   isExpanded,
@@ -291,7 +324,6 @@ function InlineSectionRow({
   onToggleExpand,
 }: {
   section: PlanSection;
-  sectionIndex: number;
   isProposal: boolean;
   isCompleted: boolean;
   isExpanded: boolean;
@@ -302,9 +334,7 @@ function InlineSectionRow({
 }) {
   const items = section.actionItems || [];
 
-  // Map section index to icon
-  const sectionIcons = ['bolt', 'user-plus', 'file-lines', 'shield-heart'];
-  const iconName = sectionIcons[sectionIndex] || 'list';
+  const iconName = getSectionIcon(section.title);
 
   // Icon color based on state
   const iconColor = isProposal
@@ -319,12 +349,12 @@ function InlineSectionRow({
     <div style={{ padding: '10px 16px 4px' }}>
       {/* Section header */}
       <div className="flex items-center gap-2 mb-1.5">
-        <Icon name={iconName} size={13} style={{ color: iconColor, width: '18px', textAlign: 'center' }} />
+        <Icon name={iconName} size={15} style={{ color: iconColor, width: '20px', textAlign: 'center' }} />
         <span
           style={{
-            fontSize: '13px',
+            fontSize: '15px',
             fontWeight: 600,
-            color: 'var(--text-neutral-x-strong)',
+            color: 'var(--text-neutral-xx-strong)',
             flex: 1,
           }}
         >
@@ -435,8 +465,9 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
     }
   }, [settings.sections, isProposal, collapsedSections]);
 
-  // Calculate progress
-  const allActionItems = settings.sections.flatMap(s => s.actionItems || []);
+  // Calculate progress (only sections with action items)
+  const sectionsWithItems = settings.sections.filter(s => s.actionItems && s.actionItems.length > 0);
+  const allActionItems = sectionsWithItems.flatMap(s => s.actionItems || []);
   const completedCount = allActionItems.filter(ai => ai.status === 'completed').length;
   const totalCount = allActionItems.length;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
@@ -519,20 +550,21 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
       >
         {/* Title bar */}
         <div
-          className="flex items-center gap-2"
+          className="flex items-center gap-2.5"
           style={{
-            padding: '12px 16px 8px',
+            padding: '14px 16px 10px',
             backgroundColor: 'var(--surface-neutral-xx-weak)',
           }}
         >
-          <Icon name="list-check" size={14} style={{ color: 'var(--color-primary-strong)' }} />
+          <Icon name="list-check" size={16} style={{ color: 'var(--color-primary-strong)' }} />
           <span
             style={{
               flex: 1,
-              fontSize: '14px',
-              fontWeight: 600,
+              fontSize: '15px',
+              fontWeight: 700,
               color: 'var(--text-neutral-xx-strong)',
               fontFamily: 'Inter, system-ui, sans-serif',
+              letterSpacing: '-0.01em',
             }}
           >
             {artifact.title}
@@ -617,8 +649,11 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
           </div>
         )}
 
-        {/* Sections with interleaved review steps */}
-        {settings.sections.map((section, idx) => {
+        {/* Sections with interleaved review steps (skip sections with no action items) */}
+        {settings.sections
+          .map((section, idx) => ({ section, originalIndex: idx }))
+          .filter(({ section }) => section.actionItems && section.actionItems.length > 0)
+          .map(({ section, originalIndex: idx }) => {
           const allCompleted = section.actionItems?.every(item => item.status === 'completed') ?? false;
           const isCollapsed = collapsedSections[section.id] ?? false;
 
@@ -640,7 +675,6 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
               ) : (
                 <InlineSectionRow
                   section={section}
-                  sectionIndex={idx}
                   isProposal={isProposal}
                   isCompleted={allCompleted}
                   isExpanded={!isCollapsed}
@@ -671,68 +705,31 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
           }}
         >
           {isProposal ? (
-            <>
-              <div className="flex items-center mb-2">
-                <span
-                  style={{
-                    fontSize: '12px',
-                    color: 'var(--text-neutral-medium)',
-                    flex: 1,
-                  }}
-                >
-                  {reviewSteps.length} review {reviewSteps.length === 1 ? 'step' : 'steps'}
-                </span>
-              </div>
               <div className="flex gap-2">
-                <button
+                <Button
+                  variant="standard"
+                  size="small"
+                  icon="pen-to-square"
                   onClick={handleEdit}
-                  style={{
-                    flex: 1,
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    border: '1px solid var(--border-neutral-medium)',
-                    backgroundColor: 'var(--surface-neutral-white)',
-                    color: 'var(--text-neutral-strong)',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                  }}
+                  className="flex-1"
                 >
-                  <Icon name="pen-to-square" size={12} />
                   Edit Plan
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="primary"
+                  size="small"
+                  icon="play"
                   onClick={handleApprove}
-                  style={{
-                    flex: 1,
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    fontSize: '13px',
-                    fontWeight: 500,
-                    border: '1px solid #2e7918',
-                    backgroundColor: '#2e7918',
-                    color: 'white',
-                    cursor: 'pointer',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '6px',
-                  }}
+                  className="flex-1"
                 >
-                  <Icon name="play" size={10} />
                   Approve & Start
-                </button>
+                </Button>
               </div>
-            </>
           ) : (
             <div className="flex items-center">
               <span
                 style={{
-                  fontSize: '12px',
+                  fontSize: '14px',
                   color: 'var(--text-neutral-medium)',
                 }}
               >
