@@ -55,7 +55,8 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addMessage = useCallback((conversationId: string, message: Omit<ChatMessage, 'id'>) => {
-    const messageId = String(Date.now());
+    // Generate unique ID with timestamp + random suffix to avoid collisions
+    const messageId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     setConversations(prev => prev.map(conversation => {
       if (conversation.id === conversationId) {
         const newMessage: ChatMessage = {

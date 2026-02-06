@@ -23,7 +23,7 @@ While you think about those, I'll start pulling together relevant data on the te
 }
 
 export function useChatSend() {
-  const { addMessage, updateMessage, selectedConversation } = useChat();
+  const { addMessage, updateMessage, selectedConversation, conversations } = useChat();
   const { createArtifact, updateArtifactSettings } = useArtifact();
   const { addNotification } = useAINotifications();
 
@@ -36,9 +36,9 @@ export function useChatSend() {
       return;
     }
 
-    // Get conversation messages - need to fetch if not the selected one
+    // Get conversation messages - fetch from conversations list if not selected
     const conversation = targetConversationId
-      ? { messages: [] } // Will use just the current message
+      ? conversations.find(c => c.id === targetConversationId) || { messages: [] }
       : selectedConversation;
 
     // 1. Add user message
@@ -93,7 +93,7 @@ export function useChatSend() {
       const mockResponse = generateMockResponse(text);
       updateMessage(conversationId, aiMessageId, mockResponse);
     }
-  }, [selectedConversation, addMessage, updateMessage, createArtifact, updateArtifactSettings, addNotification]);
+  }, [selectedConversation, conversations, addMessage, updateMessage, createArtifact, updateArtifactSettings, addNotification]);
 
   return { sendMessage };
 }
