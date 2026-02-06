@@ -1,7 +1,29 @@
 import type { Plugin, ViteDevServer } from 'vite';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
 import { createProvider } from './src/server/llm';
 import { buildSystemPrompt } from './src/server/prompts/systemPrompt';
 import type { LLMMessage } from './src/server/llm/types';
+
+// Load .env file manually
+function loadEnv() {
+  try {
+    const envPath = resolve(process.cwd(), '.env');
+    const envFile = readFileSync(envPath, 'utf-8');
+    const env: Record<string, string> = {};
+
+    envFile.split('\n').forEach(line => {
+      const match = line.match(/^([A-Z_]+)=(.*)$/);
+      if (match) {
+        env[match[1]] = match[2];
+      }
+    });
+
+    return env;
+  } catch (e) {
+    return {};
+  }
+}
 
 export function apiPlugin(): Plugin {
   return {
@@ -20,11 +42,12 @@ export function apiPlugin(): Plugin {
               try {
                 const { messages } = JSON.parse(body) as { messages: LLMMessage[] };
 
-                // Get provider config from environment
-                const providerName = process.env.LLM_PROVIDER || 'anthropic';
+                // Get provider config from environment (reload .env each time for development)
+                const env = loadEnv();
+                const providerName = env.LLM_PROVIDER || 'anthropic';
                 const apiKey = providerName === 'openai'
-                  ? process.env.OPENAI_API_KEY
-                  : process.env.ANTHROPIC_API_KEY;
+                  ? env.OPENAI_API_KEY
+                  : env.ANTHROPIC_API_KEY;
 
                 if (!apiKey) {
                   res.writeHead(500, { 'Content-Type': 'text/event-stream' });
