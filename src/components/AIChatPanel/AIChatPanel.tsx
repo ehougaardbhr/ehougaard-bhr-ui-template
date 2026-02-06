@@ -24,6 +24,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const {
     selectedConversation,
     selectConversation,
+    createNewChat,
     conversations,
     searchQuery: contextSearchQuery,
     setSearchQuery: setContextSearchQuery,
