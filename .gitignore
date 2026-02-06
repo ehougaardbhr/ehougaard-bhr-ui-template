@@ -26,3 +26,7 @@ dist-ssr
 
 # Environment variables
 .env
+
+# Screenshot archives and temp files
+_archive_screenshots/
+.playwright-mcp/
