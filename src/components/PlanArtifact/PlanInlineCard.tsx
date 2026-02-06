@@ -272,7 +272,7 @@ function CollapsedSectionRow({
   onExpand: () => void;
 }) {
   const items = section.actionItems || [];
-  const completedCount = items.filter(item => item.status === 'completed').length;
+  const completedCount = items.filter(item => item.status === 'done').length;
   const totalCount = items.length;
 
   return (
@@ -411,8 +411,8 @@ function InlineSectionRow({
           // Determine display status
           let displayStatus: 'planned' | 'queued' | 'working' | 'done' = 'planned';
           if (!isProposal) {
-            if (item.status === 'completed') displayStatus = 'done';
-            else if (item.status === 'in_progress') displayStatus = 'working';
+            if (item.status === 'done') displayStatus = 'done';
+            else if (item.status === 'working') displayStatus = 'working';
             else displayStatus = 'queued';
           }
 
@@ -437,24 +437,24 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
   // Track which sections are collapsed (in execution, completed sections collapse by default)
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
     const initial: Record<string, boolean> = {};
-    const isProposal = settings.status === 'draft' || settings.status === 'pending_approval';
+    const isProposal = settings.status === 'proposed' || settings.status === 'draft' || settings.status === 'pending_approval';
     if (!isProposal) {
       settings.sections.forEach(section => {
-        const allCompleted = section.actionItems?.every(item => item.status === 'completed') ?? false;
+        const allCompleted = section.actionItems?.every(item => item.status === 'done') ?? false;
         initial[section.id] = allCompleted;
       });
     }
     return initial;
   });
 
-  const isProposal = settings.status === 'draft' || settings.status === 'pending_approval';
+  const isProposal = settings.status === 'proposed' || settings.status === 'draft' || settings.status === 'pending_approval';
 
   // Auto-collapse sections when all items become completed
   useEffect(() => {
     if (!isProposal) {
       const updates: Record<string, boolean> = {};
       settings.sections.forEach(section => {
-        const allCompleted = section.actionItems?.every(item => item.status === 'completed') ?? false;
+        const allCompleted = section.actionItems?.every(item => item.status === 'done') ?? false;
         if (allCompleted && !collapsedSections[section.id]) {
           updates[section.id] = true;
         }
@@ -468,7 +468,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
   // Calculate progress (only sections with action items)
   const sectionsWithItems = settings.sections.filter(s => s.actionItems && s.actionItems.length > 0);
   const allActionItems = sectionsWithItems.flatMap(s => s.actionItems || []);
-  const completedCount = allActionItems.filter(ai => ai.status === 'completed').length;
+  const completedCount = allActionItems.filter(ai => ai.status === 'done').length;
   const totalCount = allActionItems.length;
   const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
@@ -483,7 +483,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
   let showSpinner = false;
 
   if (!isProposal) {
-    if (settings.status === 'completed') {
+    if (settings.status === 'completed' || settings.status === 'done') {
       badgeLabel = 'Completed';
       badgeIcon = 'check';
       badgeBg = '#D1FAE5';
@@ -519,7 +519,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
   const handleApprove = (e: React.MouseEvent) => {
     e.stopPropagation();
     updateArtifactSettings(artifact.id, {
-      status: 'approved' as PlanStatus,
+      status: 'running' as PlanStatus,
       approvedBy: 'Current User',
       approvedAt: new Date().toISOString(),
     });
@@ -666,11 +666,11 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
           .map((section, idx) => ({ section, originalIndex: idx }))
           .filter(({ section }) => section.actionItems && section.actionItems.length > 0)
           .map(({ section, originalIndex: idx }) => {
-          const allCompleted = section.actionItems?.every(item => item.status === 'completed') ?? false;
+          const allCompleted = section.actionItems?.every(item => item.status === 'done') ?? false;
           const isCollapsed = collapsedSections[section.id] ?? false;
 
           // Determine if section is working or blocked
-          const hasInProgress = section.actionItems?.some(item => item.status === 'in_progress') ?? false;
+          const hasInProgress = section.actionItems?.some(item => item.status === 'working') ?? false;
 
           // Check if this section is blocked by a review step
           const reviewStep = reviewSteps[idx];
