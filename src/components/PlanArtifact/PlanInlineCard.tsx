@@ -103,18 +103,13 @@ function ActionItemIcon({ status }: { status: 'planned' | 'queued' | 'working' |
 function InlineActionItem({
   item,
   displayStatus,
-  isProposal,
-  onToggle,
 }: {
   item: ActionItem;
   displayStatus: 'planned' | 'queued' | 'working' | 'done';
-  isProposal: boolean;
-  onToggle: (itemId: string) => void;
 }) {
   return (
     <div
-      className={`flex items-center gap-1.5 py-1 ${!isProposal ? 'cursor-pointer hover:opacity-75' : ''} transition-opacity`}
-      onClick={() => !isProposal && onToggle(item.id)}
+      className="flex items-center gap-1.5 py-1"
       style={{
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
@@ -294,7 +289,6 @@ function InlineSectionRow({
   isBlocked,
   blockedByReviewer,
   onToggleExpand,
-  onToggleItem,
 }: {
   section: PlanSection;
   sectionIndex: number;
@@ -305,7 +299,6 @@ function InlineSectionRow({
   isBlocked: boolean;
   blockedByReviewer?: string;
   onToggleExpand: () => void;
-  onToggleItem: (itemId: string) => void;
 }) {
   const items = section.actionItems || [];
 
@@ -398,8 +391,6 @@ function InlineSectionRow({
               key={item.id}
               item={item}
               displayStatus={displayStatus}
-              isProposal={isProposal}
-              onToggle={onToggleItem}
             />
           );
         })}
@@ -485,26 +476,6 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
       ...prev,
       [sectionId]: !prev[sectionId],
     }));
-  };
-
-  const handleToggleItem = (itemId: string) => {
-    // Cycle through statuses: pending → in_progress → completed → pending
-    const updatedSections = settings.sections.map(section => ({
-      ...section,
-      actionItems: section.actionItems?.map(item => {
-        if (item.id === itemId) {
-          let newStatus: ActionItem['status'];
-          if (item.status === 'pending') newStatus = 'in_progress';
-          else if (item.status === 'in_progress') newStatus = 'completed';
-          else newStatus = 'pending';
-
-          return { ...item, status: newStatus };
-        }
-        return item;
-      }),
-    }));
-
-    updateArtifactSettings(artifact.id, { sections: updatedSections });
   };
 
   const handleReviewStep = (stepId: string) => {
@@ -677,7 +648,6 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
                   isBlocked={isBlocked}
                   blockedByReviewer={reviewStep?.reviewer}
                   onToggleExpand={() => handleToggleSection(section.id)}
-                  onToggleItem={handleToggleItem}
                 />
               )}
 
