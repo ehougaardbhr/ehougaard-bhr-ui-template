@@ -62,9 +62,17 @@ export interface PlanSection {
   actionItems?: ActionItem[];
 }
 
+export interface ReviewStep {
+  id: string;
+  description: string;  // e.g. "Review — Sarah Chen"
+  reviewer: string;
+  status: 'planned' | 'passed' | 'ready' | 'future';
+}
+
 export interface PlanSettings {
   status: PlanStatus;
   sections: PlanSection[];
+  reviewSteps?: ReviewStep[];  // interleaved between sections
   approvedBy?: string;
   approvedAt?: string;
 }
@@ -371,6 +379,11 @@ export const mockArtifacts: Artifact[] = [
           title: 'Timeline',
           content: '- **Week 1-2:** Immediate actions + job posting\n- **Week 2-3:** Internal candidate interviews\n- **Week 3-4:** External candidate screening\n- **Week 4-6:** Interviews and decision\n- **Week 6-8:** Offer and onboarding',
         },
+      ],
+      reviewSteps: [
+        { id: 'rs-1', description: 'Review — Uma Patel', reviewer: 'Uma Patel', status: 'planned' },
+        { id: 'rs-2', description: 'Review — Uma Patel', reviewer: 'Uma Patel', status: 'planned' },
+        { id: 'rs-3', description: 'Review — HR Director', reviewer: 'HR Director', status: 'planned' },
       ],
       approvedBy: undefined,
       approvedAt: undefined,

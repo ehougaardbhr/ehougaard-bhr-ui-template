@@ -100,6 +100,10 @@
   /* Additional tokens for theming */
   --color-link: #2563eb;
   --surface-selected-weak: #f0f9ed;
+
+  /* Plan artifact state colors (from v8 mockup) */
+  --color-queued: #A8A29E;
+  --color-queued-light: #F5F3F2;
 }
 
 /* ================================

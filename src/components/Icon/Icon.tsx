@@ -100,6 +100,14 @@ import {
   faUser,
   faChartSimple,
   faTextHeight,
+  faListCheck,
+  faFilePen,
+  faBolt,
+  faHand,
+  faUserPlus,
+  faShieldHeart,
+  faPlay,
+  faTable,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -377,6 +385,14 @@ const faIconMap = {
   'user': faUser,
   'chart-simple': faChartSimple,
   'text-size': faTextHeight,
+  'list-check': faListCheck,
+  'file-pen': faFilePen,
+  'bolt': faBolt,
+  'hand': faHand,
+  'user-plus': faUserPlus,
+  'shield-heart': faShieldHeart,
+  'play': faPlay,
+  'table': faTable,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
