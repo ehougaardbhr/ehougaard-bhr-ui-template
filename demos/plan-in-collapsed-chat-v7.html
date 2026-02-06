@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan in Collapsed Chat v7 — Final Refinement</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --icon-neutral-xx-strong: #292524;
+
+      --color-queued: #A8A29E;
+      --color-queued-light: #F5F3F2;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-review: #2e7918;
+      --color-review-light: #E8F5E3;
+      --color-review-strong: #256314;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #E8E5E3;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    .tab-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; padding: 0 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .tab-bar h1 { font-size: 15px; font-weight: 600; padding: 14px 0; white-space: nowrap; }
+
+    .viewport { display: flex; justify-content: center; padding: 40px 32px 80px; }
+
+    .chat-panel {
+      width: 383px; background: var(--surface-neutral-xx-weak);
+      border-radius: 20px; padding: 4px;
+      display: flex; flex-direction: column;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+    .panel-header {
+      background: var(--surface-neutral-white);
+      border-radius: 16px 16px 0 0; padding: 16px 20px;
+      display: flex; align-items: center;
+    }
+    .panel-header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .panel-header-left .title { font-size: 16px; font-weight: 500; color: var(--text-neutral-x-strong); }
+    .panel-header-right { display: flex; align-items: center; gap: 6px; }
+    .panel-header-right button {
+      width: 32px; height: 32px; border: none; background: none; border-radius: 6px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--icon-neutral-xx-strong);
+    }
+    .panel-header-right button:hover { background: var(--surface-neutral-x-weak); }
+
+    .messages-area { flex: 1; overflow-y: auto; background: var(--surface-neutral-white); padding: 20px; }
+    .message-user { display: flex; justify-content: flex-end; padding-left: 34px; margin-bottom: 16px; }
+    .message-user .bubble { background: var(--surface-neutral-xx-weak); padding: 10px 16px; border-radius: 16px 16px 0 16px; font-size: 15px; line-height: 22px; }
+    .message-ai { margin-bottom: 16px; }
+    .message-ai p { font-size: 15px; line-height: 22px; color: var(--text-neutral-strong); margin-bottom: 8px; }
+
+    .input-area { padding: 16px; background: var(--surface-neutral-white); border-radius: 0 0 16px 16px; }
+    .input-border { border-radius: 8px; padding: 2px; background: linear-gradient(93deg, #87C276 0%, #7AB8EE 33.65%, #C198D4 66.83%, #F2A766 96.15%); }
+    .input-inner { background: var(--surface-neutral-white); border-radius: 6px; padding: 12px 16px 10px; }
+    .input-inner .placeholder { font-size: 15px; color: var(--text-neutral-medium); margin-bottom: 12px; }
+    .input-icons { display: flex; justify-content: space-between; color: var(--icon-neutral-xx-strong); font-size: 14px; }
+    .input-icons .group { display: flex; gap: 16px; }
+
+    .approach-meta { width: 383px; margin-bottom: 16px; }
+    .approach-meta h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .approach-meta p { font-size: 13px; color: var(--text-neutral-medium); line-height: 1.5; }
+
+    .messages-area::-webkit-scrollbar { width: 4px; }
+    .messages-area::-webkit-scrollbar-thumb { background: var(--border-neutral-medium); border-radius: 2px; }
+
+    .badge-status { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 99px; }
+    .badge-queued { background: var(--color-queued-light); color: var(--color-queued); }
+    .badge-working { background: var(--color-working-light); color: var(--color-working); }
+    .badge-done { background: var(--color-done-light); color: var(--color-done); }
+
+    .card {
+      border-radius: 12px; border: 1px solid var(--border-neutral-weak);
+      overflow: hidden; background: var(--surface-neutral-white); margin-top: 4px;
+    }
+    .card-title-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px; background: var(--surface-neutral-xx-weak);
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-title-bar .icon { font-size: 14px; color: var(--color-primary); }
+    .card-title-bar .title { flex: 1; font-size: 14px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid var(--color-working-light);
+      border-top-color: var(--color-working);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* ==============================
+       Sections & items
+       ============================== */
+    .section {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+    }
+    .section-header .s-icon { font-size: 13px; width: 18px; text-align: center; }
+    .section-header .s-title { font-size: 13px; font-weight: 600; color: var(--text-neutral-x-strong); flex: 1; }
+    .section-items { padding-left: 26px; }
+    .section-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 0; font-size: 12px; line-height: 17px; color: var(--text-neutral-strong);
+    }
+
+    /* Item icons — circles for work items */
+    .si-icon {
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 8px;
+    }
+    .si-icon.done { background: var(--color-done-light); color: var(--color-done); }
+    .si-icon.working { background: var(--color-working-light); color: var(--color-working); }
+    /* Queued: open circle with stroke instead of filled dot */
+    .si-icon.queued {
+      background: transparent;
+      border: 1.5px solid var(--color-queued);
+    }
+    .si-text { flex: 1; }
+    .si-text.done { color: var(--text-neutral-weak); text-decoration: line-through; }
+
+    /* Collapsed done section */
+    .collapsed-section {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .collapsed-section .cs-icon { font-size: 13px; width: 18px; text-align: center; }
+    .collapsed-section .cs-title { font-size: 12px; color: var(--text-neutral-weak); flex: 1; }
+    .collapsed-section .cs-count {
+      font-size: 11px; font-weight: 500; color: var(--color-done);
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    /* ==============================
+       Footer with Edit + Approve
+       ============================== */
+    .card-footer {
+      border-top: 1px solid var(--border-neutral-weak);
+      padding: 10px 16px;
+    }
+    .card-footer .footer-top {
+      display: flex; align-items: center; margin-bottom: 8px;
+    }
+    .card-footer .footer-progress {
+      font-size: 12px; color: var(--text-neutral-medium); flex: 1;
+    }
+    .card-footer .footer-buttons {
+      display: flex; gap: 8px;
+    }
+    .btn {
+      padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      border: none; cursor: pointer; text-align: center;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-outline {
+      background: var(--surface-neutral-white);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-medium);
+    }
+    .btn-outline:hover { background: var(--surface-neutral-xx-weak); }
+    .btn-primary { background: var(--color-primary); color: white; border: 1px solid var(--color-primary); }
+    .btn-full { flex: 1; justify-content: center; }
+
+    /* ==============================
+       Review gate rows — GREEN, rounded-square icon
+
+       Shape = rounded square (work items = circle)
+       Color = primary green (work done = emerald)
+       Always the same visual DNA across all states.
+       ============================== */
+    .gate-row {
+      display: flex; align-items: center; gap: 6px;
+      padding: 5px 16px 5px 42px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    /* Rounded square icon — always green, always hand */
+    .gate-row .gr-icon {
+      width: 16px; height: 16px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 7px;
+      background: var(--color-review-light); color: var(--color-review);
+      position: relative;
+    }
+    /* Passed: green icon + tiny check badge */
+    .gate-row .gr-icon.passed .check-badge {
+      position: absolute; top: -3px; right: -3px;
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--color-done); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 5px;
+    }
+    /* Future: same green but faded */
+    .gate-row .gr-icon.future {
+      opacity: 0.45;
+    }
+    .gate-row .gr-text {
+      flex: 1; font-size: 12px; line-height: 17px;
+    }
+    .gate-row .gr-text.active { color: var(--color-review-strong); font-weight: 500; }
+    .gate-row .gr-text.passed { color: var(--text-neutral-medium); }
+    .gate-row .gr-text.future { color: var(--text-neutral-weak); }
+    .gate-row .gr-reviewer {
+      font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 99px;
+      white-space: nowrap;
+      background: var(--color-review-light); color: var(--color-review-strong);
+    }
+    .gate-row .gr-reviewer.passed { opacity: 0.6; }
+    .gate-row .gr-reviewer.future { opacity: 0.35; }
+  </style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <h1>Plan v7: Final Refinement</h1>
+</div>
+
+<div class="viewport">
+  <div>
+    <div class="approach-meta">
+      <h2>Inline Row — Green Reviews, Open Circles</h2>
+      <p>Review steps use green rounded-square icons (matching the primary brand). Work items use circles: filled green check for done, blue spinner for working, open stroke circle for queued. Review gates are always identifiable by their square shape + green color across all 3 states (passed, active, future).</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user"><div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div></div>
+        <div class="message-ai"><p>Here's the backfill plan. I'll work through it and pause at each review step:</p></div>
+
+        <div class="card">
+          <div class="card-title-bar">
+            <i class="fa-solid fa-list-check icon"></i>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status badge-working" style="display:flex;align-items:center;gap:4px"><span class="spinner" style="width:8px;height:8px;border-width:1.5px"></span> Working</span>
+          </div>
+
+          <!-- Collapsed done section -->
+          <div class="collapsed-section">
+            <i class="fa-solid fa-bolt cs-icon" style="color: var(--color-done)"></i>
+            <span class="cs-title">Immediate Actions</span>
+            <span class="cs-count"><i class="fa-solid fa-check" style="font-size: 9px"></i> 3/3</span>
+          </div>
+
+          <!-- Gate 1: PASSED -->
+          <div class="gate-row">
+            <div class="gr-icon passed">
+              <i class="fa-solid fa-hand" style="font-size:7px"></i>
+              <div class="check-badge"><i class="fa-solid fa-check"></i></div>
+            </div>
+            <span class="gr-text passed">Review initial analysis</span>
+            <span class="gr-reviewer passed">Sarah Chen</span>
+          </div>
+
+          <!-- Section 2: Working -->
+          <div class="section">
+            <div class="section-header">
+              <i class="fa-solid fa-user-plus s-icon" style="color: var(--color-working)"></i>
+              <span class="s-title">Hiring Strategy</span>
+              <span class="badge-status badge-working" style="font-size:10px;display:flex;align-items:center;gap:3px"><span class="spinner" style="width:7px;height:7px;border-width:1px"></span> Working</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon done"><i class="fa-solid fa-check"></i></div>
+                <span class="si-text done">Draft job posting</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon working"><span class="spinner" style="width:8px;height:8px;border-width:1.5px"></span></div>
+                <span class="si-text">Screening talent pool candidates...</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"></div>
+                <span class="si-text">Prepare internal candidate profiles</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gate 2: ACTIVE -->
+          <div class="gate-row">
+            <div class="gr-icon">
+              <i class="fa-solid fa-hand" style="font-size:7px"></i>
+            </div>
+            <span class="gr-text active">Review hiring materials</span>
+            <span class="gr-reviewer">Sarah Chen</span>
+          </div>
+
+          <!-- Section 3: Queued -->
+          <div class="section">
+            <div class="section-header">
+              <i class="fa-solid fa-file-lines s-icon" style="color: var(--color-queued)"></i>
+              <span class="s-title">Job Requisition & Posting</span>
+              <span class="badge-status badge-queued" style="font-size:10px">After review</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon queued"></div>
+                <span class="si-text">Post approved job requisition</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"></div>
+                <span class="si-text">Set up candidate pipeline tracking</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Gate 3: FUTURE -->
+          <div class="gate-row">
+            <div class="gr-icon future">
+              <i class="fa-solid fa-hand" style="font-size:7px"></i>
+            </div>
+            <span class="gr-text future">HR compliance review</span>
+            <span class="gr-reviewer future">Lisa Park</span>
+          </div>
+
+          <!-- Section 4: Queued -->
+          <div class="section" style="border-bottom: none;">
+            <div class="section-header">
+              <i class="fa-solid fa-shield-heart s-icon" style="color: var(--color-queued)"></i>
+              <span class="s-title">Retention & Team Health</span>
+              <span class="badge-status badge-queued" style="font-size:10px">After review</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon queued"></div>
+                <span class="si-text">Generate workload redistribution</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"></div>
+                <span class="si-text">Prepare team morale assessment</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <div class="footer-top">
+              <span class="footer-progress">4 of 10 complete</span>
+            </div>
+            <div class="footer-buttons">
+              <button class="btn btn-outline btn-full"><i class="fa-solid fa-pen-to-square" style="font-size:12px"></i> Edit Plan</button>
+              <button class="btn btn-primary btn-full"><i class="fa-solid fa-check" style="font-size:12px"></i> Approve Plan</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="input-area"><div class="input-border"><div class="input-inner">
+        <div class="placeholder">Reply...</div>
+        <div class="input-icons"><div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div><div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color:var(--text-neutral-weak)"></i></div></div>
+      </div></div></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

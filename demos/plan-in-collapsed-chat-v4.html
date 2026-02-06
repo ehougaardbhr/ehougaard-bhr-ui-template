@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan in Collapsed Chat v4 — Multi-Gate Refinement</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-strong: #256314;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --icon-neutral-xx-strong: #292524;
+
+      --color-queued: #A8A29E;
+      --color-queued-light: #F5F3F2;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-review: #D97706;
+      --color-review-light: #FEF3C7;
+      --color-review-strong: #B45309;
+      --color-gate-passed: #059669;
+      --color-gate-passed-light: #D1FAE5;
+      --color-gate-future: #A8A29E;
+      --color-gate-future-light: #F5F3F2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #E8E5E3;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* Tab bar */
+    .tab-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; padding: 0 32px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .tab-bar h1 { font-size: 15px; font-weight: 600; margin-right: 24px; padding: 14px 0; white-space: nowrap; }
+    .tab { padding: 14px 16px; font-size: 13px; font-weight: 500; color: var(--text-neutral-medium); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; white-space: nowrap; user-select: none; }
+    .tab:hover { color: var(--text-neutral-strong); }
+    .tab.active { color: var(--color-primary); border-bottom-color: var(--color-primary); }
+
+    /* Layout */
+    .viewport { display: flex; justify-content: center; padding: 40px 32px 80px; }
+    .mock-panel { display: none; }
+    .mock-panel.active { display: flex; flex-direction: column; }
+
+    /* Chat shell */
+    .chat-panel {
+      width: 383px; background: var(--surface-neutral-xx-weak);
+      border-radius: 20px; padding: 4px;
+      display: flex; flex-direction: column;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+    }
+    .panel-header {
+      background: var(--surface-neutral-white);
+      border-radius: 16px 16px 0 0; padding: 16px 20px;
+      display: flex; align-items: center;
+    }
+    .panel-header-left { display: flex; align-items: center; gap: 8px; flex: 1; }
+    .panel-header-left .title { font-size: 16px; font-weight: 500; color: var(--text-neutral-x-strong); }
+    .panel-header-right { display: flex; align-items: center; gap: 6px; }
+    .panel-header-right button {
+      width: 32px; height: 32px; border: none; background: none; border-radius: 6px;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--icon-neutral-xx-strong);
+    }
+    .panel-header-right button:hover { background: var(--surface-neutral-x-weak); }
+
+    .messages-area { flex: 1; overflow-y: auto; background: var(--surface-neutral-white); padding: 20px; }
+    .message-user { display: flex; justify-content: flex-end; padding-left: 34px; margin-bottom: 16px; }
+    .message-user .bubble { background: var(--surface-neutral-xx-weak); padding: 10px 16px; border-radius: 16px 16px 0 16px; font-size: 15px; line-height: 22px; }
+    .message-ai { margin-bottom: 16px; }
+    .message-ai p { font-size: 15px; line-height: 22px; color: var(--text-neutral-strong); margin-bottom: 8px; }
+
+    .input-area { padding: 16px; background: var(--surface-neutral-white); border-radius: 0 0 16px 16px; }
+    .input-border { border-radius: 8px; padding: 2px; background: linear-gradient(93deg, #87C276 0%, #7AB8EE 33.65%, #C198D4 66.83%, #F2A766 96.15%); }
+    .input-inner { background: var(--surface-neutral-white); border-radius: 6px; padding: 12px 16px 10px; }
+    .input-inner .placeholder { font-size: 15px; color: var(--text-neutral-medium); margin-bottom: 12px; }
+    .input-icons { display: flex; justify-content: space-between; color: var(--icon-neutral-xx-strong); font-size: 14px; }
+    .input-icons .group { display: flex; gap: 16px; }
+
+    .approach-meta { width: 383px; margin-bottom: 16px; }
+    .approach-meta h2 { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .approach-meta p { font-size: 13px; color: var(--text-neutral-medium); line-height: 1.5; }
+
+    .messages-area::-webkit-scrollbar { width: 4px; }
+    .messages-area::-webkit-scrollbar-thumb { background: var(--border-neutral-medium); border-radius: 2px; }
+
+    /* Shared badges */
+    .badge-status { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 99px; }
+    .badge-queued { background: var(--color-queued-light); color: var(--color-queued); }
+    .badge-working { background: var(--color-working-light); color: var(--color-working); }
+    .badge-done { background: var(--color-done-light); color: var(--color-done); }
+    .badge-review { background: var(--color-review-light); color: var(--color-review); }
+
+    /* Shared card frame */
+    .card {
+      border-radius: 12px; border: 1px solid var(--border-neutral-weak);
+      overflow: hidden; background: var(--surface-neutral-white); margin-top: 4px;
+    }
+    .card-title-bar {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 16px; background: var(--surface-neutral-xx-weak);
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .card-title-bar .icon { font-size: 14px; color: var(--color-primary); }
+    .card-title-bar .title { flex: 1; font-size: 14px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .card-footer {
+      border-top: 1px solid var(--border-neutral-weak);
+      padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+    }
+    .btn {
+      flex: 1; padding: 8px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      border: none; cursor: pointer; text-align: center;
+    }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-secondary { background: var(--surface-neutral-xx-weak); color: var(--text-neutral-strong); }
+
+    /* Spinner animation */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 12px; height: 12px;
+      border: 2px solid var(--color-working-light);
+      border-top-color: var(--color-working);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* ==============================
+       SHARED: Section items
+       ============================== */
+    .section {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .section:last-of-type { border-bottom: none; }
+    .section-header {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 6px;
+    }
+    .section-header .s-icon { font-size: 13px; width: 18px; text-align: center; }
+    .section-header .s-title { font-size: 13px; font-weight: 600; color: var(--text-neutral-x-strong); flex: 1; }
+    .section-items { padding-left: 26px; }
+    .section-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 0; font-size: 12px; line-height: 17px; color: var(--text-neutral-strong);
+    }
+    .si-icon {
+      width: 16px; height: 16px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 8px;
+    }
+    .si-icon.done { background: var(--color-done-light); color: var(--color-done); }
+    .si-icon.working { background: var(--color-working-light); color: var(--color-working); }
+    .si-icon.queued { background: var(--color-queued-light); color: var(--color-queued); }
+    .si-text { flex: 1; }
+    .si-text.done { color: var(--text-neutral-weak); text-decoration: line-through; }
+
+    /* ==============================
+       REVIEW GATES — 3 states
+       ============================== */
+
+    /* Active/waiting gate — amber, prominent */
+    .review-gate {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 16px;
+      background: var(--color-review-light);
+      border-top: 1px solid #FDE68A;
+      border-bottom: 1px solid #FDE68A;
+    }
+    .review-gate .gate-icon {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--color-review); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; flex-shrink: 0;
+    }
+    .review-gate .gate-content { flex: 1; }
+    .review-gate .gate-label {
+      font-size: 12px; font-weight: 600; color: var(--color-review-strong);
+    }
+    .review-gate .gate-desc {
+      font-size: 11px; color: var(--text-neutral-strong); line-height: 16px;
+    }
+    .review-gate .gate-reviewer {
+      font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px;
+      background: white; color: var(--color-review-strong);
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 3px;
+    }
+
+    /* Passed gate — green, compact */
+    .review-gate-passed {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 16px;
+      background: var(--color-gate-passed-light);
+      border-top: 1px solid #A7F3D0;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .review-gate-passed .gate-icon {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--color-done); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; flex-shrink: 0;
+    }
+    .review-gate-passed .gate-label {
+      font-size: 11px; font-weight: 500; color: var(--color-done);
+      flex: 1;
+    }
+    .review-gate-passed .gate-time {
+      font-size: 10px; color: var(--color-done); opacity: 0.7;
+    }
+
+    /* Future gate — grey, outline style */
+    .review-gate-future {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 16px;
+      background: var(--color-gate-future-light);
+      border-top: 1px dashed var(--border-neutral-medium);
+      border-bottom: 1px dashed var(--border-neutral-medium);
+    }
+    .review-gate-future .gate-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      background: transparent; color: var(--color-queued);
+      border: 1.5px dashed var(--color-queued);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; flex-shrink: 0;
+    }
+    .review-gate-future .gate-content { flex: 1; }
+    .review-gate-future .gate-label {
+      font-size: 11px; font-weight: 500; color: var(--text-neutral-medium);
+    }
+    .review-gate-future .gate-desc {
+      font-size: 11px; color: var(--text-neutral-weak); line-height: 16px;
+    }
+    .review-gate-future .gate-reviewer {
+      font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px;
+      background: white; color: var(--text-neutral-medium);
+      border: 1px solid var(--border-neutral-weak);
+      display: inline-flex; align-items: center; gap: 4px;
+      margin-top: 3px;
+    }
+
+    /* ==============================
+       A: EXPANDED — all sections visible
+       ============================== */
+    /* Uses shared styles above */
+
+    /* ==============================
+       B: COLLAPSED DONE
+       ============================== */
+    .collapsed-section {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .collapsed-section .cs-icon { font-size: 13px; width: 18px; text-align: center; }
+    .collapsed-section .cs-title {
+      font-size: 12px; color: var(--text-neutral-weak); flex: 1;
+    }
+    .collapsed-section .cs-count {
+      font-size: 11px; font-weight: 500; color: var(--color-done);
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    .collapsed-gate {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 16px;
+      background: var(--color-gate-passed-light);
+      border-top: 1px solid #A7F3D0;
+      border-bottom: 1px solid #A7F3D0;
+    }
+    .collapsed-gate .cg-icon {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--color-done); color: white;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; flex-shrink: 0;
+    }
+    .collapsed-gate .cg-label {
+      font-size: 10px; color: var(--color-done); flex: 1;
+    }
+
+    /* ==============================
+       C: GATE-CENTRIC
+       ============================== */
+    .work-cluster {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .work-cluster .wc-header {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 4px;
+    }
+    .work-cluster .wc-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.05em; color: var(--text-neutral-medium);
+    }
+    .work-cluster .wc-status {
+      font-size: 10px; font-weight: 500; padding: 1px 6px; border-radius: 99px;
+    }
+    .work-cluster .wc-items { }
+    .work-cluster .wc-item {
+      display: flex; align-items: center; gap: 6px;
+      padding: 3px 0; font-size: 12px; color: var(--text-neutral-strong);
+    }
+    .wc-item .wi-icon {
+      width: 14px; height: 14px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; font-size: 7px;
+    }
+    .wc-item .wi-icon.done { background: var(--color-done-light); color: var(--color-done); }
+    .wc-item .wi-icon.working { background: var(--color-working-light); color: var(--color-working); }
+    .wc-item .wi-icon.queued { background: var(--color-queued-light); color: var(--color-queued); }
+    .wc-item .wi-text { flex: 1; }
+    .wc-item .wi-text.done { color: var(--text-neutral-weak); text-decoration: line-through; }
+
+    /* Gate in gate-centric is wider/more prominent */
+    .gate-centric-gate {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid #FDE68A;
+      border-bottom: 1px solid #FDE68A;
+    }
+    .gate-centric-gate.active { background: var(--color-review-light); }
+    .gate-centric-gate.passed { background: var(--color-gate-passed-light); border-color: #A7F3D0; }
+    .gate-centric-gate.future { background: var(--color-gate-future-light); border-color: var(--border-neutral-medium); border-style: dashed; }
+    .gate-centric-gate .gcg-icon {
+      width: 24px; height: 24px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; flex-shrink: 0; margin-top: 1px;
+    }
+    .gate-centric-gate.active .gcg-icon { background: var(--color-review); color: white; }
+    .gate-centric-gate.passed .gcg-icon { background: var(--color-done); color: white; }
+    .gate-centric-gate.future .gcg-icon { background: transparent; color: var(--color-queued); border: 1.5px dashed var(--color-queued); }
+    .gate-centric-gate .gcg-content { flex: 1; }
+    .gate-centric-gate .gcg-row {
+      display: flex; align-items: center; gap: 6px;
+    }
+    .gate-centric-gate .gcg-label { font-size: 12px; font-weight: 600; }
+    .gate-centric-gate.active .gcg-label { color: var(--color-review-strong); }
+    .gate-centric-gate.passed .gcg-label { color: var(--color-done); }
+    .gate-centric-gate.future .gcg-label { color: var(--text-neutral-medium); }
+    .gate-centric-gate .gcg-reviewer {
+      font-size: 10px; font-weight: 500; padding: 2px 8px; border-radius: 99px;
+      display: inline-flex; align-items: center; gap: 3px;
+    }
+    .gate-centric-gate.active .gcg-reviewer { background: white; color: var(--color-review-strong); }
+    .gate-centric-gate.passed .gcg-reviewer { background: white; color: var(--color-done); }
+    .gate-centric-gate.future .gcg-reviewer { background: white; color: var(--text-neutral-medium); border: 1px solid var(--border-neutral-weak); }
+    .gate-centric-gate .gcg-desc { font-size: 11px; line-height: 16px; margin-top: 2px; }
+    .gate-centric-gate.active .gcg-desc { color: var(--text-neutral-strong); }
+    .gate-centric-gate.passed .gcg-desc { color: var(--color-done); opacity: 0.8; }
+    .gate-centric-gate.future .gcg-desc { color: var(--text-neutral-weak); }
+
+    /* Progress track at top of gate-centric card */
+    .progress-track-mini {
+      display: flex; gap: 2px; padding: 10px 16px 8px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .progress-track-mini .seg {
+      height: 4px; border-radius: 2px; flex: 1;
+    }
+    .progress-track-mini .seg.done { background: var(--color-done); }
+    .progress-track-mini .seg.working { background: var(--color-working); }
+    .progress-track-mini .seg.queued { background: var(--color-queued-light); }
+    .progress-track-mini .seg.review { background: var(--color-review); }
+  </style>
+</head>
+<body>
+
+<div class="tab-bar">
+  <h1>Plan v4: Multi-Gate</h1>
+  <div class="tab active" data-tab="a">A. Expanded</div>
+  <div class="tab" data-tab="b">B. Collapsed Done</div>
+  <div class="tab" data-tab="c">C. Gate-Centric</div>
+</div>
+
+<div class="viewport">
+
+  <!-- ===================== A: EXPANDED ===================== -->
+  <div class="mock-panel active" data-panel="a">
+    <div class="approach-meta">
+      <h2>A. Expanded (All Visible)</h2>
+      <p>All sections and all 3 review gates are visible. Passed gates compress to a thin green bar. The active gate is the prominent amber callout. Future gates are dashed/grey with the reviewer shown. Every section shows its items regardless of completion state.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user"><div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div></div>
+        <div class="message-ai"><p>Working on the plan. I'll pause at each review gate for your sign-off:</p></div>
+
+        <div class="card">
+          <div class="card-title-bar">
+            <i class="fa-solid fa-list-check icon"></i>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status badge-working" style="display:flex;align-items:center;gap:4px"><span class="spinner" style="width:8px;height:8px;border-width:1.5px"></span> Working</span>
+          </div>
+
+          <!-- Section 1: Immediate Actions — DONE -->
+          <div class="section">
+            <div class="section-header">
+              <i class="fa-solid fa-bolt s-icon" style="color: var(--color-done)"></i>
+              <span class="s-title">Immediate Actions</span>
+              <span class="badge-status badge-done" style="font-size:10px">Done</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon done"><i class="fa-solid fa-check"></i></div>
+                <span class="si-text done">Set up interim code review process</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon done"><i class="fa-solid fa-check"></i></div>
+                <span class="si-text done">Draft knowledge transfer timeline</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon done"><i class="fa-solid fa-check"></i></div>
+                <span class="si-text done">Run compensation analysis</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GATE 1: PASSED — Manager reviewed initial analysis -->
+          <div class="review-gate-passed">
+            <div class="gate-icon"><i class="fa-solid fa-check"></i></div>
+            <span class="gate-label">Manager reviewed initial analysis</span>
+            <span class="gate-time">2h ago</span>
+          </div>
+
+          <!-- Section 2: Hiring Strategy — WORKING -->
+          <div class="section">
+            <div class="section-header">
+              <i class="fa-solid fa-user-plus s-icon" style="color: var(--color-working)"></i>
+              <span class="s-title">Hiring Strategy</span>
+              <span class="badge-status badge-working" style="font-size:10px;display:flex;align-items:center;gap:3px"><span class="spinner" style="width:7px;height:7px;border-width:1px"></span> Working</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon done"><i class="fa-solid fa-check"></i></div>
+                <span class="si-text done">Draft job posting</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon working"><span class="spinner" style="width:8px;height:8px;border-width:1.5px"></span></div>
+                <span class="si-text">Screening talent pool candidates...</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Prepare internal candidate profiles</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GATE 2: ACTIVE — Manager review of hiring materials -->
+          <div class="review-gate">
+            <div class="gate-icon"><i class="fa-solid fa-hand"></i></div>
+            <div class="gate-content">
+              <div class="gate-label">Review hiring materials</div>
+              <div class="gate-desc">Job posting draft & candidate shortlist</div>
+              <div class="gate-reviewer"><i class="fa-solid fa-user" style="font-size:8px"></i> Sarah Chen (Manager)</div>
+            </div>
+          </div>
+
+          <!-- Section 3: Job Requisition — QUEUED -->
+          <div class="section">
+            <div class="section-header">
+              <i class="fa-solid fa-file-lines s-icon" style="color: var(--color-queued)"></i>
+              <span class="s-title">Job Requisition & Posting</span>
+              <span class="badge-status badge-queued" style="font-size:10px">After review</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Post approved job requisition</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Set up candidate pipeline tracking</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GATE 3: FUTURE — HR Admin approval -->
+          <div class="review-gate-future">
+            <div class="gate-icon"><i class="fa-solid fa-hand"></i></div>
+            <div class="gate-content">
+              <div class="gate-label">HR compliance review</div>
+              <div class="gate-desc">Job posting & salary band approval</div>
+              <div class="gate-reviewer"><i class="fa-solid fa-user" style="font-size:8px"></i> Lisa Park (HR Admin)</div>
+            </div>
+          </div>
+
+          <!-- Section 4: Team Health — QUEUED -->
+          <div class="section" style="border-bottom: none;">
+            <div class="section-header">
+              <i class="fa-solid fa-shield-heart s-icon" style="color: var(--color-queued)"></i>
+              <span class="s-title">Retention & Team Health</span>
+              <span class="badge-status badge-queued" style="font-size:10px">After review</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Generate workload redistribution</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Prepare team morale assessment</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span style="font-size: 12px; color: var(--text-neutral-medium)">4 of 10 complete</span>
+            <button class="btn btn-primary" style="background: var(--color-review); flex: none; padding: 8px 16px;">Review Items</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area"><div class="input-border"><div class="input-inner">
+        <div class="placeholder">Reply...</div>
+        <div class="input-icons"><div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div><div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color:var(--text-neutral-weak)"></i></div></div>
+      </div></div></div>
+    </div>
+  </div>
+
+  <!-- ===================== B: COLLAPSED DONE ===================== -->
+  <div class="mock-panel" data-panel="b">
+    <div class="approach-meta">
+      <h2>B. Collapsed Done</h2>
+      <p>Completed sections compress to a single line ("3/3 done"). Passed gates compress to a tiny green bar. This saves vertical space and focuses attention on what's happening now — the active work and the next review gate. Future sections stay expanded so you can see what's coming.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user"><div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div></div>
+        <div class="message-ai"><p>Working on the plan. I'll pause at each review gate for your sign-off:</p></div>
+
+        <div class="card">
+          <div class="card-title-bar">
+            <i class="fa-solid fa-list-check icon"></i>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status badge-working" style="display:flex;align-items:center;gap:4px"><span class="spinner" style="width:8px;height:8px;border-width:1.5px"></span> Working</span>
+          </div>
+
+          <!-- Section 1: COLLAPSED — done -->
+          <div class="collapsed-section">
+            <i class="fa-solid fa-bolt cs-icon" style="color: var(--color-done)"></i>
+            <span class="cs-title">Immediate Actions</span>
+            <span class="cs-count"><i class="fa-solid fa-check" style="font-size: 9px"></i> 3/3</span>
+          </div>
+
+          <!-- Gate 1: COLLAPSED — passed -->
+          <div class="collapsed-gate">
+            <div class="cg-icon"><i class="fa-solid fa-check"></i></div>
+            <span class="cg-label">Manager reviewed initial analysis</span>
+          </div>
+
+          <!-- Section 2: Hiring Strategy — WORKING (expanded) -->
+          <div class="section">
+            <div class="section-header">
+              <i class="fa-solid fa-user-plus s-icon" style="color: var(--color-working)"></i>
+              <span class="s-title">Hiring Strategy</span>
+              <span class="badge-status badge-working" style="font-size:10px;display:flex;align-items:center;gap:3px"><span class="spinner" style="width:7px;height:7px;border-width:1px"></span> Working</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon done"><i class="fa-solid fa-check"></i></div>
+                <span class="si-text done">Draft job posting</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon working"><span class="spinner" style="width:8px;height:8px;border-width:1.5px"></span></div>
+                <span class="si-text">Screening talent pool candidates...</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Prepare internal candidate profiles</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GATE 2: ACTIVE — Manager review -->
+          <div class="review-gate">
+            <div class="gate-icon"><i class="fa-solid fa-hand"></i></div>
+            <div class="gate-content">
+              <div class="gate-label">Review hiring materials</div>
+              <div class="gate-desc">Job posting draft & candidate shortlist</div>
+              <div class="gate-reviewer"><i class="fa-solid fa-user" style="font-size:8px"></i> Sarah Chen (Manager)</div>
+            </div>
+          </div>
+
+          <!-- Section 3: Job Requisition — QUEUED (expanded) -->
+          <div class="section">
+            <div class="section-header">
+              <i class="fa-solid fa-file-lines s-icon" style="color: var(--color-queued)"></i>
+              <span class="s-title">Job Requisition & Posting</span>
+              <span class="badge-status badge-queued" style="font-size:10px">After review</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Post approved job requisition</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Set up candidate pipeline tracking</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GATE 3: FUTURE — HR Admin -->
+          <div class="review-gate-future">
+            <div class="gate-icon"><i class="fa-solid fa-hand"></i></div>
+            <div class="gate-content">
+              <div class="gate-label">HR compliance review</div>
+              <div class="gate-desc">Job posting & salary band approval</div>
+              <div class="gate-reviewer"><i class="fa-solid fa-user" style="font-size:8px"></i> Lisa Park (HR Admin)</div>
+            </div>
+          </div>
+
+          <!-- Section 4: Team Health — QUEUED -->
+          <div class="section" style="border-bottom: none;">
+            <div class="section-header">
+              <i class="fa-solid fa-shield-heart s-icon" style="color: var(--color-queued)"></i>
+              <span class="s-title">Retention & Team Health</span>
+              <span class="badge-status badge-queued" style="font-size:10px">After review</span>
+            </div>
+            <div class="section-items">
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Generate workload redistribution</span>
+              </div>
+              <div class="section-item">
+                <div class="si-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div>
+                <span class="si-text">Prepare team morale assessment</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span style="font-size: 12px; color: var(--text-neutral-medium)">4 of 10 complete</span>
+            <button class="btn btn-primary" style="background: var(--color-review); flex: none; padding: 8px 16px;">Review Items</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area"><div class="input-border"><div class="input-inner">
+        <div class="placeholder">Reply...</div>
+        <div class="input-icons"><div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div><div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color:var(--text-neutral-weak)"></i></div></div>
+      </div></div></div>
+    </div>
+  </div>
+
+  <!-- ===================== C: GATE-CENTRIC ===================== -->
+  <div class="mock-panel" data-panel="c">
+    <div class="approach-meta">
+      <h2>C. Gate-Centric</h2>
+      <p>Review gates are the primary organizing element — the "spine" of the plan. Work items cluster between gates. The card reads as "AI work &rarr; Gate &rarr; AI work &rarr; Gate &rarr; AI work". Gates are visually prominent; work items are compact. This emphasizes the rhythm of autonomous work + human checkpoints.</p>
+    </div>
+    <div class="chat-panel">
+      <div class="panel-header">
+        <div class="panel-header-left">
+          <i class="fa-solid fa-sparkles" style="color: var(--color-primary); font-size: 16px;"></i>
+          <span class="title">Backfill Plan for Tony...</span>
+        </div>
+        <div class="panel-header-right">
+          <button><i class="fa-solid fa-expand"></i></button>
+          <button><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="messages-area">
+        <div class="message-user"><div class="bubble">Tony just gave his two-week notice. I need a backfill plan.</div></div>
+        <div class="message-ai"><p>Working on the plan. 3 review gates are set up — I'll pause at each one:</p></div>
+
+        <div class="card">
+          <div class="card-title-bar">
+            <i class="fa-solid fa-list-check icon"></i>
+            <span class="title">Backfill Plan: Senior SWE</span>
+            <span class="badge-status badge-working" style="display:flex;align-items:center;gap:4px"><span class="spinner" style="width:8px;height:8px;border-width:1.5px"></span> Working</span>
+          </div>
+
+          <!-- Mini progress track -->
+          <div class="progress-track-mini">
+            <div class="seg done"></div>
+            <div class="seg done"></div>
+            <div class="seg done"></div>
+            <div class="seg done"></div>
+            <div class="seg working"></div>
+            <div class="seg queued"></div>
+            <div class="seg review"></div>
+            <div class="seg queued"></div>
+            <div class="seg queued"></div>
+            <div class="seg queued"></div>
+          </div>
+
+          <!-- Work cluster 1 — done -->
+          <div class="work-cluster">
+            <div class="wc-header">
+              <span class="wc-label">Immediate Actions</span>
+              <span class="wc-status" style="background:var(--color-done-light);color:var(--color-done)">3/3 done</span>
+            </div>
+            <div class="wc-items">
+              <div class="wc-item"><div class="wi-icon done"><i class="fa-solid fa-check"></i></div><span class="wi-text done">Set up interim code review process</span></div>
+              <div class="wc-item"><div class="wi-icon done"><i class="fa-solid fa-check"></i></div><span class="wi-text done">Draft knowledge transfer timeline</span></div>
+              <div class="wc-item"><div class="wi-icon done"><i class="fa-solid fa-check"></i></div><span class="wi-text done">Run compensation analysis</span></div>
+            </div>
+          </div>
+
+          <!-- GATE 1: PASSED -->
+          <div class="gate-centric-gate passed">
+            <div class="gcg-icon"><i class="fa-solid fa-check"></i></div>
+            <div class="gcg-content">
+              <div class="gcg-row">
+                <span class="gcg-label">Initial analysis reviewed</span>
+                <span class="gcg-reviewer"><i class="fa-solid fa-check" style="font-size:8px"></i> Sarah Chen</span>
+              </div>
+              <div class="gcg-desc">Approved 2h ago</div>
+            </div>
+          </div>
+
+          <!-- Work cluster 2 — working -->
+          <div class="work-cluster">
+            <div class="wc-header">
+              <span class="wc-label">Hiring Strategy</span>
+              <span class="wc-status" style="background:var(--color-working-light);color:var(--color-working)">1/3 done</span>
+            </div>
+            <div class="wc-items">
+              <div class="wc-item"><div class="wi-icon done"><i class="fa-solid fa-check"></i></div><span class="wi-text done">Draft job posting</span></div>
+              <div class="wc-item"><div class="wi-icon working"><span class="spinner" style="width:6px;height:6px;border-width:1px"></span></div><span class="wi-text">Screening talent pool candidates...</span></div>
+              <div class="wc-item"><div class="wi-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div><span class="wi-text">Prepare internal candidate profiles</span></div>
+            </div>
+          </div>
+
+          <!-- GATE 2: ACTIVE -->
+          <div class="gate-centric-gate active">
+            <div class="gcg-icon"><i class="fa-solid fa-hand"></i></div>
+            <div class="gcg-content">
+              <div class="gcg-row">
+                <span class="gcg-label">Review hiring materials</span>
+                <span class="gcg-reviewer"><i class="fa-solid fa-user" style="font-size:8px"></i> Sarah Chen</span>
+              </div>
+              <div class="gcg-desc">Job posting draft & candidate shortlist</div>
+            </div>
+          </div>
+
+          <!-- Work cluster 3 — queued -->
+          <div class="work-cluster">
+            <div class="wc-header">
+              <span class="wc-label">Job Requisition</span>
+              <span class="wc-status" style="background:var(--color-queued-light);color:var(--color-queued)">0/2</span>
+            </div>
+            <div class="wc-items">
+              <div class="wc-item"><div class="wi-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div><span class="wi-text">Post approved job requisition</span></div>
+              <div class="wc-item"><div class="wi-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div><span class="wi-text">Set up candidate pipeline tracking</span></div>
+            </div>
+          </div>
+
+          <!-- GATE 3: FUTURE -->
+          <div class="gate-centric-gate future">
+            <div class="gcg-icon"><i class="fa-solid fa-hand"></i></div>
+            <div class="gcg-content">
+              <div class="gcg-row">
+                <span class="gcg-label">HR compliance review</span>
+                <span class="gcg-reviewer"><i class="fa-solid fa-user" style="font-size:8px"></i> Lisa Park</span>
+              </div>
+              <div class="gcg-desc">Job posting & salary band approval</div>
+            </div>
+          </div>
+
+          <!-- Work cluster 4 — queued -->
+          <div class="work-cluster" style="border-bottom: none;">
+            <div class="wc-header">
+              <span class="wc-label">Retention & Team Health</span>
+              <span class="wc-status" style="background:var(--color-queued-light);color:var(--color-queued)">0/2</span>
+            </div>
+            <div class="wc-items">
+              <div class="wc-item"><div class="wi-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div><span class="wi-text">Generate workload redistribution</span></div>
+              <div class="wc-item"><div class="wi-icon queued"><i class="fa-solid fa-circle" style="font-size:4px"></i></div><span class="wi-text">Prepare team morale assessment</span></div>
+            </div>
+          </div>
+
+          <div class="card-footer">
+            <span style="font-size: 12px; color: var(--text-neutral-medium)">4 of 10 complete &middot; 3 review gates</span>
+            <button class="btn btn-primary" style="background: var(--color-review); flex: none; padding: 8px 16px;">Review</button>
+          </div>
+        </div>
+      </div>
+      <div class="input-area"><div class="input-border"><div class="input-inner">
+        <div class="placeholder">Reply...</div>
+        <div class="input-icons"><div class="group"><i class="fa-solid fa-paperclip"></i><i class="fa-solid fa-image"></i></div><div class="group"><i class="fa-solid fa-microphone"></i><i class="fa-solid fa-circle-arrow-up" style="color:var(--text-neutral-weak)"></i></div></div>
+      </div></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const panels = document.querySelectorAll('.mock-panel');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      panels.forEach(p => p.classList.toggle('active', p.dataset.panel === tab.dataset.tab));
+    });
+  });
+</script>
+
+</body>
+</html>
