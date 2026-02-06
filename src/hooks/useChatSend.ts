@@ -27,13 +27,19 @@ export function useChatSend() {
   const { createArtifact, updateArtifactSettings } = useArtifact();
   const { addNotification } = useAINotifications();
 
-  const sendMessage = useCallback(async (text: string) => {
-    if (!selectedConversation) {
-      console.error('No conversation selected');
+  const sendMessage = useCallback(async (text: string, targetConversationId?: string) => {
+    // Use provided conversation ID or fall back to selected conversation
+    const conversationId = targetConversationId || selectedConversation?.id;
+
+    if (!conversationId) {
+      console.error('No conversation ID provided or selected');
       return;
     }
 
-    const conversationId = selectedConversation.id;
+    // Get conversation messages - need to fetch if not the selected one
+    const conversation = targetConversationId
+      ? { messages: [] } // Will use just the current message
+      : selectedConversation;
 
     // 1. Add user message
     addMessage(conversationId, { type: 'user', text });
@@ -45,7 +51,7 @@ export function useChatSend() {
       // 3. Stream from LLM
       let fullText = '';
       const messages = [
-        ...selectedConversation.messages,
+        ...(conversation?.messages || []),
         { id: String(Date.now()), type: 'user' as const, text },
       ];
 

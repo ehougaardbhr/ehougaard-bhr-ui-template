@@ -42,10 +42,8 @@ export function Home() {
     localStorage.setItem('bhr-chat-expanded', 'false');
     localStorage.setItem('bhr-selected-conversation', newConversation.id);
 
-    // Wait for next tick to ensure conversation is selected
-    setTimeout(async () => {
-      await sendMessage(inputValue);
-    }, 10);
+    // Pass conversation ID directly to avoid timing issues with context state
+    await sendMessage(inputValue, newConversation.id);
   };
 
   return (
