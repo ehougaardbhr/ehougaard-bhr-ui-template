@@ -542,112 +542,124 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
         }
       `}</style>
       <div
-        className="rounded-xl my-1 overflow-hidden"
+        className="rounded-xl my-3 overflow-hidden"
         style={{
           backgroundColor: 'var(--surface-neutral-white)',
           border: '1px solid var(--border-neutral-weak)',
         }}
       >
-        {/* Title bar */}
-        <div
-          className="flex items-center gap-2.5"
-          style={{
-            padding: '14px 16px 10px',
-            backgroundColor: 'var(--surface-neutral-xx-weak)',
-          }}
-        >
-          <Icon name="list-check" size={16} style={{ color: 'var(--color-primary-strong)' }} />
-          <span
+        {/* Header — matches other artifact cards */}
+        <div className="flex items-start justify-between gap-3 p-6 pb-0">
+          <h3
+            className="font-bold"
             style={{
+              fontSize: '20px',
+              lineHeight: '28px',
+              fontFamily: 'Fields, system-ui, sans-serif',
+              color: 'var(--color-primary-strong)',
               flex: 1,
-              fontSize: '15px',
-              fontWeight: 700,
-              color: 'var(--text-neutral-xx-strong)',
-              fontFamily: 'Inter, system-ui, sans-serif',
-              letterSpacing: '-0.01em',
             }}
           >
             {artifact.title}
-          </span>
-          <span
+          </h3>
+
+          {/* Three-dot menu */}
+          <button
+            onClick={(e) => e.stopPropagation()}
+            className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors shrink-0"
             style={{
-              fontSize: '11px',
-              fontWeight: 500,
-              padding: '3px 8px',
-              borderRadius: '99px',
-              backgroundColor: badgeBg,
-              color: badgeColor,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
+              backgroundColor: 'var(--surface-neutral-white)',
+              border: '1px solid var(--border-neutral-medium)',
+              color: 'var(--text-neutral-strong)',
             }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--surface-neutral-xx-weak)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--surface-neutral-white)';
+            }}
+            aria-label="Actions"
           >
-            {showSpinner ? (
-              <div
-                className="animate-spin"
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  border: '1.5px solid currentColor',
-                  borderTopColor: 'transparent',
-                  borderRadius: '50%',
-                }}
-              />
-            ) : (
-              <Icon name={badgeIcon} size={8} />
-            )}
-            {badgeLabel}
-          </span>
+            <Icon name="ellipsis" size={16} />
+          </button>
         </div>
 
-        {/* Progress bar (execution only) */}
-        {!isProposal && (
-          <div
-            style={{
-              padding: '0 16px 10px',
-              backgroundColor: 'var(--surface-neutral-xx-weak)',
-              borderBottom: '1px solid var(--border-neutral-weak)',
-            }}
-          >
-            <div
+        {/* Status bar: badge + progress/timestamp */}
+        <div className="px-6 pt-3 pb-4">
+          <div className="flex items-center gap-2.5">
+            {/* Status badge */}
+            <span
               style={{
-                height: '4px',
-                borderRadius: '2px',
-                backgroundColor: '#E7E5E4',
-                overflow: 'hidden',
+                fontSize: '12px',
+                fontWeight: 500,
+                padding: '3px 10px',
+                borderRadius: '99px',
+                backgroundColor: badgeBg,
+                color: badgeColor,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
               }}
             >
+              {showSpinner ? (
+                <div
+                  className="animate-spin"
+                  style={{
+                    width: '9px',
+                    height: '9px',
+                    border: '1.5px solid currentColor',
+                    borderTopColor: 'transparent',
+                    borderRadius: '50%',
+                  }}
+                />
+              ) : (
+                <Icon name={badgeIcon} size={9} />
+              )}
+              {badgeLabel}
+            </span>
+
+            {/* Timestamp (execution only) */}
+            {!isProposal && (
+              <span
+                className="flex items-center gap-1"
+                style={{
+                  fontSize: '12px',
+                  color: 'var(--text-neutral-weak)',
+                }}
+              >
+                <Icon name="clock" size={11} variant="regular" />
+                Started {getRelativeTime(artifact.createdAt)}
+              </span>
+            )}
+          </div>
+
+          {/* Progress bar (execution only) */}
+          {!isProposal && (
+            <div className="mt-3">
               <div
                 style={{
-                  height: '100%',
-                  width: `${progressPercentage}%`,
+                  height: '4px',
                   borderRadius: '2px',
-                  backgroundColor: '#059669',
-                  transition: 'width 0.5s ease',
+                  backgroundColor: '#E7E5E4',
+                  overflow: 'hidden',
                 }}
-              />
+              >
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${progressPercentage}%`,
+                    borderRadius: '2px',
+                    backgroundColor: '#059669',
+                    transition: 'width 0.5s ease',
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Timestamp (execution only) */}
-        {!isProposal && (
-          <div
-            style={{
-              padding: '6px 16px',
-              fontSize: '11px',
-              color: 'var(--text-neutral-weak)',
-              backgroundColor: 'var(--surface-neutral-xx-weak)',
-              borderBottom: '1px solid var(--border-neutral-weak)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            <Icon name="clock" size={10} variant="regular" />
-            Started {getRelativeTime(artifact.createdAt)}
-          </div>
-        )}
+        {/* Divider before sections */}
+        <div style={{ borderTop: '1px solid var(--border-neutral-weak)' }} />
 
         {/* Sections with interleaved review steps (skip sections with no action items) */}
         {settings.sections
