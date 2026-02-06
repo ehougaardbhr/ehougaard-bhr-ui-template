@@ -2,6 +2,7 @@ import { Avatar, Button, TextHeadline, Gridlet } from '../../components';
 import { OrgChartAIInput } from '../../components/OrgChartAIInput';
 import { AITasksWidget } from '../../components/AITasksWidget';
 import { useChat } from '../../contexts/ChatContext';
+import { useChatSend } from '../../hooks/useChatSend';
 import avatarLarge from '../../assets/images/avatar-large.png';
 
 // Mock user data
@@ -13,14 +14,15 @@ const user = {
 };
 
 export function Home() {
-  const { createNewChat, addMessage, selectConversation } = useChat();
+  const { createNewChat, selectConversation, selectedConversation, addMessage } = useChat();
+  const { sendMessage } = useChatSend();
 
   // Pre-built demo conversations mapped by suggestion label
   const demoConversations: Record<string, string> = {
     'Backfill plan for Tony Ramirez': '20',
   };
 
-  const handleSubmit = (inputValue: string) => {
+  const handleSubmit = async (inputValue: string) => {
     if (!inputValue.trim()) return;
 
     // Check if this matches a pre-built demo conversation
@@ -33,11 +35,17 @@ export function Home() {
       return;
     }
 
+    // Create new conversation, select it, open chat, and send message
     const newConversation = createNewChat();
-    addMessage(newConversation.id, { type: 'user', text: inputValue });
+    selectConversation(newConversation.id);
     localStorage.setItem('bhr-chat-panel-open', 'true');
     localStorage.setItem('bhr-chat-expanded', 'false');
     localStorage.setItem('bhr-selected-conversation', newConversation.id);
+
+    // Wait for next tick to ensure conversation is selected
+    setTimeout(async () => {
+      await sendMessage(inputValue);
+    }, 10);
   };
 
   return (

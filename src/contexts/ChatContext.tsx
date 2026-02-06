@@ -13,7 +13,8 @@ interface ChatContextType {
   setSearchQuery: (query: string) => void;
   selectConversation: (id: string) => void;
   createNewChat: () => ChatConversation;
-  addMessage: (conversationId: string, message: Omit<ChatMessage, 'id'>) => void;
+  addMessage: (conversationId: string, message: Omit<ChatMessage, 'id'>) => string;
+  updateMessage: (conversationId: string, messageId: string, text: string, artifactId?: string) => void;
   filteredConversations: ChatConversation[];
 }
 
@@ -54,11 +55,12 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addMessage = useCallback((conversationId: string, message: Omit<ChatMessage, 'id'>) => {
+    const messageId = String(Date.now());
     setConversations(prev => prev.map(conversation => {
       if (conversation.id === conversationId) {
         const newMessage: ChatMessage = {
           ...message,
-          id: String(Date.now()),
+          id: messageId,
         };
         // Update title if this is the first user message in a new chat
         const isFirstUserMessage = conversation.messages.length === 0 && message.type === 'user';
@@ -66,6 +68,23 @@ export function ChatProvider({ children }: { children: ReactNode }) {
           ...conversation,
           title: isFirstUserMessage ? message.text.slice(0, 50) : conversation.title,
           messages: [...conversation.messages, newMessage],
+        };
+      }
+      return conversation;
+    }));
+    return messageId;
+  }, []);
+
+  const updateMessage = useCallback((conversationId: string, messageId: string, text: string, artifactId?: string) => {
+    setConversations(prev => prev.map(conversation => {
+      if (conversation.id === conversationId) {
+        return {
+          ...conversation,
+          messages: conversation.messages.map(msg =>
+            msg.id === messageId
+              ? { ...msg, text, ...(artifactId !== undefined && { artifactId }) }
+              : msg
+          ),
         };
       }
       return conversation;
@@ -83,6 +102,7 @@ export function ChatProvider({ children }: { children: ReactNode }) {
         selectConversation,
         createNewChat,
         addMessage,
+        updateMessage,
         filteredConversations,
       }}
     >

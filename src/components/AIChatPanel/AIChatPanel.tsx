@@ -5,6 +5,7 @@ import { InlineArtifactCard } from '../InlineArtifactCard';
 import MarkdownContent from '../MarkdownContent';
 import { useChat } from '../../contexts/ChatContext';
 import { useArtifact } from '../../contexts/ArtifactContext';
+import { useChatSend } from '../../hooks/useChatSend';
 import { chartTypeIcons } from '../../data/artifactData';
 import type { ChartSettings } from '../../data/artifactData';
 
@@ -29,10 +30,12 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
     filteredConversations,
     addMessage
   } = useChat();
+  const { sendMessage } = useChatSend();
   const [inputValue, setInputValue] = useState('');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [showAllArtifacts, setShowAllArtifacts] = useState(false);
+  const [isSending, setIsSending] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Get artifact icon based on type
@@ -73,10 +76,16 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
     onExpandChange(false);
   };
 
-  const handleSend = () => {
-    if (inputValue.trim()) {
-      // In a real app, this would send the message
+  const handleSend = async () => {
+    if (inputValue.trim() && !isSending) {
+      const text = inputValue;
       setInputValue('');
+      setIsSending(true);
+      try {
+        await sendMessage(text);
+      } finally {
+        setIsSending(false);
+      }
     }
   };
 
@@ -463,7 +472,15 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                             </div>
                             {/* AI Message */}
                             <div className="pl-8">
-                              <MarkdownContent text={message.text} />
+                              {message.text ? (
+                                <MarkdownContent text={message.text} />
+                              ) : (
+                                <div className="flex items-center gap-2 text-[var(--text-neutral-medium)]">
+                                  <div className="w-2 h-2 bg-[var(--color-primary-strong)] rounded-full animate-pulse"></div>
+                                  <div className="w-2 h-2 bg-[var(--color-primary-strong)] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                                  <div className="w-2 h-2 bg-[var(--color-primary-strong)] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                                </div>
+                              )}
                               {/* Inline Artifact Card */}
                               {message.artifactId && (() => {
                                 const artifact = artifacts.find(a => a.id === message.artifactId);
@@ -489,6 +506,12 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                         )}
                       </div>
                     ))}
+                    {isSending && (
+                      <div className="flex items-center gap-2 text-[var(--text-neutral-medium)] text-[13px]">
+                        <Icon name="sparkles" size={12} className="text-[var(--color-primary-strong)]" />
+                        <span>Thinking...</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -537,7 +560,15 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                           </div>
                         ) : (
                           <div className="flex flex-col gap-4">
-                            <MarkdownContent text={message.text} />
+                            {message.text ? (
+                              <MarkdownContent text={message.text} />
+                            ) : (
+                              <div className="flex items-center gap-2 text-[var(--text-neutral-medium)]">
+                                <div className="w-2 h-2 bg-[var(--color-primary-strong)] rounded-full animate-pulse"></div>
+                                <div className="w-2 h-2 bg-[var(--color-primary-strong)] rounded-full animate-pulse" style={{ animationDelay: '0.2s' }}></div>
+                                <div className="w-2 h-2 bg-[var(--color-primary-strong)] rounded-full animate-pulse" style={{ animationDelay: '0.4s' }}></div>
+                              </div>
+                            )}
                             {/* Inline Artifact Card */}
                             {message.artifactId && (() => {
                               const artifact = artifacts.find(a => a.id === message.artifactId);
@@ -561,6 +592,12 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                         )}
                       </div>
                     ))}
+                    {isSending && (
+                      <div className="flex items-center gap-2 text-[var(--text-neutral-medium)] text-[13px]">
+                        <Icon name="sparkles" size={12} className="text-[var(--color-primary-strong)]" />
+                        <span>Thinking...</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
