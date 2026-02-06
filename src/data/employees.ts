@@ -19,6 +19,17 @@ export interface Employee {
   jobTitle?: string; // Alias for title
   employmentStatus?: string;
   hireDate?: string;
+  salary?: number;
+  currency?: string;
+  performanceRating?: number; // 1-5
+  promotionReadiness?: 'ready_now' | 'ready_1yr' | 'ready_2yr' | 'not_ready';
+  flightRisk?: 'low' | 'medium' | 'high';
+  skills?: string[];
+  yearsOfExperience?: number;
+  education?: string;
+  status?: 'active' | 'departed';
+  departureDate?: string;
+  departureReason?: string;
 }
 
 export const employees: Employee[] = [
@@ -129,7 +140,7 @@ export const employees: Employee[] = [
     title: 'VP of Technology',
     jobTitle: 'VP of Technology',
     employmentStatus: 'Full-Time',
-    hireDate: '01/15/2020',
+    hireDate: '06/15/2019',
     department: 'Technology',
     location: 'Hercules, CA',
     division: 'North America',
@@ -138,6 +149,15 @@ export const employees: Employee[] = [
     reportsTo: 100,
     directReports: 3,
     avatar: 'https://i.pravatar.cc/300?img=20',
+    salary: 210000,
+    currency: 'USD',
+    performanceRating: 5,
+    promotionReadiness: 'not_ready',
+    flightRisk: 'low',
+    skills: ['Technical Strategy', 'Engineering Leadership', 'Cloud Architecture'],
+    yearsOfExperience: 18,
+    education: 'MS Computer Science, MIT',
+    status: 'active',
   },
   {
     id: 14,
@@ -523,7 +543,7 @@ export const employees: Employee[] = [
     title: 'Engineering Manager',
     jobTitle: 'Engineering Manager',
     employmentStatus: 'Full-Time',
-    hireDate: '01/15/2020',
+    hireDate: '09/22/2019',
     department: 'Technology',
     location: 'London, UK',
     division: 'Europe',
@@ -532,6 +552,15 @@ export const employees: Employee[] = [
     reportsTo: 20,
     directReports: 3,
     avatar: 'https://i.pravatar.cc/300?img=38',
+    salary: 165000,
+    currency: 'USD',
+    performanceRating: 5,
+    promotionReadiness: 'ready_now',
+    flightRisk: 'low',
+    skills: ['Engineering Management', 'Agile', 'System Architecture', 'Mentoring'],
+    yearsOfExperience: 12,
+    education: 'MS Computer Science, Stanford',
+    status: 'active',
   },
   {
     id: 9,
@@ -580,7 +609,7 @@ export const employees: Employee[] = [
     title: 'Senior Software Engineer',
     jobTitle: 'Senior Software Engineer',
     employmentStatus: 'Full-Time',
-    hireDate: '01/15/2020',
+    hireDate: '02/14/2022',
     department: 'Technology',
     location: 'London, UK',
     division: 'Europe',
@@ -589,6 +618,15 @@ export const employees: Employee[] = [
     reportsTo: 21,
     directReports: 0,
     avatar: 'https://i.pravatar.cc/300?img=57',
+    salary: 128000,
+    currency: 'USD',
+    performanceRating: 4,
+    promotionReadiness: 'ready_now',
+    flightRisk: 'medium',
+    skills: ['React', 'TypeScript', 'Python', 'AWS', 'CI/CD'],
+    yearsOfExperience: 6,
+    education: 'BS Software Engineering, Georgia Tech',
+    status: 'active',
   },
   {
     id: 111,
@@ -599,7 +637,7 @@ export const employees: Employee[] = [
     title: 'Software Engineer',
     jobTitle: 'Software Engineer',
     employmentStatus: 'Full-Time',
-    hireDate: '01/15/2020',
+    hireDate: '08/01/2023',
     department: 'Technology',
     location: 'London, UK',
     division: 'Europe',
@@ -608,6 +646,15 @@ export const employees: Employee[] = [
     reportsTo: 21,
     directReports: 0,
     avatar: 'https://i.pravatar.cc/300?img=23',
+    salary: 118000,
+    currency: 'USD',
+    performanceRating: 4,
+    promotionReadiness: 'ready_1yr',
+    flightRisk: 'low',
+    skills: ['React', 'Node.js', 'GraphQL', 'MongoDB'],
+    yearsOfExperience: 4,
+    education: 'BS Computer Science, University of Washington',
+    status: 'active',
   },
   {
     id: 112,
@@ -618,7 +665,7 @@ export const employees: Employee[] = [
     title: 'DevOps Engineer',
     jobTitle: 'DevOps Engineer',
     employmentStatus: 'Full-Time',
-    hireDate: '01/15/2020',
+    hireDate: '01/09/2024',
     department: 'Technology',
     location: 'Remote',
     division: 'Europe',
@@ -627,6 +674,46 @@ export const employees: Employee[] = [
     reportsTo: 21,
     directReports: 0,
     avatar: 'https://i.pravatar.cc/300?img=54',
+    salary: 105000,
+    currency: 'USD',
+    performanceRating: 3,
+    promotionReadiness: 'ready_2yr',
+    flightRisk: 'low',
+    skills: ['JavaScript', 'React', 'CSS', 'Testing'],
+    yearsOfExperience: 3,
+    education: 'Bootcamp + BS Mathematics',
+    status: 'active',
+  },
+  // Departed - Tony Ramirez (Senior Software Engineer, backfill needed)
+  {
+    id: 200,
+    name: 'Tony Ramirez',
+    firstName: 'Tony',
+    lastName: 'Ramirez',
+    employeeNumber: '200',
+    title: 'Senior Software Engineer',
+    jobTitle: 'Senior Software Engineer',
+    employmentStatus: 'Terminated',
+    hireDate: '03/10/2021',
+    department: 'Technology',
+    location: 'Hercules, CA',
+    division: 'North America',
+    email: 'tony.ramirez@bamboohr.com',
+    phone: '(510) 555-0200',
+    reportsTo: 21,
+    directReports: 0,
+    avatar: 'https://i.pravatar.cc/300?img=68',
+    salary: 135000,
+    currency: 'USD',
+    performanceRating: 4,
+    promotionReadiness: 'ready_now',
+    flightRisk: 'high',
+    skills: ['React', 'TypeScript', 'Node.js', 'PostgreSQL', 'AWS', 'System Design'],
+    yearsOfExperience: 8,
+    education: 'BS Computer Science, UC Berkeley',
+    status: 'departed',
+    departureDate: '02/07/2026',
+    departureReason: 'Voluntary - Accepted offer at competitor (higher compensation)',
   },
   {
     id: 10,

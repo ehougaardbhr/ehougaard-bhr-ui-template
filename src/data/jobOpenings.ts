@@ -7,6 +7,9 @@ export interface JobOpening {
   hiringLead: string;
   createdOn: string;
   status: 'Open' | 'Draft';
+  department?: string;
+  salaryRange?: string;
+  description?: string;
 }
 
 export const jobOpenings: JobOpening[] = [
@@ -69,5 +72,18 @@ export const jobOpenings: JobOpening[] = [
     hiringLead: 'Darlene Robertson',
     createdOn: '8/16/25',
     status: 'Draft',
+  },
+  {
+    id: 7,
+    title: 'Senior Software Engineer',
+    location: 'Hercules, CA (Remote eligible)',
+    candidatesCount: 5,
+    newCandidatesCount: 3,
+    hiringLead: 'Uma Patel',
+    createdOn: '1/24/26',
+    status: 'Open',
+    department: 'Technology',
+    salaryRange: '$130,000 - $170,000',
+    description: 'Backfill for Tony Ramirez. Full-stack senior engineer to work on payment processing, API development, and platform infrastructure.',
   },
 ];

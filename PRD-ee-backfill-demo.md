@@ -580,3 +580,98 @@ The expanded AIChatPanel already shows artifacts inline. The ArtifactWorkspace a
 - `src/components/AINotification/AINotification.tsx` — Notification component
 - `src/components/AITasksWidget/AITasksWidget.tsx` — Dashboard progress widget
 - `src/contexts/AITaskContext.tsx` — Async task state management
+
+---
+
+## Build Sprints
+
+### Dependency Graph
+
+```
+                    ┌──────────────┐
+                    │ Sprint 1     │
+                    │ (all parallel)│
+                    └──────┬───────┘
+                           │
+        ┌──────────┬───────┼────────┬──────────┐
+        ▼          ▼       ▼        ▼          ▼
+   ┌─────────┐ ┌───────┐ ┌────┐ ┌──────┐ ┌────────┐
+   │  Data   │ │ Plan  │ │Home│ │Notif.│ │Widget  │
+   │Enrichmt.│ │Artifact│ │Chat│ │Comp. │ │(stub)  │
+   │         │ │ Type  │ │Input│ │      │ │        │
+   └────┬────┘ └───┬───┘ └──┬─┘ └──┬───┘ └───┬────┘
+        │          │        │      │          │
+        ▼          ▼        ▼      ▼          ▼
+   ┌────────────────────────────────────────────────┐
+   │ Sprint 2: LLM Integration                      │
+   │ (needs data + plan artifact + chat input)       │
+   └───────────────────────┬────────────────────────┘
+                           │
+                           ▼
+   ┌────────────────────────────────────────────────┐
+   │ Sprint 3: End-to-End Wiring & Polish            │
+   │ (needs everything above)                        │
+   └────────────────────────────────────────────────┘
+```
+
+### Sprint 1: Foundation (ALL PARALLEL — no dependencies on each other)
+
+These 5 workstreams touch completely different files and can run simultaneously.
+
+**1A. Data Enrichment** — Autonomy: HIGH
+- Add compensation/performance/skills fields to Employee interface
+- Enrich all 57 employees with realistic data (varied hire dates, salaries, ratings, skills)
+- Add Tony Ramirez as departed employee
+- Create `compensationData.ts`, `internalMobility.ts`, `backfillDemoData.ts`
+- Enrich candidates with skills/experience, add 4-6 Tony-role candidates
+- Add Technology talent pool, enrich job openings
+
+**1B. Plan Artifact Type** — Autonomy: HIGH
+- Add `'plan'` to ArtifactType union, PlanSettings/PlanSection/ActionItem interfaces
+- Add default plan settings in createArtifact()
+- Build PlanInlineCard, PlanFullView, PlanSettingsToolbar
+- Add `'plan'` to ArtifactWorkspace type whitelist
+- Add mock plan artifact to test with
+
+**1C. Home Screen Chat Input** — Autonomy: HIGH
+- Reuse org chart floating input bar on Home page
+- Wire to ChatContext.createNewChat() + addMessage()
+- On submit: open AI chat panel with new conversation
+
+**1D. Notification Component** — Autonomy: HIGH
+- macOS-style notifications, slide in top-right, stackable
+- Mount at AppLayout level (works on any page)
+- Auto-dismiss 10 seconds, manual X, click → opens chat
+- Create AINotificationContext for app-wide state
+
+**1E. "What's Running" Widget (STUB)** — Autonomy: HIGH
+- Minimal Gridlet widget with hardcoded example tasks
+- Will be replaced when home screen design arrives
+
+### Sprint 2: LLM Integration
+
+**Depends on:** Sprint 1A (data), 1B (plan artifact), 1C (chat input)
+
+**2A. LLM Service Layer** — Autonomy: HIGH
+- Abstract provider interface + OpenAI and Anthropic implementations
+- Environment config for API keys + provider selection
+- Streaming response support
+
+**2B. System Prompts + Chat Wiring** — Autonomy: MEDIUM (needs prompt review)
+- System prompt with AI persona, employee/comp/candidate data context
+- Interview phase instructions, plan generation trigger, proactive suggestions
+- Wire ChatContext.addMessage() to LLM service with streaming
+- **Checkpoint: review system prompts after first draft**
+
+### Sprint 3: End-to-End Wiring & Polish
+
+**Depends on:** Everything above. **Collaborative sprint.**
+
+**3A. Execution Simulation** — Simulate AI "working" with timed delays, fire notifications, update widget
+**3B. End-to-End Testing** — Full flow from home input through execution
+**3C. Polish** — Prompt tuning, transitions, error handling, demo-ready path
+
+### Checkpoints (3 total)
+1. **After Sprint 1:** Quick visual check — plan card, notification, chat input (~5 min)
+2. **During Sprint 2:** Review system prompts (~15 min)
+3. **Sprint 3:** End-to-end demo walkthrough (collaborative)

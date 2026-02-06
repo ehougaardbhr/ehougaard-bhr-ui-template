@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
-import { mockArtifacts, type Artifact, type ChartSettings, type TextSettings, type OrgChartSettings } from '../data/artifactData';
+import { mockArtifacts, type Artifact, type ChartSettings, type TextSettings, type OrgChartSettings, type PlanSettings } from '../data/artifactData';
 
 const SELECTED_ARTIFACT_KEY = 'bhr-selected-artifact';
 
@@ -13,7 +13,7 @@ interface ArtifactContextType {
 
   // Actions
   selectArtifact: (id: string) => void;
-  updateArtifactSettings: (id: string, settings: Partial<ChartSettings> | Partial<TextSettings> | Partial<OrgChartSettings>) => void;
+  updateArtifactSettings: (id: string, settings: Partial<ChartSettings> | Partial<TextSettings> | Partial<OrgChartSettings> | Partial<PlanSettings>) => void;
   updateArtifactContent: (id: string, content: string) => void;
   toggleDrawer: () => void;
   setDrawerOpen: (open: boolean) => void;
@@ -39,7 +39,7 @@ export function ArtifactProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(SELECTED_ARTIFACT_KEY, id);
   }, []);
 
-  const updateArtifactSettings = useCallback((id: string, settings: Partial<ChartSettings> | Partial<TextSettings> | Partial<OrgChartSettings>) => {
+  const updateArtifactSettings = useCallback((id: string, settings: Partial<ChartSettings> | Partial<TextSettings> | Partial<OrgChartSettings> | Partial<PlanSettings>) => {
     setArtifacts(prev => prev.map(artifact => {
       if (artifact.id === id) {
         return {
@@ -104,13 +104,21 @@ export function ArtifactProvider({ children }: { children: ReactNode }) {
       compact: false,
     };
 
+    // Default settings for plan artifacts
+    const defaultPlanSettings: PlanSettings = {
+      status: 'draft',
+      sections: [],
+      approvedBy: undefined,
+      approvedAt: undefined,
+    };
+
     const newArtifact: Artifact = {
       id: newId,
       type,
       title,
       conversationId,
       createdAt: new Date(),
-      settings: type === 'chart' ? defaultChartSettings : type === 'text' ? defaultTextSettings : type === 'org-chart' ? defaultOrgChartSettings : {},
+      settings: type === 'chart' ? defaultChartSettings : type === 'text' ? defaultTextSettings : type === 'org-chart' ? defaultOrgChartSettings : type === 'plan' ? defaultPlanSettings : {},
       content: type === 'text' ? '' : undefined,
     };
 

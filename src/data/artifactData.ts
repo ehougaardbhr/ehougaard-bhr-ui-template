@@ -2,7 +2,7 @@
 // TYPE DEFINITIONS
 // ============================================
 
-export type ArtifactType = 'chart' | 'text' | 'document' | 'org-chart' | 'table';
+export type ArtifactType = 'chart' | 'text' | 'document' | 'org-chart' | 'table' | 'plan';
 
 export type ChartType = 'bar' | 'line' | 'pie' | 'table';
 export type MeasureType = 'headcount' | 'salary' | 'tenure' | 'turnover';
@@ -44,13 +44,38 @@ export interface OrgChartSettings {
   expandedEmployees?: number[];   // Initially expanded employee IDs
 }
 
+// Plan artifact types
+export type PlanStatus = 'draft' | 'pending_approval' | 'approved' | 'in_progress' | 'completed';
+
+export interface ActionItem {
+  id: string;
+  description: string;
+  owner?: string;
+  status: 'pending' | 'in_progress' | 'completed';
+  dueDate?: string;
+}
+
+export interface PlanSection {
+  id: string;
+  title: string;
+  content: string; // markdown
+  actionItems?: ActionItem[];
+}
+
+export interface PlanSettings {
+  status: PlanStatus;
+  sections: PlanSection[];
+  approvedBy?: string;
+  approvedAt?: string;
+}
+
 export interface Artifact {
   id: string;
   type: ArtifactType;
   title: string;
   conversationId: string;
   createdAt: Date;
-  settings: ChartSettings | TextSettings | OrgChartSettings | Record<string, unknown>; // Extensible for other artifact types
+  settings: ChartSettings | TextSettings | OrgChartSettings | PlanSettings | Record<string, unknown>; // Extensible for other artifact types
   content?: string; // For text artifacts
 }
 
@@ -144,6 +169,14 @@ export const departmentFilterLabels: Record<DepartmentFilterType, string> = {
   marketing: 'Marketing',
   'human resources': 'Human Resources',
   executive: 'Executive',
+};
+
+export const planStatusLabels: Record<PlanStatus, string> = {
+  draft: 'Draft',
+  pending_approval: 'Pending Approval',
+  approved: 'Approved',
+  in_progress: 'In Progress',
+  completed: 'Completed',
 };
 
 // ============================================
@@ -295,6 +328,55 @@ export const chartMockData: Record<CategoryType, Record<MeasureType, ChartDataPo
 // ============================================
 
 export const mockArtifacts: Artifact[] = [
+  {
+    id: 'artifact-plan-1',
+    type: 'plan',
+    title: 'Backfill Plan: Senior Software Engineer (Tony Ramirez)',
+    conversationId: '20',
+    createdAt: new Date('2026-01-25T09:00:00'),
+    settings: {
+      status: 'pending_approval',
+      sections: [
+        {
+          id: 'section-1',
+          title: 'Immediate Actions',
+          content: 'Address critical gaps left by Tony\'s departure and ensure business continuity.',
+          actionItems: [
+            { id: 'ai-1', description: 'Redistribute Tony\'s active projects among team members', owner: 'Uma Patel', status: 'in_progress' },
+            { id: 'ai-2', description: 'Complete knowledge transfer documentation for undocumented systems', owner: 'Daniel Kim', status: 'pending' },
+            { id: 'ai-3', description: 'Set up interim code review process', owner: 'Uma Patel', status: 'completed' },
+          ],
+        },
+        {
+          id: 'section-2',
+          title: 'Hiring Strategy',
+          content: 'Pursue parallel internal and external hiring tracks to fill the Senior Software Engineer role.\n\n**Internal Track:** Evaluate Daniel Kim (ready now) and Rachel Green (ready in 6 months) for promotion.\n\n**External Track:** Post to job boards and engage Technology talent pool. Target 2-week posting period.',
+          actionItems: [
+            { id: 'ai-4', description: 'Post job requisition to LinkedIn and company careers page', owner: 'HR', status: 'pending' },
+            { id: 'ai-5', description: 'Review internal candidates with Engineering Manager', owner: 'Uma Patel', status: 'pending' },
+            { id: 'ai-6', description: 'Screen Technology talent pool for qualified candidates', owner: 'HR', status: 'pending' },
+          ],
+        },
+        {
+          id: 'section-3',
+          title: 'Retention & Team Health',
+          content: 'Tony\'s departure signals potential retention risks. His salary was below market midpoint, which may affect other team members.\n\nRecommend:\n- Review compensation for remaining senior engineers\n- Schedule 1:1s with team members to assess morale\n- Address workload distribution concerns',
+          actionItems: [
+            { id: 'ai-7', description: 'Run compensation analysis for Technology team', owner: 'HR', status: 'pending' },
+            { id: 'ai-8', description: 'Schedule team morale check-ins', owner: 'Uma Patel', status: 'pending' },
+          ],
+        },
+        {
+          id: 'section-4',
+          title: 'Timeline',
+          content: '- **Week 1-2:** Immediate actions + job posting\n- **Week 2-3:** Internal candidate interviews\n- **Week 3-4:** External candidate screening\n- **Week 4-6:** Interviews and decision\n- **Week 6-8:** Offer and onboarding',
+        },
+      ],
+      approvedBy: undefined,
+      approvedAt: undefined,
+    } as PlanSettings,
+    content: 'Comprehensive plan to backfill Tony Ramirez\'s Senior Software Engineer role, addressing immediate gaps, hiring strategy, and team retention concerns.',
+  },
   {
     id: 'artifact-1',
     type: 'chart',

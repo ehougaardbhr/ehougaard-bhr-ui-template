@@ -1,4 +1,7 @@
 import { Avatar, Button, TextHeadline, Gridlet } from '../../components';
+import { OrgChartAIInput } from '../../components/OrgChartAIInput';
+import { AITasksWidget } from '../../components/AITasksWidget';
+import { useChat } from '../../contexts/ChatContext';
 import avatarLarge from '../../assets/images/avatar-large.png';
 
 // Mock user data
@@ -9,10 +12,36 @@ const user = {
   avatar: avatarLarge,
 };
 
-
 export function Home() {
+  const { createNewChat, addMessage, selectConversation } = useChat();
+
+  // Pre-built demo conversations mapped by suggestion label
+  const demoConversations: Record<string, string> = {
+    'Backfill plan for Tony Ramirez': '20',
+  };
+
+  const handleSubmit = (inputValue: string) => {
+    if (!inputValue.trim()) return;
+
+    // Check if this matches a pre-built demo conversation
+    const demoConvoId = demoConversations[inputValue];
+    if (demoConvoId) {
+      selectConversation(demoConvoId);
+      localStorage.setItem('bhr-chat-panel-open', 'true');
+      localStorage.setItem('bhr-chat-expanded', 'true');
+      localStorage.setItem('bhr-selected-conversation', demoConvoId);
+      return;
+    }
+
+    const newConversation = createNewChat();
+    addMessage(newConversation.id, { type: 'user', text: inputValue });
+    localStorage.setItem('bhr-chat-panel-open', 'true');
+    localStorage.setItem('bhr-chat-expanded', 'false');
+    localStorage.setItem('bhr-selected-conversation', newConversation.id);
+  };
+
   return (
-    <div className="p-10">
+    <div className="p-10 relative min-h-full">
       {/* Profile Header */}
       <div className="flex items-center justify-between mb-10">
         <div className="flex items-center gap-8">
@@ -61,7 +90,23 @@ export function Home() {
         {/* Row 4 */}
         <Gridlet title="Starting soon" minHeight={332} />
         <Gridlet title="Company links" minHeight={332} />
-        <Gridlet title="Gender breakdown" minHeight={332} />
+        <Gridlet title="AI Tasks" icon="sparkles" minHeight={332}>
+          <AITasksWidget />
+        </Gridlet>
+      </div>
+
+      {/* Floating AI Input */}
+      <div className="sticky bottom-6 mt-6 max-w-2xl mx-auto z-30">
+        <OrgChartAIInput
+          placeholder="Ask me anything..."
+          suggestions={[
+            { label: 'Backfill plan for Tony Ramirez' },
+            { label: 'Show me the org chart' },
+            { label: 'Review team headcount' },
+          ]}
+          onSubmit={handleSubmit}
+          onSuggestionClick={(suggestion) => handleSubmit(suggestion.label)}
+        />
       </div>
     </div>
   );

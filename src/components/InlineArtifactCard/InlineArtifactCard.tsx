@@ -4,6 +4,7 @@ import { Icon } from '../Icon';
 import { BarChart, LineChart, PieChart, TableChart } from '../Charts';
 import { TextDisplay } from '../TextDisplay';
 import { OrgChartThumbnail } from '../OrgChart';
+import { PlanInlineCard } from '../PlanArtifact';
 import type { Artifact, ChartSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
 
@@ -120,6 +121,10 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
       return null; // Rendered separately below
     }
 
+    if (artifact.type === 'plan') {
+      return null; // Plan uses its own card layout
+    }
+
     return null;
   };
 
@@ -128,6 +133,11 @@ export function InlineArtifactCard({ artifact, compact = false, onExpand }: Inli
       onExpand();
     }
   };
+
+  // Special layout for plan artifacts
+  if (artifact.type === 'plan') {
+    return <PlanInlineCard artifact={artifact} compact={compact} />;
+  }
 
   // Special layout for org-chart artifacts
   if (artifact.type === 'org-chart') {

@@ -26,4 +26,10 @@ export const talentPools: TalentPool[] = [
     icon: 'computer',
     candidatesCount: 2,
   },
+  {
+    id: '4',
+    title: 'Technology',
+    icon: 'computer',
+    candidatesCount: 5,
+  },
 ];

@@ -729,4 +729,51 @@ npm run benefits-calculator
       },
     ],
   },
+  {
+    id: '20',
+    title: 'Backfill Plan for Tony Ramirez',
+    messages: [
+      {
+        id: '200',
+        type: 'user',
+        text: 'Tony Ramirez just gave his two weeks notice. He\'s a Senior Software Engineer on Uma Patel\'s team. Can you help me figure out a backfill plan?',
+      },
+      {
+        id: '201',
+        type: 'ai',
+        text: `I'm sorry to hear about Tony's departure. Let me help you put together a comprehensive backfill plan. I have a few questions first:
+
+1. **What's driving Tony's departure?** Understanding the reason can help us address potential retention risks for the rest of the team.
+2. **Are there any critical projects** Tony is currently leading that need immediate coverage?
+3. **Do you have a preference** for internal promotion vs. external hire?
+
+While you think about those, I'll start pulling together relevant data on the team, compensation benchmarks, and potential internal candidates.`,
+        suggestions: [
+          'He got a better offer elsewhere',
+          'Show me the team structure',
+          'Check internal candidates first',
+        ],
+      },
+      {
+        id: '202',
+        type: 'user',
+        text: 'He got a better offer — higher comp at a competitor. I\'m open to either internal or external candidates. Let\'s see what makes sense.',
+      },
+      {
+        id: '203',
+        type: 'ai',
+        text: `That's helpful context. Compensation-driven departures are something we should address proactively for the remaining team.
+
+I've analyzed the situation and put together a comprehensive backfill plan. Here's what I found:
+
+- **Tony's salary was $135,000** — below the market midpoint of $145,000 for his role
+- **Daniel Kim** on the same team shows strong promotion readiness and could be an internal candidate
+- **Rachel Green** could be ready in ~6 months with targeted development
+- We have **5 qualified candidates** in the Technology talent pool worth screening
+
+I've created a detailed plan with action items. Take a look:`,
+        artifactId: 'artifact-plan-1',
+      },
+    ],
+  },
 ];

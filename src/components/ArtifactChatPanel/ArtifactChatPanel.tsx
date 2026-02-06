@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { Icon } from '../Icon';
+import MarkdownContent from '../MarkdownContent';
 import { useChat } from '../../contexts/ChatContext';
 
 interface ArtifactChatPanelProps {
@@ -103,9 +104,7 @@ export function ArtifactChatPanel({ conversationId }: ArtifactChatPanelProps) {
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <p className="text-[15px] leading-[22px] text-[var(--text-neutral-xx-strong)] whitespace-pre-line">
-                    {message.text}
-                  </p>
+                  <MarkdownContent text={message.text} />
                   {message.suggestions && message.suggestions.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {message.suggestions.map((suggestion, idx) => (

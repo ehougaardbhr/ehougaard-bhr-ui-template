@@ -6,12 +6,13 @@ import { TextHeadline } from '../../components/TextHeadline';
 import { ArtifactTopBar } from '../../components/ArtifactTopBar';
 import { ArtifactToolBar } from '../../components/ArtifactToolBar';
 import { ArtifactChatPanel } from '../../components/ArtifactChatPanel';
-import type { ChartSettings, TextSettings, OrgChartSettings } from '../../data/artifactData';
+import type { ChartSettings, TextSettings, OrgChartSettings, PlanSettings } from '../../data/artifactData';
 import { generateArtifactTitle } from '../../data/artifactData';
 import { BarChart, LineChart, PieChart, TableChart, ChartSettingsToolbar } from '../../components/Charts';
 import { TextSettingsToolbar } from '../../components/TextSettingsToolbar';
 import { TextEditor } from '../../components/TextEditor';
 import { OrgChartArtifact } from '../../components/OrgChart';
+import { PlanFullView, PlanSettingsToolbar } from '../../components/PlanArtifact';
 
 export function ArtifactWorkspace() {
   const { type, id } = useParams<{ type: string; id: string }>();
@@ -73,7 +74,7 @@ export function ArtifactWorkspace() {
   console.log('Render state:', { type, selectedArtifact: !!selectedArtifact, artifactType: selectedArtifact?.type });
 
   // Handle supported artifact types
-  if (type !== 'chart' && type !== 'text' && type !== 'org-chart') {
+  if (type !== 'chart' && type !== 'text' && type !== 'org-chart' && type !== 'plan') {
     return (
       <div className="h-screen flex items-center justify-center bg-[var(--surface-neutral-xx-weak)]">
         <div className="text-center">
@@ -193,6 +194,14 @@ export function ArtifactWorkspace() {
                 }}
               />
             )}
+            {selectedArtifact && selectedArtifact.type === 'plan' && (
+              <PlanSettingsToolbar
+                settings={selectedArtifact.settings as PlanSettings}
+                onSettingsChange={(newSettings) => {
+                  updateArtifactSettings(selectedArtifact.id, newSettings);
+                }}
+              />
+            )}
 
             {/* Content area - conditional based on type */}
             {selectedArtifact && selectedArtifact.type === 'chart' && (
@@ -224,6 +233,15 @@ export function ArtifactWorkspace() {
                 onChange={(newContent) => {
                   updateArtifactContent(selectedArtifact.id, newContent);
                 }}
+              />
+            )}
+            {selectedArtifact && selectedArtifact.type === 'plan' && (
+              <PlanFullView
+                artifact={selectedArtifact}
+                onSettingsChange={(newSettings) => {
+                  updateArtifactSettings(selectedArtifact.id, newSettings);
+                }}
+                isEditMode={true}
               />
             )}
             {!selectedArtifact && (
