@@ -82,7 +82,14 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
       setInputValue('');
       setIsSending(true);
       try {
-        await sendMessage(text);
+        // If no conversation selected, create a new one
+        if (!selectedConversation) {
+          const newConversation = createNewChat();
+          selectConversation(newConversation.id);
+          await sendMessage(text, newConversation.id);
+        } else {
+          await sendMessage(text);
+        }
       } finally {
         setIsSending(false);
       }
