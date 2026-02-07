@@ -637,7 +637,7 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                         onChange={handleInput}
                         onKeyDown={handleKeyDown}
                         rows={1}
-                        className="w-full bg-transparent text-[15px] leading-[22px] text-white placeholder:text-[var(--text-neutral-medium)] outline-none resize-none overflow-hidden"
+                        className="w-full bg-transparent text-[15px] leading-[22px] text-[var(--text-neutral-x-strong)] placeholder:text-[var(--text-neutral-medium)] outline-none resize-none overflow-hidden"
                       />
 
                       {/* Icons row - Bottom */}
