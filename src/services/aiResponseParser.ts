@@ -22,6 +22,13 @@ export function parseAIResponse(fullText: string): ParsedAIResponse {
   const match = fullText.match(planRegex);
 
   if (!match) {
+    // During streaming: if :::plan started but hasn't closed yet,
+    // suppress everything from :::plan onward to prevent "code vomit"
+    const partialPlanIndex = fullText.search(/(?:```(?:json)?\s*)?:::plan/);
+    if (partialPlanIndex !== -1) {
+      const displayText = fullText.slice(0, partialPlanIndex).trim();
+      return { displayText: displayText || 'Creating a plan...' };
+    }
     return { displayText: fullText };
   }
 

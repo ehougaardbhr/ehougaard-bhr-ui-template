@@ -53,6 +53,8 @@ export interface ActionItem {
   owner?: string;
   status: 'planned' | 'queued' | 'working' | 'done';
   dueDate?: string;
+  toolCall?: string; // Tool name from registry, e.g. 'analyze_compensation'
+  toolParams?: Record<string, unknown>; // Parameters for the tool call
 }
 
 export interface PlanSection {
@@ -348,48 +350,119 @@ export const mockArtifacts: Artifact[] = [
       sections: [
         {
           id: 'section-1',
-          title: 'Immediate Actions',
-          description: 'Address critical gaps left by Tony\'s departure and ensure business continuity.',
+          title: 'Impact & Risk Assessment',
+          description: 'Analyze the organizational impact of Tony\'s departure and identify immediate risks to the Technology team.',
           actionItems: [
-            { id: 'ai-1', description: 'Redistribute Tony\'s active projects among team members', owner: 'Uma Patel', status: 'planned' },
-            { id: 'ai-2', description: 'Complete knowledge transfer documentation for undocumented systems', owner: 'Daniel Kim', status: 'planned' },
-            { id: 'ai-3', description: 'Set up interim code review process', owner: 'Uma Patel', status: 'planned' },
+            {
+              id: 'ai-1',
+              description: 'Analyze org impact of Tony Ramirez\'s departure on team structure and span of control',
+              status: 'planned',
+              toolCall: 'analyze_org_impact',
+              toolParams: { scenario: 'departure', employeeId: 15, department: 'Technology' },
+            },
+            {
+              id: 'ai-2',
+              description: 'Identify flight risks among Uma Patel\'s remaining direct reports',
+              status: 'planned',
+              toolCall: 'identify_flight_risks',
+              toolParams: { team: 'Uma Patel direct reports', department: 'Technology' },
+            },
+            {
+              id: 'ai-3',
+              description: 'Run compensation analysis for Technology team — flag anyone below midpoint',
+              status: 'planned',
+              toolCall: 'analyze_compensation',
+              toolParams: { department: 'Technology', benchmark: true },
+            },
           ],
         },
         {
           id: 'section-2',
-          title: 'Hiring Strategy',
-          description: 'Pursue parallel internal and external hiring tracks to fill the Senior Software Engineer role.\n\n**Internal Track:** Evaluate Daniel Kim (ready now) and Rachel Green (ready in 6 months) for promotion.\n\n**External Track:** Post to job boards and engage Technology talent pool. Target 2-week posting period.',
+          title: 'Internal Candidate Evaluation',
+          description: 'Assess internal candidates for promotion into the Senior Software Engineer role. Daniel Kim and Rachel Green are succession candidates.',
           actionItems: [
-            { id: 'ai-4', description: 'Post job requisition to LinkedIn and company careers page', owner: 'HR', status: 'planned' },
-            { id: 'ai-5', description: 'Review internal candidates with Engineering Manager', owner: 'Uma Patel', status: 'planned' },
-            { id: 'ai-6', description: 'Screen Technology talent pool for qualified candidates', owner: 'HR', status: 'planned' },
+            {
+              id: 'ai-4',
+              description: 'Score promotion readiness for Daniel Kim and Rachel Green',
+              status: 'planned',
+              toolCall: 'assess_promotion_readiness',
+              toolParams: { candidates: ['Daniel Kim', 'Rachel Green'], targetRole: 'Senior Software Engineer' },
+            },
+            {
+              id: 'ai-5',
+              description: 'Model org impact of promoting Daniel Kim to Senior Software Engineer',
+              status: 'planned',
+              toolCall: 'analyze_org_impact',
+              toolParams: { scenario: 'promotion', employeeName: 'Daniel Kim', targetRole: 'Senior Software Engineer' },
+            },
+            {
+              id: 'ai-6',
+              description: 'Draft development plan for top internal candidate based on skill gaps',
+              status: 'planned',
+              toolCall: 'draft_development_plan',
+              toolParams: { employeeName: 'Daniel Kim', targetRole: 'Senior Software Engineer' },
+            },
           ],
         },
         {
           id: 'section-3',
-          title: 'Retention & Team Health',
-          description: 'Tony\'s departure signals potential retention risks. His salary was below market midpoint, which may affect other team members.\n\nRecommend:\n- Review compensation for remaining senior engineers\n- Schedule 1:1s with team members to assess morale\n- Address workload distribution concerns',
+          title: 'External Hiring Pipeline',
+          description: 'Launch external hiring track in parallel — post the role and engage the Technology talent pool.',
           actionItems: [
-            { id: 'ai-7', description: 'Run compensation analysis for Technology team', owner: 'HR', status: 'planned' },
-            { id: 'ai-8', description: 'Schedule team morale check-ins', owner: 'Uma Patel', status: 'planned' },
+            {
+              id: 'ai-7',
+              description: 'Create job posting for Senior Software Engineer using role data and pay band',
+              status: 'planned',
+              toolCall: 'create_job_posting',
+              toolParams: { template: 'Senior Software Engineer', department: 'Technology', salaryRange: 'from_pay_band' },
+            },
+            {
+              id: 'ai-8',
+              description: 'Screen Technology talent pool for candidates matching role requirements',
+              status: 'planned',
+              toolCall: 'screen_talent_pool',
+              toolParams: { pool: 'Technology', requirements: { skills: ['React', 'TypeScript', 'Node.js'], minExperience: 5 } },
+            },
+            {
+              id: 'ai-9',
+              description: 'Draft personalized outreach to top-ranked external candidates',
+              status: 'planned',
+              toolCall: 'draft_candidate_outreach',
+              toolParams: { candidates: 'top_ranked', role: 'Senior Software Engineer' },
+            },
           ],
         },
         {
           id: 'section-4',
-          title: 'Timeline',
-          content: '- **Week 1-2:** Immediate actions + job posting\n- **Week 2-3:** Internal candidate interviews\n- **Week 3-4:** External candidate screening\n- **Week 4-6:** Interviews and decision\n- **Week 6-8:** Offer and onboarding',
+          title: 'Retention Actions',
+          description: 'Address compensation gaps and retention risks surfaced in the analysis. Tony\'s below-market salary may signal broader team issues.',
+          actionItems: [
+            {
+              id: 'ai-10',
+              description: 'Draft compensation adjustment proposals for at-risk team members',
+              status: 'planned',
+              toolCall: 'propose_compensation_change',
+              toolParams: { employees: 'flagged_below_midpoint', department: 'Technology', rationale: 'retention_risk' },
+            },
+            {
+              id: 'ai-11',
+              description: 'Generate workforce analytics report on Technology team health',
+              status: 'planned',
+              toolCall: 'generate_report',
+              toolParams: { type: 'team_health', department: 'Technology', metrics: ['turnover', 'tenure', 'comp_ratio', 'flight_risk'] },
+            },
+          ],
         },
       ],
       reviewSteps: [
-        { id: 'rs-1', description: 'Review — Uma Patel', reviewer: 'Uma Patel', status: 'planned' },
-        { id: 'rs-2', description: 'Review — Uma Patel', reviewer: 'Uma Patel', status: 'planned' },
-        { id: 'rs-3', description: 'Review — HR Director', reviewer: 'HR Director', status: 'planned' },
+        { id: 'rs-1', description: 'Review risk assessment findings before proceeding', reviewer: 'Uma Patel', status: 'planned' },
+        { id: 'rs-2', description: 'Confirm internal candidate direction', reviewer: 'Uma Patel', status: 'planned' },
+        { id: 'rs-3', description: 'Approve job posting and outreach before publishing', reviewer: 'Shannon Rivera', status: 'planned' },
       ],
       approvedBy: undefined,
       approvedAt: undefined,
     } as PlanSettings,
-    content: 'Comprehensive plan to backfill Tony Ramirez\'s Senior Software Engineer role, addressing immediate gaps, hiring strategy, and team retention concerns.',
+    content: 'Tool-based backfill plan for Tony Ramirez\'s Senior Software Engineer role. 11 actions across 4 sections: impact analysis, internal candidate evaluation, external hiring pipeline, and retention actions. 3 review gates.',
   },
   {
     id: 'artifact-1',
