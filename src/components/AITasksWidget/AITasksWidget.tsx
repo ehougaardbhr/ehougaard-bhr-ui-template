@@ -1,16 +1,15 @@
 import { Icon } from '../Icon';
+import { useArtifact } from '../../contexts/ArtifactContext';
+import { useChat } from '../../contexts/ChatContext';
+import type { PlanSettings } from '../../data/artifactData';
 
 interface AITask {
   id: string;
   name: string;
   status: 'running' | 'completed' | 'waiting';
   conversationId?: string;
+  progress?: string;
 }
-
-const mockTasks: AITask[] = [
-  { id: '1', name: 'Generating backfill plan', status: 'completed', conversationId: '20' },
-  { id: '2', name: 'Screening talent pool candidates', status: 'running', conversationId: '20' },
-];
 
 const statusConfig = {
   running: {
@@ -31,7 +30,54 @@ const statusConfig = {
 };
 
 export function AITasksWidget() {
-  if (mockTasks.length === 0) {
+  const { artifacts } = useArtifact();
+  const { selectConversation } = useChat();
+
+  // Derive tasks from running/completed plan artifacts
+  const tasks: AITask[] = artifacts
+    .filter(a => a.type === 'plan')
+    .map(artifact => {
+      const settings = artifact.settings as PlanSettings;
+
+      // Calculate progress
+      const allItems = settings.sections.flatMap(s => s.actionItems || []);
+      const doneItems = allItems.filter(i => i.status === 'done');
+      const totalItems = allItems.length;
+
+      // Determine status
+      let status: 'running' | 'completed' | 'waiting';
+      const hasReadyReview = settings.reviewSteps?.some(rs => rs.status === 'ready');
+
+      if (settings.status === 'completed') {
+        status = 'completed';
+      } else if (hasReadyReview) {
+        status = 'waiting';
+      } else if (settings.status === 'running') {
+        status = 'running';
+      } else {
+        return null; // Don't show proposed plans
+      }
+
+      return {
+        id: artifact.id,
+        name: artifact.title,
+        status,
+        conversationId: artifact.conversationId,
+        progress: `${doneItems.length}/${totalItems}`,
+      };
+    })
+    .filter((t): t is AITask => t !== null);
+
+  const handleTaskClick = (task: AITask) => {
+    if (task.conversationId) {
+      selectConversation(task.conversationId);
+      // Open chat panel via localStorage
+      localStorage.setItem('bhr-chat-panel-open', 'true');
+      window.dispatchEvent(new Event('storage'));
+    }
+  };
+
+  if (tasks.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-center py-8">
         <Icon name="sparkles" size={32} className="text-[var(--text-neutral-weak)] mb-3" />
@@ -45,11 +91,12 @@ export function AITasksWidget() {
 
   return (
     <div className="flex flex-col gap-1">
-      {mockTasks.map((task) => {
+      {tasks.map((task) => {
         const config = statusConfig[task.status];
         return (
           <div
             key={task.id}
+            onClick={() => handleTaskClick(task)}
             className="flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-[var(--surface-neutral-xx-weak)] transition-colors cursor-pointer"
           >
             {/* Status indicator */}
@@ -68,10 +115,17 @@ export function AITasksWidget() {
               )}
             </div>
 
-            {/* Task name */}
-            <span className="flex-1 text-sm text-[var(--text-neutral-strong)] truncate">
-              {task.name}
-            </span>
+            {/* Task name + progress */}
+            <div className="flex-1 min-w-0">
+              <span className="text-sm text-[var(--text-neutral-strong)] truncate block">
+                {task.name}
+              </span>
+              {task.progress && (
+                <span className="text-xs text-[var(--text-neutral-weak)]">
+                  {task.progress} complete
+                </span>
+              )}
+            </div>
 
             {/* Status label */}
             <span

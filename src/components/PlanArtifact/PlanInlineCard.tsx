@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from '../Icon';
 import { Button } from '../Button';
 import { useArtifact } from '../../contexts/ArtifactContext';
+import { useAINotifications } from '../../contexts/AINotificationContext';
+import { startPlanExecution, resumePlanExecution } from '../../services/planExecutionService';
 import type { Artifact, PlanSettings, PlanStatus, ActionItem, PlanSection, ReviewStep } from '../../data/artifactData';
 
 // Map section titles to icons based on keywords
@@ -432,6 +434,7 @@ function InlineSectionRow({
 export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
   const navigate = useNavigate();
   const { updateArtifactSettings } = useArtifact();
+  const { addNotification } = useAINotifications();
   const settings = artifact.settings as PlanSettings;
 
   // Track which sections are collapsed (in execution, completed sections collapse by default)
@@ -514,6 +517,9 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
       rs.id === stepId ? { ...rs, status: 'passed' as const } : rs
     );
     updateArtifactSettings(artifact.id, { reviewSteps: updatedReviewSteps });
+
+    // Resume execution after review is passed
+    resumePlanExecution(artifact.id);
   };
 
   const handleApprove = (e: React.MouseEvent) => {
@@ -522,6 +528,12 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
       status: 'running' as PlanStatus,
       approvedBy: 'Current User',
       approvedAt: new Date().toISOString(),
+    });
+
+    // Start execution engine
+    startPlanExecution(artifact.id, artifact.conversationId, settings, {
+      updateArtifactSettings,
+      addNotification,
     });
   };
 
@@ -539,6 +551,12 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
         }
         .review-pulse {
           animation: review-pulse 2.5s ease-in-out infinite;
+        }
+        .plan-progress-bar {
+          transition: width 0.3s ease-out;
+        }
+        .plan-action-item {
+          transition: opacity 0.2s ease-in-out;
         }
       `}</style>
       <div

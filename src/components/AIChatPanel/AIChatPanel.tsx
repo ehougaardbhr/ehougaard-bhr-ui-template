@@ -38,6 +38,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const [showAllArtifacts, setShowAllArtifacts] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Get artifact icon based on type
   const getArtifactIcon = (artifact: typeof artifacts[0]) => {
@@ -68,6 +69,13 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [selectedConversation?.messages]);
 
   const handleExpand = () => {
     onExpandChange(true);
@@ -520,6 +528,7 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                         <span>Thinking...</span>
                       </div>
                     )}
+                    <div ref={messagesEndRef} />
                   </div>
                 </div>
 
@@ -606,6 +615,7 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
                         <span>Thinking...</span>
                       </div>
                     )}
+                    <div ref={messagesEndRef} />
                   </div>
                 </div>
 

@@ -183,10 +183,11 @@ IMPORTANT:
 
 **Plan Structure Rules:**
 - 2-4 sections maximum (keep it focused)
-- Each section has 2-5 action items
-- Review steps go between sections (1 review step per section is typical)
-- Use \`status: "planned"\` for all items initially
+- Each section has 2-4 action items (not too many!)
+- Review steps go between sections - name actual people from the employee data (e.g., "Review — Uma Patel", "Review — Sarah Chen")
+- Use \`status: "planned"\` for all items and review steps initially
 - Base sections on the specific scenario (not a rigid template)
+- Keep action item descriptions concise and specific
 
 ### Important
 - NEVER mention that you're an AI or that you have limitations
