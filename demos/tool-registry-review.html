@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Tool Registry Review</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #f5f5f4;
+    color: #1c1917;
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2e7918;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #78716c;
+    margin-bottom: 32px;
+  }
+  .category {
+    background: white;
+    border: 1px solid #e7e5e4;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+  .category-header {
+    background: #fafaf9;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e7e5e4;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .category-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #44403c;
+  }
+  .category-count {
+    font-size: 12px;
+    color: #a8a29e;
+    font-weight: 500;
+  }
+  .tool-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid #f5f5f4;
+    transition: background 0.1s;
+  }
+  .tool-row:last-child { border-bottom: none; }
+  .tool-row:hover { background: #fafaf9; }
+  .tool-row.unchecked { opacity: 0.4; }
+  .tool-row input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+    accent-color: #2e7918;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .tool-info { flex: 1; }
+  .tool-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1c1917;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .tool-desc {
+    font-size: 13px;
+    color: #78716c;
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+  .status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .status-live { background: #dcfce7; color: #166534; }
+  .status-planned { background: #fef3c7; color: #92400e; }
+  .status-future { background: #e0e7ff; color: #3730a3; }
+  .summary {
+    background: white;
+    border: 1px solid #e7e5e4;
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  .summary-text {
+    font-size: 15px;
+    color: #44403c;
+    font-weight: 500;
+  }
+  .summary-removed {
+    font-size: 13px;
+    color: #dc2626;
+    margin-top: 8px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>AI Agent Tool Registry Review</h1>
+<p class="subtitle">Uncheck any tools that don't belong. Screenshot when done.</p>
+
+<div class="category">
+  <div class="category-header">
+    <span class="category-title">Category 1: Analysis & Insight</span>
+    <span class="category-count" id="cat1-count">17 tools</span>
+  </div>
+  <div id="cat1">
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">analyze_compensation</div><div class="tool-desc">Compare comp to pay bands & market benchmarks. Flag outliers.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">assess_promotion_readiness</div><div class="tool-desc">Score employees on promotion readiness: performance, tenure, comp, skills.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">identify_flight_risks</div><div class="tool-desc">Flag high flight risk based on comp position, tenure, performance.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">analyze_org_impact</div><div class="tool-desc">Model ripple effects of departure/promotion on structure and team.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">screen_talent_pool</div><div class="tool-desc">Search and rank talent pool candidates against role requirements.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">generate_workforce_analytics</div><div class="tool-desc">Headcount, turnover, tenure, comp analytics by dept/location/level.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">analyze_time_off_patterns</div><div class="tool-desc">PTO balance anomalies, employees not taking time off, approaching caps.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">review_pending_approvals</div><div class="tool-desc">Summarize inbox: time-off, expense approvals, onboarding tasks.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">get_whos_out</div><div class="tool-desc">Who is currently out or scheduled out. Coverage planning.</div></div><span class="status-badge status-planned">PLANNED</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">analyze_performance_reviews</div><div class="tool-desc">Review data summary, ratings over time, peer feedback themes.</div></div><span class="status-badge status-planned">PLANNED</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">analyze_training_gaps</div><div class="tool-desc">Missing required training, expiring certs, training needed for promotion.</div></div><span class="status-badge status-planned">PLANNED</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">identify_knowledge_gaps</div><div class="tool-desc">Knowledge silos and single-point-of-failure risks.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">analyze_hiring_velocity</div><div class="tool-desc">Pipeline metrics: time-in-stage, conversion rates, days-to-fill.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">check_compliance_status</div><div class="tool-desc">Overdue training, expiring work auth, missing docs, I-9 reverification.</div></div><span class="status-badge status-planned">PLANNED</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">surface_payroll_exceptions</div><div class="tool-desc">Missing timesheets, overtime spikes, salary changes pending.</div></div><span class="status-badge status-planned">PLANNED</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">analyze_engagement_scores</div><div class="tool-desc">eNPS trends by department/location, open-ended feedback themes.</div></div><span class="status-badge status-future">FUTURE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">analyze_benefits_enrollment</div><div class="tool-desc">Enrollment rates, under-enrolled populations, qualifying life events.</div></div><span class="status-badge status-future">FUTURE</span></div>
+  </div>
+</div>
+
+<div class="category">
+  <div class="category-header">
+    <span class="category-title">Category 2: Draft & Create</span>
+    <span class="category-count" id="cat2-count">7 tools</span>
+  </div>
+  <div id="cat2">
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">create_job_posting</div><div class="tool-desc">Draft job requisition from role data (title, dept, salary, description).</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">draft_candidate_outreach</div><div class="tool-desc">Personalized outreach messages for talent pool candidates.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">generate_report</div><div class="tool-desc">Formatted report artifact (chart, table, text) from analytical results.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">draft_document</div><div class="tool-desc">Text docs: offer summaries, job descriptions, onboarding checklists.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">create_onboarding_checklist</div><div class="tool-desc">Onboarding task list for new hire by role and department.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">propose_compensation_change</div><div class="tool-desc">Draft comp adjustment proposal (amount, rationale, equity analysis).</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">draft_development_plan</div><div class="tool-desc">Personalized dev plan based on promotion gaps and target role.</div></div><span class="status-badge status-live">LIVE</span></div>
+  </div>
+</div>
+
+<div class="category">
+  <div class="category-header">
+    <span class="category-title">Category 3: Workflow Actions</span>
+    <span class="category-count" id="cat3-count">6 tools</span>
+  </div>
+  <div id="cat3">
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">advance_candidate</div><div class="tool-desc">Move candidate to next hiring stage after approval.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">submit_time_off_request</div><div class="tool-desc">Create time-off request on behalf of / recommended to employee.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">update_employee_record</div><div class="tool-desc">Update employee fields (title, dept, location, comp) after approval.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">approve_request</div><div class="tool-desc">Process approval (time-off, expense) after user confirmation.</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">track_onboarding_progress</div><div class="tool-desc">Which new hires completed which steps. Surface blockers.</div></div><span class="status-badge status-planned">PLANNED</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">trigger_offboarding</div><div class="tool-desc">Initiate offboarding: exit interview, equipment, access, COBRA, final pay.</div></div><span class="status-badge status-future">FUTURE</span></div>
+  </div>
+</div>
+
+<div class="category">
+  <div class="category-header">
+    <span class="category-title">Category 4: Notifications & Communication</span>
+    <span class="category-count" id="cat4-count">2 tools</span>
+  </div>
+  <div id="cat4">
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">send_reminder</div><div class="tool-desc">Reminder notification for overdue items (timesheets, approvals, docs).</div></div><span class="status-badge status-live">LIVE</span></div>
+    <div class="tool-row"><input type="checkbox" checked onchange="update(this)"><div class="tool-info"><div class="tool-name">notify_stakeholder</div><div class="tool-desc">Alert a person about a plan outcome or action needed.</div></div><span class="status-badge status-live">LIVE</span></div>
+  </div>
+</div>
+
+<div class="summary">
+  <div class="summary-text" id="summary-text">31 of 31 tools approved</div>
+  <div class="summary-removed" id="summary-removed"></div>
+</div>
+
+<script>
+function update(cb) {
+  const row = cb.closest('.tool-row');
+  row.classList.toggle('unchecked', !cb.checked);
+
+  // Update counts
+  const categories = [
+    { id: 'cat1', countId: 'cat1-count', label: 'tools' },
+    { id: 'cat2', countId: 'cat2-count', label: 'tools' },
+    { id: 'cat3', countId: 'cat3-count', label: 'tools' },
+    { id: 'cat4', countId: 'cat4-count', label: 'tools' },
+  ];
+
+  let totalChecked = 0;
+  let totalAll = 0;
+  const removed = [];
+
+  categories.forEach(cat => {
+    const boxes = document.querySelectorAll(`#${cat.id} input[type="checkbox"]`);
+    const checked = [...boxes].filter(b => b.checked).length;
+    totalChecked += checked;
+    totalAll += boxes.length;
+    document.getElementById(cat.countId).textContent = `${checked}/${boxes.length} ${cat.label}`;
+
+    boxes.forEach(b => {
+      if (!b.checked) {
+        const name = b.closest('.tool-row').querySelector('.tool-name').textContent;
+        removed.push(name);
+      }
+    });
+  });
+
+  document.getElementById('summary-text').textContent = `${totalChecked} of ${totalAll} tools approved`;
+
+  const removedEl = document.getElementById('summary-removed');
+  if (removed.length > 0) {
+    removedEl.style.display = 'block';
+    removedEl.textContent = `Removed: ${removed.join(', ')}`;
+  } else {
+    removedEl.style.display = 'none';
+  }
+}
+</script>
+</body>
+</html>
