@@ -13,8 +13,9 @@ AI-first BambooHR HRIS demo application. Current focus: **EE Backfill Demo** —
 - **Sprint 3 (E2E Wiring):** Complete — plan execution engine, review gates, live widget updates
 
 ## Key Design Decisions
-- **Home Page Redesign:** See PRD section "Plan Artifact UX" (~line 681). Key components: `AutomationsCard`, `AttentionCard`. Read PRD before modifying these.
-- **Plan Artifact UX (v8 final):** See PRD section "Plan Artifact UX — Collapsed Chat View" (~line 681). Mockups: `demos/plan-in-collapsed-chat-v*.html`. Reference screenshots: `demos/Plan Screenshots/`. Read PRD before modifying plan rendering.
+- **AI Agent Design:** See `AI-AGENT-INTENT.md` — defines tool registry, capability constraints, plan architecture, and demo simulation strategy. **Read this before modifying plans, system prompts, or agent behavior.**
+- **Home Page Redesign:** Key components: `AutomationsCard`, `AttentionCard`. Read PRD before modifying these.
+- **Plan Artifact UX (v8 final):** Mockups: `demos/plan-in-collapsed-chat-v*.html`. Reference screenshots: `demos/Plan Screenshots/`. Read PRD before modifying plan rendering.
 - **What's Pending Workshopping:** Expansion content detail, "View All" link destinations, empty states.
 
 ## Design Tokens
