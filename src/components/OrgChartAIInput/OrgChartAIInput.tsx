@@ -92,33 +92,6 @@ export function OrgChartAIInput({
             }
       }
     >
-      {/* Suggestions - only visible when focused */}
-      {isFocused && suggestions.length > 0 && (
-        <div className="flex items-center gap-3">
-          {suggestions.map((suggestion, index) => (
-            <button
-              key={index}
-              onClick={() => handleSuggestionClick(suggestion)}
-              className="
-                flex items-center gap-2
-                h-8 px-3
-                bg-[var(--surface-neutral-white)]
-                border border-[var(--border-neutral-medium)]
-                rounded-full
-                cursor-pointer
-                transition-colors
-                hover:bg-[var(--surface-neutral-xx-weak)]
-              "
-              style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
-            >
-              <span className="text-[13px] font-semibold leading-[19px] text-[var(--text-neutral-strong)]">
-                {suggestion.label}
-              </span>
-            </button>
-          ))}
-        </div>
-      )}
-
       {/* Input Field */}
       <div
         className="
@@ -173,6 +146,33 @@ export function OrgChartAIInput({
           </button>
         </div>
       </div>
+
+      {/* Suggestions - always visible, positioned below input */}
+      {suggestions.length > 0 && (
+        <div className="flex items-center gap-3">
+          {suggestions.map((suggestion, index) => (
+            <button
+              key={index}
+              onClick={() => handleSuggestionClick(suggestion)}
+              className="
+                flex items-center gap-2
+                h-8 px-3
+                bg-[var(--surface-neutral-white)]
+                border border-[var(--border-neutral-medium)]
+                rounded-full
+                cursor-pointer
+                transition-colors
+                hover:bg-[var(--surface-neutral-xx-weak)]
+              "
+              style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
+            >
+              <span className="text-[13px] font-semibold leading-[19px] text-[var(--text-neutral-strong)]">
+                {suggestion.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
