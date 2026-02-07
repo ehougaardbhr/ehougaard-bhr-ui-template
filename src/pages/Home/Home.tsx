@@ -1,6 +1,5 @@
-import { Avatar, Button, TextHeadline, Gridlet } from '../../components';
+import { Avatar, Button, TextHeadline, Gridlet, AutomationsCard, AttentionCard } from '../../components';
 import { OrgChartAIInput } from '../../components/OrgChartAIInput';
-import { AITasksWidget } from '../../components/AITasksWidget';
 import { useChat } from '../../contexts/ChatContext';
 import { useChatSend } from '../../hooks/useChatSend';
 import avatarLarge from '../../assets/images/avatar-large.png';
@@ -69,6 +68,26 @@ export function Home() {
         </Button>
       </div>
 
+      {/* AI Input — centered under profile */}
+      <div className="max-w-3xl mx-auto mb-8">
+        <OrgChartAIInput
+          placeholder="Ask me anything..."
+          suggestions={[
+            { label: 'Backfill plan for Tony Ramirez' },
+            { label: 'Show me the org chart' },
+            { label: 'Review team headcount' },
+          ]}
+          onSubmit={handleSubmit}
+          onSuggestionClick={(suggestion) => handleSubmit(suggestion.label)}
+        />
+      </div>
+
+      {/* Activity Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-8">
+        <AutomationsCard />
+        <AttentionCard />
+      </div>
+
       {/* Gridlet Dashboard */}
       <div
         className="grid gap-5"
@@ -96,23 +115,6 @@ export function Home() {
         {/* Row 4 */}
         <Gridlet title="Starting soon" minHeight={332} />
         <Gridlet title="Company links" minHeight={332} />
-        <Gridlet title="AI Tasks" icon="sparkles" minHeight={332}>
-          <AITasksWidget />
-        </Gridlet>
-      </div>
-
-      {/* Floating AI Input */}
-      <div className="sticky bottom-6 mt-6 max-w-2xl mx-auto z-30">
-        <OrgChartAIInput
-          placeholder="Ask me anything..."
-          suggestions={[
-            { label: 'Backfill plan for Tony Ramirez' },
-            { label: 'Show me the org chart' },
-            { label: 'Review team headcount' },
-          ]}
-          onSubmit={handleSubmit}
-          onSuggestionClick={(suggestion) => handleSubmit(suggestion.label)}
-        />
       </div>
     </div>
   );

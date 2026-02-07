@@ -33,3 +33,5 @@ export { SuccessNotification } from './SuccessNotification';
 export { JobLocationOption } from './JobLocationOption';
 export { JobWizardSidebar } from './JobWizardSidebar';
 export { JobInformationForm } from './JobInformationForm';
+export { AutomationsCard } from './AutomationsCard';
+export { AttentionCard } from './AttentionCard';
