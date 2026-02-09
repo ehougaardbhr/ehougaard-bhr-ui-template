@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Detail Page — Activity Hub</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --icon-neutral-xx-strong: #292524;
+
+      --color-queued: #A8A29E;
+      --color-queued-light: #F5F3F2;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-review: #2e7918;
+      --color-review-light: #E8F5E3;
+      --color-review-strong: #256314;
+      --color-awaiting: #D97706;
+      --color-awaiting-light: #FEF3C7;
+      --color-proposed: #7C3AED;
+      --color-proposed-light: #EDE9FE;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0EDEB;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* ==============================
+       Top nav bar (simulates BHR app)
+       ============================== */
+    .top-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; padding: 0 32px; height: 56px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .top-nav .breadcrumb {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 14px; color: var(--text-neutral-medium);
+    }
+    .top-nav .breadcrumb a {
+      color: var(--color-primary); text-decoration: none; font-weight: 500;
+    }
+    .top-nav .breadcrumb a:hover { text-decoration: underline; }
+    .top-nav .breadcrumb .sep { color: var(--text-neutral-weak); }
+    .top-nav .breadcrumb .current { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    /* ==============================
+       Page layout
+       ============================== */
+    .page-container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+    }
+
+    /* ==============================
+       Plan header
+       ============================== */
+    .plan-header {
+      background: var(--surface-neutral-white);
+      border-radius: 16px;
+      border: 1px solid var(--border-neutral-weak);
+      padding: 24px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .plan-header-top {
+      display: flex; align-items: flex-start; gap: 16px; margin-bottom: 16px;
+    }
+    .plan-header-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: var(--color-primary-light);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-primary); font-size: 18px; flex-shrink: 0;
+    }
+    .plan-header-info { flex: 1; }
+    .plan-header-info h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+    .plan-header-meta {
+      display: flex; align-items: center; gap: 16px;
+      font-size: 13px; color: var(--text-neutral-medium);
+    }
+    .plan-header-meta .meta-item {
+      display: flex; align-items: center; gap: 5px;
+    }
+    .plan-header-meta .meta-item i { font-size: 11px; }
+    .plan-header-actions {
+      display: flex; gap: 8px; flex-shrink: 0;
+    }
+
+    /* Progress summary strip */
+    .progress-summary {
+      display: flex; align-items: center; gap: 20px;
+      padding: 16px 0 0;
+      border-top: 1px solid var(--border-neutral-weak);
+    }
+    .progress-bar-wide {
+      flex: 1; height: 6px; border-radius: 3px;
+      background: #E7E5E4; overflow: hidden;
+    }
+    .progress-bar-wide .fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+    .progress-stats {
+      display: flex; gap: 20px; flex-shrink: 0;
+    }
+    .progress-stat {
+      text-align: center;
+    }
+    .progress-stat .stat-value { font-size: 20px; font-weight: 700; line-height: 1; }
+    .progress-stat .stat-label { font-size: 11px; color: var(--text-neutral-medium); margin-top: 2px; }
+
+    /* ==============================
+       Tabs
+       ============================== */
+    .tab-row {
+      display: flex; gap: 0; margin-bottom: 24px;
+      border-bottom: 2px solid var(--border-neutral-weak);
+    }
+    .tab {
+      padding: 10px 20px; font-size: 13px; font-weight: 600;
+      color: var(--text-neutral-medium); cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.15s ease;
+    }
+    .tab:hover { color: var(--text-neutral-strong); }
+    .tab.active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+    .tab .tab-count {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px; border-radius: 9px;
+      background: var(--surface-neutral-x-weak);
+      font-size: 11px; font-weight: 600; padding: 0 5px;
+      margin-left: 6px; color: var(--text-neutral-medium);
+    }
+    .tab.active .tab-count {
+      background: var(--color-primary-light);
+      color: var(--color-primary);
+    }
+
+    /* ==============================
+       Content panels
+       ============================== */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* ==============================
+       Timeline
+       ============================== */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 11px; top: 0; bottom: 0;
+      width: 2px; background: var(--border-neutral-weak);
+    }
+    .tl-section {
+      margin-bottom: 8px;
+    }
+    .tl-section-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0 6px;
+      position: relative;
+    }
+    .tl-section-dot {
+      position: absolute; left: -28px;
+      width: 22px; height: 22px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; z-index: 1;
+    }
+    .tl-section-dot.done { background: var(--color-done-light); color: var(--color-done); }
+    .tl-section-dot.working { background: var(--color-working-light); color: var(--color-working); }
+    .tl-section-dot.queued { background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak); }
+    .tl-section-title { font-size: 14px; font-weight: 600; flex: 1; }
+    .tl-section-time { font-size: 11px; color: var(--text-neutral-weak); }
+
+    .tl-item {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      margin-left: 4px;
+      position: relative;
+      transition: box-shadow 0.15s ease;
+    }
+    .tl-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .tl-item-header {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tl-item-icon {
+      width: 20px; height: 20px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; flex-shrink: 0;
+    }
+    .tl-item-icon.done { background: var(--color-done-light); color: var(--color-done); }
+    .tl-item-icon.working { background: var(--color-working-light); color: var(--color-working); }
+    .tl-item-icon.queued { background: var(--color-queued-light); color: var(--color-queued); border: 1.5px solid var(--color-queued); }
+    .tl-item-icon.planned { background: transparent; border: 1.5px solid #D6D3D1; }
+    .tl-item-title {
+      flex: 1; font-size: 13px; font-weight: 500;
+    }
+    .tl-item-title.done { color: var(--text-neutral-medium); }
+    .tl-item-time { font-size: 11px; color: var(--text-neutral-weak); }
+
+    /* Item output (what the tool produced) */
+    .tl-item-output {
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--border-neutral-weak);
+    }
+    .tl-item-output-label {
+      font-size: 11px; font-weight: 600; color: var(--text-neutral-medium);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .tl-item-output-content {
+      font-size: 12px; line-height: 1.6; color: var(--text-neutral-strong);
+    }
+    .tl-item-output-content ul {
+      padding-left: 16px; margin: 4px 0;
+    }
+    .tl-item-output-content li { margin-bottom: 2px; }
+
+    /* Artifact link chip */
+    .artifact-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 5px 12px; border-radius: 8px;
+      background: var(--surface-neutral-xx-weak);
+      border: 1px solid var(--border-neutral-weak);
+      font-size: 12px; font-weight: 500; color: var(--text-neutral-strong);
+      cursor: pointer; margin-top: 8px;
+      transition: all 0.15s ease;
+    }
+    .artifact-chip:hover {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+    .artifact-chip i { font-size: 11px; }
+
+    /* Review gate in timeline */
+    .tl-review {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      margin-left: 4px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .tl-review.ready {
+      border-color: var(--color-awaiting);
+      background: #FFFBEB;
+    }
+    .tl-review.passed {
+      border-color: var(--color-done-light);
+    }
+    .tl-review-icon {
+      width: 24px; height: 24px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; flex-shrink: 0;
+    }
+    .tl-review-icon.passed { background: var(--color-done-light); color: var(--color-done); }
+    .tl-review-icon.ready { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .tl-review-icon.future { background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak); }
+    .tl-review-info { flex: 1; }
+    .tl-review-label { font-size: 13px; font-weight: 500; }
+    .tl-review-label.ready { color: var(--color-awaiting); }
+    .tl-review-sublabel { font-size: 11px; color: var(--text-neutral-weak); margin-top: 1px; }
+    .tl-review-action { flex-shrink: 0; }
+
+    @keyframes pulse-amber { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,119,6,0.3); } 50% { box-shadow: 0 0 0 6px rgba(217,119,6,0); } }
+
+    /* ==============================
+       Artifacts tab
+       ============================== */
+    .artifact-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .artifact-card {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px;
+      padding: 16px 20px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .artifact-card:hover {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      border-color: var(--border-neutral-medium);
+    }
+    .artifact-card-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 10px;
+    }
+    .artifact-card-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .artifact-card-icon.text { background: #DBEAFE; color: #2563EB; }
+    .artifact-card-icon.chart { background: #EDE9FE; color: #7C3AED; }
+    .artifact-card-icon.report { background: var(--color-primary-light); color: var(--color-primary); }
+    .artifact-card-title { font-size: 14px; font-weight: 600; }
+    .artifact-card-desc {
+      font-size: 12px; color: var(--text-neutral-medium);
+      line-height: 1.5; margin-bottom: 10px;
+    }
+    .artifact-card-meta {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 11px; color: var(--text-neutral-weak);
+    }
+    .artifact-card-meta .meta-dot {
+      width: 3px; height: 3px; border-radius: 50%; background: var(--text-neutral-weak);
+    }
+
+    /* ==============================
+       Decisions tab
+       ============================== */
+    .decision-list { display: flex; flex-direction: column; gap: 10px; }
+    .decision-card {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+    .decision-card-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 8px;
+    }
+    .decision-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; flex-shrink: 0;
+    }
+    .decision-icon.approved { background: var(--color-done-light); color: var(--color-done); }
+    .decision-icon.pending { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .decision-title { font-size: 14px; font-weight: 600; flex: 1; }
+    .decision-time { font-size: 11px; color: var(--text-neutral-weak); }
+    .decision-body { font-size: 13px; line-height: 1.6; color: var(--text-neutral-strong); }
+    .decision-reviewer {
+      display: flex; align-items: center; gap: 8px;
+      margin-top: 10px; padding-top: 10px;
+      border-top: 1px solid var(--border-neutral-weak);
+      font-size: 12px; color: var(--text-neutral-medium);
+    }
+    .decision-reviewer-avatar {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--color-primary-light); color: var(--color-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; font-weight: 700;
+    }
+
+    /* ==============================
+       Badges
+       ============================== */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    }
+    .badge-running { background: var(--color-working-light); color: var(--color-working); }
+    .badge-completed { background: var(--color-done-light); color: var(--color-done); }
+    .badge-paused { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+
+    /* ==============================
+       Buttons
+       ============================== */
+    .btn {
+      padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      border: none; cursor: pointer; text-align: center;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-outline {
+      background: var(--surface-neutral-white);
+      color: var(--text-neutral-strong);
+      border: 1px solid var(--border-neutral-medium);
+    }
+    .btn-outline:hover { background: var(--surface-neutral-xx-weak); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-primary:hover { background: var(--color-review-strong); }
+    .btn-amber { background: var(--color-awaiting); color: white; }
+    .btn-amber:hover { background: #B45309; }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 10px; height: 10px;
+      border: 2px solid var(--color-working-light);
+      border-top-color: var(--color-working);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* ==============================
+       State toggle
+       ============================== */
+    .state-toggle {
+      display: flex; justify-content: center; gap: 8px;
+      margin-bottom: 32px;
+    }
+    .state-toggle .toggle-btn {
+      padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-medium); cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .state-toggle .toggle-btn.active {
+      background: var(--text-neutral-xx-strong); color: white;
+      border-color: var(--text-neutral-xx-strong);
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+  </style>
+</head>
+<body>
+
+<!-- ====== TOP NAV ====== -->
+<div class="top-nav">
+  <div class="breadcrumb">
+    <a href="#"><i class="fa-solid fa-house" style="font-size:12px;"></i></a>
+    <span class="sep"><i class="fa-solid fa-chevron-right" style="font-size:9px;"></i></span>
+    <a href="#">Activity</a>
+    <span class="sep"><i class="fa-solid fa-chevron-right" style="font-size:9px;"></i></span>
+    <span class="current">Backfill Plan for Tony Ramirez</span>
+  </div>
+</div>
+
+<!-- ====== STATE TOGGLE (for demo purposes) ====== -->
+<div style="padding-top: 24px;">
+  <div class="state-toggle">
+    <button class="toggle-btn active" onclick="showView('running')">Mid-Execution</button>
+    <button class="toggle-btn" onclick="showView('completed')">Completed</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     VIEW 1: MID-EXECUTION (paused at review gate)
+     ============================================================ -->
+<div class="view active" id="view-running">
+<div class="page-container">
+
+  <!-- Plan Header -->
+  <div class="plan-header">
+    <div class="plan-header-top">
+      <div class="plan-header-icon">
+        <i class="fa-solid fa-clipboard-list"></i>
+      </div>
+      <div class="plan-header-info">
+        <h1>Backfill Plan for Tony Ramirez</h1>
+        <div class="plan-header-meta">
+          <span class="badge badge-paused"><i class="fa-solid fa-hand"></i> Needs Your Review</span>
+          <div class="meta-item"><i class="fa-regular fa-clock"></i> Started 12 min ago</div>
+          <div class="meta-item"><i class="fa-regular fa-comment"></i> <a href="#" style="color: var(--color-primary); text-decoration: none;">Open in chat</a></div>
+        </div>
+      </div>
+      <div class="plan-header-actions">
+        <button class="btn btn-outline btn-sm"><i class="fa-solid fa-pause"></i> Pause</button>
+        <button class="btn btn-outline btn-sm"><i class="fa-solid fa-ellipsis"></i></button>
+      </div>
+    </div>
+    <div class="progress-summary">
+      <div class="progress-bar-wide">
+        <div class="fill" style="width: 43%; background: var(--color-working);"></div>
+      </div>
+      <div class="progress-stats">
+        <div class="progress-stat">
+          <div class="stat-value" style="color: var(--color-done);">3</div>
+          <div class="stat-label">Done</div>
+        </div>
+        <div class="progress-stat">
+          <div class="stat-value" style="color: var(--color-awaiting);">1</div>
+          <div class="stat-label">Awaiting</div>
+        </div>
+        <div class="progress-stat">
+          <div class="stat-value" style="color: var(--text-neutral-weak);">3</div>
+          <div class="stat-label">Queued</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-row">
+    <div class="tab active" onclick="switchTab(this, 'timeline-running')"><i class="fa-solid fa-timeline" style="margin-right:5px;font-size:11px;"></i> Timeline</div>
+    <div class="tab" onclick="switchTab(this, 'artifacts-running')"><i class="fa-solid fa-layer-group" style="margin-right:5px;font-size:11px;"></i> Artifacts <span class="tab-count">2</span></div>
+    <div class="tab" onclick="switchTab(this, 'decisions-running')"><i class="fa-solid fa-scale-balanced" style="margin-right:5px;font-size:11px;"></i> Decisions <span class="tab-count">1</span></div>
+  </div>
+
+  <!-- Timeline tab (running) -->
+  <div class="tab-content active" id="timeline-running">
+    <div class="timeline">
+
+      <!-- Section 1: Completed -->
+      <div class="tl-section">
+        <div class="tl-section-header">
+          <div class="tl-section-dot done"><i class="fa-solid fa-check"></i></div>
+          <div class="tl-section-title">Compensation & Risk Analysis</div>
+          <div class="tl-section-time">Done in 2 min</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Analyze compensation for Technology department</div>
+            <div class="tl-item-time">10:23 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="tl-item-output-label">Output</div>
+            <div class="tl-item-output-content">
+              <ul>
+                <li>Daniel Kim: $118K — <strong>15% below midpoint</strong> ($135K) for Senior SE band</li>
+                <li>Rachel Green: $105K — 8% below midpoint, highest performance rating on team</li>
+                <li>Team avg compa-ratio: 0.87 (below target 0.95–1.05)</li>
+              </ul>
+            </div>
+            <div class="artifact-chip"><i class="fa-solid fa-chart-bar"></i> Compensation Analysis Report</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Identify flight risks on Uma Patel's team</div>
+            <div class="tl-item-time">10:24 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="tl-item-output-label">Output</div>
+            <div class="tl-item-output-content">
+              <ul>
+                <li><strong>Daniel Kim — HIGH risk:</strong> Underpaid, 4.2 yrs tenure (flight risk window), no promotion in 2 yrs</li>
+                <li>Rachel Green — MEDIUM risk: Below-band comp, strong performer (attractive to competitors)</li>
+                <li>James Liu — LOW risk: Promoted recently, comp at midpoint</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Analyze org impact of Tony Ramirez's departure</div>
+            <div class="tl-item-time">10:25 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="tl-item-output-label">Output</div>
+            <div class="tl-item-output-content">
+              <ul>
+                <li>Team drops from 5 to 4 engineers (Uma's span of control: 8→7)</li>
+                <li>2 active projects lose lead engineer — API Gateway and Mobile SDK</li>
+                <li>Only person with AWS certification on team — knowledge gap</li>
+              </ul>
+            </div>
+            <div class="artifact-chip"><i class="fa-solid fa-sitemap"></i> Org Impact Assessment</div>
+          </div>
+        </div>
+
+        <!-- Review gate: passed -->
+        <div class="tl-review passed">
+          <div class="tl-review-icon passed"><i class="fa-solid fa-check"></i></div>
+          <div class="tl-review-info">
+            <div class="tl-review-label">Review findings with Uma Patel before proceeding</div>
+            <div class="tl-review-sublabel"><i class="fa-regular fa-circle-check"></i> Approved by You — 10:27 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: In progress, paused at review -->
+      <div class="tl-section">
+        <div class="tl-section-header">
+          <div class="tl-section-dot working"><span class="spinner" style="width:14px;height:14px;border-width:2px;"></span></div>
+          <div class="tl-section-title">Internal Candidate Assessment</div>
+          <div class="tl-section-time">In progress</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Assess promotion readiness for Daniel Kim & Rachel Green</div>
+            <div class="tl-item-time">10:28 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="tl-item-output-label">Output</div>
+            <div class="tl-item-output-content">
+              <ul>
+                <li><strong>Daniel Kim: 82/100</strong> — Strong technical skills, exceeds expectations, ready for Senior SE. Gap: no mentorship experience.</li>
+                <li><strong>Rachel Green: 71/100</strong> — High performer, needs 6-12 more months. Gap: project lead experience.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Model org impact if Daniel Kim promoted to Senior SE</div>
+            <div class="tl-item-time">10:29 AM</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Draft development plan for Daniel Kim</div>
+            <div class="tl-item-time">10:29 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="tl-item-output-label">Artifact created</div>
+            <div class="artifact-chip"><i class="fa-solid fa-file-lines"></i> Daniel Kim — Development Plan (Senior SE Track)</div>
+          </div>
+        </div>
+
+        <!-- Review gate: WAITING -->
+        <div class="tl-review ready" style="animation: pulse-amber 2.5s ease-in-out infinite;">
+          <div class="tl-review-icon ready"><i class="fa-solid fa-hand"></i></div>
+          <div class="tl-review-info">
+            <div class="tl-review-label ready">Confirm internal candidate direction</div>
+            <div class="tl-review-sublabel">Waiting for Uma Patel's review</div>
+          </div>
+          <div class="tl-review-action">
+            <button class="btn btn-amber btn-sm"><i class="fa-solid fa-eye"></i> Review Now</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Queued -->
+      <div class="tl-section">
+        <div class="tl-section-header">
+          <div class="tl-section-dot queued"><i class="fa-solid fa-clock" style="font-size:8px;"></i></div>
+          <div class="tl-section-title" style="color: var(--text-neutral-weak);">External Hiring Pipeline</div>
+          <div class="tl-section-time" style="color: var(--text-neutral-weak);">Queued</div>
+        </div>
+
+        <div class="tl-item" style="opacity: 0.5;">
+          <div class="tl-item-header">
+            <div class="tl-item-icon planned"></div>
+            <div class="tl-item-title" style="color: var(--text-neutral-weak);">Create job posting for Senior Software Engineer</div>
+          </div>
+        </div>
+        <div class="tl-item" style="opacity: 0.5;">
+          <div class="tl-item-header">
+            <div class="tl-item-icon planned"></div>
+            <div class="tl-item-title" style="color: var(--text-neutral-weak);">Screen talent pool candidates</div>
+          </div>
+        </div>
+        <div class="tl-item" style="opacity: 0.5;">
+          <div class="tl-item-header">
+            <div class="tl-item-icon planned"></div>
+            <div class="tl-item-title" style="color: var(--text-neutral-weak);">Draft candidate outreach for top matches</div>
+          </div>
+        </div>
+
+        <div class="tl-review" style="opacity: 0.5;">
+          <div class="tl-review-icon future"><i class="fa-solid fa-eye"></i></div>
+          <div class="tl-review-info">
+            <div class="tl-review-label" style="color: var(--text-neutral-weak);">Approve job posting and outreach before publishing</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Artifacts tab (running) -->
+  <div class="tab-content" id="artifacts-running">
+    <div class="artifact-grid">
+      <div class="artifact-card">
+        <div class="artifact-card-header">
+          <div class="artifact-card-icon chart"><i class="fa-solid fa-chart-bar"></i></div>
+          <div class="artifact-card-title">Compensation Analysis Report</div>
+        </div>
+        <div class="artifact-card-desc">Pay band analysis for Technology department. Highlights Daniel Kim at 15% below midpoint and team compa-ratio of 0.87.</div>
+        <div class="artifact-card-meta">
+          <span>Chart</span>
+          <div class="meta-dot"></div>
+          <span>Created 10:23 AM</span>
+          <div class="meta-dot"></div>
+          <span>Section 1, Item 1</span>
+        </div>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-card-header">
+          <div class="artifact-card-icon report"><i class="fa-solid fa-sitemap"></i></div>
+          <div class="artifact-card-title">Org Impact Assessment</div>
+        </div>
+        <div class="artifact-card-desc">Impact analysis of Tony Ramirez's departure on Uma Patel's team. 2 projects affected, AWS certification gap identified.</div>
+        <div class="artifact-card-meta">
+          <span>Report</span>
+          <div class="meta-dot"></div>
+          <span>Created 10:25 AM</span>
+          <div class="meta-dot"></div>
+          <span>Section 1, Item 3</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decisions tab (running) -->
+  <div class="tab-content" id="decisions-running">
+    <div class="decision-list">
+      <div class="decision-card">
+        <div class="decision-card-header">
+          <div class="decision-icon approved"><i class="fa-solid fa-check"></i></div>
+          <div class="decision-title">Proceed with internal candidate assessment</div>
+          <div class="decision-time">10:27 AM</div>
+        </div>
+        <div class="decision-body">
+          Reviewed compensation analysis and flight risk data. Confirmed Daniel Kim as primary internal candidate to assess for Tony's Senior SE role. Uma Patel acknowledged team retention risk.
+        </div>
+        <div class="decision-reviewer">
+          <div class="decision-reviewer-avatar">YO</div>
+          <span>Approved by <strong>You</strong> at Review Gate 1</span>
+        </div>
+      </div>
+
+      <div class="decision-card" style="border-color: var(--color-awaiting); border-style: dashed;">
+        <div class="decision-card-header">
+          <div class="decision-icon pending"><i class="fa-solid fa-hand"></i></div>
+          <div class="decision-title">Confirm internal candidate direction</div>
+          <div class="decision-time">Waiting</div>
+        </div>
+        <div class="decision-body">
+          Daniel Kim scored 82/100 on promotion readiness. Development plan drafted. Waiting for Uma Patel to confirm the internal promotion path before starting external hiring.
+        </div>
+        <div class="decision-reviewer">
+          <div class="decision-reviewer-avatar" style="background:var(--color-awaiting-light);color:var(--color-awaiting);">UP</div>
+          <span>Pending review from <strong>Uma Patel</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<!-- ============================================================
+     VIEW 2: COMPLETED
+     ============================================================ -->
+<div class="view" id="view-completed">
+<div class="page-container">
+
+  <!-- Plan Header -->
+  <div class="plan-header">
+    <div class="plan-header-top">
+      <div class="plan-header-icon" style="background: var(--color-done-light); color: var(--color-done);">
+        <i class="fa-solid fa-clipboard-check"></i>
+      </div>
+      <div class="plan-header-info">
+        <h1>Backfill Plan for Tony Ramirez</h1>
+        <div class="plan-header-meta">
+          <span class="badge badge-completed"><i class="fa-solid fa-check"></i> Completed</span>
+          <div class="meta-item"><i class="fa-regular fa-clock"></i> Completed in 47 min</div>
+          <div class="meta-item"><i class="fa-regular fa-calendar"></i> Jan 15, 2026</div>
+          <div class="meta-item"><i class="fa-regular fa-comment"></i> <a href="#" style="color: var(--color-primary); text-decoration: none;">View conversation</a></div>
+        </div>
+      </div>
+      <div class="plan-header-actions">
+        <button class="btn btn-outline btn-sm"><i class="fa-solid fa-arrow-rotate-left"></i> Re-run</button>
+        <button class="btn btn-outline btn-sm"><i class="fa-solid fa-ellipsis"></i></button>
+      </div>
+    </div>
+    <div class="progress-summary">
+      <div class="progress-bar-wide">
+        <div class="fill" style="width: 100%; background: var(--color-done);"></div>
+      </div>
+      <div class="progress-stats">
+        <div class="progress-stat">
+          <div class="stat-value" style="color: var(--color-done);">7</div>
+          <div class="stat-label">Done</div>
+        </div>
+        <div class="progress-stat">
+          <div class="stat-value" style="color: var(--color-done);">3</div>
+          <div class="stat-label">Reviews</div>
+        </div>
+        <div class="progress-stat">
+          <div class="stat-value" style="color: var(--color-primary);">5</div>
+          <div class="stat-label">Artifacts</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tab-row">
+    <div class="tab active" onclick="switchTab(this, 'timeline-completed')"><i class="fa-solid fa-timeline" style="margin-right:5px;font-size:11px;"></i> Timeline</div>
+    <div class="tab" onclick="switchTab(this, 'artifacts-completed')"><i class="fa-solid fa-layer-group" style="margin-right:5px;font-size:11px;"></i> Artifacts <span class="tab-count">5</span></div>
+    <div class="tab" onclick="switchTab(this, 'decisions-completed')"><i class="fa-solid fa-scale-balanced" style="margin-right:5px;font-size:11px;"></i> Decisions <span class="tab-count">3</span></div>
+  </div>
+
+  <!-- Timeline tab (completed) -->
+  <div class="tab-content active" id="timeline-completed">
+    <div class="timeline">
+
+      <!-- Section 1 -->
+      <div class="tl-section">
+        <div class="tl-section-header">
+          <div class="tl-section-dot done"><i class="fa-solid fa-check"></i></div>
+          <div class="tl-section-title">Compensation & Risk Analysis</div>
+          <div class="tl-section-time">10:23–10:27 AM</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Analyze compensation for Technology department</div>
+            <div class="tl-item-time">10:23 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="tl-item-output-label">Key findings</div>
+            <div class="tl-item-output-content">
+              Daniel Kim 15% below midpoint. Team compa-ratio 0.87.
+            </div>
+            <div class="artifact-chip"><i class="fa-solid fa-chart-bar"></i> Compensation Analysis Report</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Identify flight risks on Uma Patel's team</div>
+            <div class="tl-item-time">10:24 AM</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Analyze org impact of Tony Ramirez's departure</div>
+            <div class="tl-item-time">10:25 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="artifact-chip"><i class="fa-solid fa-sitemap"></i> Org Impact Assessment</div>
+          </div>
+        </div>
+
+        <div class="tl-review passed">
+          <div class="tl-review-icon passed"><i class="fa-solid fa-check"></i></div>
+          <div class="tl-review-info">
+            <div class="tl-review-label">Review findings with Uma Patel</div>
+            <div class="tl-review-sublabel"><i class="fa-regular fa-circle-check"></i> Approved by You — 10:27 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="tl-section">
+        <div class="tl-section-header">
+          <div class="tl-section-dot done"><i class="fa-solid fa-check"></i></div>
+          <div class="tl-section-title">Internal Candidate Assessment</div>
+          <div class="tl-section-time">10:28–10:38 AM</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Assess promotion readiness for Daniel Kim & Rachel Green</div>
+            <div class="tl-item-time">10:28 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="tl-item-output-label">Key findings</div>
+            <div class="tl-item-output-content">Daniel Kim: 82/100 (ready). Rachel Green: 71/100 (6-12 months).</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Model org impact if Daniel Kim promoted to Senior SE</div>
+            <div class="tl-item-time">10:29 AM</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Draft development plan for Daniel Kim</div>
+            <div class="tl-item-time">10:29 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="artifact-chip"><i class="fa-solid fa-file-lines"></i> Daniel Kim — Development Plan (Senior SE Track)</div>
+          </div>
+        </div>
+
+        <div class="tl-review passed">
+          <div class="tl-review-icon passed"><i class="fa-solid fa-check"></i></div>
+          <div class="tl-review-info">
+            <div class="tl-review-label">Confirm internal candidate direction</div>
+            <div class="tl-review-sublabel"><i class="fa-regular fa-circle-check"></i> Approved by Uma Patel — 10:38 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="tl-section">
+        <div class="tl-section-header">
+          <div class="tl-section-dot done"><i class="fa-solid fa-check"></i></div>
+          <div class="tl-section-title">External Hiring Pipeline</div>
+          <div class="tl-section-time">10:39–10:52 AM</div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Create job posting for Senior Software Engineer</div>
+            <div class="tl-item-time">10:39 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="artifact-chip"><i class="fa-solid fa-briefcase"></i> Job Posting — Senior Software Engineer</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Screen talent pool candidates</div>
+            <div class="tl-item-time">10:41 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="tl-item-output-label">Key findings</div>
+            <div class="tl-item-output-content">5 candidates screened. Top 3: Sarah Chen (94/100), Marcus Johnson (88/100), Alex Rivera (85/100).</div>
+          </div>
+        </div>
+
+        <div class="tl-item">
+          <div class="tl-item-header">
+            <div class="tl-item-icon done"><i class="fa-solid fa-check"></i></div>
+            <div class="tl-item-title done">Draft candidate outreach for top 3 matches</div>
+            <div class="tl-item-time">10:44 AM</div>
+          </div>
+          <div class="tl-item-output">
+            <div class="artifact-chip"><i class="fa-solid fa-envelope"></i> Outreach Messages (3 candidates)</div>
+          </div>
+        </div>
+
+        <div class="tl-review passed">
+          <div class="tl-review-icon passed"><i class="fa-solid fa-check"></i></div>
+          <div class="tl-review-info">
+            <div class="tl-review-label">Approve job posting and outreach before publishing</div>
+            <div class="tl-review-sublabel"><i class="fa-regular fa-circle-check"></i> Approved by You — 10:52 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Completion banner -->
+      <div style="margin-top: 12px; padding: 16px 20px; background: var(--color-done-light); border-radius: 12px; display: flex; align-items: center; gap: 12px;">
+        <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--color-done); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px;">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div>
+          <div style="font-size: 14px; font-weight: 600; color: var(--color-done);">Plan completed</div>
+          <div style="font-size: 12px; color: var(--text-neutral-strong);">All 7 items executed, 3 review gates passed, 5 artifacts created</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Artifacts tab (completed) -->
+  <div class="tab-content" id="artifacts-completed">
+    <div class="artifact-grid">
+      <div class="artifact-card">
+        <div class="artifact-card-header">
+          <div class="artifact-card-icon chart"><i class="fa-solid fa-chart-bar"></i></div>
+          <div class="artifact-card-title">Compensation Analysis Report</div>
+        </div>
+        <div class="artifact-card-desc">Pay band analysis for Technology department. Daniel Kim 15% below midpoint, team compa-ratio 0.87.</div>
+        <div class="artifact-card-meta">
+          <span>Chart</span>
+          <div class="meta-dot"></div>
+          <span>10:23 AM</span>
+        </div>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-card-header">
+          <div class="artifact-card-icon report"><i class="fa-solid fa-sitemap"></i></div>
+          <div class="artifact-card-title">Org Impact Assessment</div>
+        </div>
+        <div class="artifact-card-desc">Departure impact analysis. 2 projects affected, AWS certification gap, span of control change.</div>
+        <div class="artifact-card-meta">
+          <span>Report</span>
+          <div class="meta-dot"></div>
+          <span>10:25 AM</span>
+        </div>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-card-header">
+          <div class="artifact-card-icon text"><i class="fa-solid fa-file-lines"></i></div>
+          <div class="artifact-card-title">Daniel Kim — Development Plan</div>
+        </div>
+        <div class="artifact-card-desc">Senior SE promotion track. Mentorship program, project lead rotation, AWS certification pathway.</div>
+        <div class="artifact-card-meta">
+          <span>Document</span>
+          <div class="meta-dot"></div>
+          <span>10:29 AM</span>
+        </div>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-card-header">
+          <div class="artifact-card-icon text"><i class="fa-solid fa-briefcase"></i></div>
+          <div class="artifact-card-title">Job Posting — Senior SE</div>
+        </div>
+        <div class="artifact-card-desc">Pre-filled from role data. $125K–$155K range, Technology department, remote-eligible.</div>
+        <div class="artifact-card-meta">
+          <span>Job Posting</span>
+          <div class="meta-dot"></div>
+          <span>10:39 AM</span>
+        </div>
+      </div>
+      <div class="artifact-card">
+        <div class="artifact-card-header">
+          <div class="artifact-card-icon text"><i class="fa-solid fa-envelope"></i></div>
+          <div class="artifact-card-title">Outreach Messages (3)</div>
+        </div>
+        <div class="artifact-card-desc">Personalized outreach for Sarah Chen, Marcus Johnson, and Alex Rivera based on talent pool profiles.</div>
+        <div class="artifact-card-meta">
+          <span>Outreach</span>
+          <div class="meta-dot"></div>
+          <span>10:44 AM</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decisions tab (completed) -->
+  <div class="tab-content" id="decisions-completed">
+    <div class="decision-list">
+      <div class="decision-card">
+        <div class="decision-card-header">
+          <div class="decision-icon approved"><i class="fa-solid fa-check"></i></div>
+          <div class="decision-title">Proceed with internal candidate assessment</div>
+          <div class="decision-time">10:27 AM</div>
+        </div>
+        <div class="decision-body">
+          Reviewed compensation analysis and flight risk data. Confirmed Daniel Kim as primary internal candidate. Uma Patel acknowledged retention risk on the team.
+        </div>
+        <div class="decision-reviewer">
+          <div class="decision-reviewer-avatar">YO</div>
+          <span>Approved by <strong>You</strong></span>
+        </div>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-card-header">
+          <div class="decision-icon approved"><i class="fa-solid fa-check"></i></div>
+          <div class="decision-title">Confirm Daniel Kim for promotion track</div>
+          <div class="decision-time">10:38 AM</div>
+        </div>
+        <div class="decision-body">
+          Uma Patel reviewed Daniel Kim's 82/100 promotion readiness score and development plan. Approved internal promotion path. Agreed to proceed with external hire for backfill at current level.
+        </div>
+        <div class="decision-reviewer">
+          <div class="decision-reviewer-avatar" style="background:#DBEAFE;color:#2563EB;">UP</div>
+          <span>Approved by <strong>Uma Patel</strong></span>
+        </div>
+      </div>
+
+      <div class="decision-card">
+        <div class="decision-card-header">
+          <div class="decision-icon approved"><i class="fa-solid fa-check"></i></div>
+          <div class="decision-title">Publish job posting and send outreach</div>
+          <div class="decision-time">10:52 AM</div>
+        </div>
+        <div class="decision-body">
+          Approved job posting for Senior Software Engineer ($125K–$155K). Approved personalized outreach to 3 talent pool candidates: Sarah Chen, Marcus Johnson, Alex Rivera.
+        </div>
+        <div class="decision-reviewer">
+          <div class="decision-reviewer-avatar">YO</div>
+          <span>Approved by <strong>You</strong></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+
+<script>
+  // View toggle (running vs completed)
+  function showView(viewId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.state-toggle .toggle-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + viewId).classList.add('active');
+    event.target.classList.add('active');
+  }
+
+  // Tab switching
+  function switchTab(tabEl, contentId) {
+    const parent = tabEl.closest('.page-container');
+    parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    parent.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tabEl.classList.add('active');
+    document.getElementById(contentId).classList.add('active');
+  }
+</script>
+
+</body>
+</html>

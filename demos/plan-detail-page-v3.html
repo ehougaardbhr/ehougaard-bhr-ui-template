@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Detail v3 — Always-Visible Findings + Artifact Panel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+
+      --color-queued: #A8A29E;
+      --color-queued-light: #F5F3F2;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-review: #2e7918;
+      --color-review-light: #E8F5E3;
+      --color-review-strong: #256314;
+      --color-awaiting: #D97706;
+      --color-awaiting-light: #FEF3C7;
+      --color-risk-high: #DC2626;
+      --color-risk-med: #D97706;
+      --color-risk-low: #059669;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0EDEB;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* ==============================
+       Top nav
+       ============================== */
+    .top-nav {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; padding: 0 32px; height: 56px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-neutral-medium); }
+    .breadcrumb a { color: var(--color-primary); text-decoration: none; font-weight: 500; }
+    .breadcrumb .sep { color: var(--text-neutral-weak); font-size: 9px; }
+    .breadcrumb .current { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    /* ==============================
+       Shell: findings + artifact panel
+       ============================== */
+    .shell {
+      display: flex;
+      min-height: calc(100vh - 56px);
+    }
+    .findings-pane {
+      flex: 1;
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 32px 24px 80px;
+      transition: max-width 0.3s ease;
+    }
+    .shell.panel-open .findings-pane {
+      max-width: 560px;
+      margin: 0;
+      margin-left: max(24px, calc((100% - 560px - 420px) / 2));
+    }
+
+    /* Artifact slide-out panel */
+    .artifact-panel {
+      width: 0;
+      overflow: hidden;
+      background: var(--surface-neutral-white);
+      border-left: 1px solid var(--border-neutral-weak);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.06);
+      transition: width 0.3s ease;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      display: flex;
+      flex-direction: column;
+    }
+    .shell.panel-open .artifact-panel {
+      width: 420px;
+    }
+    .ap-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; gap: 12px;
+      flex-shrink: 0;
+    }
+    .ap-header-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .ap-header-icon.chart { background: #DBEAFE; color: #2563EB; }
+    .ap-header-icon.report { background: var(--color-primary-light); color: var(--color-primary); }
+    .ap-header-icon.text { background: #EDE9FE; color: #7C3AED; }
+    .ap-header-info { flex: 1; }
+    .ap-header-title { font-size: 15px; font-weight: 600; }
+    .ap-header-meta { font-size: 11px; color: var(--text-neutral-weak); margin-top: 2px; }
+    .ap-close {
+      width: 28px; height: 28px; border-radius: 6px;
+      border: none; background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-neutral-medium); font-size: 14px;
+    }
+    .ap-close:hover { background: var(--surface-neutral-xx-weak); }
+
+    .ap-body {
+      flex: 1; overflow-y: auto; padding: 24px;
+    }
+    .ap-actions {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border-neutral-weak);
+      display: flex; gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Simulated chart */
+    .mock-chart {
+      background: var(--surface-neutral-xx-weak);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+    .chart-bar-group { margin-bottom: 12px; }
+    .chart-bar-label { font-size: 11px; color: var(--text-neutral-medium); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .chart-bar-track { height: 20px; background: #E7E5E4; border-radius: 4px; overflow: hidden; position: relative; }
+    .chart-bar-fill { height: 100%; border-radius: 4px; }
+    .chart-bar-marker {
+      position: absolute; top: 0; bottom: 0; width: 2px; background: var(--text-neutral-xx-strong);
+    }
+    .chart-legend {
+      display: flex; gap: 16px; margin-top: 12px; font-size: 10px; color: var(--text-neutral-medium);
+    }
+    .chart-legend-dot {
+      width: 8px; height: 8px; border-radius: 2px; display: inline-block; margin-right: 4px; vertical-align: middle;
+    }
+
+    .mock-table {
+      width: 100%; border-collapse: collapse; font-size: 12px;
+    }
+    .mock-table th {
+      text-align: left; font-weight: 600; color: var(--text-neutral-medium);
+      padding: 8px 10px; border-bottom: 2px solid var(--border-neutral-weak);
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .mock-table td {
+      padding: 10px; border-bottom: 1px solid var(--border-neutral-weak);
+      color: var(--text-neutral-strong);
+    }
+
+    /* ==============================
+       Plan header
+       ============================== */
+    .plan-header {
+      background: var(--surface-neutral-white);
+      border-radius: 16px;
+      border: 1px solid var(--border-neutral-weak);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .ph-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .ph-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .ph-info { flex: 1; }
+    .ph-info h1 { font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+    .ph-meta {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      font-size: 12px; color: var(--text-neutral-medium);
+    }
+    .ph-meta a { color: var(--color-primary); text-decoration: none; }
+    .mi { display: flex; align-items: center; gap: 4px; }
+    .mi i { font-size: 10px; }
+    .ph-progress { display: flex; align-items: center; gap: 14px; }
+    .ph-bar { flex: 1; height: 5px; border-radius: 3px; background: #E7E5E4; overflow: hidden; }
+    .ph-bar .fill { height: 100%; border-radius: 3px; }
+    .ph-progress-label { font-size: 12px; font-weight: 600; color: var(--text-neutral-medium); white-space: nowrap; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    }
+    .badge-paused { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .badge-completed { background: var(--color-done-light); color: var(--color-done); }
+
+    .btn {
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+      border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-outline { background: var(--surface-neutral-white); color: var(--text-neutral-strong); border: 1px solid var(--border-neutral-medium); }
+    .btn-outline:hover { background: var(--surface-neutral-xx-weak); }
+    .btn-primary { background: var(--color-primary); color: white; }
+    .btn-amber { background: var(--color-awaiting); color: white; }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+    /* ==============================
+       Finding card
+       ============================== */
+    .finding-card {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .fc-main { padding: 20px 22px; border-left: 3px solid transparent; }
+    .finding-card.done .fc-main { border-left-color: var(--color-done); }
+    .finding-card.awaiting .fc-main { border-left-color: var(--color-awaiting); }
+    .finding-card.queued .fc-main { border-left-color: var(--color-queued); }
+
+    .fc-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .fc-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; flex-shrink: 0; margin-top: 1px;
+    }
+    .fc-icon.done { background: var(--color-done-light); color: var(--color-done); }
+    .fc-icon.awaiting { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .fc-icon.queued { background: var(--color-queued-light); color: var(--color-queued); }
+    .fc-title-block { flex: 1; }
+    .fc-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .fc-time { font-size: 11px; color: var(--text-neutral-weak); }
+
+    /* Lead finding — big and bold */
+    .fc-lead {
+      font-size: 14px; line-height: 1.65; color: var(--text-neutral-strong);
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .fc-lead strong { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    /* Secondary findings — always visible, compact but readable */
+    .fc-secondaries {
+      display: flex; flex-direction: column; gap: 8px;
+      margin-bottom: 14px;
+    }
+    .fc-secondary {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 13px; line-height: 1.55; color: var(--text-neutral-strong);
+    }
+    .fc-sec-indicator {
+      width: 7px; height: 7px; border-radius: 50%;
+      flex-shrink: 0; margin-top: 6px;
+    }
+    .fc-sec-indicator.high { background: var(--color-risk-high); }
+    .fc-sec-indicator.med { background: var(--color-risk-med); }
+    .fc-sec-indicator.low { background: var(--color-risk-low); }
+    .fc-sec-indicator.info { background: var(--color-working); }
+    .fc-sec-indicator.neutral { background: var(--text-neutral-weak); }
+    .fc-sec-text { flex: 1; }
+    .fc-sec-text strong { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    /* Artifacts row */
+    .fc-artifacts {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-neutral-weak);
+    }
+    .artifact-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      background: var(--surface-neutral-xx-weak);
+      border: 1px solid var(--border-neutral-weak);
+      font-size: 12px; font-weight: 500; color: var(--text-neutral-strong);
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .artifact-chip:hover {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+    .artifact-chip.active {
+      background: var(--color-primary-light);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+    .artifact-chip i { font-size: 11px; }
+    .artifact-chip .chip-arrow {
+      font-size: 9px; margin-left: 2px; opacity: 0;
+      transition: opacity 0.15s ease;
+    }
+    .artifact-chip:hover .chip-arrow { opacity: 1; }
+
+    /* Review gate footer */
+    .fc-review {
+      padding: 12px 22px;
+      background: var(--surface-neutral-xx-weak);
+      border-top: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .fc-review.passed { background: #FAFFF8; }
+    .fc-review.ready { background: #FFFBEB; }
+    .fc-review-icon {
+      width: 22px; height: 22px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; flex-shrink: 0;
+    }
+    .fc-review-icon.passed { background: var(--color-done-light); color: var(--color-done); }
+    .fc-review-icon.ready { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .fc-review-info { flex: 1; }
+    .fc-review-label { font-size: 12px; font-weight: 500; }
+    .fc-review-sub { font-size: 11px; color: var(--text-neutral-weak); margin-top: 1px; }
+
+    /* Execution audit (still toggleable — this IS the right use of progressive disclosure) */
+    .fc-exec-toggle {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text-neutral-weak);
+      cursor: pointer; border: none; background: none;
+      padding: 8px 0 0; transition: color 0.15s ease;
+    }
+    .fc-exec-toggle:hover { color: var(--text-neutral-medium); }
+    .fc-exec-toggle i { font-size: 8px; transition: transform 0.2s ease; }
+    .fc-exec-toggle.open i { transform: rotate(90deg); }
+    .fc-exec-detail {
+      display: none; margin-top: 8px; padding: 8px 12px;
+      background: var(--surface-neutral-xx-weak); border-radius: 8px;
+      font-size: 11px; color: var(--text-neutral-medium);
+    }
+    .fc-exec-detail.open { display: block; }
+    .fc-exec-step { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+    .fc-exec-step .step-icon {
+      width: 14px; height: 14px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6px; flex-shrink: 0;
+      background: var(--color-done-light); color: var(--color-done);
+    }
+
+    /* Queued card */
+    .finding-card.queued-card .fc-main { padding: 14px 22px; }
+    .fc-queued-items {
+      font-size: 12px; color: var(--text-neutral-weak);
+      line-height: 1.6; margin-top: 4px;
+    }
+
+    /* Parallel group */
+    .parallel-group { display: flex; gap: 14px; margin-bottom: 14px; }
+    .parallel-group .finding-card { flex: 1; margin-bottom: 0; }
+    .parallel-label {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 10px; padding-left: 4px;
+      font-size: 11px; color: var(--text-neutral-weak);
+    }
+    .parallel-label i { font-size: 10px; }
+    .parallel-label .line { flex: 1; height: 1px; background: var(--border-neutral-weak); }
+
+    /* Standalone review gate (between parallel group and next section) */
+    .standalone-review {
+      border-radius: 10px;
+      border: 1px solid var(--border-neutral-weak);
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+
+    /* Completion */
+    .completion-banner {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: 12px;
+      background: var(--color-done-light); margin-top: 8px;
+    }
+    .completion-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--color-done); color: white;
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
+    }
+
+    @keyframes pulse-amber { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,119,6,0.2); } 50% { box-shadow: 0 0 0 8px rgba(217,119,6,0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div class="breadcrumb">
+    <a href="#"><i class="fa-solid fa-house" style="font-size:12px;"></i></a>
+    <span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+    <a href="#">Activity</a>
+    <span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+    <span class="current">Backfill Plan for Tony Ramirez</span>
+  </div>
+</div>
+
+<div class="shell" id="shell">
+
+<!-- ======== FINDINGS PANE ======== -->
+<div class="findings-pane">
+
+  <!-- Header -->
+  <div class="plan-header">
+    <div class="ph-top">
+      <div class="ph-icon" style="background: var(--color-awaiting-light); color: var(--color-awaiting);">
+        <i class="fa-solid fa-clipboard-list"></i>
+      </div>
+      <div class="ph-info">
+        <h1>Backfill Plan for Tony Ramirez</h1>
+        <div class="ph-meta">
+          <span class="badge badge-paused"><i class="fa-solid fa-hand"></i> Needs Review</span>
+          <div class="mi"><i class="fa-regular fa-clock"></i> 12 min ago</div>
+          <div class="mi"><a href="#"><i class="fa-regular fa-comment"></i> Open in chat</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="ph-progress">
+      <div class="ph-bar"><div class="fill" style="width:43%; background: var(--color-working);"></div></div>
+      <div class="ph-progress-label">3 of 7 complete</div>
+    </div>
+  </div>
+
+  <!-- ======== FINDING 1: Done ======== -->
+  <div class="finding-card done">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Team Compensation & Retention Risk</div>
+          <div class="fc-time">Completed 10:25 AM</div>
+        </div>
+      </div>
+
+      <div class="fc-lead">
+        <strong>Daniel Kim is significantly underpaid and a high flight risk.</strong>
+        He's 15% below the midpoint for the Senior SE pay band ($118K vs $135K target), hasn't been promoted in 2 years, and is at the 4-year tenure flight risk window. Tony's departure also leaves the team without AWS certification coverage and 2 projects without a lead.
+      </div>
+
+      <div class="fc-secondaries">
+        <div class="fc-secondary">
+          <div class="fc-sec-indicator med"></div>
+          <div class="fc-sec-text"><strong>Rachel Green — MEDIUM flight risk.</strong> $105K, 8% below midpoint. Highest performance rating on team but no comp adjustment in 14 months. Attractive to competitors.</div>
+        </div>
+        <div class="fc-secondary">
+          <div class="fc-sec-indicator low"></div>
+          <div class="fc-sec-text"><strong>James Liu — LOW risk.</strong> Promoted recently, comp at midpoint. Stable.</div>
+        </div>
+        <div class="fc-secondary">
+          <div class="fc-sec-indicator info"></div>
+          <div class="fc-sec-text"><strong>Team compa-ratio is 0.87</strong> (target: 0.95–1.05). Uma's team is underpaid relative to market across the board, not just Daniel.</div>
+        </div>
+      </div>
+
+      <div class="fc-artifacts">
+        <div class="artifact-chip" onclick="openArtifact('comp')">
+          <i class="fa-solid fa-chart-bar"></i> Compensation Analysis
+          <i class="fa-solid fa-arrow-right chip-arrow"></i>
+        </div>
+        <div class="artifact-chip" onclick="openArtifact('org')">
+          <i class="fa-solid fa-sitemap"></i> Org Impact Report
+          <i class="fa-solid fa-arrow-right chip-arrow"></i>
+        </div>
+      </div>
+
+      <button class="fc-exec-toggle" onclick="toggleExec(this)">
+        <i class="fa-solid fa-chevron-right"></i>
+        3 tools ran in 2 min
+      </button>
+      <div class="fc-exec-detail">
+        <div class="fc-exec-step">
+          <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+          <div class="step-name">analyze_compensation(dept="Technology")</div>
+          <div class="step-time">10:23</div>
+        </div>
+        <div class="fc-exec-step">
+          <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+          <div class="step-name">identify_flight_risks(team="Uma Patel")</div>
+          <div class="step-time">10:24</div>
+        </div>
+        <div class="fc-exec-step">
+          <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+          <div class="step-name">analyze_org_impact(employee="Tony Ramirez")</div>
+          <div class="step-time">10:25</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fc-review passed">
+      <div class="fc-review-icon passed"><i class="fa-solid fa-check"></i></div>
+      <div class="fc-review-info">
+        <div class="fc-review-label">Reviewed by You</div>
+        <div class="fc-review-sub">Approved to proceed with internal candidate assessment — 10:27 AM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== FINDING 2: Awaiting ======== -->
+  <div class="finding-card awaiting" style="animation: pulse-amber 3s ease-in-out infinite;">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon awaiting"><i class="fa-solid fa-hand"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Internal Candidate Assessment</div>
+          <div class="fc-time">Analysis complete — waiting for review</div>
+        </div>
+      </div>
+
+      <div class="fc-lead">
+        <strong>Daniel Kim scores 82/100 on promotion readiness — ready for Senior SE.</strong>
+        Strong technical skills, exceeds expectations consistently. Primary gap is mentorship experience. A development plan has been drafted for the transition.
+      </div>
+
+      <div class="fc-secondaries">
+        <div class="fc-secondary">
+          <div class="fc-sec-indicator med"></div>
+          <div class="fc-sec-text"><strong>Rachel Green scores 71/100</strong> — high performer but needs 6–12 more months. Gap: no project lead experience yet. Not ready for this cycle, but worth tracking.</div>
+        </div>
+        <div class="fc-secondary">
+          <div class="fc-sec-indicator info"></div>
+          <div class="fc-sec-text"><strong>Promoting Daniel creates a backfill-of-a-backfill.</strong> His current mid-level SE role would need filling, but the talent pool has 3 strong candidates at that level — lower risk than the senior role.</div>
+        </div>
+      </div>
+
+      <div class="fc-artifacts">
+        <div class="artifact-chip" onclick="openArtifact('devplan')">
+          <i class="fa-solid fa-file-lines"></i> Daniel Kim — Development Plan
+          <i class="fa-solid fa-arrow-right chip-arrow"></i>
+        </div>
+      </div>
+
+      <button class="fc-exec-toggle" onclick="toggleExec(this)">
+        <i class="fa-solid fa-chevron-right"></i>
+        3 tools ran in 1 min
+      </button>
+      <div class="fc-exec-detail">
+        <div class="fc-exec-step">
+          <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+          <div class="step-name">assess_promotion_readiness(["Daniel Kim", "Rachel Green"])</div>
+          <div class="step-time">10:28</div>
+        </div>
+        <div class="fc-exec-step">
+          <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+          <div class="step-name">analyze_org_impact(scenario="promote Daniel Kim")</div>
+          <div class="step-time">10:29</div>
+        </div>
+        <div class="fc-exec-step">
+          <div class="step-icon"><i class="fa-solid fa-check"></i></div>
+          <div class="step-name">draft_development_plan(employee="Daniel Kim")</div>
+          <div class="step-time">10:29</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fc-review ready">
+      <div class="fc-review-icon ready"><i class="fa-solid fa-hand"></i></div>
+      <div class="fc-review-info">
+        <div class="fc-review-label" style="color: var(--color-awaiting);">Waiting for Uma Patel</div>
+        <div class="fc-review-sub">Confirm internal candidate direction before starting external hiring</div>
+      </div>
+      <div>
+        <button class="btn btn-amber btn-sm"><i class="fa-solid fa-eye"></i> Review</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======== FINDING 3: Queued ======== -->
+  <div class="finding-card queued-card queued">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon queued"><i class="fa-solid fa-clock" style="font-size:11px;"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title" style="color: var(--text-neutral-weak);">External Hiring Pipeline</div>
+          <div class="fc-time">Starts after review gate</div>
+        </div>
+      </div>
+      <div class="fc-queued-items">
+        Create job posting for Senior SE &middot; Screen talent pool &middot; Draft candidate outreach
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ======== ARTIFACT PANEL ======== -->
+<div class="artifact-panel" id="artifact-panel">
+
+  <!-- Comp analysis panel content -->
+  <div id="panel-comp" style="display:flex;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon chart"><i class="fa-solid fa-chart-bar"></i></div>
+      <div class="ap-header-info">
+        <div class="ap-header-title">Compensation Analysis</div>
+        <div class="ap-header-meta">Generated 10:23 AM &middot; Technology Department</div>
+      </div>
+      <button class="ap-close" onclick="closePanel()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div class="mock-chart">
+        <div class="chart-title">Pay Band Position — Uma Patel's Team</div>
+
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>Daniel Kim</span><span style="color:var(--color-risk-high);font-weight:600;">$118K</span></div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill" style="width:62%;background:var(--color-risk-high);opacity:0.7;"></div>
+            <div class="chart-bar-marker" style="left:71%;" title="Midpoint $135K"></div>
+          </div>
+        </div>
+
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>Rachel Green</span><span style="color:var(--color-risk-med);font-weight:600;">$105K</span></div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill" style="width:55%;background:var(--color-risk-med);opacity:0.7;"></div>
+            <div class="chart-bar-marker" style="left:60%;" title="Midpoint $114K"></div>
+          </div>
+        </div>
+
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>James Liu</span><span style="color:var(--color-risk-low);font-weight:600;">$128K</span></div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill" style="width:67%;background:var(--color-risk-low);opacity:0.7;"></div>
+            <div class="chart-bar-marker" style="left:67%;" title="Midpoint $128K"></div>
+          </div>
+        </div>
+
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>Tony Ramirez (departing)</span><span style="color:var(--text-neutral-weak);">$142K</span></div>
+          <div class="chart-bar-track">
+            <div class="chart-bar-fill" style="width:75%;background:var(--text-neutral-weak);opacity:0.4;"></div>
+            <div class="chart-bar-marker" style="left:71%;" title="Midpoint $135K"></div>
+          </div>
+        </div>
+
+        <div class="chart-legend">
+          <span><span class="chart-legend-dot" style="background:var(--color-risk-high);"></span> Below band</span>
+          <span><span class="chart-legend-dot" style="background:var(--color-risk-med);"></span> Below midpoint</span>
+          <span><span class="chart-legend-dot" style="background:var(--color-risk-low);"></span> At midpoint</span>
+          <span><span class="chart-legend-dot" style="background:var(--text-neutral-xx-strong);width:2px;height:10px;border-radius:0;"></span> Midpoint</span>
+        </div>
+      </div>
+
+      <table class="mock-table">
+        <thead>
+          <tr>
+            <th>Employee</th>
+            <th>Salary</th>
+            <th>Midpoint</th>
+            <th>Compa</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Daniel Kim</strong></td>
+            <td>$118,000</td>
+            <td>$135,000</td>
+            <td style="color:var(--color-risk-high);font-weight:600;">0.87</td>
+            <td><span style="background:var(--color-risk-high-light, #FEE2E2);color:var(--color-risk-high);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">HIGH</span></td>
+          </tr>
+          <tr>
+            <td><strong>Rachel Green</strong></td>
+            <td>$105,000</td>
+            <td>$114,000</td>
+            <td style="color:var(--color-risk-med);font-weight:600;">0.92</td>
+            <td><span style="background:var(--color-awaiting-light);color:var(--color-risk-med);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">MED</span></td>
+          </tr>
+          <tr>
+            <td>James Liu</td>
+            <td>$128,000</td>
+            <td>$128,000</td>
+            <td style="color:var(--color-risk-low);font-weight:600;">1.00</td>
+            <td><span style="background:var(--color-done-light);color:var(--color-risk-low);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">LOW</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ap-actions">
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-download"></i> Export</button>
+    </div>
+  </div>
+
+  <!-- Org impact panel content -->
+  <div id="panel-org" style="display:none;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon report"><i class="fa-solid fa-sitemap"></i></div>
+      <div class="ap-header-info">
+        <div class="ap-header-title">Org Impact Report</div>
+        <div class="ap-header-meta">Generated 10:25 AM &middot; Tony Ramirez's Departure</div>
+      </div>
+      <button class="ap-close" onclick="closePanel()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div style="margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Reporting Structure Impact</div>
+        <div style="font-size:13px;line-height:1.7;color:var(--text-neutral-strong);">
+          Uma Patel's span of control drops from <strong>8 to 7 direct reports</strong>. Tony led the API Gateway and Mobile SDK projects — both now need a new lead. Tony was the only AWS-certified engineer on the team.
+        </div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Projects Affected</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;">
+            <strong>API Gateway v2</strong> — 65% complete, Tony is sole reviewer. Daniel Kim has most context.
+          </div>
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;">
+            <strong>Mobile SDK</strong> — 30% complete, Tony owns architecture decisions. Rachel Green is secondary contributor.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">Knowledge Gaps</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="padding:4px 10px;background:#FEE2E2;color:var(--color-risk-high);border-radius:6px;font-size:11px;font-weight:600;">AWS Infrastructure</span>
+          <span style="padding:4px 10px;background:var(--color-awaiting-light);color:var(--color-risk-med);border-radius:6px;font-size:11px;font-weight:600;">API Architecture</span>
+          <span style="padding:4px 10px;background:var(--color-awaiting-light);color:var(--color-risk-med);border-radius:6px;font-size:11px;font-weight:600;">CI/CD Pipeline</span>
+        </div>
+      </div>
+    </div>
+    <div class="ap-actions">
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-download"></i> Export</button>
+    </div>
+  </div>
+
+  <!-- Dev plan panel content -->
+  <div id="panel-devplan" style="display:none;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon text"><i class="fa-solid fa-file-lines"></i></div>
+      <div class="ap-header-info">
+        <div class="ap-header-title">Daniel Kim — Development Plan</div>
+        <div class="ap-header-meta">Generated 10:29 AM &middot; Senior SE Track</div>
+      </div>
+      <button class="ap-close" onclick="closePanel()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div style="margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Target Role</div>
+        <div style="font-size:13px;color:var(--text-neutral-strong);">Senior Software Engineer (P4) — Technology</div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Readiness: 82/100</div>
+        <div style="height:8px;background:#E7E5E4;border-radius:4px;overflow:hidden;margin-bottom:8px;">
+          <div style="width:82%;height:100%;background:var(--color-done);border-radius:4px;"></div>
+        </div>
+        <div style="font-size:12px;color:var(--text-neutral-medium);">Exceeds threshold of 75. Primary gap: mentorship experience.</div>
+      </div>
+      <div style="margin-bottom:20px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px;">90-Day Milestones</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;">
+            <strong>Month 1:</strong> Take over API Gateway project lead. Shadow Uma on 2 architecture reviews.
+          </div>
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;">
+            <strong>Month 2:</strong> Mentor a junior engineer on Mobile SDK. Begin AWS certification prep.
+          </div>
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;">
+            <strong>Month 3:</strong> Lead first cross-team technical review. Complete AWS Solutions Architect cert.
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Compensation Adjustment</div>
+        <div style="font-size:12px;color:var(--text-neutral-strong);line-height:1.5;">
+          Proposed: $118K → $138K (+17%) upon promotion, bringing compa-ratio from 0.87 to 1.02. Within Senior SE band ($125K–$155K).
+        </div>
+      </div>
+    </div>
+    <div class="ap-actions">
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-pen"></i> Edit</button>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  function openArtifact(type) {
+    const shell = document.getElementById('shell');
+    const panel = document.getElementById('artifact-panel');
+
+    // Hide all panel contents
+    document.querySelectorAll('#artifact-panel > div').forEach(d => d.style.display = 'none');
+
+    // Show the right one
+    const target = document.getElementById('panel-' + type);
+    target.style.display = 'flex';
+
+    // Deactivate all chips, activate the clicked one
+    document.querySelectorAll('.artifact-chip').forEach(c => c.classList.remove('active'));
+    event.target.closest('.artifact-chip').classList.add('active');
+
+    // Open panel
+    shell.classList.add('panel-open');
+  }
+
+  function closePanel() {
+    document.getElementById('shell').classList.remove('panel-open');
+    document.querySelectorAll('.artifact-chip').forEach(c => c.classList.remove('active'));
+  }
+
+  function toggleExec(btn) {
+    btn.classList.toggle('open');
+    btn.nextElementSibling.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>

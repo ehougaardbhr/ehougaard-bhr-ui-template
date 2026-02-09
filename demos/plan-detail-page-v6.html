@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Detail v6 — Read-Only Retrospective</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --color-queued: #A8A29E;
+      --color-queued-light: #F5F3F2;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-review-strong: #256314;
+      --color-awaiting: #D97706;
+      --color-awaiting-light: #FEF3C7;
+      --color-risk-high: #DC2626;
+      --color-risk-med: #D97706;
+      --color-risk-low: #059669;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0EDEB;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* Top nav */
+    .top-nav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; padding: 0 32px; height: 56px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-neutral-medium); }
+    .breadcrumb a { color: var(--color-primary); text-decoration: none; font-weight: 500; }
+    .breadcrumb .sep { color: var(--text-neutral-weak); font-size: 9px; }
+    .breadcrumb .current { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    /* State toggle (demo only) */
+    .state-toggle { display: flex; justify-content: center; gap: 8px; padding: 24px 0; }
+    .toggle-btn {
+      padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-medium); cursor: pointer; transition: all 0.15s ease;
+    }
+    .toggle-btn.active { background: var(--text-neutral-xx-strong); color: white; border-color: var(--text-neutral-xx-strong); }
+    .state-desc {
+      text-align: center; font-size: 12px; color: var(--text-neutral-medium);
+      max-width: 600px; margin: -8px auto 24px; line-height: 1.5;
+    }
+    .view { display: none; }
+    .view.active { display: block; }
+
+    /* Shell for artifact panel */
+    .shell { display: flex; min-height: calc(100vh - 56px); }
+    .findings-pane {
+      flex: 1; max-width: 740px; margin: 0 auto; padding: 0 24px 80px;
+      transition: max-width 0.3s ease, margin 0.3s ease;
+    }
+    .shell.panel-open .findings-pane {
+      max-width: 520px; margin: 0; margin-left: max(24px, calc((100% - 520px - 440px) / 2));
+    }
+
+    /* Artifact panel */
+    .artifact-panel {
+      width: 0; overflow: hidden; background: var(--surface-neutral-white);
+      border-left: 1px solid var(--border-neutral-weak);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.06);
+      transition: width 0.3s ease; position: sticky; top: 56px;
+      height: calc(100vh - 56px); display: flex; flex-direction: column;
+    }
+    .shell.panel-open .artifact-panel { width: 440px; }
+
+    .ap-header {
+      padding: 20px 24px 16px; border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+    }
+    .ap-header-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0;
+    }
+    .ap-header-icon.chart { background: #DBEAFE; color: #2563EB; }
+    .ap-header-icon.report { background: var(--color-primary-light); color: var(--color-primary); }
+    .ap-header-icon.text { background: #EDE9FE; color: #7C3AED; }
+    .ap-header-icon.job { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .ap-header-info { flex: 1; }
+    .ap-header-title { font-size: 15px; font-weight: 600; }
+    .ap-header-meta { font-size: 11px; color: var(--text-neutral-weak); margin-top: 2px; }
+    .ap-close {
+      width: 28px; height: 28px; border-radius: 6px; border: none; background: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-neutral-medium); font-size: 14px;
+    }
+    .ap-close:hover { background: var(--surface-neutral-xx-weak); }
+    .ap-body { flex: 1; overflow-y: auto; padding: 24px; }
+    .ap-actions {
+      padding: 16px 24px; border-top: 1px solid var(--border-neutral-weak);
+      display: flex; gap: 8px; flex-shrink: 0;
+    }
+
+    /* Common */
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    }
+    .badge-running { background: var(--color-working-light); color: var(--color-working); }
+    .badge-paused { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .badge-completed { background: var(--color-done-light); color: var(--color-done); }
+
+    .btn {
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+      border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-outline { background: var(--surface-neutral-white); color: var(--text-neutral-strong); border: 1px solid var(--border-neutral-medium); }
+    .btn-outline:hover { background: var(--surface-neutral-xx-weak); }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+    /* Plan header */
+    .plan-header {
+      background: var(--surface-neutral-white); border-radius: 16px;
+      border: 1px solid var(--border-neutral-weak); padding: 20px 24px;
+      margin-bottom: 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .ph-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .ph-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .ph-info { flex: 1; }
+    .ph-info h1 { font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+    .ph-meta {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      font-size: 12px; color: var(--text-neutral-medium);
+    }
+    .ph-meta a { color: var(--color-primary); text-decoration: none; }
+    .mi { display: flex; align-items: center; gap: 4px; }
+    .mi i { font-size: 10px; }
+    .ph-progress { display: flex; align-items: center; gap: 14px; }
+    .ph-bar { flex: 1; height: 5px; border-radius: 3px; background: #E7E5E4; overflow: hidden; }
+    .ph-bar .fill { height: 100%; border-radius: 3px; }
+    .ph-progress-label { font-size: 12px; font-weight: 600; color: var(--text-neutral-medium); white-space: nowrap; }
+
+    /* ==============================
+       Finding card
+       ============================== */
+    .finding-card {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 14px; margin-bottom: 14px;
+      overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .fc-main { padding: 20px 22px; border-left: 3px solid transparent; }
+    .finding-card.done .fc-main { border-left-color: var(--color-done); }
+    .finding-card.awaiting .fc-main { border-left-color: var(--color-awaiting); }
+    .finding-card.working .fc-main { border-left-color: var(--color-working); }
+    .finding-card.upcoming .fc-main { border-left-color: var(--color-queued); }
+
+    .fc-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .fc-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; flex-shrink: 0; margin-top: 1px;
+    }
+    .fc-icon.done { background: var(--color-done-light); color: var(--color-done); }
+    .fc-icon.awaiting { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .fc-icon.working { background: var(--color-working-light); color: var(--color-working); }
+    .fc-icon.upcoming { background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak); }
+    .fc-title-block { flex: 1; }
+    .fc-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .fc-time { font-size: 11px; color: var(--text-neutral-weak); }
+
+    .upcoming-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      color: var(--text-neutral-weak); padding: 2px 8px; border-radius: 4px;
+      background: var(--surface-neutral-x-weak);
+    }
+
+    .fc-lead {
+      font-size: 14px; line-height: 1.65; color: var(--text-neutral-strong);
+      margin-bottom: 14px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .fc-lead strong { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    .fc-secondaries { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .fc-secondary { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.55; color: var(--text-neutral-strong); }
+    .fc-sec-indicator { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .fc-sec-indicator.high { background: var(--color-risk-high); }
+    .fc-sec-indicator.med { background: var(--color-risk-med); }
+    .fc-sec-indicator.low { background: var(--color-risk-low); }
+    .fc-sec-indicator.info { background: var(--color-working); }
+    .fc-sec-indicator.neutral { background: var(--text-neutral-weak); }
+    .fc-sec-text { flex: 1; }
+    .fc-sec-text strong { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    .fc-artifacts {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      padding-top: 14px; border-top: 1px solid var(--border-neutral-weak);
+    }
+    .artifact-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      background: var(--surface-neutral-xx-weak); border: 1px solid var(--border-neutral-weak);
+      font-size: 12px; font-weight: 500; color: var(--text-neutral-strong);
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .artifact-chip:hover { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary); }
+    .artifact-chip.active { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary); }
+    .artifact-chip i { font-size: 11px; }
+    .artifact-chip .chip-arrow { font-size: 9px; margin-left: 2px; opacity: 0; transition: opacity 0.15s ease; }
+    .artifact-chip:hover .chip-arrow { opacity: 1; }
+
+    /* Review gate footer — read-only */
+    .fc-gate {
+      padding: 12px 22px;
+      border-top: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .fc-gate.passed { background: #FAFFF8; }
+    .fc-gate.waiting { background: var(--surface-neutral-xx-weak); }
+    .fc-gate.future { background: var(--surface-neutral-xx-weak); }
+    .fc-gate-icon {
+      width: 22px; height: 22px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; flex-shrink: 0;
+    }
+    .fc-gate-icon.passed { background: var(--color-done-light); color: var(--color-done); }
+    .fc-gate-icon.waiting { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .fc-gate-icon.future { background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak); }
+    .fc-gate-info { flex: 1; }
+    .fc-gate-label { font-size: 12px; font-weight: 500; }
+    .fc-gate-sub { font-size: 11px; color: var(--text-neutral-weak); margin-top: 1px; }
+    .fc-gate-link {
+      font-size: 11px; color: var(--color-primary); text-decoration: none;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .fc-gate-link:hover { text-decoration: underline; }
+    .fc-gate-link i { font-size: 9px; }
+
+    /* Upcoming items */
+    .upcoming-items { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
+    .ui-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-neutral-medium); }
+    .ui-dot { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid #D6D3D1; flex-shrink: 0; }
+
+    /* Parallel group */
+    .parallel-label {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-left: 4px;
+    }
+    .parallel-label-text {
+      font-size: 11px; color: var(--text-neutral-weak);
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
+    }
+    .parallel-label-text i { font-size: 10px; }
+    .parallel-label .line { flex: 1; height: 1px; background: var(--border-neutral-weak); }
+    .parallel-group { display: flex; gap: 14px; margin-bottom: 14px; }
+    .parallel-group > .finding-card { flex: 1; margin-bottom: 0; min-width: 0; }
+
+    /* Standalone review gate */
+    .standalone-gate {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 10px; margin-bottom: 14px;
+      padding: 12px 22px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* Completion banner */
+    .completion-banner {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: 12px;
+      background: var(--color-done-light); margin-top: 8px;
+    }
+    .completion-dot {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--color-done); color: white;
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
+    }
+
+    /* Simulated artifact content */
+    .mock-chart {
+      background: var(--surface-neutral-xx-weak); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px; padding: 20px; margin-bottom: 20px;
+    }
+    .chart-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; }
+    .chart-bar-group { margin-bottom: 12px; }
+    .chart-bar-label { font-size: 11px; color: var(--text-neutral-medium); margin-bottom: 4px; display: flex; justify-content: space-between; }
+    .chart-bar-track { height: 20px; background: #E7E5E4; border-radius: 4px; overflow: hidden; position: relative; }
+    .chart-bar-fill { height: 100%; border-radius: 4px; }
+    .chart-bar-marker { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--text-neutral-xx-strong); }
+    .mock-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .mock-table th {
+      text-align: left; font-weight: 600; color: var(--text-neutral-medium);
+      padding: 8px 10px; border-bottom: 2px solid var(--border-neutral-weak);
+      font-size: 11px; text-transform: uppercase; letter-spacing: 0.3px;
+    }
+    .mock-table td { padding: 10px; border-bottom: 1px solid var(--border-neutral-weak); color: var(--text-neutral-strong); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block; width: 10px; height: 10px;
+      border: 2px solid var(--color-working-light); border-top-color: var(--color-working);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+  </style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div class="breadcrumb">
+    <a href="#"><i class="fa-solid fa-house" style="font-size:12px;"></i></a>
+    <span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+    <a href="#">Activity</a>
+    <span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+    <span class="current">Backfill Plan for Tony Ramirez</span>
+  </div>
+</div>
+
+<div class="state-toggle">
+  <button class="toggle-btn active" onclick="showView('mid')">Next-Day Check-In</button>
+  <button class="toggle-btn" onclick="showView('done')">Week-Later Retrospective</button>
+</div>
+<div class="state-desc" id="state-desc">You come back the next day to check progress. Plan is mid-execution, waiting on Uma. No action buttons here — if you need to act, "Open in chat" takes you there.</div>
+
+
+<!-- ============================================================
+     VIEW 1: NEXT-DAY CHECK-IN (mid-execution, read-only)
+     ============================================================ -->
+<div class="view active" id="view-mid">
+<div class="shell" id="shell-mid">
+<div class="findings-pane">
+
+  <div class="plan-header">
+    <div class="ph-top">
+      <div class="ph-icon" style="background:var(--color-awaiting-light);color:var(--color-awaiting);"><i class="fa-solid fa-clipboard-list"></i></div>
+      <div class="ph-info">
+        <h1>Backfill Plan for Tony Ramirez</h1>
+        <div class="ph-meta">
+          <span class="badge badge-paused"><i class="fa-solid fa-hand"></i> Waiting for review</span>
+          <div class="mi"><i class="fa-regular fa-clock"></i> Started yesterday</div>
+          <div class="mi"><a href="#"><i class="fa-regular fa-comment"></i> Open in chat</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="ph-progress">
+      <div class="ph-bar"><div class="fill" style="width:33%;background:var(--color-working);"></div></div>
+      <div class="ph-progress-label">3 of 9 complete</div>
+    </div>
+  </div>
+
+  <!-- Finding 1: Done -->
+  <div class="finding-card done">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Team Compensation & Retention Risk</div>
+          <div class="fc-time">Yesterday, 10:23 AM</div>
+        </div>
+      </div>
+      <div class="fc-lead">
+        <strong>Daniel Kim is significantly underpaid and a high flight risk.</strong>
+        15% below midpoint ($118K vs $135K), no promotion in 2 years. Tony's departure creates an AWS cert gap and leaves 2 projects without a lead.
+      </div>
+      <div class="fc-secondaries">
+        <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green — MEDIUM risk.</strong> $105K, 8% below midpoint, top performer, no comp adjustment in 14 months.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator low"></div><div class="fc-sec-text"><strong>James Liu — LOW risk.</strong> Recently promoted, comp at midpoint.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Team compa-ratio: 0.87</strong> — below target range across the board.</div></div>
+      </div>
+      <div class="fc-artifacts">
+        <div class="artifact-chip" onclick="openPanel('mid','comp')"><i class="fa-solid fa-chart-bar"></i> Compensation Analysis <i class="fa-solid fa-arrow-right chip-arrow"></i></div>
+        <div class="artifact-chip" onclick="openPanel('mid','org')"><i class="fa-solid fa-sitemap"></i> Org Impact Report <i class="fa-solid fa-arrow-right chip-arrow"></i></div>
+      </div>
+    </div>
+    <div class="fc-gate passed">
+      <div class="fc-gate-icon passed"><i class="fa-solid fa-check"></i></div>
+      <div class="fc-gate-info">
+        <div class="fc-gate-label">Reviewed by You</div>
+        <div class="fc-gate-sub">Approved to proceed — Yesterday, 10:27 AM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finding 2: Waiting on Uma -->
+  <div class="finding-card awaiting">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon awaiting"><i class="fa-solid fa-clock"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Internal Candidate Assessment</div>
+          <div class="fc-time">Analysis complete — Yesterday, 10:30 AM</div>
+        </div>
+      </div>
+      <div class="fc-lead">
+        <strong>Daniel Kim scores 82/100 on promotion readiness — ready for Senior SE.</strong>
+        Strong technical skills, exceeds expectations. Primary gap: mentorship experience. Development plan drafted.
+      </div>
+      <div class="fc-secondaries">
+        <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green: 71/100</strong> — needs 6–12 months. Worth tracking for next cycle.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Promoting Daniel creates a secondary backfill</strong> at mid-level SE — lower risk, 3 talent pool candidates available.</div></div>
+      </div>
+      <div class="fc-artifacts">
+        <div class="artifact-chip" onclick="openPanel('mid','devplan')"><i class="fa-solid fa-file-lines"></i> Daniel Kim — Development Plan <i class="fa-solid fa-arrow-right chip-arrow"></i></div>
+      </div>
+    </div>
+    <div class="fc-gate waiting">
+      <div class="fc-gate-icon waiting"><i class="fa-solid fa-clock"></i></div>
+      <div class="fc-gate-info">
+        <div class="fc-gate-label" style="color:var(--color-awaiting);">Waiting for Uma Patel's review</div>
+        <div class="fc-gate-sub">Confirm internal candidate direction — sent yesterday</div>
+      </div>
+      <a href="#" class="fc-gate-link"><i class="fa-regular fa-comment"></i> Open in chat</a>
+    </div>
+  </div>
+
+  <!-- Upcoming 1 -->
+  <div class="finding-card upcoming">
+    <div class="fc-main" style="padding:16px 22px;">
+      <div class="fc-header" style="margin-bottom:4px;">
+        <div class="fc-icon upcoming"><i class="fa-solid fa-arrow-right" style="font-size:11px;"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title" style="color:var(--text-neutral-medium);display:flex;align-items:center;gap:8px;">
+            External Hiring Pipeline
+            <span class="upcoming-badge">Upcoming</span>
+          </div>
+          <div class="fc-time">Starts after review gate · 3 items</div>
+        </div>
+      </div>
+      <div class="upcoming-items">
+        <div class="ui-row"><div class="ui-dot"></div><div>Create job posting for Senior Software Engineer ($125K–$155K)</div></div>
+        <div class="ui-row"><div class="ui-dot"></div><div>Screen talent pool candidates against role requirements</div></div>
+        <div class="ui-row"><div class="ui-dot"></div><div>Draft personalized outreach for top-ranked candidates</div></div>
+      </div>
+    </div>
+    <div class="fc-gate future">
+      <div class="fc-gate-icon future"><i class="fa-solid fa-eye"></i></div>
+      <div class="fc-gate-info">
+        <div class="fc-gate-label" style="color:var(--text-neutral-weak);">You approve job posting and outreach before publishing</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upcoming 2 -->
+  <div class="finding-card upcoming">
+    <div class="fc-main" style="padding:16px 22px;">
+      <div class="fc-header" style="margin-bottom:4px;">
+        <div class="fc-icon upcoming"><i class="fa-solid fa-arrow-right" style="font-size:11px;"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title" style="color:var(--text-neutral-medium);display:flex;align-items:center;gap:8px;">
+            Retention & Compensation Adjustments
+            <span class="upcoming-badge">Upcoming</span>
+          </div>
+          <div class="fc-time">Final section · 2 items</div>
+        </div>
+      </div>
+      <div class="upcoming-items">
+        <div class="ui-row"><div class="ui-dot"></div><div>Propose compensation adjustment for Daniel Kim (promotion)</div></div>
+        <div class="ui-row"><div class="ui-dot"></div><div>Propose retention adjustment for Rachel Green</div></div>
+      </div>
+    </div>
+    <div class="fc-gate future">
+      <div class="fc-gate-icon future"><i class="fa-solid fa-eye"></i></div>
+      <div class="fc-gate-info">
+        <div class="fc-gate-label" style="color:var(--text-neutral-weak);">Finance (VP) approves compensation changes</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Artifact panel -->
+<div class="artifact-panel" id="panel-mid">
+  <!-- Comp -->
+  <div id="panel-mid-comp" style="display:flex;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon chart"><i class="fa-solid fa-chart-bar"></i></div>
+      <div class="ap-header-info"><div class="ap-header-title">Compensation Analysis</div><div class="ap-header-meta">Yesterday, 10:23 AM · Technology Department</div></div>
+      <button class="ap-close" onclick="closePanel('mid')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div class="mock-chart">
+        <div class="chart-title">Pay Band Position — Uma Patel's Team</div>
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>Daniel Kim</span><span style="color:var(--color-risk-high);font-weight:600;">$118K</span></div>
+          <div class="chart-bar-track"><div class="chart-bar-fill" style="width:62%;background:var(--color-risk-high);opacity:0.7;"></div><div class="chart-bar-marker" style="left:71%;"></div></div>
+        </div>
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>Rachel Green</span><span style="color:var(--color-risk-med);font-weight:600;">$105K</span></div>
+          <div class="chart-bar-track"><div class="chart-bar-fill" style="width:55%;background:var(--color-risk-med);opacity:0.7;"></div><div class="chart-bar-marker" style="left:60%;"></div></div>
+        </div>
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>James Liu</span><span style="color:var(--color-risk-low);font-weight:600;">$128K</span></div>
+          <div class="chart-bar-track"><div class="chart-bar-fill" style="width:67%;background:var(--color-risk-low);opacity:0.7;"></div><div class="chart-bar-marker" style="left:67%;"></div></div>
+        </div>
+      </div>
+      <table class="mock-table">
+        <thead><tr><th>Employee</th><th>Salary</th><th>Midpoint</th><th>Compa</th><th>Risk</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Daniel Kim</strong></td><td>$118,000</td><td>$135,000</td><td style="color:var(--color-risk-high);font-weight:600;">0.87</td><td><span style="background:#FEE2E2;color:var(--color-risk-high);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">HIGH</span></td></tr>
+          <tr><td><strong>Rachel Green</strong></td><td>$105,000</td><td>$114,000</td><td style="color:var(--color-risk-med);font-weight:600;">0.92</td><td><span style="background:var(--color-awaiting-light);color:var(--color-risk-med);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">MED</span></td></tr>
+          <tr><td>James Liu</td><td>$128,000</td><td>$128,000</td><td style="color:var(--color-risk-low);font-weight:600;">1.00</td><td><span style="background:var(--color-done-light);color:var(--color-risk-low);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">LOW</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ap-actions">
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-download"></i> Export</button>
+    </div>
+  </div>
+  <!-- Org -->
+  <div id="panel-mid-org" style="display:none;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon report"><i class="fa-solid fa-sitemap"></i></div>
+      <div class="ap-header-info"><div class="ap-header-title">Org Impact Report</div><div class="ap-header-meta">Yesterday, 10:25 AM</div></div>
+      <button class="ap-close" onclick="closePanel('mid')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div style="font-size:13px;line-height:1.7;color:var(--text-neutral-strong);">
+        <p style="margin-bottom:14px;"><strong>Span of control:</strong> Uma Patel drops from 8→7 direct reports.</p>
+        <p style="margin-bottom:14px;"><strong>Projects affected:</strong></p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;"><strong>API Gateway v2</strong> — 65% complete, Tony is sole reviewer. Daniel Kim has most context.</div>
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;"><strong>Mobile SDK</strong> — 30% complete, Tony owns architecture. Rachel Green is secondary.</div>
+        </div>
+        <p><strong>Knowledge gaps:</strong></p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+          <span style="padding:4px 10px;background:#FEE2E2;color:var(--color-risk-high);border-radius:6px;font-size:11px;font-weight:600;">AWS Infrastructure</span>
+          <span style="padding:4px 10px;background:var(--color-awaiting-light);color:var(--color-risk-med);border-radius:6px;font-size:11px;font-weight:600;">API Architecture</span>
+          <span style="padding:4px 10px;background:var(--color-awaiting-light);color:var(--color-risk-med);border-radius:6px;font-size:11px;font-weight:600;">CI/CD Pipeline</span>
+        </div>
+      </div>
+    </div>
+    <div class="ap-actions"><button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button></div>
+  </div>
+  <!-- Dev plan -->
+  <div id="panel-mid-devplan" style="display:none;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon text"><i class="fa-solid fa-file-lines"></i></div>
+      <div class="ap-header-info"><div class="ap-header-title">Daniel Kim — Development Plan</div><div class="ap-header-meta">Yesterday, 10:29 AM · Senior SE Track</div></div>
+      <button class="ap-close" onclick="closePanel('mid')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div style="margin-bottom:16px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Readiness: 82/100</div>
+        <div style="height:8px;background:#E7E5E4;border-radius:4px;overflow:hidden;"><div style="width:82%;height:100%;background:var(--color-done);border-radius:4px;"></div></div>
+        <div style="font-size:12px;color:var(--text-neutral-medium);margin-top:6px;">Exceeds 75 threshold. Primary gap: mentorship experience.</div>
+      </div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;">90-Day Milestones</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;"><strong>Month 1:</strong> Take over API Gateway lead. Shadow Uma on architecture reviews.</div>
+        <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;"><strong>Month 2:</strong> Mentor junior engineer. Begin AWS cert prep.</div>
+        <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;"><strong>Month 3:</strong> Lead cross-team review. Complete AWS Solutions Architect.</div>
+      </div>
+      <div style="margin-top:16px;">
+        <div style="font-size:13px;font-weight:600;margin-bottom:4px;">Compensation Adjustment</div>
+        <div style="font-size:12px;color:var(--text-neutral-strong);line-height:1.5;">Proposed: $118K → $138K (+17%). Compa-ratio 0.87 → 1.02. Within Senior SE band ($125K–$155K).</div>
+      </div>
+    </div>
+    <div class="ap-actions">
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-pen"></i> Edit</button>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+
+<!-- ============================================================
+     VIEW 2: WEEK-LATER RETROSPECTIVE (completed, read-only)
+     ============================================================ -->
+<div class="view" id="view-done">
+<div class="shell" id="shell-done">
+<div class="findings-pane">
+
+  <div class="plan-header">
+    <div class="ph-top">
+      <div class="ph-icon" style="background:var(--color-done-light);color:var(--color-done);"><i class="fa-solid fa-clipboard-check"></i></div>
+      <div class="ph-info">
+        <h1>Backfill Plan for Tony Ramirez</h1>
+        <div class="ph-meta">
+          <span class="badge badge-completed"><i class="fa-solid fa-check"></i> Completed</span>
+          <div class="mi"><i class="fa-regular fa-clock"></i> Completed in 2 days</div>
+          <div class="mi"><i class="fa-regular fa-calendar"></i> Jan 14–15, 2026</div>
+          <div class="mi"><a href="#"><i class="fa-regular fa-comment"></i> View conversation</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="ph-progress">
+      <div class="ph-bar"><div class="fill" style="width:100%;background:var(--color-done);"></div></div>
+      <div class="ph-progress-label">9 of 9 · 3 reviews · 5 artifacts</div>
+    </div>
+  </div>
+
+  <!-- Finding 1 -->
+  <div class="finding-card done">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Team Compensation & Retention Risk</div>
+          <div class="fc-time">Jan 14, 10:23 AM</div>
+        </div>
+      </div>
+      <div class="fc-lead">
+        <strong>Daniel Kim is significantly underpaid and a high flight risk.</strong>
+        15% below midpoint ($118K vs $135K), no promotion in 2 years. Tony's departure creates AWS cert gap and 2 projects without a lead.
+      </div>
+      <div class="fc-secondaries">
+        <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green — MEDIUM risk.</strong> $105K, 8% below midpoint, top performer.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator low"></div><div class="fc-sec-text"><strong>James Liu — LOW risk.</strong> At midpoint, recently promoted.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Team compa-ratio: 0.87.</strong></div></div>
+      </div>
+      <div class="fc-artifacts">
+        <div class="artifact-chip" onclick="openPanel('done','comp2')"><i class="fa-solid fa-chart-bar"></i> Compensation Analysis <i class="fa-solid fa-arrow-right chip-arrow"></i></div>
+        <div class="artifact-chip" onclick="openPanel('done','org2')"><i class="fa-solid fa-sitemap"></i> Org Impact Report <i class="fa-solid fa-arrow-right chip-arrow"></i></div>
+      </div>
+    </div>
+    <div class="fc-gate passed">
+      <div class="fc-gate-icon passed"><i class="fa-solid fa-check"></i></div>
+      <div class="fc-gate-info">
+        <div class="fc-gate-label">Reviewed by You</div>
+        <div class="fc-gate-sub">Approved to proceed — Jan 14, 10:27 AM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parallel findings -->
+  <div class="parallel-label">
+    <div class="parallel-label-text"><i class="fa-solid fa-code-branch"></i> Ran in parallel</div>
+    <div class="line"></div>
+  </div>
+  <div class="parallel-group">
+    <div class="finding-card done">
+      <div class="fc-main">
+        <div class="fc-header">
+          <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+          <div class="fc-title-block"><div class="fc-title">Internal Candidates</div><div class="fc-time">Jan 14, 10:28 AM</div></div>
+        </div>
+        <div class="fc-lead"><strong>Daniel Kim: 82/100 — ready for Senior SE.</strong> Gap: mentorship. Development plan drafted.</div>
+        <div class="fc-secondaries">
+          <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green: 71/100</strong> — 6–12 months out.</div></div>
+          <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Secondary backfill</strong> at mid-level — 3 candidates available.</div></div>
+        </div>
+        <div class="fc-artifacts">
+          <div class="artifact-chip" onclick="openPanel('done','devplan2')"><i class="fa-solid fa-file-lines"></i> Development Plan <i class="fa-solid fa-arrow-right chip-arrow"></i></div>
+        </div>
+      </div>
+    </div>
+    <div class="finding-card done">
+      <div class="fc-main">
+        <div class="fc-header">
+          <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+          <div class="fc-title-block"><div class="fc-title">External Hiring Pipeline</div><div class="fc-time">Jan 14, 10:28 AM</div></div>
+        </div>
+        <div class="fc-lead"><strong>3 strong candidates identified.</strong> Sarah Chen (94/100), Marcus Johnson (88), Alex Rivera (85).</div>
+        <div class="fc-secondaries">
+          <div class="fc-secondary"><div class="fc-sec-indicator low"></div><div class="fc-sec-text"><strong>Sarah Chen</strong> — 8 yrs, AWS certified, best match.</div></div>
+          <div class="fc-secondary"><div class="fc-sec-indicator neutral"></div><div class="fc-sec-text">2 candidates below 80 threshold — not recommended.</div></div>
+        </div>
+        <div class="fc-artifacts">
+          <div class="artifact-chip"><i class="fa-solid fa-briefcase"></i> Job Posting</div>
+          <div class="artifact-chip"><i class="fa-solid fa-envelope"></i> Outreach (3)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Shared gate -->
+  <div class="standalone-gate">
+    <div class="fc-gate-icon passed"><i class="fa-solid fa-check"></i></div>
+    <div class="fc-gate-info">
+      <div class="fc-gate-label">Reviewed by Uma Patel & You</div>
+      <div class="fc-gate-sub">Uma confirmed Daniel Kim promotion. You approved posting and outreach. — Jan 15, 9:14 AM</div>
+    </div>
+  </div>
+
+  <!-- Finding 4 -->
+  <div class="finding-card done">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Retention & Compensation Adjustments</div>
+          <div class="fc-time">Jan 15, 9:15 AM</div>
+        </div>
+      </div>
+      <div class="fc-lead"><strong>Two compensation proposals drafted and approved.</strong> Daniel Kim: $118K→$138K (+17%) on promotion. Rachel Green: $105K→$114K (+8.6%) retention adjustment.</div>
+      <div class="fc-secondaries">
+        <div class="fc-secondary"><div class="fc-sec-indicator low"></div><div class="fc-sec-text"><strong>Combined budget impact: $29K/yr.</strong> Within department budget ($45K remaining).</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Team compa-ratio improves to 0.96</strong> — within target range for the first time in 8 months.</div></div>
+      </div>
+    </div>
+    <div class="fc-gate passed">
+      <div class="fc-gate-icon passed"><i class="fa-solid fa-check"></i></div>
+      <div class="fc-gate-info">
+        <div class="fc-gate-label">Reviewed by Sarah Mitchell (Finance VP)</div>
+        <div class="fc-gate-sub">Both adjustments approved, effective next pay period — Jan 15, 10:02 AM</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="completion-banner">
+    <div class="completion-dot"><i class="fa-solid fa-check"></i></div>
+    <div>
+      <div style="font-size:13px;font-weight:600;color:var(--color-done);">Plan completed</div>
+      <div style="font-size:12px;color:var(--text-neutral-strong);">3 review gates passed · 5 artifacts created · Completed over 2 days</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Artifact panel for completed view -->
+<div class="artifact-panel" id="panel-done">
+  <div id="panel-done-comp2" style="display:flex;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon chart"><i class="fa-solid fa-chart-bar"></i></div>
+      <div class="ap-header-info"><div class="ap-header-title">Compensation Analysis</div><div class="ap-header-meta">Jan 14, 10:23 AM · Technology Department</div></div>
+      <button class="ap-close" onclick="closePanel('done')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div class="mock-chart">
+        <div class="chart-title">Pay Band Position — Uma Patel's Team</div>
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>Daniel Kim</span><span style="color:var(--color-risk-high);font-weight:600;">$118K</span></div>
+          <div class="chart-bar-track"><div class="chart-bar-fill" style="width:62%;background:var(--color-risk-high);opacity:0.7;"></div><div class="chart-bar-marker" style="left:71%;"></div></div>
+        </div>
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>Rachel Green</span><span style="color:var(--color-risk-med);font-weight:600;">$105K</span></div>
+          <div class="chart-bar-track"><div class="chart-bar-fill" style="width:55%;background:var(--color-risk-med);opacity:0.7;"></div><div class="chart-bar-marker" style="left:60%;"></div></div>
+        </div>
+        <div class="chart-bar-group">
+          <div class="chart-bar-label"><span>James Liu</span><span style="color:var(--color-risk-low);font-weight:600;">$128K</span></div>
+          <div class="chart-bar-track"><div class="chart-bar-fill" style="width:67%;background:var(--color-risk-low);opacity:0.7;"></div><div class="chart-bar-marker" style="left:67%;"></div></div>
+        </div>
+      </div>
+      <table class="mock-table">
+        <thead><tr><th>Employee</th><th>Salary</th><th>Midpoint</th><th>Compa</th><th>Risk</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Daniel Kim</strong></td><td>$118,000</td><td>$135,000</td><td style="color:var(--color-risk-high);font-weight:600;">0.87</td><td><span style="background:#FEE2E2;color:var(--color-risk-high);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">HIGH</span></td></tr>
+          <tr><td><strong>Rachel Green</strong></td><td>$105,000</td><td>$114,000</td><td style="color:var(--color-risk-med);font-weight:600;">0.92</td><td><span style="background:var(--color-awaiting-light);color:var(--color-risk-med);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">MED</span></td></tr>
+          <tr><td>James Liu</td><td>$128,000</td><td>$128,000</td><td style="color:var(--color-risk-low);font-weight:600;">1.00</td><td><span style="background:var(--color-done-light);color:var(--color-risk-low);padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600;">LOW</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ap-actions">
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button>
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-download"></i> Export</button>
+    </div>
+  </div>
+  <div id="panel-done-org2" style="display:none;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon report"><i class="fa-solid fa-sitemap"></i></div>
+      <div class="ap-header-info"><div class="ap-header-title">Org Impact Report</div><div class="ap-header-meta">Jan 14, 10:25 AM</div></div>
+      <button class="ap-close" onclick="closePanel('done')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div style="font-size:13px;line-height:1.7;color:var(--text-neutral-strong);">
+        <p style="margin-bottom:14px;"><strong>Span of control:</strong> Uma Patel 8→7 direct reports.</p>
+        <p style="margin-bottom:14px;"><strong>Projects affected:</strong></p>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;"><strong>API Gateway v2</strong> — 65% complete, Tony sole reviewer.</div>
+          <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;"><strong>Mobile SDK</strong> — 30% complete, Tony owns architecture.</div>
+        </div>
+        <p><strong>Knowledge gaps:</strong></p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+          <span style="padding:4px 10px;background:#FEE2E2;color:var(--color-risk-high);border-radius:6px;font-size:11px;font-weight:600;">AWS Infrastructure</span>
+          <span style="padding:4px 10px;background:var(--color-awaiting-light);color:var(--color-risk-med);border-radius:6px;font-size:11px;font-weight:600;">API Architecture</span>
+          <span style="padding:4px 10px;background:var(--color-awaiting-light);color:var(--color-risk-med);border-radius:6px;font-size:11px;font-weight:600;">CI/CD Pipeline</span>
+        </div>
+      </div>
+    </div>
+    <div class="ap-actions"><button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button></div>
+  </div>
+  <div id="panel-done-devplan2" style="display:none;flex-direction:column;height:100%;">
+    <div class="ap-header">
+      <div class="ap-header-icon text"><i class="fa-solid fa-file-lines"></i></div>
+      <div class="ap-header-info"><div class="ap-header-title">Daniel Kim — Development Plan</div><div class="ap-header-meta">Jan 14, 10:29 AM · Senior SE Track</div></div>
+      <button class="ap-close" onclick="closePanel('done')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="ap-body">
+      <div style="margin-bottom:16px;"><div style="font-size:13px;font-weight:600;margin-bottom:4px;">Readiness: 82/100</div>
+        <div style="height:8px;background:#E7E5E4;border-radius:4px;overflow:hidden;"><div style="width:82%;height:100%;background:var(--color-done);border-radius:4px;"></div></div>
+      </div>
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;">90-Day Milestones</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;"><strong>Month 1:</strong> Take over API Gateway lead. Shadow Uma on reviews.</div>
+        <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;"><strong>Month 2:</strong> Mentor junior engineer. Begin AWS cert prep.</div>
+        <div style="padding:10px 14px;background:var(--surface-neutral-xx-weak);border-radius:8px;font-size:12px;line-height:1.5;"><strong>Month 3:</strong> Lead cross-team review. Complete AWS cert.</div>
+      </div>
+    </div>
+    <div class="ap-actions">
+      <button class="btn btn-outline btn-sm" style="flex:1;justify-content:center;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open full view</button>
+    </div>
+  </div>
+</div>
+
+</div>
+</div>
+
+
+<script>
+  const descs = {
+    mid: 'Next-day check-in. Plan is mid-execution, waiting on Uma. Read-only — "Open in chat" to act. Upcoming sections show what\'s ahead.',
+    done: 'Week-later retrospective. Boss asks "what did we do about Tony?" Full findings, all artifacts, every decision with who approved and when.'
+  };
+
+  function showView(id) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('view-' + id).classList.add('active');
+    document.getElementById('state-desc').textContent = descs[id];
+    event.target.classList.add('active');
+    document.querySelectorAll('.shell').forEach(s => s.classList.remove('panel-open'));
+  }
+
+  function openPanel(view, type) {
+    const shell = document.getElementById('shell-' + view);
+    const panel = document.getElementById('panel-' + view);
+    panel.querySelectorAll(':scope > div').forEach(d => d.style.display = 'none');
+    document.getElementById('panel-' + view + '-' + type).style.display = 'flex';
+    shell.querySelectorAll('.artifact-chip').forEach(c => c.classList.remove('active'));
+    event.target.closest('.artifact-chip').classList.add('active');
+    shell.classList.add('panel-open');
+  }
+
+  function closePanel(view) {
+    document.getElementById('shell-' + view).classList.remove('panel-open');
+    document.getElementById('shell-' + view).querySelectorAll('.artifact-chip').forEach(c => c.classList.remove('active'));
+  }
+</script>
+
+</body>
+</html>

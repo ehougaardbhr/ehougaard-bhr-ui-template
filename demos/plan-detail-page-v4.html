@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plan Detail v4 — Plan Overview Options (A / B / C)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --color-queued: #A8A29E;
+      --color-queued-light: #F5F3F2;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-review: #2e7918;
+      --color-review-light: #E8F5E3;
+      --color-review-strong: #256314;
+      --color-awaiting: #D97706;
+      --color-awaiting-light: #FEF3C7;
+      --color-risk-high: #DC2626;
+      --color-risk-med: #D97706;
+      --color-risk-low: #059669;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0EDEB;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* ==============================
+       Top nav
+       ============================== */
+    .top-nav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; padding: 0 32px; height: 56px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .breadcrumb { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-neutral-medium); }
+    .breadcrumb a { color: var(--color-primary); text-decoration: none; font-weight: 500; }
+    .breadcrumb .sep { color: var(--text-neutral-weak); font-size: 9px; }
+    .breadcrumb .current { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    /* ==============================
+       Option switcher
+       ============================== */
+    .option-switcher {
+      display: flex; justify-content: center; gap: 8px;
+      padding: 24px 0 8px;
+    }
+    .option-btn {
+      padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-medium); cursor: pointer; transition: all 0.15s ease;
+    }
+    .option-btn.active { background: var(--text-neutral-xx-strong); color: white; border-color: var(--text-neutral-xx-strong); }
+    .option-desc {
+      text-align: center; font-size: 12px; color: var(--text-neutral-medium);
+      max-width: 500px; margin: 8px auto 24px; line-height: 1.5;
+    }
+
+    .option-view { display: none; }
+    .option-view.active { display: block; }
+
+    /* ==============================
+       Common styles
+       ============================== */
+    .page { max-width: 740px; margin: 0 auto; padding: 0 24px 80px; }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 99px;
+    }
+    .badge-paused { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+
+    .btn {
+      padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+      border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-outline { background: var(--surface-neutral-white); color: var(--text-neutral-strong); border: 1px solid var(--border-neutral-medium); }
+    .btn-outline:hover { background: var(--surface-neutral-xx-weak); }
+    .btn-amber { background: var(--color-awaiting); color: white; }
+    .btn-sm { padding: 5px 10px; font-size: 11px; }
+
+    /* Plan header */
+    .plan-header {
+      background: var(--surface-neutral-white);
+      border-radius: 16px;
+      border: 1px solid var(--border-neutral-weak);
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .ph-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .ph-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+      background: var(--color-awaiting-light); color: var(--color-awaiting);
+    }
+    .ph-info { flex: 1; }
+    .ph-info h1 { font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+    .ph-meta {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      font-size: 12px; color: var(--text-neutral-medium);
+    }
+    .ph-meta a { color: var(--color-primary); text-decoration: none; }
+    .mi { display: flex; align-items: center; gap: 4px; }
+    .mi i { font-size: 10px; }
+    .ph-progress { display: flex; align-items: center; gap: 14px; }
+    .ph-bar { flex: 1; height: 5px; border-radius: 3px; background: #E7E5E4; overflow: hidden; }
+    .ph-bar .fill { height: 100%; border-radius: 3px; background: var(--color-working); }
+    .ph-progress-label { font-size: 12px; font-weight: 600; color: var(--text-neutral-medium); white-space: nowrap; }
+
+    /* Finding card */
+    .finding-card {
+      background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak);
+      border-radius: 14px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .fc-main { padding: 20px 22px; border-left: 3px solid transparent; }
+    .finding-card.done .fc-main { border-left-color: var(--color-done); }
+    .finding-card.awaiting .fc-main { border-left-color: var(--color-awaiting); }
+    .finding-card.queued .fc-main { border-left-color: var(--color-queued); }
+
+    .fc-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .fc-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; flex-shrink: 0; margin-top: 1px;
+    }
+    .fc-icon.done { background: var(--color-done-light); color: var(--color-done); }
+    .fc-icon.awaiting { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .fc-icon.queued { background: var(--color-queued-light); color: var(--color-queued); }
+    .fc-title-block { flex: 1; }
+    .fc-title { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+    .fc-time { font-size: 11px; color: var(--text-neutral-weak); }
+
+    .fc-lead {
+      font-size: 14px; line-height: 1.65; color: var(--text-neutral-strong);
+      margin-bottom: 14px; padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .fc-lead strong { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    .fc-secondaries { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .fc-secondary { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; line-height: 1.55; color: var(--text-neutral-strong); }
+    .fc-sec-indicator { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; margin-top: 6px; }
+    .fc-sec-indicator.high { background: var(--color-risk-high); }
+    .fc-sec-indicator.med { background: var(--color-risk-med); }
+    .fc-sec-indicator.low { background: var(--color-risk-low); }
+    .fc-sec-indicator.info { background: var(--color-working); }
+    .fc-sec-text { flex: 1; }
+    .fc-sec-text strong { color: var(--text-neutral-xx-strong); font-weight: 600; }
+
+    .fc-artifacts { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 14px; border-top: 1px solid var(--border-neutral-weak); }
+    .artifact-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      background: var(--surface-neutral-xx-weak); border: 1px solid var(--border-neutral-weak);
+      font-size: 12px; font-weight: 500; color: var(--text-neutral-strong);
+      cursor: pointer; transition: all 0.15s ease;
+    }
+    .artifact-chip:hover { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary); }
+    .artifact-chip i { font-size: 11px; }
+
+    .fc-review {
+      padding: 12px 22px;
+      background: var(--surface-neutral-xx-weak);
+      border-top: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .fc-review.passed { background: #FAFFF8; }
+    .fc-review.ready { background: #FFFBEB; }
+    .fc-review-icon {
+      width: 22px; height: 22px; border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; flex-shrink: 0;
+    }
+    .fc-review-icon.passed { background: var(--color-done-light); color: var(--color-done); }
+    .fc-review-icon.ready { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .fc-review-info { flex: 1; }
+    .fc-review-label { font-size: 12px; font-weight: 500; }
+    .fc-review-sub { font-size: 11px; color: var(--text-neutral-weak); margin-top: 1px; }
+
+    .fc-queued-items { font-size: 12px; color: var(--text-neutral-weak); line-height: 1.6; margin-top: 4px; }
+
+    @keyframes pulse-amber { 0%, 100% { box-shadow: 0 0 0 0 rgba(217,119,6,0.2); } 50% { box-shadow: 0 0 0 8px rgba(217,119,6,0); } }
+
+    /* ==============================
+       OPTION A: Expanded queued cards
+       ============================== */
+    .queued-expanded { padding: 16px 22px; border-left: 3px solid var(--color-queued); }
+    .queued-item-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+    .qi-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-neutral-medium);
+    }
+    .qi-dot {
+      width: 14px; height: 14px; border-radius: 50%;
+      border: 1.5px solid #D6D3D1;
+      flex-shrink: 0;
+    }
+    .qi-text { flex: 1; }
+    .qi-review-row {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: var(--text-neutral-weak);
+      padding: 6px 0 0;
+      margin-top: 4px;
+      border-top: 1px dashed var(--border-neutral-weak);
+    }
+    .qi-review-icon {
+      width: 14px; height: 14px; border-radius: 4px;
+      background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; flex-shrink: 0;
+    }
+
+    /* ==============================
+       OPTION B: Disclosure in header
+       ============================== */
+    .plan-outline-toggle {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 500; color: var(--text-neutral-medium);
+      cursor: pointer; border: none; background: none;
+      padding: 12px 0 0; margin-top: 12px;
+      border-top: 1px solid var(--border-neutral-weak);
+      width: 100%;
+      transition: color 0.15s ease;
+    }
+    .plan-outline-toggle:hover { color: var(--text-neutral-x-strong); }
+    .plan-outline-toggle i { font-size: 9px; transition: transform 0.2s ease; }
+    .plan-outline-toggle.open i { transform: rotate(90deg); }
+
+    .plan-outline {
+      display: none;
+      margin-top: 14px;
+    }
+    .plan-outline.open { display: block; }
+
+    .po-section {
+      display: flex; gap: 12px;
+      padding: 0 0 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .po-section:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+    .po-section-indicator {
+      display: flex; flex-direction: column; align-items: center;
+      padding-top: 2px;
+    }
+    .po-section-dot {
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; flex-shrink: 0;
+    }
+    .po-section-dot.done { background: var(--color-done-light); color: var(--color-done); }
+    .po-section-dot.working { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .po-section-dot.queued { background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak); }
+    .po-section-line {
+      width: 2px; flex: 1; background: var(--border-neutral-weak); margin-top: 4px;
+    }
+    .po-section-dot.done + .po-section-line { background: var(--color-done-light); }
+
+    .po-section-content { flex: 1; }
+    .po-section-title {
+      font-size: 13px; font-weight: 600; margin-bottom: 6px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .po-section-title .po-badge {
+      font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 99px;
+    }
+    .po-badge.done { background: var(--color-done-light); color: var(--color-done); }
+    .po-badge.working { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .po-badge.queued { background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak); }
+
+    .po-items { display: flex; flex-direction: column; gap: 3px; }
+    .po-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--text-neutral-medium); line-height: 1.4;
+    }
+    .po-item-dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6px; flex-shrink: 0;
+    }
+    .po-item-dot.done { background: var(--color-done-light); color: var(--color-done); }
+    .po-item-dot.open { border: 1.5px solid #D6D3D1; }
+    .po-item.done-text { color: var(--text-neutral-weak); text-decoration: line-through; }
+
+    .po-review {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--text-neutral-weak);
+      margin-top: 6px; padding-top: 6px;
+      border-top: 1px dashed var(--border-neutral-weak);
+    }
+    .po-review-icon {
+      width: 14px; height: 14px; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 7px; flex-shrink: 0;
+    }
+    .po-review-icon.done { background: var(--color-done-light); color: var(--color-done); }
+    .po-review-icon.waiting { background: var(--color-awaiting-light); color: var(--color-awaiting); }
+    .po-review-icon.future { background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak); }
+
+    /* ==============================
+       OPTION C: Left rail
+       ============================== */
+    .shell-c {
+      display: flex;
+      min-height: calc(100vh - 56px);
+    }
+    .rail {
+      width: 220px;
+      flex-shrink: 0;
+      padding: 32px 0 80px 24px;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    .rail-title {
+      font-size: 11px; font-weight: 600; color: var(--text-neutral-medium);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+    .rail-section {
+      margin-bottom: 16px;
+      padding-left: 16px;
+      border-left: 2px solid var(--border-neutral-weak);
+      position: relative;
+    }
+    .rail-section.done { border-left-color: var(--color-done); }
+    .rail-section.working { border-left-color: var(--color-awaiting); }
+    .rail-section.queued { border-left-color: var(--border-neutral-weak); }
+
+    .rail-section-dot {
+      position: absolute; left: -7px; top: 0;
+      width: 12px; height: 12px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 6px;
+    }
+    .rail-section-dot.done { background: var(--color-done); color: white; }
+    .rail-section-dot.working { background: var(--color-awaiting); color: white; }
+    .rail-section-dot.queued { background: var(--surface-neutral-x-weak); color: var(--text-neutral-weak); border: 1px solid var(--border-neutral-medium); }
+
+    .rail-section-title {
+      font-size: 12px; font-weight: 600; margin-bottom: 4px;
+      cursor: pointer;
+    }
+    .rail-section-title:hover { color: var(--color-primary); }
+    .rail-section.done .rail-section-title { color: var(--text-neutral-medium); }
+    .rail-section.queued .rail-section-title { color: var(--text-neutral-weak); }
+
+    .rail-section-meta {
+      font-size: 11px; color: var(--text-neutral-weak);
+      margin-bottom: 6px;
+    }
+    .rail-items { display: flex; flex-direction: column; gap: 2px; }
+    .rail-item {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; color: var(--text-neutral-medium);
+    }
+    .rail-item-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .rail-item-dot.done { background: var(--color-done-light); border: 1px solid var(--color-done); }
+    .rail-item-dot.open { border: 1px solid #D6D3D1; }
+    .rail-item.done-text { color: var(--text-neutral-weak); text-decoration: line-through; }
+
+    .rail-review {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 10px; color: var(--text-neutral-weak);
+      margin-top: 4px;
+    }
+    .rail-review i { font-size: 8px; }
+
+    .page-c {
+      flex: 1;
+      max-width: 680px;
+      padding: 32px 24px 80px;
+    }
+
+    /* Shared finding card in Option A queued section */
+    .finding-card.queued-card .fc-main { padding: 14px 22px; }
+  </style>
+</head>
+<body>
+
+<div class="top-nav">
+  <div class="breadcrumb">
+    <a href="#"><i class="fa-solid fa-house" style="font-size:12px;"></i></a>
+    <span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+    <a href="#">Activity</a>
+    <span class="sep"><i class="fa-solid fa-chevron-right"></i></span>
+    <span class="current">Backfill Plan for Tony Ramirez</span>
+  </div>
+</div>
+
+<div class="option-switcher">
+  <button class="option-btn active" onclick="showOption('a')">A: Expanded Queued Cards</button>
+  <button class="option-btn" onclick="showOption('b')">B: Header Disclosure</button>
+  <button class="option-btn" onclick="showOption('c')">C: Plan Rail</button>
+</div>
+<div class="option-desc" id="option-desc">Queued cards show full item list, review gates, and reviewers. Plan structure is visible where you'd naturally look for it — in the upcoming work.</div>
+
+<!-- ============================================================
+     OPTION A: Expanded Queued Cards
+     ============================================================ -->
+<div class="option-view active" id="option-a">
+<div class="page">
+
+  <div class="plan-header">
+    <div class="ph-top">
+      <div class="ph-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+      <div class="ph-info">
+        <h1>Backfill Plan for Tony Ramirez</h1>
+        <div class="ph-meta">
+          <span class="badge badge-paused"><i class="fa-solid fa-hand"></i> Needs Review</span>
+          <div class="mi"><i class="fa-regular fa-clock"></i> 12 min ago</div>
+          <div class="mi"><a href="#"><i class="fa-regular fa-comment"></i> Open in chat</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="ph-progress">
+      <div class="ph-bar"><div class="fill" style="width:43%;"></div></div>
+      <div class="ph-progress-label">3 of 7 complete</div>
+    </div>
+  </div>
+
+  <!-- Finding 1: Done (abbreviated) -->
+  <div class="finding-card done">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Team Compensation & Retention Risk</div>
+          <div class="fc-time">Completed 10:25 AM</div>
+        </div>
+      </div>
+      <div class="fc-lead">
+        <strong>Daniel Kim is significantly underpaid and a high flight risk.</strong>
+        15% below midpoint ($118K vs $135K), no promotion in 2 years. Tony's departure creates AWS cert gap and leaves 2 projects without a lead.
+      </div>
+      <div class="fc-secondaries">
+        <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green — MEDIUM risk.</strong> $105K, 8% below midpoint, top performer, no comp adjustment in 14 months.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator low"></div><div class="fc-sec-text"><strong>James Liu — LOW risk.</strong> Recently promoted, comp at midpoint.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Team compa-ratio: 0.87</strong> — below target range across the board.</div></div>
+      </div>
+      <div class="fc-artifacts">
+        <div class="artifact-chip"><i class="fa-solid fa-chart-bar"></i> Compensation Analysis</div>
+        <div class="artifact-chip"><i class="fa-solid fa-sitemap"></i> Org Impact Report</div>
+      </div>
+    </div>
+    <div class="fc-review passed">
+      <div class="fc-review-icon passed"><i class="fa-solid fa-check"></i></div>
+      <div class="fc-review-info">
+        <div class="fc-review-label">Reviewed by You</div>
+        <div class="fc-review-sub">Approved to proceed — 10:27 AM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Finding 2: Awaiting (abbreviated) -->
+  <div class="finding-card awaiting" style="animation: pulse-amber 3s ease-in-out infinite;">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon awaiting"><i class="fa-solid fa-hand"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Internal Candidate Assessment</div>
+          <div class="fc-time">Analysis complete — waiting for review</div>
+        </div>
+      </div>
+      <div class="fc-lead">
+        <strong>Daniel Kim scores 82/100 — ready for Senior SE.</strong>
+        Strong technical skills, exceeds expectations. Primary gap: mentorship experience. Development plan drafted.
+      </div>
+      <div class="fc-secondaries">
+        <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green: 71/100</strong> — needs 6–12 months. Worth tracking for next cycle.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Promoting Daniel creates a secondary backfill</strong> at mid-level SE — lower risk, 3 strong candidates available.</div></div>
+      </div>
+      <div class="fc-artifacts">
+        <div class="artifact-chip"><i class="fa-solid fa-file-lines"></i> Daniel Kim — Development Plan</div>
+      </div>
+    </div>
+    <div class="fc-review ready">
+      <div class="fc-review-icon ready"><i class="fa-solid fa-hand"></i></div>
+      <div class="fc-review-info">
+        <div class="fc-review-label" style="color: var(--color-awaiting);">Waiting for Uma Patel</div>
+        <div class="fc-review-sub">Confirm internal candidate direction</div>
+      </div>
+      <div><button class="btn btn-amber btn-sm"><i class="fa-solid fa-eye"></i> Review</button></div>
+    </div>
+  </div>
+
+  <!-- OPTION A: Expanded queued card -->
+  <div class="finding-card queued">
+    <div class="queued-expanded">
+      <div class="fc-header" style="margin-bottom:4px;">
+        <div class="fc-icon queued"><i class="fa-solid fa-clock" style="font-size:11px;"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title" style="color: var(--text-neutral-medium);">External Hiring Pipeline</div>
+          <div class="fc-time">Starts after review gate · 3 items · 1 review gate</div>
+        </div>
+      </div>
+      <div class="queued-item-list">
+        <div class="qi-row"><div class="qi-dot"></div><div class="qi-text">Create job posting for Senior Software Engineer ($125K–$155K)</div></div>
+        <div class="qi-row"><div class="qi-dot"></div><div class="qi-text">Screen talent pool candidates against role requirements</div></div>
+        <div class="qi-row"><div class="qi-dot"></div><div class="qi-text">Draft personalized outreach for top-ranked candidates</div></div>
+        <div class="qi-review-row">
+          <div class="qi-review-icon"><i class="fa-solid fa-eye"></i></div>
+          <div>Review gate: <strong>You</strong> approve job posting and outreach before publishing</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPTION A: Second queued section (to show it scales) -->
+  <div class="finding-card queued">
+    <div class="queued-expanded">
+      <div class="fc-header" style="margin-bottom:4px;">
+        <div class="fc-icon queued"><i class="fa-solid fa-clock" style="font-size:11px;"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title" style="color: var(--text-neutral-medium);">Retention & Compensation Adjustments</div>
+          <div class="fc-time">Final section · 2 items · 1 review gate</div>
+        </div>
+      </div>
+      <div class="queued-item-list">
+        <div class="qi-row"><div class="qi-dot"></div><div class="qi-text">Propose compensation adjustment for Daniel Kim (promotion)</div></div>
+        <div class="qi-row"><div class="qi-dot"></div><div class="qi-text">Propose retention adjustment for Rachel Green</div></div>
+        <div class="qi-review-row">
+          <div class="qi-review-icon"><i class="fa-solid fa-eye"></i></div>
+          <div>Review gate: <strong>Finance (VP)</strong> approves compensation changes</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ============================================================
+     OPTION B: Header Disclosure
+     ============================================================ -->
+<div class="option-view" id="option-b">
+<div class="page">
+
+  <div class="plan-header">
+    <div class="ph-top">
+      <div class="ph-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+      <div class="ph-info">
+        <h1>Backfill Plan for Tony Ramirez</h1>
+        <div class="ph-meta">
+          <span class="badge badge-paused"><i class="fa-solid fa-hand"></i> Needs Review</span>
+          <div class="mi"><i class="fa-regular fa-clock"></i> 12 min ago</div>
+          <div class="mi"><a href="#"><i class="fa-regular fa-comment"></i> Open in chat</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="ph-progress">
+      <div class="ph-bar"><div class="fill" style="width:43%;"></div></div>
+      <div class="ph-progress-label">3 of 7 complete</div>
+    </div>
+
+    <!-- OPTION B: Plan outline disclosure -->
+    <button class="plan-outline-toggle" onclick="toggleOutline(this)">
+      <i class="fa-solid fa-chevron-right"></i>
+      <i class="fa-solid fa-list-check" style="font-size:11px;color:var(--text-neutral-weak);"></i>
+      <span>View full plan</span>
+      <span style="color:var(--text-neutral-weak);margin-left:4px;">· 4 sections · 9 items · 3 review gates</span>
+    </button>
+    <div class="plan-outline" id="plan-outline">
+      <!-- Section 1: Done -->
+      <div class="po-section">
+        <div class="po-section-indicator">
+          <div class="po-section-dot done"><i class="fa-solid fa-check"></i></div>
+          <div class="po-section-line"></div>
+        </div>
+        <div class="po-section-content">
+          <div class="po-section-title">
+            Compensation & Risk Analysis
+            <span class="po-badge done">Done</span>
+          </div>
+          <div class="po-items">
+            <div class="po-item done-text"><div class="po-item-dot done"><i class="fa-solid fa-check"></i></div> Analyze compensation for Technology dept</div>
+            <div class="po-item done-text"><div class="po-item-dot done"><i class="fa-solid fa-check"></i></div> Identify flight risks on Uma's team</div>
+            <div class="po-item done-text"><div class="po-item-dot done"><i class="fa-solid fa-check"></i></div> Analyze org impact of Tony's departure</div>
+          </div>
+          <div class="po-review">
+            <div class="po-review-icon done"><i class="fa-solid fa-check"></i></div>
+            <span>Reviewed by You — 10:27 AM</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 2: Awaiting -->
+      <div class="po-section">
+        <div class="po-section-indicator">
+          <div class="po-section-dot working"><i class="fa-solid fa-hand" style="font-size:7px;"></i></div>
+          <div class="po-section-line"></div>
+        </div>
+        <div class="po-section-content">
+          <div class="po-section-title">
+            Internal Candidate Assessment
+            <span class="po-badge working">Awaiting review</span>
+          </div>
+          <div class="po-items">
+            <div class="po-item done-text"><div class="po-item-dot done"><i class="fa-solid fa-check"></i></div> Assess promotion readiness</div>
+            <div class="po-item done-text"><div class="po-item-dot done"><i class="fa-solid fa-check"></i></div> Model org impact of Daniel Kim promotion</div>
+            <div class="po-item done-text"><div class="po-item-dot done"><i class="fa-solid fa-check"></i></div> Draft development plan for Daniel Kim</div>
+          </div>
+          <div class="po-review">
+            <div class="po-review-icon waiting"><i class="fa-solid fa-hand" style="font-size:7px;"></i></div>
+            <span style="color:var(--color-awaiting);font-weight:500;">Waiting for Uma Patel</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: Queued -->
+      <div class="po-section">
+        <div class="po-section-indicator">
+          <div class="po-section-dot queued"><i class="fa-solid fa-clock" style="font-size:7px;"></i></div>
+          <div class="po-section-line"></div>
+        </div>
+        <div class="po-section-content">
+          <div class="po-section-title" style="color:var(--text-neutral-weak);">
+            External Hiring Pipeline
+            <span class="po-badge queued">Queued</span>
+          </div>
+          <div class="po-items">
+            <div class="po-item"><div class="po-item-dot open"></div> Create job posting for Senior SE</div>
+            <div class="po-item"><div class="po-item-dot open"></div> Screen talent pool candidates</div>
+            <div class="po-item"><div class="po-item-dot open"></div> Draft candidate outreach</div>
+          </div>
+          <div class="po-review">
+            <div class="po-review-icon future"><i class="fa-solid fa-eye" style="font-size:7px;"></i></div>
+            <span>You approve posting and outreach</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 4: Queued -->
+      <div class="po-section">
+        <div class="po-section-indicator">
+          <div class="po-section-dot queued"><i class="fa-solid fa-clock" style="font-size:7px;"></i></div>
+        </div>
+        <div class="po-section-content">
+          <div class="po-section-title" style="color:var(--text-neutral-weak);">
+            Retention & Compensation Adjustments
+            <span class="po-badge queued">Queued</span>
+          </div>
+          <div class="po-items">
+            <div class="po-item"><div class="po-item-dot open"></div> Propose comp adjustment for Daniel Kim</div>
+            <div class="po-item"><div class="po-item-dot open"></div> Propose retention adjustment for Rachel Green</div>
+          </div>
+          <div class="po-review">
+            <div class="po-review-icon future"><i class="fa-solid fa-eye" style="font-size:7px;"></i></div>
+            <span>Finance (VP) approves comp changes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Same findings cards (abbreviated for space) -->
+  <div class="finding-card done">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Team Compensation & Retention Risk</div>
+          <div class="fc-time">Completed 10:25 AM</div>
+        </div>
+      </div>
+      <div class="fc-lead"><strong>Daniel Kim is significantly underpaid and a high flight risk.</strong> 15% below midpoint, no promotion in 2 years. Tony's departure creates AWS cert gap and leaves 2 projects without a lead.</div>
+      <div class="fc-secondaries">
+        <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green — MEDIUM risk.</strong> $105K, 8% below midpoint, top performer.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator low"></div><div class="fc-sec-text"><strong>James Liu — LOW risk.</strong> Recently promoted, at midpoint.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Team compa-ratio: 0.87</strong> — below target range.</div></div>
+      </div>
+      <div class="fc-artifacts">
+        <div class="artifact-chip"><i class="fa-solid fa-chart-bar"></i> Compensation Analysis</div>
+        <div class="artifact-chip"><i class="fa-solid fa-sitemap"></i> Org Impact Report</div>
+      </div>
+    </div>
+    <div class="fc-review passed">
+      <div class="fc-review-icon passed"><i class="fa-solid fa-check"></i></div>
+      <div class="fc-review-info"><div class="fc-review-label">Reviewed by You</div><div class="fc-review-sub">Approved to proceed — 10:27 AM</div></div>
+    </div>
+  </div>
+
+  <div class="finding-card awaiting" style="animation: pulse-amber 3s ease-in-out infinite;">
+    <div class="fc-main">
+      <div class="fc-header">
+        <div class="fc-icon awaiting"><i class="fa-solid fa-hand"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title">Internal Candidate Assessment</div>
+          <div class="fc-time">Analysis complete — waiting for review</div>
+        </div>
+      </div>
+      <div class="fc-lead"><strong>Daniel Kim scores 82/100 — ready for Senior SE.</strong> Strong technical skills, exceeds expectations. Development plan drafted.</div>
+      <div class="fc-secondaries">
+        <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green: 71/100</strong> — needs 6–12 months.</div></div>
+        <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Secondary backfill needed</strong> at mid-level SE — lower risk.</div></div>
+      </div>
+      <div class="fc-artifacts">
+        <div class="artifact-chip"><i class="fa-solid fa-file-lines"></i> Daniel Kim — Development Plan</div>
+      </div>
+    </div>
+    <div class="fc-review ready">
+      <div class="fc-review-icon ready"><i class="fa-solid fa-hand"></i></div>
+      <div class="fc-review-info"><div class="fc-review-label" style="color:var(--color-awaiting);">Waiting for Uma Patel</div><div class="fc-review-sub">Confirm internal candidate direction</div></div>
+      <div><button class="btn btn-amber btn-sm"><i class="fa-solid fa-eye"></i> Review</button></div>
+    </div>
+  </div>
+
+  <!-- Option B: minimal queued card (since header has the plan) -->
+  <div class="finding-card queued">
+    <div class="fc-main" style="padding:14px 22px;">
+      <div class="fc-header" style="margin-bottom:0;">
+        <div class="fc-icon queued"><i class="fa-solid fa-clock" style="font-size:11px;"></i></div>
+        <div class="fc-title-block">
+          <div class="fc-title" style="color:var(--text-neutral-weak);">2 more sections queued</div>
+          <div class="fc-time">External Hiring Pipeline · Retention & Comp Adjustments</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ============================================================
+     OPTION C: Plan Rail
+     ============================================================ -->
+<div class="option-view" id="option-c">
+<div class="shell-c">
+
+  <!-- Left rail -->
+  <div class="rail">
+    <div class="rail-title">Plan Overview</div>
+
+    <!-- Section 1 -->
+    <div class="rail-section done">
+      <div class="rail-section-dot done"><i class="fa-solid fa-check"></i></div>
+      <div class="rail-section-title">Compensation & Risk Analysis</div>
+      <div class="rail-section-meta">3/3 done · 10:23–10:25 AM</div>
+      <div class="rail-items">
+        <div class="rail-item done-text"><div class="rail-item-dot done"></div> Analyze compensation</div>
+        <div class="rail-item done-text"><div class="rail-item-dot done"></div> Identify flight risks</div>
+        <div class="rail-item done-text"><div class="rail-item-dot done"></div> Analyze org impact</div>
+      </div>
+      <div class="rail-review"><i class="fa-solid fa-check" style="color:var(--color-done);"></i> You — 10:27 AM</div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="rail-section working">
+      <div class="rail-section-dot working"><i class="fa-solid fa-hand" style="font-size:6px;"></i></div>
+      <div class="rail-section-title">Internal Candidates</div>
+      <div class="rail-section-meta" style="color:var(--color-awaiting);font-weight:500;">Awaiting Uma Patel</div>
+      <div class="rail-items">
+        <div class="rail-item done-text"><div class="rail-item-dot done"></div> Assess readiness</div>
+        <div class="rail-item done-text"><div class="rail-item-dot done"></div> Model org impact</div>
+        <div class="rail-item done-text"><div class="rail-item-dot done"></div> Draft dev plan</div>
+      </div>
+      <div class="rail-review"><i class="fa-solid fa-hand" style="color:var(--color-awaiting);font-size:8px;"></i> <span style="color:var(--color-awaiting);">Uma Patel</span></div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="rail-section queued">
+      <div class="rail-section-dot queued"><i class="fa-solid fa-clock" style="font-size:6px;"></i></div>
+      <div class="rail-section-title" style="color:var(--text-neutral-weak);">External Hiring</div>
+      <div class="rail-section-meta">3 items</div>
+      <div class="rail-items">
+        <div class="rail-item"><div class="rail-item-dot open"></div> Create job posting</div>
+        <div class="rail-item"><div class="rail-item-dot open"></div> Screen talent pool</div>
+        <div class="rail-item"><div class="rail-item-dot open"></div> Draft outreach</div>
+      </div>
+      <div class="rail-review"><i class="fa-solid fa-eye" style="font-size:8px;"></i> You</div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="rail-section queued">
+      <div class="rail-section-dot queued"><i class="fa-solid fa-clock" style="font-size:6px;"></i></div>
+      <div class="rail-section-title" style="color:var(--text-neutral-weak);">Retention & Comp</div>
+      <div class="rail-section-meta">2 items</div>
+      <div class="rail-items">
+        <div class="rail-item"><div class="rail-item-dot open"></div> Comp adj: Daniel Kim</div>
+        <div class="rail-item"><div class="rail-item-dot open"></div> Retention adj: Rachel</div>
+      </div>
+      <div class="rail-review"><i class="fa-solid fa-eye" style="font-size:8px;"></i> Finance (VP)</div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="page-c">
+    <div class="plan-header">
+      <div class="ph-top">
+        <div class="ph-icon"><i class="fa-solid fa-clipboard-list"></i></div>
+        <div class="ph-info">
+          <h1>Backfill Plan for Tony Ramirez</h1>
+          <div class="ph-meta">
+            <span class="badge badge-paused"><i class="fa-solid fa-hand"></i> Needs Review</span>
+            <div class="mi"><i class="fa-regular fa-clock"></i> 12 min ago</div>
+            <div class="mi"><a href="#"><i class="fa-regular fa-comment"></i> Open in chat</a></div>
+          </div>
+        </div>
+      </div>
+      <div class="ph-progress">
+        <div class="ph-bar"><div class="fill" style="width:43%;"></div></div>
+        <div class="ph-progress-label">3 of 7 complete</div>
+      </div>
+    </div>
+
+    <div class="finding-card done">
+      <div class="fc-main">
+        <div class="fc-header">
+          <div class="fc-icon done"><i class="fa-solid fa-check"></i></div>
+          <div class="fc-title-block">
+            <div class="fc-title">Team Compensation & Retention Risk</div>
+            <div class="fc-time">Completed 10:25 AM</div>
+          </div>
+        </div>
+        <div class="fc-lead"><strong>Daniel Kim is significantly underpaid and a high flight risk.</strong> 15% below midpoint, no promotion in 2 years. Tony's departure creates AWS cert gap and leaves 2 projects without a lead.</div>
+        <div class="fc-secondaries">
+          <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green — MEDIUM risk.</strong> $105K, 8% below midpoint, top performer.</div></div>
+          <div class="fc-secondary"><div class="fc-sec-indicator low"></div><div class="fc-sec-text"><strong>James Liu — LOW risk.</strong> Recently promoted, at midpoint.</div></div>
+          <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Team compa-ratio: 0.87</strong> — below target range.</div></div>
+        </div>
+        <div class="fc-artifacts">
+          <div class="artifact-chip"><i class="fa-solid fa-chart-bar"></i> Compensation Analysis</div>
+          <div class="artifact-chip"><i class="fa-solid fa-sitemap"></i> Org Impact Report</div>
+        </div>
+      </div>
+      <div class="fc-review passed">
+        <div class="fc-review-icon passed"><i class="fa-solid fa-check"></i></div>
+        <div class="fc-review-info"><div class="fc-review-label">Reviewed by You</div><div class="fc-review-sub">Approved to proceed — 10:27 AM</div></div>
+      </div>
+    </div>
+
+    <div class="finding-card awaiting" style="animation: pulse-amber 3s ease-in-out infinite;">
+      <div class="fc-main">
+        <div class="fc-header">
+          <div class="fc-icon awaiting"><i class="fa-solid fa-hand"></i></div>
+          <div class="fc-title-block">
+            <div class="fc-title">Internal Candidate Assessment</div>
+            <div class="fc-time">Analysis complete — waiting for review</div>
+          </div>
+        </div>
+        <div class="fc-lead"><strong>Daniel Kim scores 82/100 — ready for Senior SE.</strong> Strong technical skills, exceeds expectations. Development plan drafted.</div>
+        <div class="fc-secondaries">
+          <div class="fc-secondary"><div class="fc-sec-indicator med"></div><div class="fc-sec-text"><strong>Rachel Green: 71/100</strong> — needs 6–12 months.</div></div>
+          <div class="fc-secondary"><div class="fc-sec-indicator info"></div><div class="fc-sec-text"><strong>Secondary backfill needed</strong> at mid-level SE — lower risk.</div></div>
+        </div>
+        <div class="fc-artifacts">
+          <div class="artifact-chip"><i class="fa-solid fa-file-lines"></i> Daniel Kim — Development Plan</div>
+        </div>
+      </div>
+      <div class="fc-review ready">
+        <div class="fc-review-icon ready"><i class="fa-solid fa-hand"></i></div>
+        <div class="fc-review-info"><div class="fc-review-label" style="color:var(--color-awaiting);">Waiting for Uma Patel</div><div class="fc-review-sub">Confirm internal candidate direction</div></div>
+        <div><button class="btn btn-amber btn-sm"><i class="fa-solid fa-eye"></i> Review</button></div>
+      </div>
+    </div>
+
+    <!-- Option C: minimal queued (rail has the plan) -->
+    <div class="finding-card queued">
+      <div class="fc-main" style="padding:14px 22px;">
+        <div class="fc-header" style="margin-bottom:0;">
+          <div class="fc-icon queued"><i class="fa-solid fa-clock" style="font-size:11px;"></i></div>
+          <div class="fc-title-block">
+            <div class="fc-title" style="color:var(--text-neutral-weak);">2 more sections queued</div>
+            <div class="fc-time">See plan overview in sidebar</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script>
+  const descs = {
+    a: 'Queued cards show full item list, review gates, and reviewers. Plan structure is visible where you\'d naturally look for it — in the upcoming work.',
+    b: '"View full plan" disclosure in the header shows the complete plan skeleton. Findings cards stay clean; plan overview is available on demand.',
+    c: 'Persistent left rail shows the plan outline at all times. Acts as both navigation and progress indicator. Findings cards stay focused on insights.'
+  };
+
+  function showOption(opt) {
+    document.querySelectorAll('.option-view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('option-' + opt).classList.add('active');
+    document.getElementById('option-desc').textContent = descs[opt];
+    event.target.classList.add('active');
+  }
+
+  function toggleOutline(btn) {
+    btn.classList.toggle('open');
+    document.getElementById('plan-outline').classList.toggle('open');
+    const span = btn.querySelector('span');
+    span.textContent = btn.classList.contains('open') ? 'Hide full plan' : 'View full plan';
+  }
+
+  function toggleExec(btn) {
+    btn.classList.toggle('open');
+    btn.nextElementSibling.classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>
