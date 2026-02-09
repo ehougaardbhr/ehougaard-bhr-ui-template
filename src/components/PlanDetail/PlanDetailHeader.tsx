@@ -42,7 +42,7 @@ export function PlanDetailHeader({ plan, onOpenInChat }: PlanDetailHeaderProps) 
 
   return (
     <div
-      className="bg-white rounded-2xl border border-[#E5E5E5] p-5 mb-5"
+      className="bg-[var(--surface-neutral-white)] rounded-2xl border border-[var(--border-neutral-weak)] p-5 mb-5"
       style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
     >
       {/* Top section */}
@@ -54,8 +54,8 @@ export function PlanDetailHeader({ plan, onOpenInChat }: PlanDetailHeaderProps) 
           <Icon name={config.icon} size={16} />
         </div>
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-bold mb-0.5">{plan.title}</h1>
-          <div className="flex items-center gap-3.5 flex-wrap text-xs text-[#78716C]">
+          <h1 className="text-lg font-bold mb-0.5 text-[var(--text-neutral-x-strong)]">{plan.title}</h1>
+          <div className="flex items-center gap-3.5 flex-wrap text-xs text-[var(--text-neutral-medium)]">
             {/* Status badge */}
             <span
               className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
@@ -74,7 +74,7 @@ export function PlanDetailHeader({ plan, onOpenInChat }: PlanDetailHeaderProps) 
             {/* Open in chat link */}
             <button
               onClick={onOpenInChat}
-              className="flex items-center gap-1 text-[#2e7918] hover:underline"
+              className="flex items-center gap-1 text-[var(--color-primary-strong)] hover:underline"
             >
               <Icon name="comment" size={10} variant="regular" />
               {plan.status === 'completed' ? 'View conversation' : 'Open in chat'}
@@ -85,13 +85,13 @@ export function PlanDetailHeader({ plan, onOpenInChat }: PlanDetailHeaderProps) 
 
       {/* Progress bar */}
       <div className="flex items-center gap-3.5">
-        <div className="flex-1 h-[5px] bg-[#E7E5E4] rounded-[3px] overflow-hidden">
+        <div className="flex-1 h-[5px] bg-[var(--surface-neutral-weak)] rounded-[3px] overflow-hidden">
           <div
             className="h-full rounded-[3px] transition-all duration-300"
             style={{ width: `${progressPct}%`, backgroundColor: config.progressColor }}
           />
         </div>
-        <div className="text-xs font-semibold text-[#78716C] whitespace-nowrap">
+        <div className="text-xs font-semibold text-[var(--text-neutral-medium)] whitespace-nowrap">
           {plan.status === 'completed'
             ? `${plan.completedItems} of ${plan.totalItems} · ${plan.totalReviews} reviews · ${plan.totalArtifacts} artifacts`
             : `${plan.completedItems} of ${plan.totalItems} complete`}

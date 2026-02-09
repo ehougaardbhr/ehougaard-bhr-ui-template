@@ -18,7 +18,7 @@ export function ArtifactPanel({ artifact, onClose }: ArtifactPanelProps) {
 
   return (
     <div
-      className={`flex flex-col h-full bg-white border-l border-[#E5E5E5] sticky top-0 transition-all duration-300 ease-in-out overflow-hidden ${
+      className={`flex flex-col h-full bg-[var(--surface-neutral-white)] border-l border-[var(--border-neutral-weak)] sticky top-0 transition-all duration-300 ease-in-out overflow-hidden ${
         isOpen ? 'w-[440px]' : 'w-0'
       }`}
       style={{
@@ -28,7 +28,7 @@ export function ArtifactPanel({ artifact, onClose }: ArtifactPanelProps) {
       {artifact && (
         <>
           {/* Header */}
-          <div className="flex items-center gap-3 p-5 pb-4 border-b border-[#E5E5E5] flex-shrink-0">
+          <div className="flex items-center gap-3 p-5 pb-4 border-b border-[var(--border-neutral-weak)] flex-shrink-0">
             <div
               className="w-9 h-9 rounded-[10px] flex items-center justify-center text-sm flex-shrink-0"
               style={{
@@ -42,12 +42,12 @@ export function ArtifactPanel({ artifact, onClose }: ArtifactPanelProps) {
               {artifact.type === 'job' && <Icon name="briefcase" size={14} />}
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-[15px] font-semibold truncate">{artifact.title}</div>
-              <div className="text-[11px] text-[#A8A29E] mt-0.5">{artifact.meta}</div>
+              <div className="text-[15px] font-semibold truncate text-[var(--text-neutral-x-strong)]">{artifact.title}</div>
+              <div className="text-[11px] text-[var(--text-neutral-weak)] mt-0.5">{artifact.meta}</div>
             </div>
             <button
               onClick={onClose}
-              className="w-7 h-7 rounded-md flex items-center justify-center text-[#78716C] hover:bg-[#F5F3F2] transition-colors"
+              className="w-7 h-7 rounded-md flex items-center justify-center text-[var(--text-neutral-medium)] hover:bg-[var(--surface-neutral-x-weak)] transition-colors"
             >
               <Icon name="xmark" size={14} />
             </button>
@@ -67,12 +67,12 @@ export function ArtifactPanel({ artifact, onClose }: ArtifactPanelProps) {
           </div>
 
           {/* Footer */}
-          <div className="flex gap-2 p-4 border-t border-[#E5E5E5] flex-shrink-0">
-            <button className="flex-1 flex items-center justify-center gap-1.5 px-3.5 py-[7px] rounded-lg text-xs font-medium text-[#44403C] bg-white border border-[#D4D4D4] hover:bg-[#F5F3F2] transition-colors">
+          <div className="flex gap-2 p-4 border-t border-[var(--border-neutral-weak)] flex-shrink-0">
+            <button className="flex-1 flex items-center justify-center gap-1.5 px-3.5 py-[7px] rounded-lg text-xs font-medium text-[var(--text-neutral-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-weak)] hover:bg-[var(--surface-neutral-x-weak)] transition-colors">
               <Icon name="file-export" size={11} />
               Open full view
             </button>
-            <button className="flex-1 flex items-center justify-center gap-1.5 px-3.5 py-[7px] rounded-lg text-xs font-medium text-[#44403C] bg-white border border-[#D4D4D4] hover:bg-[#F5F3F2] transition-colors">
+            <button className="flex-1 flex items-center justify-center gap-1.5 px-3.5 py-[7px] rounded-lg text-xs font-medium text-[var(--text-neutral-strong)] bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-weak)] hover:bg-[var(--surface-neutral-x-weak)] transition-colors">
               <Icon name="download" size={11} />
               Export
             </button>
@@ -88,17 +88,17 @@ function CompChartRenderer({ content }: { content: CompChartContent }) {
   return (
     <>
       {/* Chart */}
-      <div className="bg-[#F5F3F2] border border-[#E5E5E5] rounded-xl p-5 mb-5">
-        <div className="text-[13px] font-semibold mb-4">
+      <div className="bg-[var(--surface-neutral-x-weak)] border border-[var(--border-neutral-weak)] rounded-xl p-5 mb-5">
+        <div className="text-[13px] font-semibold text-[var(--text-neutral-x-strong)] mb-4">
           Pay Band Position — Uma Patel's Team
         </div>
         {content.bars.map((bar, idx) => (
           <div key={idx} className="mb-3 last:mb-0">
-            <div className="flex justify-between text-[11px] text-[#78716C] mb-1">
+            <div className="flex justify-between text-[11px] text-[var(--text-neutral-medium)] mb-1">
               <span>{bar.name}</span>
               <span style={{ color: bar.color, fontWeight: 600 }}>{bar.salary}</span>
             </div>
-            <div className="h-5 bg-[#E7E5E4] rounded overflow-hidden relative">
+            <div className="h-5 bg-[var(--surface-neutral-weak)] rounded overflow-hidden relative">
               <div
                 className="h-full rounded"
                 style={{
@@ -108,7 +108,7 @@ function CompChartRenderer({ content }: { content: CompChartContent }) {
                 }}
               />
               <div
-                className="absolute top-0 bottom-0 w-0.5 bg-[#1C1917]"
+                className="absolute top-0 bottom-0 w-0.5 bg-[var(--text-neutral-x-strong)]"
                 style={{ left: `${bar.markerPct}%` }}
               />
             </div>
@@ -120,19 +120,19 @@ function CompChartRenderer({ content }: { content: CompChartContent }) {
       <table className="w-full border-collapse text-xs">
         <thead>
           <tr>
-            <th className="text-left font-semibold text-[#78716C] px-2.5 py-2 border-b-2 border-[#E5E5E5] text-[11px] uppercase tracking-wide">
+            <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
               Employee
             </th>
-            <th className="text-left font-semibold text-[#78716C] px-2.5 py-2 border-b-2 border-[#E5E5E5] text-[11px] uppercase tracking-wide">
+            <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
               Salary
             </th>
-            <th className="text-left font-semibold text-[#78716C] px-2.5 py-2 border-b-2 border-[#E5E5E5] text-[11px] uppercase tracking-wide">
+            <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
               Midpoint
             </th>
-            <th className="text-left font-semibold text-[#78716C] px-2.5 py-2 border-b-2 border-[#E5E5E5] text-[11px] uppercase tracking-wide">
+            <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
               Compa
             </th>
-            <th className="text-left font-semibold text-[#78716C] px-2.5 py-2 border-b-2 border-[#E5E5E5] text-[11px] uppercase tracking-wide">
+            <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
               Risk
             </th>
           </tr>
@@ -140,22 +140,22 @@ function CompChartRenderer({ content }: { content: CompChartContent }) {
         <tbody>
           {content.rows.map((row, idx) => (
             <tr key={idx}>
-              <td className="px-2.5 py-2.5 border-b border-[#E5E5E5] text-[#44403C]">
+              <td className="px-2.5 py-2.5 border-b border-[var(--border-neutral-weak)] text-[var(--text-neutral-strong)]">
                 <strong>{row.name}</strong>
               </td>
-              <td className="px-2.5 py-2.5 border-b border-[#E5E5E5] text-[#44403C]">
+              <td className="px-2.5 py-2.5 border-b border-[var(--border-neutral-weak)] text-[var(--text-neutral-strong)]">
                 {row.salary}
               </td>
-              <td className="px-2.5 py-2.5 border-b border-[#E5E5E5] text-[#44403C]">
+              <td className="px-2.5 py-2.5 border-b border-[var(--border-neutral-weak)] text-[var(--text-neutral-strong)]">
                 {row.midpoint}
               </td>
               <td
-                className="px-2.5 py-2.5 border-b border-[#E5E5E5] font-semibold"
+                className="px-2.5 py-2.5 border-b border-[var(--border-neutral-weak)] font-semibold"
                 style={{ color: row.compaColor }}
               >
                 {row.compa}
               </td>
-              <td className="px-2.5 py-2.5 border-b border-[#E5E5E5]">
+              <td className="px-2.5 py-2.5 border-b border-[var(--border-neutral-weak)]">
                 <span
                   className="inline-block px-2 py-0.5 rounded-full text-[11px] font-semibold"
                   style={{
@@ -178,7 +178,7 @@ function CompChartRenderer({ content }: { content: CompChartContent }) {
 function OrgReportRenderer({ content }: { content: OrgReportContent }) {
   return (
     <div
-      className="text-[13px] leading-[1.7] text-[#44403C]"
+      className="text-[13px] leading-[1.7] text-[var(--text-neutral-strong)]"
       dangerouslySetInnerHTML={{ __html: content.html }}
     />
   );
@@ -190,25 +190,25 @@ function DevPlanRenderer({ content }: { content: DevPlanContent }) {
     <>
       {/* Readiness */}
       <div className="mb-4">
-        <div className="text-[13px] font-semibold mb-1">Readiness: {content.readiness}/100</div>
-        <div className="h-2 bg-[#E7E5E4] rounded overflow-hidden">
+        <div className="text-[13px] font-semibold text-[var(--text-neutral-x-strong)] mb-1">Readiness: {content.readiness}/100</div>
+        <div className="h-2 bg-[var(--surface-neutral-weak)] rounded overflow-hidden">
           <div
             className="h-full bg-[#059669] rounded"
             style={{ width: `${content.readiness}%` }}
           />
         </div>
-        <div className="text-xs text-[#78716C] mt-1.5">
+        <div className="text-xs text-[var(--text-neutral-medium)] mt-1.5">
           Exceeds 75 threshold. Primary gap: mentorship experience.
         </div>
       </div>
 
       {/* Milestones */}
-      <div className="text-[13px] font-semibold mb-2">90-Day Milestones</div>
+      <div className="text-[13px] font-semibold text-[var(--text-neutral-x-strong)] mb-2">90-Day Milestones</div>
       <div className="flex flex-col gap-2 mb-4">
         {content.milestones.map((milestone, idx) => (
           <div
             key={idx}
-            className="py-2.5 px-3.5 bg-[#F5F3F2] rounded-lg text-xs leading-[1.5]"
+            className="py-2.5 px-3.5 bg-[var(--surface-neutral-x-weak)] rounded-lg text-xs leading-[1.5] text-[var(--text-neutral-strong)]"
           >
             <strong>{milestone.period}:</strong> {milestone.description}
           </div>
@@ -218,8 +218,8 @@ function DevPlanRenderer({ content }: { content: DevPlanContent }) {
       {/* Comp adjustment */}
       {content.compAdjustment && (
         <div>
-          <div className="text-[13px] font-semibold mb-1">Compensation Adjustment</div>
-          <div className="text-xs text-[#44403C] leading-[1.5]">
+          <div className="text-[13px] font-semibold text-[var(--text-neutral-x-strong)] mb-1">Compensation Adjustment</div>
+          <div className="text-xs text-[var(--text-neutral-strong)] leading-[1.5]">
             {content.compAdjustment}
           </div>
         </div>

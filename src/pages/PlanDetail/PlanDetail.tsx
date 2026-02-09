@@ -20,10 +20,10 @@ export function PlanDetail() {
     return (
       <div className="p-10">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Plan not found</h1>
+          <h1 className="text-2xl font-bold mb-2 text-[var(--text-neutral-x-strong)]">Plan not found</h1>
           <button
             onClick={() => navigate('/')}
-            className="text-[#2e7918] hover:underline"
+            className="text-[var(--color-primary-strong)] hover:underline"
           >
             ← Back to Home
           </button>
@@ -47,7 +47,7 @@ export function PlanDetail() {
       {/* Back link */}
       <button
         onClick={() => navigate('/')}
-        className="flex items-center gap-1.5 text-sm text-[#78716C] hover:text-[#44403C] mb-4 transition-colors"
+        className="flex items-center gap-1.5 text-sm text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] mb-4 transition-colors"
       >
         <Icon name="chevron-left" size={16} />
         Home
@@ -107,10 +107,10 @@ function renderFindings(
       elements.push(
         <div key={`parallel-${groupId}`}>
           <div className="flex items-center gap-2 mb-2.5 pl-1">
-            <span className="text-[11px] text-[#A8A29E] flex items-center gap-1.5 whitespace-nowrap">
+            <span className="text-[11px] text-[var(--text-neutral-weak)] flex items-center gap-1.5 whitespace-nowrap">
               <Icon name="code-branch" size={10} /> Ran in parallel
             </span>
-            <div className="flex-1 h-px bg-[#E5E5E5]" />
+            <div className="flex-1 h-px bg-[var(--border-neutral-weak)]" />
           </div>
           <div className="flex gap-3.5 mb-3.5">
             {groupFindings.map((f) => (
@@ -153,7 +153,7 @@ function renderFindings(
 // Standalone review gate row
 function StandaloneGateRow({ gate }: { gate: StandaloneReviewGate }) {
   return (
-    <div className="bg-white border border-[#E5E5E5] rounded-[10px] mb-3.5 py-3 px-[22px] flex items-center gap-2.5">
+    <div className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-weak)] rounded-[10px] mb-3.5 py-3 px-[22px] flex items-center gap-2.5">
       <div
         className="w-[22px] h-[22px] rounded-md flex items-center justify-center text-[9px] flex-shrink-0"
         style={{ backgroundColor: '#D1FAE5', color: '#059669' }}
@@ -161,8 +161,8 @@ function StandaloneGateRow({ gate }: { gate: StandaloneReviewGate }) {
         <Icon name="check" size={9} />
       </div>
       <div className="flex-1">
-        <div className="text-xs font-medium">{gate.label}</div>
-        <div className="text-[11px] text-[#A8A29E] mt-px">{gate.sublabel}</div>
+        <div className="text-xs font-medium text-[var(--text-neutral-strong)]">{gate.label}</div>
+        <div className="text-[11px] text-[var(--text-neutral-weak)] mt-px">{gate.sublabel}</div>
       </div>
     </div>
   );
@@ -185,7 +185,7 @@ function CompletionBanner({ plan }: { plan: PlanDetailData }) {
         <div className="text-[13px] font-semibold" style={{ color: '#059669' }}>
           Plan completed
         </div>
-        <div className="text-xs text-[#44403C]">
+        <div className="text-xs text-[var(--text-neutral-strong)]">
           {plan.totalReviews} review gates passed · {plan.totalArtifacts} artifacts created ·
           Completed over 2 days
         </div>

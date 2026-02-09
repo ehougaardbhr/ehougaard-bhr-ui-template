@@ -40,10 +40,10 @@ const gateIconColors: Record<ReviewGateStatus, { bg: string; color: string }> = 
   future: { bg: '#F5F3F2', color: '#A8A29E' },
 };
 
-const gateBgColors: Record<ReviewGateStatus, string> = {
-  passed: '#FAFFF8',
-  waiting: '#F5F3F2',
-  future: '#F5F3F2',
+const gateBgClasses: Record<ReviewGateStatus, string> = {
+  passed: 'bg-[var(--surface-selected-weak)]',
+  waiting: 'bg-[var(--surface-neutral-x-weak)]',
+  future: 'bg-[var(--surface-neutral-x-weak)]',
 };
 
 export function FindingCard({
@@ -59,7 +59,7 @@ export function FindingCard({
 
   return (
     <div
-      className="bg-white border border-[#E5E5E5] rounded-[14px] overflow-hidden"
+      className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-weak)] rounded-[14px] overflow-hidden"
       style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.03)' }}
     >
       {/* Main content */}
@@ -79,26 +79,25 @@ export function FindingCard({
           </div>
           <div className="flex-1">
             <div
-              className={`text-sm font-semibold ${isUpcoming ? 'text-[#78716C] flex items-center gap-2' : ''}`}
+              className={`text-sm font-semibold ${isUpcoming ? 'text-[var(--text-neutral-medium)] flex items-center gap-2' : 'text-[var(--text-neutral-x-strong)]'}`}
             >
               {finding.sectionTitle}
               {isUpcoming && (
                 <span
-                  className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded"
-                  style={{ backgroundColor: '#F5F3F2', color: '#A8A29E' }}
+                  className="inline-flex items-center gap-1 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded bg-[var(--surface-neutral-x-weak)] text-[var(--text-neutral-weak)]"
                 >
                   UPCOMING
                 </span>
               )}
             </div>
-            <div className="text-[11px] text-[#A8A29E] mt-0.5">{finding.timestamp}</div>
+            <div className="text-[11px] text-[var(--text-neutral-weak)] mt-0.5">{finding.timestamp}</div>
           </div>
         </div>
 
         {/* Lead finding (for non-upcoming cards) */}
         {!isUpcoming && finding.leadFinding && (
           <div
-            className="text-sm leading-[1.65] text-[#44403C] mb-3.5 pb-3.5 border-b border-[#E5E5E5]"
+            className="text-sm leading-[1.65] text-[var(--text-neutral-strong)] mb-3.5 pb-3.5 border-b border-[var(--border-neutral-weak)]"
             dangerouslySetInnerHTML={{ __html: finding.leadFinding }}
           />
         )}
@@ -107,7 +106,7 @@ export function FindingCard({
         {!isUpcoming && finding.secondaryFindings && finding.secondaryFindings.length > 0 && (
           <div className="flex flex-col gap-2 mb-3.5">
             {finding.secondaryFindings.map((secondary, idx) => (
-              <div key={idx} className="flex items-start gap-2 text-[13px] leading-[1.55] text-[#44403C]">
+              <div key={idx} className="flex items-start gap-2 text-[13px] leading-[1.55] text-[var(--text-neutral-strong)]">
                 <div
                   className="w-[7px] h-[7px] rounded-full flex-shrink-0 mt-1.5"
                   style={{ backgroundColor: severityColors[secondary.severity] }}
@@ -125,8 +124,8 @@ export function FindingCard({
         {isUpcoming && finding.upcomingItems && finding.upcomingItems.length > 0 && (
           <div className="mt-2.5 flex flex-col gap-1.5">
             {finding.upcomingItems.map((item, idx) => (
-              <div key={idx} className="flex items-center gap-2 text-xs text-[#78716C]">
-                <div className="w-3.5 h-3.5 rounded-full border-[1.5px] border-[#D6D3D1] flex-shrink-0" />
+              <div key={idx} className="flex items-center gap-2 text-xs text-[var(--text-neutral-medium)]">
+                <div className="w-3.5 h-3.5 rounded-full border-[1.5px] border-[var(--border-neutral-weak)] flex-shrink-0" />
                 <div>{item.text}</div>
               </div>
             ))}
@@ -135,16 +134,16 @@ export function FindingCard({
 
         {/* Artifact chips */}
         {!isUpcoming && finding.artifacts && finding.artifacts.length > 0 && (
-          <div className="flex flex-wrap gap-2 pt-3.5 border-t border-[#E5E5E5]">
+          <div className="flex flex-wrap gap-2 pt-3.5 border-t border-[var(--border-neutral-weak)]">
             {finding.artifacts.map((artifact) => (
               <button
                 key={artifact.id}
                 onClick={() => onArtifactClick(artifact.id)}
-                className={`inline-flex items-center gap-1.5 px-3.5 py-[7px] rounded-lg text-xs font-medium transition-all ${
+                className={`inline-flex items-center gap-1.5 px-3.5 py-[7px] rounded-lg text-xs font-medium transition-all border ${
                   activeArtifactId === artifact.id
-                    ? 'bg-[#E8F5E3] border-[#2e7918] text-[#2e7918]'
-                    : 'bg-[#F5F3F2] border-[#E5E5E5] text-[#44403C] hover:bg-[#E8F5E3] hover:border-[#2e7918] hover:text-[#2e7918]'
-                } border`}
+                    ? 'bg-[var(--surface-primary-x-weak)] border-[var(--color-primary-strong)] text-[var(--color-primary-strong)]'
+                    : 'bg-[var(--surface-neutral-x-weak)] border-[var(--border-neutral-weak)] text-[var(--text-neutral-strong)] hover:bg-[var(--surface-primary-x-weak)] hover:border-[var(--color-primary-strong)] hover:text-[var(--color-primary-strong)]'
+                }`}
               >
                 <Icon name={artifact.icon} size={11} />
                 {artifact.label}
@@ -162,8 +161,7 @@ export function FindingCard({
       {/* Review gate footer */}
       {finding.reviewGate && (
         <div
-          className="py-3 px-[22px] border-t border-[#E5E5E5] flex items-center gap-2.5"
-          style={{ backgroundColor: gateBgColors[finding.reviewGate.status] }}
+          className={`py-3 px-[22px] border-t border-[var(--border-neutral-weak)] flex items-center gap-2.5 ${gateBgClasses[finding.reviewGate.status]}`}
         >
           <div
             className="w-[22px] h-[22px] rounded-md flex items-center justify-center text-[9px] flex-shrink-0"
@@ -178,15 +176,16 @@ export function FindingCard({
           </div>
           <div className="flex-1">
             <div
-              className="text-xs font-medium"
-              style={{
-                color: finding.reviewGate.status === 'waiting' ? '#D97706' : undefined,
-              }}
+              className={`text-xs font-medium ${
+                finding.reviewGate.status === 'waiting'
+                  ? 'text-[var(--text-warning)]'
+                  : 'text-[var(--text-neutral-strong)]'
+              }`}
             >
               {finding.reviewGate.label}
             </div>
             {finding.reviewGate.sublabel && (
-              <div className="text-[11px] text-[#A8A29E] mt-px">
+              <div className="text-[11px] text-[var(--text-neutral-weak)] mt-px">
                 {finding.reviewGate.sublabel}
               </div>
             )}
@@ -194,7 +193,7 @@ export function FindingCard({
           {finding.reviewGate.chatLink && onOpenInChat && (
             <button
               onClick={onOpenInChat}
-              className="text-[11px] text-[#2e7918] hover:underline flex items-center gap-1"
+              className="text-[11px] text-[var(--color-primary-strong)] hover:underline flex items-center gap-1"
             >
               <Icon name="comment" size={9} />
               Open in chat
