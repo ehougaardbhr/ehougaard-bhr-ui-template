@@ -98,6 +98,16 @@ The page serves the same content at every stage, but the user's mindset differs:
 - [x] Reframed the page's role: retrospective summary, not dashboard. Actions stay in chat + home page. Page is read-only.
 - [x] Clarified the three user moments (right now → chat, next day → detail page, week later → detail page). Mid-execution view is valuable but minimal and read-only.
 - [x] v6 mockup: `demos/plan-detail-page-v6.html` — **current version.** Framed as "Next-Day Check-In" and "Week-Later Retrospective." Fully read-only. No action buttons. Waiting states use clock icon + "Open in chat" link. Calm, informational tone.
+- [x] **Implemented Plan Detail Page** — React implementation at `/plans/:id` route:
+  - Created mock data with two plan states (mid-execution + completed) in `src/data/planDetailData.ts`
+  - Built FindingCard component handling done/awaiting/working/upcoming states with severity dots, artifact chips, review gate footers
+  - Built ArtifactPanel component (440px slide-out) with comp chart, org report, dev plan renderers
+  - Built PlanDetailHeader with status badges and progress bar
+  - Built PlanDetail page with parallel group rendering logic, completion banner
+  - Artifact panel coexists with AI chat panel (findings pane compresses when panel opens)
+  - Added 7 new icons to Icon component (clipboard-list, clipboard-check, chart-bar, code-branch, arrow-right, briefcase, download)
+  - Wired up AutomationsCard "View details" link navigating to plan detail page
+  - Route: `/plans/plan-backfill-mid` (mid-execution), `/plans/plan-backfill-done` (completed)
 
 ## Rejected Approaches
 
@@ -119,6 +129,7 @@ The page serves the same content at every stage, but the user's mindset differs:
 2. Where do completed plans live long-term? Do they fade from AutomationsCard?
 3. How does parallel layout work on narrow screens?
 4. Should review gate footers link to the specific chat message where the approval happened?
+5. How should findings be generated during real plan execution? Current implementation uses hardcoded mock data — need to design how the execution engine populates findings.
 
 ## Next Steps
 

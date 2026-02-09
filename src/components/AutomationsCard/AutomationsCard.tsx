@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Icon } from '../Icon';
 import { useArtifact } from '../../contexts/ArtifactContext';
 import { useChat } from '../../contexts/ChatContext';
@@ -49,6 +50,7 @@ const mockAutomations: MockAutomation[] = [
 export function AutomationsCard() {
   const { artifacts } = useArtifact();
   const { selectConversation } = useChat();
+  const navigate = useNavigate();
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Get real running plans
@@ -189,6 +191,7 @@ export function AutomationsCard() {
                         <PlanProgress
                           artifact={automation.artifact}
                           onOpenInChat={() => handleOpenInChat(automation)}
+                          onViewDetails={() => navigate('/plans/plan-backfill-mid')}
                         />
                       )}
                     </div>
@@ -204,7 +207,15 @@ export function AutomationsCard() {
 }
 
 // Mini plan progress component for expansion
-function PlanProgress({ artifact, onOpenInChat }: { artifact: any; onOpenInChat: () => void }) {
+function PlanProgress({
+  artifact,
+  onOpenInChat,
+  onViewDetails,
+}: {
+  artifact: any;
+  onOpenInChat: () => void;
+  onViewDetails: () => void;
+}) {
   const settings = artifact.settings as PlanSettings;
   const allItems = settings.sections.flatMap(s => s.actionItems || []);
   const doneItems = allItems.filter(i => i.status === 'done');
@@ -262,18 +273,21 @@ function PlanProgress({ artifact, onOpenInChat }: { artifact: any; onOpenInChat:
         </div>
       </div>
 
-      {/* Open in chat button */}
-      <button
-        onClick={onOpenInChat}
-        className="
-          text-xs font-medium
-          text-[var(--color-primary-strong)]
-          hover:underline
-          mt-1
-        "
-      >
-        Open in chat
-      </button>
+      {/* Action links */}
+      <div className="flex items-center gap-4 mt-1">
+        <button
+          onClick={onOpenInChat}
+          className="text-xs font-medium text-[var(--color-primary-strong)] hover:underline"
+        >
+          Open in chat
+        </button>
+        <button
+          onClick={onViewDetails}
+          className="text-xs font-medium text-[var(--color-primary-strong)] hover:underline"
+        >
+          View details
+        </button>
+      </div>
     </div>
   );
 }

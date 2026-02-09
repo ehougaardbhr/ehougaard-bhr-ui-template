@@ -108,6 +108,13 @@ import {
   faShieldHeart,
   faPlay,
   faTable,
+  faClipboardList,
+  faClipboardCheck,
+  faChartBar,
+  faCodeBranch,
+  faArrowRight,
+  faBriefcase,
+  faDownload,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -261,7 +268,14 @@ export type IconName =
   | 'user-tie'
   | 'user'
   | 'chart-simple'
-  | 'text-size';
+  | 'text-size'
+  | 'clipboard-list'
+  | 'clipboard-check'
+  | 'chart-bar'
+  | 'code-branch'
+  | 'arrow-right'
+  | 'briefcase'
+  | 'download';
 
 interface IconProps {
   name: IconName;
@@ -393,6 +407,13 @@ const faIconMap = {
   'shield-heart': faShieldHeart,
   'play': faPlay,
   'table': faTable,
+  'clipboard-list': faClipboardList,
+  'clipboard-check': faClipboardCheck,
+  'chart-bar': faChartBar,
+  'code-branch': faCodeBranch,
+  'arrow-right': faArrowRight,
+  'briefcase': faBriefcase,
+  'download': faDownload,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
