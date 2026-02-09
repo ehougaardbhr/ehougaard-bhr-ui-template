@@ -90,7 +90,7 @@ function CompChartRenderer({ content }: { content: CompChartContent }) {
       {/* Chart */}
       <div className="bg-[var(--surface-neutral-x-weak)] border border-[var(--border-neutral-weak)] rounded-xl p-5 mb-5">
         <div className="text-[13px] font-semibold text-[var(--text-neutral-x-strong)] mb-4">
-          Pay Band Position — Uma Patel's Team
+          {content.chartTitle || 'Pay Band Position — Uma Patel\'s Team'}
         </div>
         {content.bars.map((bar, idx) => (
           <div key={idx} className="mb-3 last:mb-0">
@@ -121,19 +121,19 @@ function CompChartRenderer({ content }: { content: CompChartContent }) {
         <thead>
           <tr>
             <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
-              Employee
+              {content.columnHeaders?.name || 'Employee'}
             </th>
             <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
-              Salary
+              {content.columnHeaders?.col1 || 'Salary'}
             </th>
             <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
-              Midpoint
+              {content.columnHeaders?.col2 || 'Midpoint'}
             </th>
             <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
-              Compa
+              {content.columnHeaders?.col3 || 'Compa'}
             </th>
             <th className="text-left font-semibold text-[var(--text-neutral-medium)] px-2.5 py-2 border-b-2 border-[var(--border-neutral-weak)] text-[11px] uppercase tracking-wide">
-              Risk
+              {content.columnHeaders?.col4 || 'Risk'}
             </th>
           </tr>
         </thead>

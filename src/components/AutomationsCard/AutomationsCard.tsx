@@ -21,7 +21,17 @@ interface RealPlanAutomation {
   artifact: any;
 }
 
-type AutomationItem = MockAutomation | RealPlanAutomation;
+interface HardcodedPlanAutomation {
+  id: string;
+  name: string;
+  stat: string;
+  type: 'hardcoded-plan';
+  navPath: string;
+  progress: number;
+  statusIndicator: 'active' | 'waiting';
+}
+
+type AutomationItem = MockAutomation | RealPlanAutomation | HardcodedPlanAutomation;
 
 const mockAutomations: MockAutomation[] = [
   {
@@ -32,13 +42,6 @@ const mockAutomations: MockAutomation[] = [
     detail: 'Automated weekly reminder sent to employees with missing timesheets.',
   },
   {
-    id: 'auto-2',
-    name: 'Approval nudges',
-    stat: '2 managers reminded yesterday',
-    type: 'mock',
-    detail: 'Sends reminders to managers with pending approvals older than 3 days.',
-  },
-  {
     id: 'auto-3',
     name: 'Document collection',
     stat: '1 follow-up sent',
@@ -46,6 +49,16 @@ const mockAutomations: MockAutomation[] = [
     detail: 'Tracks and follows up on missing employee documents (I-9, tax forms, etc.).',
   },
 ];
+
+const hardcodedPlanAutomation: HardcodedPlanAutomation = {
+  id: 'plan-pipeline',
+  name: 'Q1 Hiring Pipeline Review',
+  stat: '4/7 complete · Waiting for review',
+  type: 'hardcoded-plan',
+  navPath: '/plans/plan-pipeline-review',
+  progress: 57, // 4/7 = 57%
+  statusIndicator: 'waiting',
+};
 
 export function AutomationsCard() {
   const { artifacts } = useArtifact();
@@ -71,8 +84,8 @@ export function AutomationsCard() {
       };
     });
 
-  // Combine mock + real
-  const allAutomations: AutomationItem[] = [...mockAutomations, ...runningPlans];
+  // Combine mock + hardcoded + real
+  const allAutomations: AutomationItem[] = [...mockAutomations, hardcodedPlanAutomation, ...runningPlans];
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
@@ -151,10 +164,15 @@ export function AutomationsCard() {
                     className="flex items-center gap-3 px-6 py-4 hover:bg-[var(--surface-neutral-xx-weak)] transition-colors cursor-pointer"
                     onClick={() => toggleExpand(automation.id)}
                   >
-                    {/* Green dot indicator */}
+                    {/* Status indicator dot */}
                     <div
                       className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: 'var(--color-primary-strong)' }}
+                      style={{
+                        backgroundColor:
+                          automation.type === 'hardcoded-plan' && automation.statusIndicator === 'waiting'
+                            ? '#D97706' // amber for waiting
+                            : 'var(--color-primary-strong)', // green otherwise
+                      }}
                     />
 
                     {/* Name + stat */}
@@ -186,6 +204,12 @@ export function AutomationsCard() {
                         <div className="text-sm text-[var(--text-neutral-medium)] bg-[var(--surface-neutral-xx-weak)] rounded-lg p-4">
                           {automation.detail}
                         </div>
+                      ) : automation.type === 'hardcoded-plan' ? (
+                        // Hardcoded plan progress (simple version)
+                        <HardcodedPlanProgress
+                          automation={automation}
+                          onViewDetails={() => navigate(automation.navPath)}
+                        />
                       ) : (
                         // Real plan progress
                         <PlanProgress
@@ -281,6 +305,55 @@ function PlanProgress({
         >
           Open in chat
         </button>
+        <button
+          onClick={onViewDetails}
+          className="text-xs font-medium text-[var(--color-primary-strong)] hover:underline"
+        >
+          View details
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Hardcoded plan progress component for expansion (simpler version)
+function HardcodedPlanProgress({
+  automation,
+  onViewDetails,
+}: {
+  automation: HardcodedPlanAutomation;
+  onViewDetails: () => void;
+}) {
+  return (
+    <div className="bg-[var(--surface-neutral-xx-weak)] rounded-lg p-4 space-y-3">
+      {/* Status message */}
+      <div className="flex items-center gap-2 py-2 px-3 bg-[var(--surface-neutral-white)] rounded border border-[var(--border-neutral-x-weak)]">
+        <Icon
+          name="clock"
+          size={14}
+          className="text-[#D97706] shrink-0"
+        />
+        <span className="text-xs text-[var(--text-neutral-medium)] flex-1">
+          Waiting for your review — approve outreach to matched candidates
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="space-y-1">
+        <div className="flex items-center justify-between text-xs text-[var(--text-neutral-medium)] mb-1">
+          <span>Progress</span>
+          <span>4 of 7 complete</span>
+        </div>
+        <div className="h-1.5 bg-[var(--surface-neutral-x-weak)] rounded-full overflow-hidden">
+          <div
+            className="h-full bg-[var(--color-primary-strong)] transition-all duration-300"
+            style={{ width: `${automation.progress}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Action link */}
+      <div className="flex items-center gap-4 mt-1">
         <button
           onClick={onViewDetails}
           className="text-xs font-medium text-[var(--color-primary-strong)] hover:underline"

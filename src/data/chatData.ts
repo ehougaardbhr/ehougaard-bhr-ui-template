@@ -776,4 +776,57 @@ I've created a detailed plan with action items. Take a look:`,
       },
     ],
   },
+  {
+    id: '21',
+    title: 'Q1 Hiring Pipeline Review',
+    messages: [
+      {
+        id: '210',
+        type: 'user',
+        text: 'Can you review our open hiring pipeline? I want to make sure we\'re on track for Q1 targets.',
+      },
+      {
+        id: '211',
+        type: 'ai',
+        text: `Absolutely. I'll run a full pipeline health analysis across your 7 open requisitions. Give me a moment to pull the data.
+
+I'll check:
+- **Time-in-stage** for each open req
+- **Candidate flow** and conversion rates
+- **Stalled pipelines** that need intervention
+- **Talent pool matches** for hard-to-fill roles`,
+        suggestions: [
+          'Focus on at-risk positions',
+          'Include talent pool screening',
+          'Show me the full dashboard',
+        ],
+      },
+      {
+        id: '212',
+        type: 'user',
+        text: 'Yes, include talent pool screening too. I want to see if we have any internal matches.',
+      },
+      {
+        id: '213',
+        type: 'ai',
+        text: `I've completed the pipeline analysis and talent pool screening. Here's what I found:
+
+**Pipeline Health:**
+- **3 of 7 positions are at risk** of missing Q1 targets
+- President of Sales is **stalled** — 9 candidates but no movement in 2 weeks
+- Marketing Coordinator has **zero applicants** after 14 days
+
+**Talent Pool Matches:**
+- Found **2 strong matches** for Marketing Coordinator from the Marketing talent pool
+- Adison Donin looks particularly promising — 4 years content marketing, 3★ rating
+
+I've put together a plan with the analysis, matches, and recommended next steps. **I need your approval** before drafting outreach to the matched candidates.`,
+        suggestions: [
+          'Approve outreach to Adison Donin',
+          'Show me the full candidate profiles',
+          'What about the President of Sales pipeline?',
+        ],
+      },
+    ],
+  },
 ];

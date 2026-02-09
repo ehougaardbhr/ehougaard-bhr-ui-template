@@ -58,6 +58,14 @@ export interface StandaloneReviewGate {
 // Artifact panel content types
 export interface CompChartContent {
   kind: 'comp-chart';
+  chartTitle?: string;
+  columnHeaders?: {
+    name: string;
+    col1: string;
+    col2: string;
+    col3: string;
+    col4: string;
+  };
   bars: Array<{
     name: string;
     salary: string;
@@ -481,10 +489,255 @@ const planBackfillDone: PlanDetailData = {
 };
 
 // ============================================================================
+// Mock Data - Pipeline Review (Hiring Quarterly Check-In)
+// ============================================================================
+
+const planPipelineReview: PlanDetailData = {
+  id: 'plan-pipeline-review',
+  title: 'Q1 Hiring Pipeline Review',
+  status: 'paused',
+  statusLabel: 'Waiting for review',
+  startedAt: 'Started yesterday',
+  totalItems: 7,
+  completedItems: 4,
+  totalReviews: 2,
+  totalArtifacts: 2,
+  conversationId: '21',
+  findings: [
+    // Finding 1: Pipeline Health Analysis (done)
+    {
+      id: 'finding-1',
+      sectionTitle: 'Pipeline Health Analysis',
+      status: 'done',
+      timestamp: 'Yesterday, 9:15 AM',
+      icon: 'chart-bar',
+      leadFinding:
+        '<strong>3 of 7 open positions are at risk of missing Q1 hiring targets.</strong> Marketing Coordinator has zero applicants after 2 weeks.',
+      secondaryFindings: [
+        {
+          text: '<strong>President of Sales — HIGH risk.</strong> 60 days open, 9 candidates but stalled at reference check stage. No movement in 2 weeks.',
+          severity: 'high',
+        },
+        {
+          text: '<strong>Medical Assistant — MED risk.</strong> 45 days open, only 2 applicants. Low inbound interest.',
+          severity: 'med',
+        },
+        {
+          text: '<strong>Dog Trainer — on track.</strong> 22 candidates (8 new this week), healthy pipeline.',
+          severity: 'low',
+        },
+        {
+          text: '<strong>Web Designer — normal velocity.</strong> 5 candidates, 1 interviewed.',
+          severity: 'info',
+        },
+      ],
+      artifacts: [
+        { id: 'pipeline-chart', icon: 'chart-bar', label: 'Pipeline Health Dashboard', type: 'chart' },
+      ],
+      reviewGate: {
+        status: 'passed',
+        reviewer: 'You',
+        label: 'Reviewed by You',
+        sublabel: 'Approved to proceed — Yesterday, 9:18 AM',
+      },
+    },
+    // Finding 2: Talent Pool Screening (awaiting)
+    {
+      id: 'finding-2',
+      sectionTitle: 'Talent Pool Screening',
+      status: 'awaiting',
+      timestamp: 'Analysis complete — Yesterday, 9:22 AM',
+      icon: 'users',
+      leadFinding:
+        '<strong>Found 4 talent pool candidates matching open requirements — 2 strong fits for Marketing Coordinator.</strong> Adison Donin (3★ rating, content marketing background) and 1 other from Marketing pool match requirements well.',
+      secondaryFindings: [
+        {
+          text: '<strong>Technology pool — 5 candidates available</strong> but already being evaluated for Senior SE backfill. No incremental matches for other reqs.',
+          severity: 'med',
+        },
+        {
+          text: '<strong>No talent pool matches for Medical Assistant or Nursing Assistant</strong> — specialized roles need job board sourcing.',
+          severity: 'info',
+        },
+      ],
+      artifacts: [
+        { id: 'candidate-matches', icon: 'file-lines', label: 'Candidate Match Report', type: 'report' },
+      ],
+      reviewGate: {
+        status: 'waiting',
+        reviewer: 'You',
+        label: 'Waiting for your review',
+        sublabel: 'Approve outreach to matched candidates',
+        chatLink: true,
+      },
+    },
+    // Finding 3: Candidate Outreach & Prioritization (upcoming)
+    {
+      id: 'finding-3',
+      sectionTitle: 'Candidate Outreach & Prioritization',
+      status: 'upcoming',
+      timestamp: 'Starts after review gate · 3 items',
+      icon: 'arrow-right',
+      leadFinding: '',
+      upcomingItems: [
+        { text: 'Draft personalized outreach for approved Marketing pool candidates' },
+        { text: 'Create hiring manager briefing packet for President of Sales (escalate stalled pipeline)' },
+        { text: 'Update req priority rankings based on pipeline health' },
+      ],
+      reviewGate: {
+        status: 'future',
+        reviewer: 'You',
+        label: 'You approve outreach messages before sending',
+        sublabel: '',
+      },
+    },
+  ],
+  artifactContents: {
+    'pipeline-chart': {
+      id: 'pipeline-chart',
+      title: 'Pipeline Health Dashboard',
+      meta: 'Yesterday, 9:15 AM · 7 Open Requisitions',
+      type: 'chart',
+      content: {
+        kind: 'comp-chart',
+        chartTitle: 'Days Open vs 90-Day Target — All Open Requisitions',
+        columnHeaders: {
+          name: 'Position',
+          col1: 'Days Open',
+          col2: 'Candidates',
+          col3: 'New/Wk',
+          col4: 'Status',
+        },
+        bars: [
+          {
+            name: 'President of Sales',
+            salary: '60 days',
+            fillPct: 67,
+            markerPct: 60,
+            color: '#DC2626',
+          },
+          {
+            name: 'Medical Assistant',
+            salary: '45 days',
+            fillPct: 50,
+            markerPct: 45,
+            color: '#D97706',
+          },
+          {
+            name: 'Marketing Coordinator',
+            salary: '14 days',
+            fillPct: 16,
+            markerPct: 0,
+            color: '#D97706',
+          },
+          {
+            name: 'Dog Trainer',
+            salary: '28 days',
+            fillPct: 31,
+            markerPct: 58,
+            color: '#059669',
+          },
+          {
+            name: 'Web Designer',
+            salary: '22 days',
+            fillPct: 24,
+            markerPct: 33,
+            color: '#059669',
+          },
+        ],
+        rows: [
+          {
+            name: 'President of Sales',
+            salary: '60',
+            midpoint: '9',
+            compa: '0',
+            compaColor: '#DC2626',
+            risk: 'STALLED',
+            riskBg: '#FEE2E2',
+            riskColor: '#DC2626',
+          },
+          {
+            name: 'Medical Assistant',
+            salary: '45',
+            midpoint: '2',
+            compa: '0',
+            compaColor: '#D97706',
+            risk: 'SLOW',
+            riskBg: '#FEF3C7',
+            riskColor: '#D97706',
+          },
+          {
+            name: 'Marketing Coordinator',
+            salary: '14',
+            midpoint: '0',
+            compa: '0',
+            compaColor: '#D97706',
+            risk: 'NO APPS',
+            riskBg: '#FEF3C7',
+            riskColor: '#D97706',
+          },
+          {
+            name: 'Dog Trainer',
+            salary: '28',
+            midpoint: '22',
+            compa: '8',
+            compaColor: '#059669',
+            risk: 'HEALTHY',
+            riskBg: '#D1FAE5',
+            riskColor: '#059669',
+          },
+          {
+            name: 'Web Designer',
+            salary: '22',
+            midpoint: '5',
+            compa: '2',
+            compaColor: '#059669',
+            risk: 'NORMAL',
+            riskBg: '#D1FAE5',
+            riskColor: '#059669',
+          },
+        ],
+      },
+    },
+    'candidate-matches': {
+      id: 'candidate-matches',
+      title: 'Candidate Match Report',
+      meta: 'Yesterday, 9:22 AM · Screened 4 talent pools',
+      type: 'report',
+      content: {
+        kind: 'org-report',
+        html: `
+          <p style="margin-bottom:14px;"><strong>Marketing Coordinator Matches (2 candidates)</strong></p>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+            <div style="padding:10px 14px;background:var(--surface-neutral-x-weak);border-radius:8px;font-size:12px;">
+              <strong>Adison Donin</strong> (3★ rating) — 4 years content marketing experience. Skills: SEO, social media, email campaigns. Currently open to new opportunities.
+            </div>
+            <div style="padding:10px 14px;background:var(--surface-neutral-x-weak);border-radius:8px;font-size:12px;">
+              <strong>Taylor Chen</strong> (2★ rating) — 2 years marketing coordinator experience. Skills: event planning, copywriting, analytics. Available immediately.
+            </div>
+          </div>
+          <p style="margin-bottom:14px;"><strong>Technology Pool Status</strong></p>
+          <div style="padding:10px 14px;background:var(--surface-neutral-x-weak);border-radius:8px;font-size:12px;margin-bottom:14px;">
+            5 candidates in Technology pool are already being evaluated for Senior SE backfill. No additional matches for other open reqs.
+          </div>
+          <p style="margin-bottom:6px;"><strong>Recommendations:</strong></p>
+          <ul style="margin-left:20px;font-size:12px;color:var(--text-neutral-medium);">
+            <li style="margin-bottom:4px;">Prioritize outreach to Adison Donin — strongest fit for Marketing Coordinator role</li>
+            <li style="margin-bottom:4px;">Expand sourcing for Medical Assistant and Nursing Assistant (no talent pool matches)</li>
+            <li>Consider accelerating President of Sales search — stalled for 2 weeks with no new activity</li>
+          </ul>
+        `,
+      },
+    },
+  },
+};
+
+// ============================================================================
 // Export
 // ============================================================================
 
 export const planDetailDataMap: Record<string, PlanDetailData> = {
   'plan-backfill-mid': planBackfillMid,
   'plan-backfill-done': planBackfillDone,
+  'plan-pipeline-review': planPipelineReview,
 };
