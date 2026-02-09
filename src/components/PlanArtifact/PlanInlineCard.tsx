@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon, type IconName } from '../Icon';
 import { Button } from '../Button';
@@ -181,9 +181,13 @@ function ReviewStepRow({
     <div
       className={`flex items-center gap-1.5 transition-colors ${isReady ? 'review-ready' : ''}`}
       style={{
-        padding: '5px 16px 16px 42px',
-        borderBottom: '1px solid var(--border-neutral-weak)',
+        padding: '5px 0 5px 0',
         background: isReady ? 'rgba(46, 121, 24, 0.05)' : 'transparent',
+        borderRadius: isReady ? '6px' : undefined,
+        paddingLeft: isReady ? '6px' : '0',
+        paddingRight: isReady ? '6px' : '0',
+        marginLeft: isReady ? '-6px' : '0',
+        marginRight: isReady ? '-6px' : '0',
       }}
     >
       <div
@@ -324,6 +328,8 @@ function InlineSectionRow({
   isBlocked,
   blockedByReviewer,
   onToggleExpand,
+  reviewSteps,
+  onReviewStep,
 }: {
   section: PlanSection;
   isProposal: boolean;
@@ -333,6 +339,8 @@ function InlineSectionRow({
   isBlocked: boolean;
   blockedByReviewer?: string;
   onToggleExpand: () => void;
+  reviewSteps: ReviewStep[];
+  onReviewStep: (stepId: string) => void;
 }) {
   const items = section.actionItems || [];
 
@@ -407,7 +415,7 @@ function InlineSectionRow({
         )}
       </div>
 
-      {/* Items container */}
+      {/* Items container with inline review steps */}
       <div style={{ paddingLeft: '26px' }}>
         {items.map(item => {
           // Determine display status
@@ -415,15 +423,26 @@ function InlineSectionRow({
           if (!isProposal) {
             if (item.status === 'done') displayStatus = 'done';
             else if (item.status === 'working') displayStatus = 'working';
-            else displayStatus = 'queued';
+            else if (item.status === 'queued') displayStatus = 'queued';
+            else displayStatus = 'planned';
           }
 
+          const reviewAfterThis = reviewSteps.find(rs => rs.afterItem === item.id);
+
           return (
-            <InlineActionItem
-              key={item.id}
-              item={item}
-              displayStatus={displayStatus}
-            />
+            <React.Fragment key={item.id}>
+              <InlineActionItem
+                item={item}
+                displayStatus={displayStatus}
+              />
+              {reviewAfterThis && (
+                <ReviewStepRow
+                  step={reviewAfterThis}
+                  onReview={() => onReviewStep(reviewAfterThis.id)}
+                  isProposal={isProposal}
+                />
+              )}
+            </React.Fragment>
           );
         })}
       </div>
@@ -679,20 +698,23 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
         {/* Divider before sections */}
         <div style={{ borderTop: '1px solid var(--border-neutral-weak)' }} />
 
-        {/* Sections with interleaved review steps (skip sections with no action items) */}
+        {/* Sections with inline review steps (skip sections with no action items) */}
         {settings.sections
-          .map((section, idx) => ({ section, originalIndex: idx }))
-          .filter(({ section }) => section.actionItems && section.actionItems.length > 0)
-          .map(({ section, originalIndex: idx }) => {
+          .filter(section => section.actionItems && section.actionItems.length > 0)
+          .map(section => {
           const allCompleted = section.actionItems?.every(item => item.status === 'done') ?? false;
           const isCollapsed = collapsedSections[section.id] ?? false;
 
           // Determine if section is working or blocked
           const hasInProgress = section.actionItems?.some(item => item.status === 'working') ?? false;
 
-          // Check if this section is blocked by a review step
-          const reviewStep = reviewSteps[idx];
-          const isBlocked = !isProposal && reviewStep && reviewStep.status !== 'passed' && reviewStep.status !== 'planned';
+          // Find review steps that belong to this section (afterItem matches an item in this section)
+          const sectionItemIds = new Set(section.actionItems.map(item => item.id));
+          const sectionReviewSteps = reviewSteps.filter(rs => sectionItemIds.has(rs.afterItem));
+
+          // Section is blocked if any review step within it has status 'ready'
+          const readyReview = sectionReviewSteps.find(rs => rs.status === 'ready');
+          const isBlocked = !isProposal && !!readyReview;
 
           return (
             <div key={section.id}>
@@ -710,17 +732,10 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
                   isExpanded={!isCollapsed}
                   isWorking={hasInProgress}
                   isBlocked={isBlocked}
-                  blockedByReviewer={reviewStep?.reviewer}
+                  blockedByReviewer={readyReview?.reviewer}
                   onToggleExpand={() => handleToggleSection(section.id)}
-                />
-              )}
-
-              {/* Review step after this section */}
-              {reviewStep && (
-                <ReviewStepRow
-                  step={reviewStep}
-                  onReview={() => handleReviewStep(reviewStep.id)}
-                  isProposal={isProposal}
+                  reviewSteps={reviewSteps}
+                  onReviewStep={handleReviewStep}
                 />
               )}
             </div>

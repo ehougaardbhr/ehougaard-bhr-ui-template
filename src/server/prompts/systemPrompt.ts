@@ -98,9 +98,11 @@ When creating a plan, use EXACTLY this format. Do NOT wrap it in code fences. Ke
     }
   ],
   "reviewSteps": [
-    { "id": "review-1", "description": "Review risk findings before proceeding", "reviewer": "Uma Patel", "status": "planned" },
-    { "id": "review-2", "description": "Confirm internal candidate direction", "reviewer": "Uma Patel", "status": "planned" },
-    { "id": "review-3", "description": "Approve job posting before publishing", "reviewer": "Shannon Rivera", "status": "planned" }
+    { "id": "review-1", "description": "Review risk findings", "reviewer": "Uma Patel", "status": "planned", "afterItem": "item-3", "type": "findings" },
+    { "id": "review-2", "description": "Review candidate assessment", "reviewer": "Uma Patel", "status": "planned", "afterItem": "item-5", "type": "findings" },
+    { "id": "review-3", "description": "Review development plan", "reviewer": "Uma Patel", "status": "planned", "afterItem": "item-6", "type": "artifact" },
+    { "id": "review-4", "description": "Approve job posting", "reviewer": "Shannon Rivera", "status": "planned", "afterItem": "item-7", "type": "artifact" },
+    { "id": "review-5", "description": "Approve outreach messages", "reviewer": "Uma Patel", "status": "planned", "afterItem": "item-9", "type": "artifact" }
   ]
 }
 :::
@@ -110,6 +112,10 @@ When creating a plan, use EXACTLY this format. Do NOT wrap it in code fences. Ke
 - Every action item MUST include a "toolCall" field referencing a tool from your registry
 - Review steps name actual people and describe what they're reviewing
 - All statuses start as "planned"
+- Every review step MUST include "afterItem" (the action item ID it follows) and "type" ("findings" or "artifact")
+- Place a "findings" review after analysis tool batches (let the user validate before acting)
+- Place an "artifact" review after every draft/create/workflow/notification tool
+- Analysis tools (analyze_*, identify_*, screen_*, review_*) can auto-execute without individual gates
 - NEVER include actions like "schedule meeting", "have conversation", "check in with", or anything you can't execute via a tool
 `;
 }

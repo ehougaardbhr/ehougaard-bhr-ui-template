@@ -5,6 +5,8 @@ export interface ReviewStep {
   description: string;
   reviewer: string;
   status: 'planned' | 'passed' | 'ready' | 'future';
+  afterItem: string;           // action item ID this gate follows
+  type: 'findings' | 'artifact'; // review of analysis output vs created artifact
 }
 
 export interface ParsedAIResponse {

@@ -1,4 +1,4 @@
-import type { PlanSettings, PlanSection, ActionItem, ReviewStep } from '../data/artifactData';
+import type { PlanSettings, ActionItem, ReviewStep } from '../data/artifactData';
 
 interface ExecutionCallbacks {
   updateArtifactSettings: (id: string, settings: Partial<PlanSettings>) => void;
@@ -58,12 +58,38 @@ class PlanExecutionEngine {
       return;
     }
 
-    // Set all items in current section to queued
-    this.updateSectionItemsStatus(this.currentSectionIndex, 'queued');
+    // Queue items up to the first review gate in this section
+    this.queueItemsUpToNextGate();
 
     // Start executing items with staggered timing
     this.currentItemIndex = 0;
     this.executeNextItem();
+  }
+
+  private queueItemsUpToNextGate(): void {
+    const section = this.settings.sections[this.currentSectionIndex];
+    if (!section) return;
+
+    const updatedSections = [...this.settings.sections];
+    const updatedItems = [...section.actionItems];
+    let startIdx = this.currentItemIndex;
+
+    for (let i = startIdx; i < updatedItems.length; i++) {
+      const item = updatedItems[i];
+      if (item.status === 'planned') {
+        updatedItems[i] = { ...item, status: 'queued' };
+      }
+      // Stop queuing after item that has a review gate
+      const hasGate = this.settings.reviewSteps?.some(rs => rs.afterItem === item.id && rs.status !== 'passed');
+      if (hasGate) break;
+    }
+
+    updatedSections[this.currentSectionIndex] = { ...section, actionItems: updatedItems };
+    this.settings.sections = updatedSections;
+
+    this.callbacks.updateArtifactSettings(this.artifactId, {
+      sections: updatedSections,
+    });
   }
 
   private executeNextItem(): void {
@@ -73,8 +99,8 @@ class PlanExecutionEngine {
     const item = section?.actionItems[this.currentItemIndex];
 
     if (!item) {
-      // Section complete, check for review step
-      this.checkForReviewStep();
+      // Section complete, advance to next section
+      this.advanceToNextSection();
       return;
     }
 
@@ -88,12 +114,9 @@ class PlanExecutionEngine {
       // Set item to done
       this.updateItemStatus(this.currentSectionIndex, this.currentItemIndex, 'done');
 
-      // Move to next item
-      this.currentItemIndex++;
-
-      // Stagger next item by 1.5s
+      // Check for review gate after this item
       const staggerTimer = setTimeout(() => {
-        this.executeNextItem();
+        this.checkForReviewAfterItem(item.id);
       }, 1500);
 
       this.timers.push(staggerTimer);
@@ -102,25 +125,34 @@ class PlanExecutionEngine {
     this.timers.push(timer);
   }
 
-  private checkForReviewStep(): void {
-    // Check if there's a review step after current section
-    const reviewStep = this.settings.reviewSteps?.[this.currentSectionIndex];
+  private checkForReviewAfterItem(itemId: string): void {
+    const reviewStep = this.settings.reviewSteps?.find(
+      rs => rs.afterItem === itemId && rs.status !== 'passed'
+    );
 
-    if (reviewStep && reviewStep.status !== 'passed') {
-      // Pause at review step
+    if (reviewStep) {
       this.pauseForReview(reviewStep);
     } else {
-      // Move to next section
-      this.advanceToNextSection();
+      // Move to next item
+      this.currentItemIndex++;
+      const section = this.settings.sections[this.currentSectionIndex];
+      if (this.currentItemIndex >= (section?.actionItems.length ?? 0)) {
+        this.advanceToNextSection();
+      } else {
+        this.executeNextItem();
+      }
     }
   }
 
   private pauseForReview(reviewStep: ReviewStep): void {
     this.paused = true;
 
-    // Update review step to ready
-    const updatedReviewSteps = [...(this.settings.reviewSteps || [])];
-    updatedReviewSteps[this.currentSectionIndex] = { ...reviewStep, status: 'ready' };
+    // Update review step to ready (find by ID)
+    const updatedReviewSteps = (this.settings.reviewSteps || []).map(rs =>
+      rs.id === reviewStep.id ? { ...rs, status: 'ready' as const } : rs
+    );
+
+    this.settings.reviewSteps = updatedReviewSteps;
 
     this.callbacks.updateArtifactSettings(this.artifactId, {
       reviewSteps: updatedReviewSteps,
@@ -140,9 +172,18 @@ class PlanExecutionEngine {
 
     this.paused = false;
 
-    // Small delay before advancing to next section
+    // Small delay before continuing
     const timer = setTimeout(() => {
-      this.advanceToNextSection();
+      // Continue with remaining items in current section
+      this.currentItemIndex++;
+      const section = this.settings.sections[this.currentSectionIndex];
+      if (this.currentItemIndex >= (section?.actionItems.length ?? 0)) {
+        this.advanceToNextSection();
+      } else {
+        // Queue remaining items up to the next gate, then continue executing
+        this.queueItemsUpToNextGate();
+        this.executeNextItem();
+      }
     }, 1000);
 
     this.timers.push(timer);
@@ -190,24 +231,6 @@ class PlanExecutionEngine {
 
     // Remove from registry
     executionRegistry.delete(this.artifactId);
-  }
-
-  private updateSectionItemsStatus(sectionIndex: number, status: ActionItem['status']): void {
-    const updatedSections = [...this.settings.sections];
-    const section = updatedSections[sectionIndex];
-
-    if (section) {
-      section.actionItems = section.actionItems.map(item => ({
-        ...item,
-        status,
-      }));
-
-      this.settings.sections = updatedSections;
-
-      this.callbacks.updateArtifactSettings(this.artifactId, {
-        sections: updatedSections,
-      });
-    }
   }
 
   private updateItemStatus(sectionIndex: number, itemIndex: number, status: ActionItem['status']): void {

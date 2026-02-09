@@ -70,6 +70,8 @@ export interface ReviewStep {
   description: string;  // e.g. "Review — Sarah Chen"
   reviewer: string;
   status: 'planned' | 'passed' | 'ready' | 'future';
+  afterItem: string;           // action item ID this gate follows
+  type: 'findings' | 'artifact'; // review of analysis output vs created artifact
 }
 
 export interface PlanSettings {
@@ -410,18 +412,18 @@ export const mockArtifacts: Artifact[] = [
           description: 'Launch external hiring track in parallel — post the role and engage the Technology talent pool.',
           actionItems: [
             {
-              id: 'ai-7',
-              description: 'Create job posting for Senior Software Engineer using role data and pay band',
-              status: 'planned',
-              toolCall: 'create_job_posting',
-              toolParams: { template: 'Senior Software Engineer', department: 'Technology', salaryRange: 'from_pay_band' },
-            },
-            {
               id: 'ai-8',
               description: 'Screen Technology talent pool for candidates matching role requirements',
               status: 'planned',
               toolCall: 'screen_talent_pool',
               toolParams: { pool: 'Technology', requirements: { skills: ['React', 'TypeScript', 'Node.js'], minExperience: 5 } },
+            },
+            {
+              id: 'ai-7',
+              description: 'Create job posting for Senior Software Engineer using role data and pay band',
+              status: 'planned',
+              toolCall: 'create_job_posting',
+              toolParams: { template: 'Senior Software Engineer', department: 'Technology', salaryRange: 'from_pay_band' },
             },
             {
               id: 'ai-9',
@@ -455,14 +457,22 @@ export const mockArtifacts: Artifact[] = [
         },
       ],
       reviewSteps: [
-        { id: 'rs-1', description: 'Review risk assessment findings before proceeding', reviewer: 'Uma Patel', status: 'planned' },
-        { id: 'rs-2', description: 'Confirm internal candidate direction', reviewer: 'Uma Patel', status: 'planned' },
-        { id: 'rs-3', description: 'Approve job posting and outreach before publishing', reviewer: 'Shannon Rivera', status: 'planned' },
+        // Section 1: after all analysis completes
+        { id: 'rs-1', description: 'Review impact and risk findings before proceeding', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-3', type: 'findings' },
+        // Section 2: after analysis, then after draft
+        { id: 'rs-2', description: 'Review internal candidate assessment results', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-5', type: 'findings' },
+        { id: 'rs-3', description: 'Review development plan before sharing with candidate', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-6', type: 'artifact' },
+        // Section 3: after screening, after job posting, after outreach
+        { id: 'rs-4', description: 'Review talent pool screening results', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-8', type: 'findings' },
+        { id: 'rs-5', description: 'Approve job posting before publishing', reviewer: 'Shannon Rivera', status: 'planned', afterItem: 'ai-7', type: 'artifact' },
+        { id: 'rs-6', description: 'Approve outreach messages before sending', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-9', type: 'artifact' },
+        // Section 4: after comp change proposal
+        { id: 'rs-7', description: 'Approve compensation adjustments', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-10', type: 'artifact' },
       ],
       approvedBy: undefined,
       approvedAt: undefined,
     } as PlanSettings,
-    content: 'Tool-based backfill plan for Tony Ramirez\'s Senior Software Engineer role. 11 actions across 4 sections: impact analysis, internal candidate evaluation, external hiring pipeline, and retention actions. 3 review gates.',
+    content: 'Tool-based backfill plan for Tony Ramirez\'s Senior Software Engineer role. 11 actions across 4 sections: impact analysis, internal candidate evaluation, external hiring pipeline, and retention actions. 7 review gates.',
   },
   {
     id: 'artifact-1',
