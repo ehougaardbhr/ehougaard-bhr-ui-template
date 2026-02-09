@@ -10,3 +10,4 @@ export { Inbox } from './Inbox';
 export { CreateJobOpening } from './CreateJobOpening';
 export { JobAIPrototype } from './JobAIPrototype';
 export { PlanDetail } from './PlanDetail';
+export { Automations } from './Automations';

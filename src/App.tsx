@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import AppLayout from './layouts/AppLayout';
-import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings, Inbox, PlanDetail } from './pages';
+import { Home, MyInfo, People, Hiring, Reports, Files, Payroll, Settings, Inbox, PlanDetail, Automations } from './pages';
 import { ArtifactWorkspace } from './pages/ArtifactWorkspace';
 import { JobOpeningDetail } from './pages/JobOpeningDetail';
 import { CreateJobOpening } from './pages/CreateJobOpening';
@@ -54,6 +54,7 @@ function App() {
                     <Route path="/payroll" element={<Payroll />} />
                     <Route path="/inbox" element={<Inbox />} />
                     <Route path="/settings" element={<Settings />} />
+                    <Route path="/automations" element={<Automations />} />
                     <Route path="/plans/:id" element={<PlanDetail />} />
                   </Routes>
                 </AppLayout>

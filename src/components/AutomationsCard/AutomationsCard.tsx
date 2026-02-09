@@ -133,9 +133,9 @@ export function AutomationsCard() {
             </h3>
           </div>
           <a
-            href="#"
+            href="/automations"
             className="text-sm text-[var(--color-primary-strong)] hover:underline"
-            onClick={(e) => e.preventDefault()}
+            onClick={(e) => { e.preventDefault(); navigate('/automations'); }}
           >
             View All Activity
           </a>
