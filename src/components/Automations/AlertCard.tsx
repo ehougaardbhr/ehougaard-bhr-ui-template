@@ -142,13 +142,14 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
                 className="
                   px-3.5 py-1.5 rounded-lg
                   text-sm font-medium
-                  text-white
-                  bg-[var(--color-primary-strong)]
-                  hover:opacity-90
-                  border border-[var(--color-primary-strong)]
+                  text-[var(--text-neutral-strong)]
+                  bg-[var(--surface-neutral-white)]
+                  hover:bg-[var(--surface-neutral-xx-weak)]
+                  border border-[var(--border-neutral-medium)]
                   inline-flex items-center gap-1.5
                   transition-colors cursor-pointer
                 "
+                style={{ boxShadow: 'var(--shadow-100)' }}
               >
                 <FontAwesomeIcon icon={faCheck} fontSize={11} />
                 Approve
