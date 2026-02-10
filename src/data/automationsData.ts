@@ -34,28 +34,39 @@ export interface RunningAutomation {
 }
 
 // --- Alert type config ---
+// Colors use CSS custom properties for dark mode support.
+// Accent colors (teal, purple, amber) are intentionally hardcoded as they
+// remain vivid in both themes — only the light backgrounds adapt via vars.
 
 export const alertTypeConfig: Record<AutomationAlert['type'], {
   color: string;
-  bgLight: string;
+  colorVar: string;       // CSS class-friendly color reference
+  bgLightClass: string;   // Tailwind bg class
+  darkBgLightClass: string; // dark mode bg override
   icon: string;
   label: string;
 }> = {
   review: {
     color: '#0891B2',
-    bgLight: '#ECFEFF',
+    colorVar: 'review',
+    bgLightClass: 'bg-[#ECFEFF]',
+    darkBgLightClass: 'dark:bg-[#164E63]',
     icon: 'fa-solid fa-eye',
     label: 'I have something to show you',
   },
   approve: {
     color: '#7C3AED',
-    bgLight: '#EDE9FE',
+    colorVar: 'approve',
+    bgLightClass: 'bg-[#EDE9FE]',
+    darkBgLightClass: 'dark:bg-[#3B1F6E]',
     icon: 'fa-solid fa-stamp',
     label: 'I need your approval',
   },
   paused: {
     color: '#D97706',
-    bgLight: '#FEF3C7',
+    colorVar: 'paused',
+    bgLightClass: 'bg-[#FEF3C7]',
+    darkBgLightClass: 'dark:bg-[#78350F]',
     icon: 'fa-solid fa-pause',
     label: 'Paused — waiting on you',
   },

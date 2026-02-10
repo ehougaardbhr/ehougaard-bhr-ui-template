@@ -482,23 +482,3 @@ h2 {
   animation: slideDown 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* ================================
-   Automations Page Hover Styles
-   ================================ */
-
-.alert-card-hover:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-.alert-title-hover:hover {
-  color: var(--color-primary-strong) !important;
-}
-
-.quiet-row-hover:hover {
-  background: var(--surface-neutral-xx-weak) !important;
-}
-
-.icon-btn-hover:hover {
-  background: var(--surface-neutral-xx-weak);
-  color: var(--text-neutral-strong) !important;
-}

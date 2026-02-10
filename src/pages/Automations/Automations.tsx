@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Button } from '../../components';
 import { AlertCard } from '../../components/Automations/AlertCard';
 import { QuietRow } from '../../components/Automations/QuietRow';
 import {
@@ -16,70 +17,34 @@ export function Automations() {
   };
 
   return (
-    <div style={{ padding: 32, height: '100%', overflowY: 'auto' }}>
-      <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+    <div className="p-8 h-full overflow-y-auto">
+      <div className="max-w-[1100px] mx-auto">
 
         {/* Page header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
+        <div className="flex items-center justify-between mb-7">
           <h1
+            className="text-[var(--color-primary-strong)]"
             style={{
               fontFamily: 'Fields, system-ui, sans-serif',
               fontSize: 48,
               fontWeight: 700,
               lineHeight: '56px',
-              color: 'var(--color-primary-strong)',
             }}
           >
             Automations
           </h1>
-          <button
-            style={{
-              padding: '7px 16px',
-              borderRadius: 8,
-              fontSize: 13,
-              fontWeight: 600,
-              border: 'none',
-              background: 'var(--color-primary-strong)',
-              color: 'white',
-              cursor: 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 6,
-              transition: 'opacity 0.15s',
-            }}
-            onMouseEnter={(e) => { (e.target as HTMLElement).style.opacity = '0.9'; }}
-            onMouseLeave={(e) => { (e.target as HTMLElement).style.opacity = '1'; }}
-          >
-            <i className="fa-solid fa-plus" style={{ fontSize: 11 }} /> New
-          </button>
+          <Button variant="primary" size="small">
+            + New
+          </Button>
         </div>
 
-        {/* Alert section (with-alerts state) */}
+        {/* Alert section */}
         {hasAlerts && (
-          <div style={{ marginBottom: 28 }}>
+          <div className="mb-7">
             {/* Count row */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                marginBottom: 14,
-                fontSize: 13,
-                fontWeight: 500,
-                color: 'var(--text-neutral-medium)',
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span
-                  style={{
-                    background: 'var(--text-neutral-strong)',
-                    color: 'white',
-                    borderRadius: 99,
-                    padding: '2px 10px',
-                    fontSize: 12,
-                    fontWeight: 700,
-                  }}
-                >
+            <div className="flex items-center justify-between mb-3.5 text-[13px] font-medium text-[var(--text-neutral-medium)]">
+              <div className="flex items-center gap-2">
+                <span className="bg-[var(--text-neutral-strong)] text-white rounded-full px-2.5 py-px text-xs font-bold">
                   {alertsData.length}
                 </span>
                 automations need your attention
@@ -96,34 +61,8 @@ export function Automations() {
 
         {/* All-clear banner */}
         {!hasAlerts && (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 12,
-              padding: '16px 20px',
-              marginBottom: 28,
-              background: '#D1FAE5',
-              border: '1px solid #A7F3D0',
-              borderRadius: 10,
-              fontSize: 14,
-              color: '#065F46',
-            }}
-          >
-            <div
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 8,
-                background: '#059669',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: 14,
-                flexShrink: 0,
-              }}
-            >
+          <div className="flex items-center gap-3 px-5 py-4 mb-7 bg-[#D1FAE5] dark:bg-[#064E3B] border border-[#A7F3D0] dark:border-[#065F46] rounded-[var(--radius-x-small)] text-sm text-[#065F46] dark:text-[#A7F3D0]">
+            <div className="w-8 h-8 rounded-lg bg-[#059669] flex items-center justify-center text-white text-sm shrink-0">
               <i className="fa-solid fa-check" />
             </div>
             <div>
@@ -133,25 +72,32 @@ export function Automations() {
           </div>
         )}
 
-        {/* Running section */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-          <span
-            style={{
-              fontSize: 12,
-              fontWeight: 700,
-              color: 'var(--text-neutral-weak)',
-              textTransform: 'uppercase',
-              letterSpacing: 0.5,
-            }}
-          >
+        {/* Running section — unified card container */}
+        <div className="flex items-center justify-between mb-2.5">
+          <span className="text-xs font-bold text-[var(--text-neutral-weak)] uppercase tracking-wide">
             {hasAlerts ? 'Running smoothly' : 'All automations'}
           </span>
           {!hasAlerts && <TabSwitch />}
         </div>
 
-        {runningRows.map((row) => (
-          <QuietRow key={row.id} automation={row} onNavigate={handleNavigate} />
-        ))}
+        <div
+          className="
+            bg-[var(--surface-neutral-white)]
+            border border-[var(--border-neutral-x-weak)]
+            rounded-[var(--radius-small)]
+            overflow-hidden
+          "
+          style={{ boxShadow: 'var(--shadow-300)' }}
+        >
+          {runningRows.map((row, i) => (
+            <QuietRow
+              key={row.id}
+              automation={row}
+              onNavigate={handleNavigate}
+              isLast={i === runningRows.length - 1}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -160,30 +106,18 @@ export function Automations() {
 /** Visual-only Active/History tab switch */
 function TabSwitch() {
   return (
-    <div
-      style={{
-        display: 'flex',
-        gap: 0,
-        background: 'var(--surface-neutral-x-weak)',
-        borderRadius: 8,
-        padding: 3,
-      }}
-    >
+    <div className="flex bg-[var(--surface-neutral-x-weak)] rounded-lg p-0.5">
       {['Active', 'History'].map((label, i) => (
         <button
           key={label}
-          style={{
-            padding: '7px 18px',
-            borderRadius: 6,
-            fontSize: 13,
-            fontWeight: 600,
-            border: 'none',
-            background: i === 0 ? 'var(--surface-neutral-white)' : 'none',
-            cursor: 'pointer',
-            color: i === 0 ? 'var(--text-neutral-xx-strong)' : 'var(--text-neutral-medium)',
-            boxShadow: i === 0 ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
-            transition: 'all 0.15s',
-          }}
+          className={`
+            px-4 py-1.5 rounded-md text-[13px] font-semibold
+            border-none cursor-pointer transition-all duration-150
+            ${i === 0
+              ? 'bg-[var(--surface-neutral-white)] text-[var(--text-neutral-xx-strong)] shadow-sm'
+              : 'bg-transparent text-[var(--text-neutral-medium)]'
+            }
+          `}
         >
           {label}
         </button>

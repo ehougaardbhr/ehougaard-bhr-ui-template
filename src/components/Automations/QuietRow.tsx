@@ -3,15 +3,11 @@ import type { RunningAutomation } from '../../data/automationsData';
 interface QuietRowProps {
   automation: RunningAutomation;
   onNavigate: (planId: string) => void;
+  isLast?: boolean;
 }
 
-const statusColors: Record<string, string> = {
-  working: '#2563EB',
-  done: '#059669',
-};
-
-export function QuietRow({ automation, onNavigate }: QuietRowProps) {
-  const dotColor = statusColors[automation.status] || statusColors.working;
+export function QuietRow({ automation, onNavigate, isLast = false }: QuietRowProps) {
+  const isWorking = automation.status === 'working';
   const progressPct = automation.progress
     ? (automation.progress.current / automation.progress.total) * 100
     : 0;
@@ -19,109 +15,60 @@ export function QuietRow({ automation, onNavigate }: QuietRowProps) {
   return (
     <div
       onClick={() => onNavigate(automation.planId)}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 14,
-        padding: '12px 18px',
-        background: 'var(--surface-neutral-white)',
-        border: '1px solid var(--border-neutral-weak)',
-        borderRadius: 8,
-        marginBottom: 4,
-        fontSize: 13,
-        transition: 'background 0.12s',
-        cursor: 'pointer',
-      }}
-      className="quiet-row-hover"
+      className={`
+        flex items-center gap-3.5
+        px-5 py-3 text-[13px]
+        hover:bg-[var(--surface-neutral-xx-weak)]
+        transition-colors cursor-pointer
+        ${!isLast ? 'border-b border-[var(--border-neutral-x-weak)]' : ''}
+      `}
     >
       {/* Status dot */}
       <div
-        style={{
-          width: 8,
-          height: 8,
-          borderRadius: '50%',
-          flexShrink: 0,
-          background: dotColor,
-        }}
+        className="w-2 h-2 rounded-full shrink-0"
+        style={{ background: isWorking ? 'var(--color-primary-strong)' : '#059669' }}
       />
 
       {/* Name */}
-      <span
-        style={{
-          fontWeight: 600,
-          color: 'var(--text-neutral-strong)',
-          minWidth: 0,
-          whiteSpace: 'nowrap',
-        }}
-      >
+      <span className="font-semibold text-[var(--text-neutral-strong)] whitespace-nowrap">
         {automation.name}
       </span>
 
       {/* Meta */}
-      <span
-        style={{
-          fontSize: 12,
-          color: 'var(--text-neutral-weak)',
-          flex: 1,
-          minWidth: 0,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-        }}
-      >
+      <span className="text-xs text-[var(--text-neutral-weak)] flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis">
         {automation.meta}
       </span>
 
       {/* Progress bar or spacer */}
       {automation.progress ? (
-        <div
-          style={{
-            height: 6,
-            background: 'var(--surface-neutral-x-weak)',
-            borderRadius: 3,
-            overflow: 'hidden',
-            width: 80,
-            flexShrink: 0,
-          }}
-        >
+        <div className="h-1.5 bg-[var(--surface-neutral-x-weak)] rounded-full overflow-hidden w-20 shrink-0">
           <div
-            style={{
-              height: '100%',
-              borderRadius: 3,
-              width: `${progressPct}%`,
-              background: dotColor,
-            }}
+            className="h-full rounded-full bg-[var(--color-primary-strong)] transition-all duration-300"
+            style={{ width: `${progressPct}%` }}
           />
         </div>
       ) : (
-        <div style={{ width: 80, flexShrink: 0 }} />
+        <div className="w-20 shrink-0" />
       )}
 
       {/* Timestamp */}
-      <span style={{ fontSize: 11, color: 'var(--text-neutral-weak)', whiteSpace: 'nowrap' }}>
+      <span className="text-[11px] text-[var(--text-neutral-weak)] whitespace-nowrap">
         {automation.lastUpdate}
       </span>
 
       {/* Ellipsis */}
       <button
         onClick={(e) => e.stopPropagation()}
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: 8,
-          border: 'none',
-          background: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--text-neutral-medium)',
-          transition: 'all 0.15s',
-          flexShrink: 0,
-        }}
-        className="icon-btn-hover"
+        className="
+          w-8 h-8 rounded-lg border-none bg-transparent shrink-0
+          flex items-center justify-center
+          text-[var(--text-neutral-medium)]
+          hover:bg-[var(--surface-neutral-xx-weak)]
+          hover:text-[var(--text-neutral-strong)]
+          transition-colors cursor-pointer
+        "
       >
-        <i className="fa-solid fa-ellipsis" style={{ fontSize: 12 }} />
+        <i className="fa-solid fa-ellipsis text-xs" />
       </button>
 
       {/* Chevron */}
@@ -130,23 +77,16 @@ export function QuietRow({ automation, onNavigate }: QuietRowProps) {
           e.stopPropagation();
           onNavigate(automation.planId);
         }}
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: 8,
-          border: 'none',
-          background: 'none',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'var(--text-neutral-medium)',
-          transition: 'all 0.15s',
-          flexShrink: 0,
-        }}
-        className="icon-btn-hover"
+        className="
+          w-8 h-8 rounded-lg border-none bg-transparent shrink-0
+          flex items-center justify-center
+          text-[var(--text-neutral-medium)]
+          hover:bg-[var(--surface-neutral-xx-weak)]
+          hover:text-[var(--text-neutral-strong)]
+          transition-colors cursor-pointer
+        "
       >
-        <i className="fa-solid fa-chevron-right" style={{ fontSize: 11 }} />
+        <i className="fa-solid fa-chevron-right text-[11px]" />
       </button>
     </div>
   );
