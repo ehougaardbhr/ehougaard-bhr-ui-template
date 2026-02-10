@@ -78,9 +78,10 @@ class PlanExecutionEngine {
       const depItem = this.getItemById(depId);
       if (!depItem || depItem.status !== 'done') return false;
 
-      // Check if a review gate sits after this dependency and hasn't passed
+      // Check if an approval gate sits after this dependency and hasn't passed
+      // Only artifact-type reviews block execution (findings reviews are informational)
       const gate = this.settings.reviewSteps?.find(
-        rs => rs.afterItem === depId && rs.status !== 'passed'
+        rs => rs.afterItem === depId && rs.type === 'artifact' && rs.status !== 'passed'
       );
       if (gate) return false;
     }
@@ -155,8 +156,9 @@ class PlanExecutionEngine {
   }
 
   private checkReviewGateAfterItem(itemId: string): void {
+    // Only activate artifact-type reviews as gates (findings reviews are informational)
     const reviewStep = this.settings.reviewSteps?.find(
-      rs => rs.afterItem === itemId && rs.status !== 'passed'
+      rs => rs.afterItem === itemId && rs.type === 'artifact' && rs.status !== 'passed'
     );
 
     if (reviewStep) {
