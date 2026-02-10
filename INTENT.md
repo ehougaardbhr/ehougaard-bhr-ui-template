@@ -123,17 +123,91 @@ The page serves the same content at every stage, but the user's mindset differs:
 - **Live dashboard framing** — Home page already handles status and urgency. Competing dashboard is redundant.
 - **Pulsing amber "Review Now" on detail page (v5)** — Wrong tone. This page observes; it doesn't demand. Urgency belongs on the home page (AttentionCard).
 
-## Open Questions
+## Open Questions (Plan Detail)
 
-1. Should the "View All Activity" link on AutomationsCard route to a plan list page or directly to the most recent plan?
-2. Where do completed plans live long-term? Do they fade from AutomationsCard?
-3. How does parallel layout work on narrow screens?
-4. Should review gate footers link to the specific chat message where the approval happened?
-5. How should findings be generated during real plan execution? Current implementation uses hardcoded mock data — need to design how the execution engine populates findings.
+1. Where do completed plans live long-term? Do they fade from AutomationsCard?
+2. How does parallel layout work on narrow screens?
+3. Should review gate footers link to the specific chat message where the approval happened?
+4. How should findings be generated during real plan execution? Current implementation uses hardcoded mock data — need to design how the execution engine populates findings.
+
+---
+
+# INTENT — Automations Page
+
+## Goal
+
+A dedicated top-level page (`/automations`) that serves as Jess's **AI control center** — where she sees, monitors, and manages everything the system AI is doing on her behalf. The home page AutomationsCard widget is the summary; this page is the full, detailed view.
+
+This is NOT a log or activity feed — it's a **management dashboard** for active AI-driven automations. The user should be able to see what's running, what needs attention, and take action (pause, resume, cancel, edit).
+
+## Scope Decisions
+
+- **"Big stuff" only.** Plans like backfill workflows, hiring pipeline reviews, comp analyses — not lightweight background tasks like timesheet reminders or document collection.
+- **Designed for 10+ automations** at scale.
+- **Management actions per automation:** pause, resume, cancel, edit.
+- **Primary view: what's active now.** Tab or dropdown to switch to history/audit view.
+- **Clicking an automation → Plan Detail page** (`/plans/:id`). No inline detail view on this page.
+
+## Current Direction — Alert Stack (#12) with refinements
+
+**Winner: Concept 12 (Alert Stack)** — chosen from 15 explored concepts.
+
+### Core Pattern
+The page has two distinct zones with extreme visual contrast:
+
+1. **Attention zone (top):** Stacked alert cards for automations needing the user. Each alert has:
+   - A labeled intent: *"I have something to show you"*, *"I need your approval"*, *"Paused — waiting on you"*
+   - Left color bar by type (amber for review/paused, purple for approval)
+   - Specific action buttons (Review Findings, Approve, Resume, etc.)
+   - Dismiss button to clear
+   - Per-card management (pause, edit, cancel via ellipsis menu)
+
+2. **Quiet zone (below):** Simple rows for automations running fine. Minimal visual weight. Per-row pause button, ellipsis menu, and chevron to navigate to Plan Detail.
+
+### Key Insight
+"Needs your attention" must be called out specifically with the AI's voice — *"I have something to show you"* vs *"I need your approval."* This is not a generic badge; it's a specific communication from the AI to the user.
+
+### Global Controls
+- **Active / History** toggle in page header
+- **New Automation** button in page header
+- Per-automation actions live in ellipsis menus (pause, edit, cancel)
+- No "Pause All" — unnecessary edge case
+
+### v5 Refinements (`demos/automations-page-v5.html`)
+Based on UX review of v4:
+- **One primary CTA per alert + ellipsis.** Reduced from 4+ buttons to avoid decision fatigue.
+- **No dismiss X.** Alerts clear by acting on them, not by dismissing. Prevents accidentally hiding compliance items.
+- **Timestamps everywhere.** "Waiting since Jan 17" on alerts, "30m ago" on quiet rows. Managers need to know staleness.
+- **Dropped toolbar.** Merged Active/History + New into page header row. Less chrome before content.
+- **Shortened alert copy.** Lead with key data: "2 weak pipelines, 4 below-market roles. Review to proceed."
+- **Empty state.** Green "all clear" banner when nothing needs attention. Page feels good, not empty.
+- **No Pause All, no Bulk Actions.** Premature. Per-item ellipsis is sufficient.
+- **Two demo states:** "With Alerts" and "All Clear" to show both modes.
+
+## What's Done
+
+- [x] Stubbed Automations page at `/automations` with route, nav icon (bolt), and "View All Activity" link wired from AutomationsCard
+- [x] Built 15 diverging concept mockups across 3 HTML files (`demos/automations-page-concepts.html`, `v2`, `v3`)
+- [x] Clarified scope: big automations only, 10+ scale, management actions, tab for history
+- [x] Key insight identified: attention items must use AI voice ("I have something to show you" / "I need your approval")
+- [x] Winner selected: #12 (Alert Stack). Built two refinement variants in `demos/automations-page-concepts-v4.html`
+- [x] UX review of v4A: simplified buttons, removed dismiss X, added timestamps, dropped toolbar/Pause All, added empty state
+- [x] Built v5 refined mockup: `demos/automations-page-v5.html` — two states (with alerts / all clear)
+
+## Rejected Approaches
+
+- **Concepts 1–5** (Card List, Table, Kanban, Master/Detail, Dashboard) — functional but lacked the attention-calling pattern. Treated all automations equally.
+- **Concepts 6–10** (Command Center, Gantt, Conversational, Status Rings, Priority Split) — too conceptual/novel. Command Center and Rings were aesthetic over substance. Conversational was redundant with existing chat. Gantt was too PM-tool. Priority Split was closest to the insight but too rigid.
+- **Concepts 11, 13, 14** (AI Briefing, Triage Mode, Accordion) — elements may be reused but not selected as primary pattern. Triage mode too opinionated for a management page.
+- **Concept B (Hero Banner + Stack)** — dark banner was visually striking but alert stack on white bg is cleaner for daily use.
+- **Pause All button** — "When would I need this? When I scream stop the presses like Gonzo?" Per-item control is sufficient.
+- **Bulk Actions dropdown** — premature. No real multi-select use case yet.
+- **Dismiss X on alerts** — too dangerous for HR context. What does dismiss mean? Alerts clear by acting on them.
 
 ## Next Steps
 
-1. Design the Activity list page (what AutomationsCard "View All" links to)
-2. Consider how AutomationsCard rows link to the detail page
-3. Get final approval on v6 mockup
-4. Implement in React
+1. User reviews v5, gives final approval
+2. Build in React
+3. Wire up per-automation management actions (pause/resume/cancel/edit via ellipsis)
+4. Implement history tab
+5. Replace dummy AutomationsCard data with real automation types

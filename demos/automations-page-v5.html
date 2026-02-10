@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automations Page — v5</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-paused: #D97706;
+      --color-paused-light: #FEF3C7;
+      --color-proposed: #7C3AED;
+      --color-proposed-light: #EDE9FE;
+      --color-cancelled: #DC2626;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0EDEB;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* Demo switcher */
+    .switcher {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      padding: 12px 32px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .switcher-label { font-size: 13px; font-weight: 600; color: var(--text-neutral-medium); margin-right: 8px; }
+    .switcher-btn {
+      padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-medium); cursor: pointer; transition: all 0.15s;
+    }
+    .switcher-btn.active { background: var(--text-neutral-xx-strong); color: white; border-color: var(--text-neutral-xx-strong); }
+    .switcher-btn:hover:not(.active) { background: var(--surface-neutral-xx-weak); }
+
+    .view { display: none; padding: 32px; max-width: 1100px; margin: 0 auto; }
+    .view.active { display: block; }
+
+    .concept-desc {
+      background: var(--color-primary-light); border: 1px solid #c6e6bc; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 32px; font-size: 14px; line-height: 1.6; color: var(--text-neutral-strong);
+    }
+    .concept-desc strong { color: var(--text-neutral-xx-strong); }
+
+    /* ==========================================
+       Page Header
+       ========================================== */
+    .page-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .page-header h1 {
+      font-family: Fields, Georgia, serif;
+      font-size: 48px; font-weight: 700; line-height: 56px; color: var(--color-primary);
+    }
+    .page-header-right { display: flex; align-items: center; gap: 10px; }
+
+    .tab-switch {
+      display: flex; gap: 0; background: var(--surface-neutral-x-weak); border-radius: 8px; padding: 3px;
+    }
+    .tab-switch-btn {
+      padding: 7px 18px; border-radius: 6px; font-size: 13px; font-weight: 600;
+      border: none; background: none; cursor: pointer; color: var(--text-neutral-medium);
+      transition: all 0.15s;
+    }
+    .tab-switch-btn.active {
+      background: var(--surface-neutral-white); color: var(--text-neutral-xx-strong);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+
+    .new-btn {
+      padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
+      border: none; background: var(--color-primary); color: white; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px; transition: opacity 0.15s;
+    }
+    .new-btn:hover { opacity: 0.9; }
+
+    /* ==========================================
+       Alert Section
+       ========================================== */
+    .alert-section { margin-bottom: 28px; }
+
+    .alert-count {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
+      font-size: 13px; font-weight: 500; color: var(--text-neutral-medium);
+    }
+    .alert-count-badge {
+      background: var(--color-paused); color: white; border-radius: 99px;
+      padding: 2px 10px; font-size: 12px; font-weight: 700;
+    }
+
+    .alert-card {
+      background: var(--surface-neutral-white); border-radius: 12px; padding: 18px 22px;
+      margin-bottom: 8px; display: flex; align-items: start; gap: 14px;
+      border: 1px solid var(--border-neutral-weak); position: relative; overflow: hidden;
+      transition: box-shadow 0.15s;
+    }
+    .alert-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .alert-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    }
+    .alert-card.review::before { background: var(--color-paused); }
+    .alert-card.approve::before { background: var(--color-proposed); }
+    .alert-card.paused-alert::before { background: var(--color-paused); }
+
+    .alert-icon {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 15px;
+    }
+    .alert-content { flex: 1; min-width: 0; }
+
+    .alert-top-row {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 3px;
+    }
+    .alert-type {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .alert-age { font-size: 11px; color: var(--text-neutral-weak); margin-left: auto; }
+
+    .alert-title {
+      font-size: 15px; font-weight: 700; color: var(--text-neutral-xx-strong); margin-bottom: 4px;
+      cursor: pointer;
+    }
+    .alert-title:hover { color: var(--color-primary); }
+    .alert-desc {
+      font-size: 13px; color: var(--text-neutral-medium); line-height: 1.5;
+    }
+    .alert-desc strong { color: var(--text-neutral-strong); }
+    .alert-actions { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+
+    .action-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-strong); cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .action-btn:hover { background: var(--surface-neutral-xx-weak); }
+    .action-btn.primary {
+      background: var(--color-primary); color: white; border-color: var(--color-primary);
+    }
+    .action-btn.primary:hover { opacity: 0.9; }
+
+    .icon-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: none; background: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-neutral-medium); transition: all 0.15s; flex-shrink: 0;
+    }
+    .icon-btn:hover { background: var(--surface-neutral-xx-weak); color: var(--text-neutral-strong); }
+
+    /* ==========================================
+       Empty State (no alerts)
+       ========================================== */
+    .all-clear {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px; margin-bottom: 28px;
+      background: var(--color-done-light); border: 1px solid #A7F3D0;
+      border-radius: 10px; font-size: 14px; color: #065F46;
+    }
+    .all-clear-icon {
+      width: 32px; height: 32px; border-radius: 8px; background: #059669;
+      display: flex; align-items: center; justify-content: center; color: white;
+      font-size: 14px; flex-shrink: 0;
+    }
+
+    /* ==========================================
+       Running Section
+       ========================================== */
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .section-title {
+      font-size: 12px; font-weight: 700; color: var(--text-neutral-weak);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+
+    .quiet-row {
+      display: flex; align-items: center; gap: 14px; padding: 12px 18px;
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 8px; margin-bottom: 4px; font-size: 13px;
+      transition: background 0.12s; cursor: pointer;
+    }
+    .quiet-row:hover { background: var(--surface-neutral-xx-weak); }
+
+    .quiet-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .quiet-name { font-weight: 600; color: var(--text-neutral-strong); min-width: 0; white-space: nowrap; }
+    .quiet-meta { font-size: 12px; color: var(--text-neutral-weak); flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .quiet-time { font-size: 11px; color: var(--text-neutral-weak); white-space: nowrap; }
+
+    .progress-bar { height: 6px; background: var(--surface-neutral-x-weak); border-radius: 3px; overflow: hidden; width: 80px; flex-shrink: 0; }
+    .progress-fill { height: 100%; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="switcher">
+  <span class="switcher-label">STATE:</span>
+  <button class="switcher-btn active" onclick="showView('has-alerts')">With Alerts</button>
+  <button class="switcher-btn" onclick="showView('no-alerts')">All Clear</button>
+</div>
+
+<!-- ==========================================
+     STATE: Has attention items
+     ========================================== -->
+<div class="view active" id="has-alerts">
+  <div class="concept-desc">
+    <strong>v5 — Alert Stack, refined.</strong>
+    Simplified from v4: one primary CTA per alert + ellipsis for secondary actions. No dismiss X — alerts clear
+    by acting on them. Timestamps on everything. Controls merged into page header. No Pause All.
+    Toggle to "All Clear" to see empty state.
+  </div>
+
+  <!-- Page Header with controls -->
+  <div class="page-header">
+    <h1>Automations</h1>
+    <div class="page-header-right">
+      <div class="tab-switch">
+        <button class="tab-switch-btn active">Active</button>
+        <button class="tab-switch-btn">History</button>
+      </div>
+      <button class="new-btn"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New</button>
+    </div>
+  </div>
+
+  <!-- Attention Section -->
+  <div class="alert-section">
+    <div class="alert-count">
+      <span class="alert-count-badge">3</span>
+      automations need your attention
+    </div>
+
+    <!-- Alert 1: Review ready -->
+    <div class="alert-card review">
+      <div class="alert-icon" style="background: var(--color-paused-light); color: var(--color-paused);">
+        <i class="fa-solid fa-eye"></i>
+      </div>
+      <div class="alert-content">
+        <div class="alert-top-row">
+          <div class="alert-type" style="color: var(--color-paused);">
+            <i class="fa-solid fa-eye"></i> I have something to show you
+          </div>
+          <span class="alert-age">Waiting since Jan 17</span>
+        </div>
+        <div class="alert-title">Q1 Hiring Pipeline Review</div>
+        <div class="alert-desc">
+          Pipeline health report ready — <strong>2 weak pipelines, 4 below-market roles.</strong> Review to proceed.
+        </div>
+        <div class="alert-actions">
+          <button class="action-btn primary">Review Findings</button>
+          <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert 2: Needs approval -->
+    <div class="alert-card approve">
+      <div class="alert-icon" style="background: var(--color-proposed-light); color: var(--color-proposed);">
+        <i class="fa-solid fa-stamp"></i>
+      </div>
+      <div class="alert-content">
+        <div class="alert-top-row">
+          <div class="alert-type" style="color: var(--color-proposed);">
+            <i class="fa-solid fa-stamp"></i> I need your approval
+          </div>
+          <span class="alert-age">Proposed 2 days ago</span>
+        </div>
+        <div class="alert-title">Onboarding — Feb New Hires</div>
+        <div class="alert-desc">
+          Onboarding plan for <strong>3 new employees</strong> starting Feb 15 — document collection, IT setup, welcome materials.
+        </div>
+        <div class="alert-actions">
+          <button class="action-btn primary"><i class="fa-solid fa-check" style="font-size: 11px;"></i> Approve</button>
+          <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Alert 3: Paused -->
+    <div class="alert-card paused-alert">
+      <div class="alert-icon" style="background: var(--color-paused-light); color: var(--color-paused);">
+        <i class="fa-solid fa-pause"></i>
+      </div>
+      <div class="alert-content">
+        <div class="alert-top-row">
+          <div class="alert-type" style="color: var(--color-paused);">
+            <i class="fa-solid fa-pause"></i> Paused — waiting on you
+          </div>
+          <span class="alert-age">Paused 3 days ago</span>
+        </div>
+        <div class="alert-title">Comp Review — Engineering</div>
+        <div class="alert-desc">
+          You paused for budget review. <strong>6/8 steps done, 7 employees below market.</strong> Ready to resume?
+        </div>
+        <div class="alert-actions">
+          <button class="action-btn primary"><i class="fa-solid fa-play" style="font-size: 11px;"></i> Resume</button>
+          <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Running Section -->
+  <div class="section-header">
+    <span class="section-title">Running smoothly</span>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Backfill — Tony Ramirez</span>
+    <span class="quiet-meta">3/5 · Screening candidates · 3 strong matches</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 60%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">30m ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">PTO Balance Audit</span>
+    <span class="quiet-meta">2/5 · Analyzing department patterns · 142 employees</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 40%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">1h ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-done);"></div>
+    <span class="quiet-name">Flight Risk — Marketing</span>
+    <span class="quiet-meta">Continuous · 2 high risk, 5 moderate</span>
+    <div style="width: 80px; flex-shrink: 0;"></div>
+    <span class="quiet-time">2h ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Succession Plan — VP Sales</span>
+    <span class="quiet-meta">1/4 · Identifying internal candidates</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 25%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">3h ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Benefits Enrollment Prep</span>
+    <span class="quiet-meta">3/6 · Compiling plan options · 4 vendors contacted</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 50%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">45m ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+</div>
+
+<!-- ==========================================
+     STATE: All clear — no attention items
+     ========================================== -->
+<div class="view" id="no-alerts">
+  <div class="concept-desc">
+    <strong>Empty state — nothing needs you.</strong>
+    When all attention items are resolved, the alert section is replaced with a calm "all clear" banner.
+    The page doesn't feel empty — it feels good.
+  </div>
+
+  <div class="page-header">
+    <h1>Automations</h1>
+    <div class="page-header-right">
+      <div class="tab-switch">
+        <button class="tab-switch-btn active">Active</button>
+        <button class="tab-switch-btn">History</button>
+      </div>
+      <button class="new-btn"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New</button>
+    </div>
+  </div>
+
+  <div class="all-clear">
+    <div class="all-clear-icon"><i class="fa-solid fa-check"></i></div>
+    <div>
+      <strong>Nothing needs your attention.</strong>
+      All 6 automations are running smoothly.
+    </div>
+  </div>
+
+  <div class="section-header">
+    <span class="section-title">All automations</span>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Q1 Hiring Pipeline Review</span>
+    <span class="quiet-meta">5/7 · Generating recommendations</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 71%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">10m ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Backfill — Tony Ramirez</span>
+    <span class="quiet-meta">3/5 · Screening candidates · 3 strong matches</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 60%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">30m ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Onboarding — Feb New Hires</span>
+    <span class="quiet-meta">1/5 · Collecting documents from 3 employees</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 20%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">15m ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">PTO Balance Audit</span>
+    <span class="quiet-meta">2/5 · Analyzing department patterns · 142 employees</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 40%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">1h ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-done);"></div>
+    <span class="quiet-name">Flight Risk — Marketing</span>
+    <span class="quiet-meta">Continuous · 2 high risk, 5 moderate</span>
+    <div style="width: 80px; flex-shrink: 0;"></div>
+    <span class="quiet-time">2h ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Comp Review — Engineering</span>
+    <span class="quiet-meta">7/8 · Drafting adjustment proposals</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: 88%; background: var(--color-working);"></div></div>
+    <span class="quiet-time">20m ago</span>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+</div>
+
+<script>
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.switcher-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = id === 'has-alerts' ? 0 : 1;
+  document.querySelectorAll('.switcher-btn')[idx].classList.add('active');
+}
+</script>
+
+</body>
+</html>

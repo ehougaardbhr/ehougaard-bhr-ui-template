@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automations Page — Concepts 6–10</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-paused: #D97706;
+      --color-paused-light: #FEF3C7;
+      --color-queued: #A8A29E;
+      --color-queued-light: #F5F3F2;
+      --color-proposed: #7C3AED;
+      --color-proposed-light: #EDE9FE;
+      --color-cancelled: #DC2626;
+      --color-cancelled-light: #FEE2E2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0EDEB;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* Concept Switcher */
+    .switcher {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      padding: 12px 32px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+      flex-wrap: wrap;
+    }
+    .switcher-label {
+      font-size: 13px; font-weight: 600; color: var(--text-neutral-medium);
+      margin-right: 8px;
+    }
+    .switcher-btn {
+      padding: 8px 16px; border-radius: 99px; font-size: 12px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-medium); cursor: pointer; transition: all 0.15s;
+    }
+    .switcher-btn.active {
+      background: var(--text-neutral-xx-strong); color: white; border-color: var(--text-neutral-xx-strong);
+    }
+    .switcher-btn:hover:not(.active) { background: var(--surface-neutral-xx-weak); }
+
+    .concept { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; }
+    .concept.active { display: block; }
+
+    .concept-desc {
+      background: var(--color-primary-light); border: 1px solid #c6e6bc; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 32px; font-size: 14px; line-height: 1.6; color: var(--text-neutral-strong);
+    }
+    .concept-desc strong { color: var(--text-neutral-xx-strong); }
+
+    .page-header h1 {
+      font-family: Fields, Georgia, serif;
+      font-size: 48px; font-weight: 700; line-height: 56px; color: var(--color-primary);
+      margin-bottom: 24px;
+    }
+
+    /* Shared badge */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .badge-running { background: var(--color-working-light); color: var(--color-working); }
+    .badge-paused { background: var(--color-paused-light); color: var(--color-paused); }
+    .badge-completed { background: var(--color-done-light); color: var(--color-done); }
+    .badge-proposed { background: var(--color-proposed-light); color: var(--color-proposed); }
+
+    .action-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-strong); cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .action-btn:hover { background: var(--surface-neutral-xx-weak); }
+    .action-btn.primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+
+    /* ==========================================
+       CONCEPT 6 — Command Center / Mission Control
+       Ambient status wall. Live pulse indicators.
+       The "feel" is calm confidence — everything's under control.
+       ========================================== */
+
+    .c6-status-bar {
+      display: flex; gap: 24px; align-items: center; margin-bottom: 32px;
+      padding: 16px 24px; background: var(--text-neutral-xx-strong); border-radius: 12px; color: white;
+    }
+    .c6-status-item { display: flex; align-items: center; gap: 8px; }
+    .c6-pulse {
+      width: 10px; height: 10px; border-radius: 50%; position: relative;
+    }
+    .c6-pulse::after {
+      content: ''; position: absolute; inset: -4px; border-radius: 50%;
+      border: 2px solid currentColor; opacity: 0.3;
+      animation: c6-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+    @keyframes c6-ping {
+      0% { transform: scale(1); opacity: 0.3; }
+      75%, 100% { transform: scale(1.8); opacity: 0; }
+    }
+    .c6-status-label { font-size: 13px; font-weight: 500; opacity: 0.8; }
+    .c6-status-count { font-size: 20px; font-weight: 700; }
+
+    .c6-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .c6-tile {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 16px; padding: 24px; position: relative; overflow: hidden;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .c6-tile:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .c6-tile-status {
+      position: absolute; top: 0; left: 0; right: 0; height: 4px;
+    }
+    .c6-tile-header { display: flex; align-items: start; justify-content: space-between; margin-bottom: 16px; }
+    .c6-tile-icon {
+      width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center;
+      justify-content: center; font-size: 20px;
+    }
+    .c6-tile-title { font-size: 16px; font-weight: 700; color: var(--text-neutral-xx-strong); margin-bottom: 4px; }
+    .c6-tile-subtitle { font-size: 13px; color: var(--text-neutral-medium); }
+    .c6-tile-metrics { display: flex; gap: 20px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-neutral-weak); }
+    .c6-metric-value { font-size: 18px; font-weight: 700; }
+    .c6-metric-label { font-size: 11px; color: var(--text-neutral-medium); text-transform: uppercase; letter-spacing: 0.3px; }
+    .c6-tile-activity {
+      margin-top: 16px; padding: 10px 14px; background: var(--surface-neutral-xx-weak); border-radius: 8px;
+      font-size: 12px; color: var(--text-neutral-medium); display: flex; align-items: center; gap: 8px;
+    }
+    .c6-live-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--color-done);
+      animation: c6-blink 1.5s ease-in-out infinite;
+    }
+    @keyframes c6-blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ==========================================
+       CONCEPT 7 — Gantt / Timeline View
+       Horizontal time bars showing duration and overlap.
+       Great for understanding concurrency and projected completion.
+       ========================================== */
+
+    .c7-controls {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+    }
+    .c7-time-nav { display: flex; align-items: center; gap: 12px; }
+    .c7-time-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-neutral-medium);
+      background: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-neutral-medium);
+    }
+    .c7-time-label { font-size: 15px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .c7-zoom { display: flex; gap: 4px; }
+    .c7-zoom-btn {
+      padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: white; cursor: pointer;
+      color: var(--text-neutral-medium);
+    }
+    .c7-zoom-btn.active { background: var(--text-neutral-xx-strong); color: white; border-color: var(--text-neutral-xx-strong); }
+
+    .c7-chart {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px; overflow: hidden;
+    }
+    .c7-header-row {
+      display: grid; grid-template-columns: 240px 1fr; border-bottom: 1px solid var(--border-neutral-weak);
+      background: var(--surface-neutral-xx-weak);
+    }
+    .c7-header-label {
+      padding: 12px 20px; font-size: 12px; font-weight: 600; color: var(--text-neutral-medium);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .c7-dates {
+      display: grid; grid-template-columns: repeat(8, 1fr);
+      border-left: 1px solid var(--border-neutral-weak);
+    }
+    .c7-date-cell {
+      padding: 12px 8px; font-size: 11px; color: var(--text-neutral-medium); text-align: center;
+      font-weight: 500; border-right: 1px solid var(--border-neutral-weak);
+    }
+    .c7-date-cell.today { background: rgba(37, 99, 235, 0.06); font-weight: 700; color: var(--color-working); }
+
+    .c7-row {
+      display: grid; grid-template-columns: 240px 1fr;
+      border-bottom: 1px solid var(--border-neutral-weak);
+      min-height: 60px; align-items: center;
+    }
+    .c7-row:last-child { border-bottom: none; }
+    .c7-row:hover { background: var(--surface-neutral-xx-weak); }
+    .c7-row-label {
+      padding: 12px 20px; display: flex; align-items: center; gap: 10px;
+    }
+    .c7-row-icon {
+      width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center;
+      justify-content: center; font-size: 13px; flex-shrink: 0;
+    }
+    .c7-row-info { min-width: 0; }
+    .c7-row-name { font-size: 13px; font-weight: 600; color: var(--text-neutral-xx-strong); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .c7-row-meta { font-size: 11px; color: var(--text-neutral-medium); }
+
+    .c7-bar-area {
+      position: relative; height: 100%;
+      display: grid; grid-template-columns: repeat(8, 1fr);
+      border-left: 1px solid var(--border-neutral-weak);
+    }
+    .c7-bar-cell { border-right: 1px solid var(--border-neutral-weak); }
+    .c7-bar-cell.today { background: rgba(37, 99, 235, 0.04); }
+    .c7-bar {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      height: 28px; border-radius: 6px; display: flex; align-items: center;
+      padding: 0 10px; font-size: 11px; font-weight: 600; color: white;
+      white-space: nowrap; overflow: hidden;
+    }
+    .c7-bar.running { background: var(--color-working); }
+    .c7-bar.paused { background: var(--color-paused); background-image: repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(255,255,255,0.15) 4px, rgba(255,255,255,0.15) 8px); }
+    .c7-bar.completed { background: var(--color-done); opacity: 0.7; }
+    .c7-bar.proposed { background: var(--color-proposed); border: 2px dashed rgba(255,255,255,0.5); }
+    .c7-today-line {
+      position: absolute; top: 0; bottom: 0; width: 2px; background: var(--color-working);
+      z-index: 5;
+    }
+    .c7-today-dot {
+      position: absolute; top: -5px; left: -4px; width: 10px; height: 10px;
+      border-radius: 50%; background: var(--color-working);
+    }
+
+    /* ==========================================
+       CONCEPT 8 — Conversational Management
+       Chat-first interface. Manage automations by talking.
+       The page is a conversation with your AI about what it's doing.
+       ========================================== */
+
+    .c8-layout { display: grid; grid-template-columns: 1fr 380px; gap: 0; min-height: 600px; }
+    .c8-chat {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px 0 0 12px; display: flex; flex-direction: column;
+    }
+    .c8-chat-header {
+      padding: 16px 24px; border-bottom: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .c8-ai-avatar {
+      width: 36px; height: 36px; border-radius: 10px; background: var(--color-primary-light);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--color-primary); font-size: 16px;
+    }
+    .c8-chat-title { font-size: 15px; font-weight: 600; }
+    .c8-chat-status { font-size: 12px; color: var(--color-done); display: flex; align-items: center; gap: 4px; }
+    .c8-messages { flex: 1; padding: 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+    .c8-msg { max-width: 80%; display: flex; gap: 10px; }
+    .c8-msg.ai { align-self: flex-start; }
+    .c8-msg.user { align-self: flex-end; flex-direction: row-reverse; }
+    .c8-msg-avatar {
+      width: 28px; height: 28px; border-radius: 8px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 12px;
+    }
+    .c8-msg-bubble {
+      padding: 12px 16px; border-radius: 12px; font-size: 14px; line-height: 1.5;
+    }
+    .c8-msg.ai .c8-msg-avatar { background: var(--color-primary-light); color: var(--color-primary); }
+    .c8-msg.ai .c8-msg-bubble { background: var(--surface-neutral-xx-weak); color: var(--text-neutral-x-strong); }
+    .c8-msg.user .c8-msg-avatar { background: var(--color-working-light); color: var(--color-working); }
+    .c8-msg.user .c8-msg-bubble { background: var(--color-working); color: white; }
+
+    .c8-inline-card {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 10px; padding: 14px 18px; margin-top: 8px;
+    }
+    .c8-inline-card-title { font-size: 13px; font-weight: 600; color: var(--text-neutral-xx-strong); margin-bottom: 6px; }
+    .c8-inline-card-row { display: flex; align-items: center; justify-content: space-between; }
+    .c8-inline-card-meta { font-size: 12px; color: var(--text-neutral-medium); }
+
+    .c8-input-area {
+      padding: 16px 24px; border-top: 1px solid var(--border-neutral-weak);
+      display: flex; gap: 8px;
+    }
+    .c8-input {
+      flex: 1; padding: 10px 16px; border-radius: 10px; border: 1px solid var(--border-neutral-medium);
+      font-size: 14px; outline: none; background: var(--surface-neutral-xx-weak);
+    }
+    .c8-input::placeholder { color: var(--text-neutral-weak); }
+    .c8-send {
+      width: 40px; height: 40px; border-radius: 10px; border: none;
+      background: var(--color-primary); color: white; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .c8-sidebar {
+      background: var(--surface-neutral-xx-weak); border: 1px solid var(--border-neutral-weak);
+      border-left: none; border-radius: 0 12px 12px 0; padding: 20px;
+    }
+    .c8-sidebar-title {
+      font-size: 12px; font-weight: 700; color: var(--text-neutral-medium);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;
+    }
+    .c8-sidebar-item {
+      padding: 12px 14px; background: var(--surface-neutral-white);
+      border: 1px solid var(--border-neutral-weak); border-radius: 10px;
+      margin-bottom: 8px; cursor: pointer; transition: all 0.15s;
+    }
+    .c8-sidebar-item:hover { border-color: var(--color-primary); }
+    .c8-sidebar-item-name { font-size: 13px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .c8-sidebar-item-meta { font-size: 11px; color: var(--text-neutral-medium); margin-top: 2px; }
+    .c8-quick-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 16px; }
+    .c8-quick-btn {
+      padding: 6px 12px; border-radius: 99px; font-size: 11px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-strong); cursor: pointer;
+    }
+    .c8-quick-btn:hover { background: var(--color-primary-light); border-color: var(--color-primary); color: var(--color-primary); }
+
+    /* ==========================================
+       CONCEPT 9 — Status Rings
+       Each automation as a circular progress ring.
+       Ambient, visual, almost like a watchface.
+       ========================================== */
+
+    .c9-summary {
+      text-align: center; margin-bottom: 32px; padding: 24px;
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 16px;
+    }
+    .c9-summary-big { font-size: 56px; font-weight: 800; color: var(--text-neutral-xx-strong); line-height: 1; }
+    .c9-summary-label { font-size: 15px; color: var(--text-neutral-medium); margin-top: 4px; }
+    .c9-summary-sub { display: flex; justify-content: center; gap: 32px; margin-top: 16px; }
+    .c9-summary-item { text-align: center; }
+    .c9-summary-num { font-size: 20px; font-weight: 700; }
+    .c9-summary-text { font-size: 12px; color: var(--text-neutral-medium); }
+
+    .c9-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .c9-ring-card {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 16px; padding: 28px 20px; text-align: center;
+      cursor: pointer; transition: all 0.2s;
+    }
+    .c9-ring-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .c9-ring-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 16px; }
+    .c9-ring-svg { width: 120px; height: 120px; transform: rotate(-90deg); }
+    .c9-ring-bg { fill: none; stroke: var(--surface-neutral-x-weak); stroke-width: 8; }
+    .c9-ring-progress { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 0.6s ease; }
+    .c9-ring-center {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .c9-ring-percent { font-size: 24px; font-weight: 800; }
+    .c9-ring-steps { font-size: 11px; color: var(--text-neutral-medium); }
+    .c9-ring-title { font-size: 14px; font-weight: 700; color: var(--text-neutral-xx-strong); margin-bottom: 4px; }
+    .c9-ring-subtitle { font-size: 12px; color: var(--text-neutral-medium); margin-bottom: 12px; }
+    .c9-ring-actions { display: flex; justify-content: center; gap: 6px; }
+    .c9-ring-btn {
+      padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: white; cursor: pointer;
+      color: var(--text-neutral-medium);
+    }
+    .c9-ring-btn:hover { background: var(--surface-neutral-xx-weak); }
+
+    /* Special ring states */
+    .c9-ring-card.paused { border-color: var(--color-paused); border-style: dashed; }
+    .c9-ring-card.proposed { opacity: 0.75; }
+    .c9-ongoing .c9-ring-center {
+      font-size: 28px; color: var(--color-working);
+    }
+
+    /* ==========================================
+       CONCEPT 10 — Priority Split View
+       Two zones: "Needs You" (left, urgent) vs "Running Fine" (right, calm).
+       Forces attention prioritization. Distinct visual energy per zone.
+       ========================================== */
+
+    .c10-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 0; min-height: 560px; }
+    .c10-zone {
+      padding: 28px; border: 1px solid var(--border-neutral-weak); background: var(--surface-neutral-white);
+    }
+    .c10-zone.urgent {
+      border-radius: 12px 0 0 12px;
+      border-right: 3px solid var(--color-paused);
+      background: linear-gradient(180deg, #FFFBEB 0%, var(--surface-neutral-white) 120px);
+    }
+    .c10-zone.calm {
+      border-radius: 0 12px 12px 0;
+      border-left: none;
+    }
+    .c10-zone-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
+      padding-bottom: 16px; border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .c10-zone-icon {
+      width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 16px;
+    }
+    .c10-zone-title { font-size: 18px; font-weight: 700; color: var(--text-neutral-xx-strong); }
+    .c10-zone-count { font-size: 13px; color: var(--text-neutral-medium); }
+
+    .c10-item {
+      padding: 16px; border: 1px solid var(--border-neutral-weak); border-radius: 10px;
+      margin-bottom: 10px; cursor: pointer; transition: all 0.15s;
+    }
+    .c10-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .c10-item.attention { border-left: 4px solid var(--color-paused); }
+    .c10-item.proposed-item { border-left: 4px solid var(--color-proposed); }
+    .c10-item.running-item { border-left: 4px solid var(--color-working); }
+    .c10-item.ongoing-item { border-left: 4px solid var(--color-done); }
+    .c10-item-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .c10-item-title { font-size: 14px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .c10-item-desc { font-size: 12px; color: var(--text-neutral-medium); line-height: 1.5; }
+    .c10-item-actions { display: flex; gap: 6px; margin-top: 10px; }
+    .c10-item-btn {
+      padding: 4px 12px; border-radius: 6px; font-size: 11px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: white; cursor: pointer;
+      color: var(--text-neutral-medium);
+    }
+    .c10-item-btn.primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .c10-item-btn:hover { opacity: 0.9; }
+
+    .c10-calm-item {
+      display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+      border-bottom: 1px solid var(--border-neutral-weak); transition: background 0.15s;
+      cursor: pointer;
+    }
+    .c10-calm-item:hover { background: var(--surface-neutral-xx-weak); }
+    .c10-calm-item:last-child { border-bottom: none; }
+    .c10-calm-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .c10-calm-info { flex: 1; min-width: 0; }
+    .c10-calm-name { font-size: 13px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .c10-calm-meta { font-size: 11px; color: var(--text-neutral-medium); }
+    .c10-calm-progress {
+      width: 80px; height: 6px; background: var(--surface-neutral-x-weak);
+      border-radius: 3px; overflow: hidden;
+    }
+    .c10-calm-fill { height: 100%; border-radius: 3px; }
+
+    .c10-tab-bar { display: flex; gap: 0; margin-bottom: 20px; }
+    .c10-tab {
+      padding: 8px 16px; font-size: 13px; font-weight: 500; color: var(--text-neutral-medium);
+      cursor: pointer; border-bottom: 2px solid transparent; background: none;
+      border-top: none; border-left: none; border-right: none;
+    }
+    .c10-tab.active { color: var(--color-primary); font-weight: 600; border-bottom-color: var(--color-primary); }
+  </style>
+</head>
+<body>
+
+<!-- Concept Switcher -->
+<div class="switcher">
+  <span class="switcher-label">CONCEPT:</span>
+  <button class="switcher-btn active" onclick="showConcept(6)">6 — Command Center</button>
+  <button class="switcher-btn" onclick="showConcept(7)">7 — Gantt Timeline</button>
+  <button class="switcher-btn" onclick="showConcept(8)">8 — Conversational</button>
+  <button class="switcher-btn" onclick="showConcept(9)">9 — Status Rings</button>
+  <button class="switcher-btn" onclick="showConcept(10)">10 — Priority Split</button>
+</div>
+
+<!-- ==========================================
+     CONCEPT 6 — Command Center / Mission Control
+     ========================================== -->
+<div class="concept active" id="concept-6">
+  <div class="concept-desc">
+    <strong>Concept 6 — Command Center.</strong>
+    Dark status bar at top with live pulse indicators. Tiles below show each automation with ambient activity signals.
+    The feel is calm confidence — "everything is under control." Inspired by mission control / monitoring dashboards.
+  </div>
+
+  <div class="page-header"><h1>Automations</h1></div>
+
+  <!-- Live Status Bar -->
+  <div class="c6-status-bar">
+    <div class="c6-status-item">
+      <div class="c6-pulse" style="background: var(--color-working); color: var(--color-working);"></div>
+      <div>
+        <div class="c6-status-count">5</div>
+        <div class="c6-status-label">Running</div>
+      </div>
+    </div>
+    <div class="c6-status-item">
+      <div class="c6-pulse" style="background: var(--color-paused); color: var(--color-paused);"></div>
+      <div>
+        <div class="c6-status-count">2</div>
+        <div class="c6-status-label">Paused</div>
+      </div>
+    </div>
+    <div class="c6-status-item">
+      <div class="c6-pulse" style="background: var(--color-proposed); color: var(--color-proposed);"></div>
+      <div>
+        <div class="c6-status-count">2</div>
+        <div class="c6-status-label">Needs Attention</div>
+      </div>
+    </div>
+    <div style="flex: 1;"></div>
+    <div style="font-size: 12px; opacity: 0.5;">Last sync: just now</div>
+    <button class="action-btn" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); color: white;">
+      <i class="fa-solid fa-plus" style="font-size: 11px;"></i> New
+    </button>
+  </div>
+
+  <div class="c6-grid">
+    <!-- Tile 1 -->
+    <div class="c6-tile">
+      <div class="c6-tile-status" style="background: var(--color-working);"></div>
+      <div class="c6-tile-header">
+        <div class="c6-tile-icon" style="background: var(--color-working-light); color: var(--color-working);">
+          <i class="fa-solid fa-briefcase"></i>
+        </div>
+        <span class="badge badge-running" style="font-size: 11px;"><i class="fa-solid fa-circle" style="font-size: 5px;"></i> Running</span>
+      </div>
+      <div class="c6-tile-title">Q1 Hiring Pipeline Review</div>
+      <div class="c6-tile-subtitle">4/7 steps complete · Waiting for review</div>
+      <div class="c6-tile-metrics">
+        <div><div class="c6-metric-value" style="color: var(--color-working);">57%</div><div class="c6-metric-label">Progress</div></div>
+        <div><div class="c6-metric-value">12</div><div class="c6-metric-label">Roles</div></div>
+        <div><div class="c6-metric-value">47</div><div class="c6-metric-label">Candidates</div></div>
+      </div>
+      <div class="c6-tile-activity">
+        <span class="c6-live-dot"></span>
+        Screened 3 new candidates · 2h ago
+      </div>
+    </div>
+
+    <!-- Tile 2 -->
+    <div class="c6-tile">
+      <div class="c6-tile-status" style="background: var(--color-working);"></div>
+      <div class="c6-tile-header">
+        <div class="c6-tile-icon" style="background: var(--color-working-light); color: var(--color-working);">
+          <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <span class="badge badge-running" style="font-size: 11px;"><i class="fa-solid fa-circle" style="font-size: 5px;"></i> Running</span>
+      </div>
+      <div class="c6-tile-title">Backfill — Tony Ramirez</div>
+      <div class="c6-tile-subtitle">Sr. Marketing Manager · Screening candidates</div>
+      <div class="c6-tile-metrics">
+        <div><div class="c6-metric-value" style="color: var(--color-working);">60%</div><div class="c6-metric-label">Progress</div></div>
+        <div><div class="c6-metric-value">8</div><div class="c6-metric-label">Candidates</div></div>
+        <div><div class="c6-metric-value" style="color: var(--color-done);">3</div><div class="c6-metric-label">Matches</div></div>
+      </div>
+      <div class="c6-tile-activity">
+        <span class="c6-live-dot"></span>
+        Ranked candidate shortlist · 30m ago
+      </div>
+    </div>
+
+    <!-- Tile 3 — Paused -->
+    <div class="c6-tile" style="border-style: dashed; border-color: var(--color-paused);">
+      <div class="c6-tile-status" style="background: var(--color-paused);"></div>
+      <div class="c6-tile-header">
+        <div class="c6-tile-icon" style="background: var(--color-paused-light); color: var(--color-paused);">
+          <i class="fa-solid fa-dollar-sign"></i>
+        </div>
+        <span class="badge badge-paused" style="font-size: 11px;"><i class="fa-solid fa-pause" style="font-size: 5px;"></i> Paused</span>
+      </div>
+      <div class="c6-tile-title">Comp Review — Engineering</div>
+      <div class="c6-tile-subtitle">6/8 steps · Paused by Jess</div>
+      <div class="c6-tile-metrics">
+        <div><div class="c6-metric-value" style="color: var(--color-paused);">75%</div><div class="c6-metric-label">Progress</div></div>
+        <div><div class="c6-metric-value">24</div><div class="c6-metric-label">Employees</div></div>
+        <div><div class="c6-metric-value" style="color: var(--color-cancelled);">7</div><div class="c6-metric-label">Below Mkt</div></div>
+      </div>
+    </div>
+
+    <!-- Tile 4 — Proposed -->
+    <div class="c6-tile" style="border-style: dashed; border-color: var(--color-proposed);">
+      <div class="c6-tile-status" style="background: var(--color-proposed);"></div>
+      <div class="c6-tile-header">
+        <div class="c6-tile-icon" style="background: var(--color-proposed-light); color: var(--color-proposed);">
+          <i class="fa-solid fa-clipboard-list"></i>
+        </div>
+        <span class="badge badge-proposed" style="font-size: 11px;"><i class="fa-solid fa-clock" style="font-size: 9px;"></i> Proposed</span>
+      </div>
+      <div class="c6-tile-title">Onboarding — Feb New Hires</div>
+      <div class="c6-tile-subtitle">3 employees · Awaiting your approval</div>
+      <div style="margin-top: 16px;">
+        <button class="action-btn primary" style="width: 100%; justify-content: center;"><i class="fa-solid fa-check" style="font-size: 11px;"></i> Approve & Start</button>
+      </div>
+    </div>
+
+    <!-- Tile 5 — Continuous -->
+    <div class="c6-tile">
+      <div class="c6-tile-status" style="background: var(--color-done);"></div>
+      <div class="c6-tile-header">
+        <div class="c6-tile-icon" style="background: var(--color-done-light); color: var(--color-done);">
+          <i class="fa-solid fa-shield"></i>
+        </div>
+        <span class="badge badge-running" style="font-size: 11px;"><i class="fa-solid fa-circle" style="font-size: 5px;"></i> Monitoring</span>
+      </div>
+      <div class="c6-tile-title">Flight Risk — Marketing</div>
+      <div class="c6-tile-subtitle">Continuous · Watching 18 employees</div>
+      <div class="c6-tile-metrics">
+        <div><div class="c6-metric-value" style="color: var(--color-cancelled);">2</div><div class="c6-metric-label">High Risk</div></div>
+        <div><div class="c6-metric-value" style="color: var(--color-paused);">5</div><div class="c6-metric-label">Moderate</div></div>
+        <div><div class="c6-metric-value" style="color: var(--color-done);">11</div><div class="c6-metric-label">Low</div></div>
+      </div>
+      <div class="c6-tile-activity">
+        <span class="c6-live-dot"></span>
+        Flagged new compensation gap · 2h ago
+      </div>
+    </div>
+
+    <!-- Tile 6 -->
+    <div class="c6-tile">
+      <div class="c6-tile-status" style="background: var(--color-working);"></div>
+      <div class="c6-tile-header">
+        <div class="c6-tile-icon" style="background: var(--color-working-light); color: var(--color-working);">
+          <i class="fa-solid fa-plane"></i>
+        </div>
+        <span class="badge badge-running" style="font-size: 11px;"><i class="fa-solid fa-circle" style="font-size: 5px;"></i> Running</span>
+      </div>
+      <div class="c6-tile-title">PTO Balance Audit</div>
+      <div class="c6-tile-subtitle">All departments · 2/5 steps complete</div>
+      <div class="c6-tile-metrics">
+        <div><div class="c6-metric-value" style="color: var(--color-working);">40%</div><div class="c6-metric-label">Progress</div></div>
+        <div><div class="c6-metric-value">142</div><div class="c6-metric-label">Employees</div></div>
+      </div>
+      <div class="c6-tile-activity">
+        <span class="c6-live-dot"></span>
+        Analyzing department patterns · 1h ago
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     CONCEPT 7 — Gantt / Timeline View
+     ========================================== -->
+<div class="concept" id="concept-7">
+  <div class="concept-desc">
+    <strong>Concept 7 — Gantt Timeline.</strong>
+    Automations as horizontal bars on a timeline. See when things started, how they overlap, and projected completion.
+    "Today" line shows where you are. Great for understanding concurrency and time investment.
+  </div>
+
+  <div class="page-header"><h1>Automations</h1></div>
+
+  <div class="c7-controls">
+    <div class="c7-time-nav">
+      <button class="c7-time-btn"><i class="fa-solid fa-chevron-left" style="font-size: 11px;"></i></button>
+      <span class="c7-time-label">January — February 2025</span>
+      <button class="c7-time-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+    </div>
+    <div style="display: flex; gap: 12px; align-items: center;">
+      <div class="c7-zoom">
+        <button class="c7-zoom-btn">Month</button>
+        <button class="c7-zoom-btn active">2 Weeks</button>
+        <button class="c7-zoom-btn">Week</button>
+      </div>
+      <button class="action-btn primary"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New</button>
+    </div>
+  </div>
+
+  <div class="c7-chart">
+    <!-- Header -->
+    <div class="c7-header-row">
+      <div class="c7-header-label">Automation</div>
+      <div class="c7-dates">
+        <div class="c7-date-cell">Jan 13</div>
+        <div class="c7-date-cell">Jan 20</div>
+        <div class="c7-date-cell">Jan 27</div>
+        <div class="c7-date-cell">Feb 3</div>
+        <div class="c7-date-cell today">Feb 10</div>
+        <div class="c7-date-cell">Feb 17</div>
+        <div class="c7-date-cell">Feb 24</div>
+        <div class="c7-date-cell">Mar 3</div>
+      </div>
+    </div>
+
+    <!-- Row 1 -->
+    <div class="c7-row">
+      <div class="c7-row-label">
+        <div class="c7-row-icon" style="background: var(--color-paused-light); color: var(--color-paused);"><i class="fa-solid fa-dollar-sign"></i></div>
+        <div class="c7-row-info">
+          <div class="c7-row-name">Comp Review — Engineering</div>
+          <div class="c7-row-meta">Paused · 75%</div>
+        </div>
+      </div>
+      <div class="c7-bar-area">
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell today"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar paused" style="left: 0%; width: 52%;">Comp Review — Eng</div>
+        <div class="c7-today-line" style="left: 55%;"><div class="c7-today-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- Row 2 -->
+    <div class="c7-row">
+      <div class="c7-row-label">
+        <div class="c7-row-icon" style="background: var(--color-working-light); color: var(--color-working);"><i class="fa-solid fa-briefcase"></i></div>
+        <div class="c7-row-info">
+          <div class="c7-row-name">Q1 Hiring Pipeline Review</div>
+          <div class="c7-row-meta">Running · 57%</div>
+        </div>
+      </div>
+      <div class="c7-bar-area">
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell today"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar running" style="left: 6%; width: 56%;">Q1 Pipeline Review</div>
+        <div class="c7-today-line" style="left: 55%;"><div class="c7-today-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- Row 3 -->
+    <div class="c7-row">
+      <div class="c7-row-label">
+        <div class="c7-row-icon" style="background: var(--color-working-light); color: var(--color-working);"><i class="fa-solid fa-user-plus"></i></div>
+        <div class="c7-row-info">
+          <div class="c7-row-name">Backfill — Tony Ramirez</div>
+          <div class="c7-row-meta">Running · 60%</div>
+        </div>
+      </div>
+      <div class="c7-bar-area">
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell today"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar running" style="left: 18%; width: 50%;">Backfill — Tony R</div>
+        <div class="c7-today-line" style="left: 55%;"><div class="c7-today-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- Row 4 -->
+    <div class="c7-row">
+      <div class="c7-row-label">
+        <div class="c7-row-icon" style="background: var(--color-proposed-light); color: var(--color-proposed);"><i class="fa-solid fa-clipboard-list"></i></div>
+        <div class="c7-row-info">
+          <div class="c7-row-name">Onboarding — Feb Hires</div>
+          <div class="c7-row-meta">Proposed</div>
+        </div>
+      </div>
+      <div class="c7-bar-area">
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell today"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar proposed" style="left: 55%; width: 32%;">Onboarding — Feb</div>
+        <div class="c7-today-line" style="left: 55%;"><div class="c7-today-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- Row 5 -->
+    <div class="c7-row">
+      <div class="c7-row-label">
+        <div class="c7-row-icon" style="background: var(--color-working-light); color: var(--color-working);"><i class="fa-solid fa-plane"></i></div>
+        <div class="c7-row-info">
+          <div class="c7-row-name">PTO Balance Audit</div>
+          <div class="c7-row-meta">Running · 40%</div>
+        </div>
+      </div>
+      <div class="c7-bar-area">
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell today"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar running" style="left: 43%; width: 28%;">PTO Audit</div>
+        <div class="c7-today-line" style="left: 55%;"><div class="c7-today-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- Row 6 — Continuous -->
+    <div class="c7-row">
+      <div class="c7-row-label">
+        <div class="c7-row-icon" style="background: var(--color-done-light); color: var(--color-done);"><i class="fa-solid fa-shield"></i></div>
+        <div class="c7-row-info">
+          <div class="c7-row-name">Flight Risk — Marketing</div>
+          <div class="c7-row-meta">Continuous</div>
+        </div>
+      </div>
+      <div class="c7-bar-area">
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell today"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar running" style="left: 0%; width: 100%; opacity: 0.5; background: repeating-linear-gradient(90deg, var(--color-working) 0px, var(--color-working) 8px, transparent 8px, transparent 14px);">
+        </div>
+        <div class="c7-today-line" style="left: 55%;"><div class="c7-today-dot"></div></div>
+      </div>
+    </div>
+
+    <!-- Row 7 — Completed -->
+    <div class="c7-row" style="opacity: 0.5;">
+      <div class="c7-row-label">
+        <div class="c7-row-icon" style="background: var(--color-done-light); color: var(--color-done);"><i class="fa-solid fa-user-plus"></i></div>
+        <div class="c7-row-info">
+          <div class="c7-row-name">Backfill — Sarah Chen</div>
+          <div class="c7-row-meta">Completed Jan 8</div>
+        </div>
+      </div>
+      <div class="c7-bar-area">
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell today"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar-cell"></div><div class="c7-bar-cell"></div>
+        <div class="c7-bar completed" style="left: 0%; width: 18%;">Sarah Chen ✓</div>
+        <div class="c7-today-line" style="left: 55%;"><div class="c7-today-dot"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 16px; margin-top: 16px; justify-content: center;">
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-neutral-medium);">
+      <div style="width: 20px; height: 8px; border-radius: 3px; background: var(--color-working);"></div> Running
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-neutral-medium);">
+      <div style="width: 20px; height: 8px; border-radius: 3px; background: var(--color-paused); background-image: repeating-linear-gradient(45deg, transparent, transparent 3px, rgba(255,255,255,0.3) 3px, rgba(255,255,255,0.3) 5px);"></div> Paused
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-neutral-medium);">
+      <div style="width: 20px; height: 8px; border-radius: 3px; border: 2px dashed var(--color-proposed);"></div> Proposed
+    </div>
+    <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-neutral-medium);">
+      <div style="width: 20px; height: 8px; border-radius: 3px; background: var(--color-done); opacity: 0.7;"></div> Completed
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     CONCEPT 8 — Conversational Management
+     ========================================== -->
+<div class="concept" id="concept-8">
+  <div class="concept-desc">
+    <strong>Concept 8 — Conversational.</strong>
+    The automations page IS a conversation. You talk to the AI about what it's doing. "What's running?"
+    "Pause the comp review." Automations render as inline cards within the chat. Sidebar lists active automations
+    with quick-action chips. Management through natural language.
+  </div>
+
+  <div class="page-header"><h1>Automations</h1></div>
+
+  <div class="c8-layout">
+    <!-- Chat Pane -->
+    <div class="c8-chat">
+      <div class="c8-chat-header">
+        <div class="c8-ai-avatar"><i class="fa-solid fa-bolt"></i></div>
+        <div>
+          <div class="c8-chat-title">Automation Manager</div>
+          <div class="c8-chat-status"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Online · Managing 7 automations</div>
+        </div>
+      </div>
+
+      <div class="c8-messages">
+        <div class="c8-msg ai">
+          <div class="c8-msg-avatar"><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <div class="c8-msg-bubble">
+              Good morning, Jess. Here's your automation status: <strong>5 running</strong>, <strong>2 paused</strong>, and <strong>2 need your attention</strong>.
+            </div>
+            <div class="c8-inline-card" style="margin-top: 8px;">
+              <div class="c8-inline-card-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--color-paused); margin-right: 6px;"></i> Needs Attention</div>
+              <div class="c8-inline-card-row" style="margin-bottom: 6px;">
+                <span style="font-size: 13px;"><strong>Q1 Pipeline Review</strong> — waiting for your review of pipeline health findings</span>
+              </div>
+              <div class="c8-inline-card-row">
+                <span style="font-size: 13px;"><strong>Onboarding — Feb Hires</strong> — proposed, needs your approval to start</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="c8-msg user">
+          <div class="c8-msg-avatar">JM</div>
+          <div class="c8-msg-bubble">What's the status on the Tony Ramirez backfill?</div>
+        </div>
+
+        <div class="c8-msg ai">
+          <div class="c8-msg-avatar"><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <div class="c8-msg-bubble">
+              The Backfill plan for Tony Ramirez is <strong>60% complete</strong> (3 of 5 steps done). Currently screening candidates — I've found <strong>8 candidates</strong> so far, with <strong>3 strong matches</strong>.
+            </div>
+            <div class="c8-inline-card" style="margin-top: 8px;">
+              <div class="c8-inline-card-title">Backfill — Tony Ramirez</div>
+              <div class="c8-inline-card-row">
+                <span class="badge badge-running" style="font-size: 11px;"><i class="fa-solid fa-circle" style="font-size: 5px;"></i> Running</span>
+                <span class="c8-inline-card-meta">3/5 steps · Started Jan 22</span>
+              </div>
+              <div style="margin-top: 10px; display: flex; gap: 16px; font-size: 12px; color: var(--text-neutral-medium);">
+                <span>✓ Org impact analyzed</span>
+                <span>✓ Job posting drafted</span>
+                <span style="color: var(--color-working);">→ Screening candidates</span>
+              </div>
+              <div style="margin-top: 10px; display: flex; gap: 6px;">
+                <button class="action-btn" style="font-size: 12px; padding: 4px 10px;">View Details</button>
+                <button class="action-btn" style="font-size: 12px; padding: 4px 10px;"><i class="fa-solid fa-pause" style="font-size: 9px;"></i> Pause</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="c8-msg user">
+          <div class="c8-msg-avatar">JM</div>
+          <div class="c8-msg-bubble">Pause the comp review for now, I need to check budget numbers first.</div>
+        </div>
+
+        <div class="c8-msg ai">
+          <div class="c8-msg-avatar"><i class="fa-solid fa-bolt"></i></div>
+          <div>
+            <div class="c8-msg-bubble">
+              Done — I've paused the <strong>Compensation Review — Engineering</strong>. It was at step 6 of 8 (75% complete). Just say "resume comp review" when you're ready to continue.
+            </div>
+            <div class="c8-inline-card" style="margin-top: 8px; border-color: var(--color-paused); border-style: dashed;">
+              <div class="c8-inline-card-row">
+                <span class="c8-inline-card-title" style="margin: 0;">Comp Review — Engineering</span>
+                <span class="badge badge-paused" style="font-size: 11px;"><i class="fa-solid fa-pause" style="font-size: 5px;"></i> Paused</span>
+              </div>
+              <div class="c8-inline-card-meta" style="margin-top: 4px;">6/8 steps · Paused just now · Will resume on your command</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="c8-input-area">
+        <input class="c8-input" placeholder="Ask about your automations..." />
+        <button class="c8-send"><i class="fa-solid fa-arrow-up"></i></button>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="c8-sidebar">
+      <div class="c8-sidebar-title">Active Automations</div>
+
+      <div class="c8-sidebar-item">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="c8-sidebar-item-name">Q1 Pipeline Review</div>
+          <span class="badge badge-running" style="font-size: 10px; padding: 2px 8px;"><i class="fa-solid fa-circle" style="font-size: 4px;"></i> 57%</span>
+        </div>
+        <div class="c8-sidebar-item-meta">Waiting for review</div>
+      </div>
+
+      <div class="c8-sidebar-item">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="c8-sidebar-item-name">Backfill — Tony R.</div>
+          <span class="badge badge-running" style="font-size: 10px; padding: 2px 8px;"><i class="fa-solid fa-circle" style="font-size: 4px;"></i> 60%</span>
+        </div>
+        <div class="c8-sidebar-item-meta">Screening candidates</div>
+      </div>
+
+      <div class="c8-sidebar-item" style="border-style: dashed; border-color: var(--color-paused);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="c8-sidebar-item-name">Comp Review — Eng</div>
+          <span class="badge badge-paused" style="font-size: 10px; padding: 2px 8px;"><i class="fa-solid fa-pause" style="font-size: 4px;"></i> 75%</span>
+        </div>
+        <div class="c8-sidebar-item-meta">Paused by you</div>
+      </div>
+
+      <div class="c8-sidebar-item">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="c8-sidebar-item-name">Flight Risk — Mktg</div>
+          <span class="badge badge-running" style="font-size: 10px; padding: 2px 8px;"><i class="fa-solid fa-circle" style="font-size: 4px;"></i> Live</span>
+        </div>
+        <div class="c8-sidebar-item-meta">Continuous monitoring</div>
+      </div>
+
+      <div class="c8-sidebar-item" style="border-style: dashed; border-color: var(--color-proposed);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div class="c8-sidebar-item-name">Onboarding — Feb</div>
+          <span class="badge badge-proposed" style="font-size: 10px; padding: 2px 8px;">Proposed</span>
+        </div>
+        <div class="c8-sidebar-item-meta">Needs approval</div>
+      </div>
+
+      <div class="c8-sidebar-title" style="margin-top: 24px;">Quick Actions</div>
+      <div class="c8-quick-actions">
+        <button class="c8-quick-btn">Show status</button>
+        <button class="c8-quick-btn">What needs me?</button>
+        <button class="c8-quick-btn">Pause all</button>
+        <button class="c8-quick-btn">Show history</button>
+        <button class="c8-quick-btn">New automation</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     CONCEPT 9 — Status Rings
+     ========================================== -->
+<div class="concept" id="concept-9">
+  <div class="concept-desc">
+    <strong>Concept 9 — Status Rings.</strong>
+    Each automation is a circular progress ring. The grid of rings gives instant visual status at a glance —
+    almost like a watch face or fitness tracker. Ambient, beautiful, and information-dense without feeling heavy.
+  </div>
+
+  <div class="page-header"><h1>Automations</h1></div>
+
+  <div class="c9-summary">
+    <div class="c9-summary-big">9</div>
+    <div class="c9-summary-label">Active Automations</div>
+    <div class="c9-summary-sub">
+      <div class="c9-summary-item">
+        <div class="c9-summary-num" style="color: var(--color-working);">5</div>
+        <div class="c9-summary-text">Running</div>
+      </div>
+      <div class="c9-summary-item">
+        <div class="c9-summary-num" style="color: var(--color-paused);">2</div>
+        <div class="c9-summary-text">Paused</div>
+      </div>
+      <div class="c9-summary-item">
+        <div class="c9-summary-num" style="color: var(--color-proposed);">2</div>
+        <div class="c9-summary-text">Proposed</div>
+      </div>
+      <div class="c9-summary-item">
+        <div class="c9-summary-num" style="color: var(--color-done);">14</div>
+        <div class="c9-summary-text">Done This Month</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="c9-grid">
+    <!-- Ring 1 — Running 57% -->
+    <div class="c9-ring-card">
+      <div class="c9-ring-wrapper">
+        <svg class="c9-ring-svg" viewBox="0 0 120 120">
+          <circle class="c9-ring-bg" cx="60" cy="60" r="50" />
+          <circle class="c9-ring-progress" cx="60" cy="60" r="50"
+            stroke="var(--color-working)"
+            stroke-dasharray="314" stroke-dashoffset="135" />
+        </svg>
+        <div class="c9-ring-center">
+          <div class="c9-ring-percent" style="color: var(--color-working);">57%</div>
+          <div class="c9-ring-steps">4/7 steps</div>
+        </div>
+      </div>
+      <div class="c9-ring-title">Q1 Hiring Pipeline</div>
+      <div class="c9-ring-subtitle">Waiting for review</div>
+      <div class="c9-ring-actions">
+        <button class="c9-ring-btn">View</button>
+        <button class="c9-ring-btn"><i class="fa-solid fa-pause" style="font-size: 9px;"></i></button>
+      </div>
+    </div>
+
+    <!-- Ring 2 — Running 60% -->
+    <div class="c9-ring-card">
+      <div class="c9-ring-wrapper">
+        <svg class="c9-ring-svg" viewBox="0 0 120 120">
+          <circle class="c9-ring-bg" cx="60" cy="60" r="50" />
+          <circle class="c9-ring-progress" cx="60" cy="60" r="50"
+            stroke="var(--color-working)"
+            stroke-dasharray="314" stroke-dashoffset="126" />
+        </svg>
+        <div class="c9-ring-center">
+          <div class="c9-ring-percent" style="color: var(--color-working);">60%</div>
+          <div class="c9-ring-steps">3/5 steps</div>
+        </div>
+      </div>
+      <div class="c9-ring-title">Backfill — Tony R.</div>
+      <div class="c9-ring-subtitle">Screening candidates</div>
+      <div class="c9-ring-actions">
+        <button class="c9-ring-btn">View</button>
+        <button class="c9-ring-btn"><i class="fa-solid fa-pause" style="font-size: 9px;"></i></button>
+      </div>
+    </div>
+
+    <!-- Ring 3 — Paused 75% -->
+    <div class="c9-ring-card paused">
+      <div class="c9-ring-wrapper">
+        <svg class="c9-ring-svg" viewBox="0 0 120 120">
+          <circle class="c9-ring-bg" cx="60" cy="60" r="50" />
+          <circle class="c9-ring-progress" cx="60" cy="60" r="50"
+            stroke="var(--color-paused)"
+            stroke-dasharray="314" stroke-dashoffset="78" />
+        </svg>
+        <div class="c9-ring-center">
+          <div class="c9-ring-percent" style="color: var(--color-paused);">75%</div>
+          <div class="c9-ring-steps">6/8 steps</div>
+        </div>
+      </div>
+      <div class="c9-ring-title">Comp Review — Eng</div>
+      <div class="c9-ring-subtitle">Paused by you</div>
+      <div class="c9-ring-actions">
+        <button class="c9-ring-btn"><i class="fa-solid fa-play" style="font-size: 9px;"></i> Resume</button>
+      </div>
+    </div>
+
+    <!-- Ring 4 — Running 40% -->
+    <div class="c9-ring-card">
+      <div class="c9-ring-wrapper">
+        <svg class="c9-ring-svg" viewBox="0 0 120 120">
+          <circle class="c9-ring-bg" cx="60" cy="60" r="50" />
+          <circle class="c9-ring-progress" cx="60" cy="60" r="50"
+            stroke="var(--color-working)"
+            stroke-dasharray="314" stroke-dashoffset="188" />
+        </svg>
+        <div class="c9-ring-center">
+          <div class="c9-ring-percent" style="color: var(--color-working);">40%</div>
+          <div class="c9-ring-steps">2/5 steps</div>
+        </div>
+      </div>
+      <div class="c9-ring-title">PTO Balance Audit</div>
+      <div class="c9-ring-subtitle">Analyzing patterns</div>
+      <div class="c9-ring-actions">
+        <button class="c9-ring-btn">View</button>
+        <button class="c9-ring-btn"><i class="fa-solid fa-pause" style="font-size: 9px;"></i></button>
+      </div>
+    </div>
+
+    <!-- Ring 5 — Continuous (infinity) -->
+    <div class="c9-ring-card">
+      <div class="c9-ring-wrapper">
+        <svg class="c9-ring-svg" viewBox="0 0 120 120">
+          <circle class="c9-ring-bg" cx="60" cy="60" r="50" />
+          <circle class="c9-ring-progress" cx="60" cy="60" r="50"
+            stroke="var(--color-done)" stroke-dasharray="8 6"
+            stroke-dashoffset="0" />
+        </svg>
+        <div class="c9-ring-center">
+          <i class="fa-solid fa-infinity" style="font-size: 24px; color: var(--color-done);"></i>
+          <div class="c9-ring-steps">Ongoing</div>
+        </div>
+      </div>
+      <div class="c9-ring-title">Flight Risk — Mktg</div>
+      <div class="c9-ring-subtitle">2 high · 5 moderate</div>
+      <div class="c9-ring-actions">
+        <button class="c9-ring-btn">View</button>
+        <button class="c9-ring-btn"><i class="fa-solid fa-pause" style="font-size: 9px;"></i></button>
+      </div>
+    </div>
+
+    <!-- Ring 6 — Proposed -->
+    <div class="c9-ring-card proposed">
+      <div class="c9-ring-wrapper">
+        <svg class="c9-ring-svg" viewBox="0 0 120 120">
+          <circle class="c9-ring-bg" cx="60" cy="60" r="50" stroke-dasharray="8 6" />
+        </svg>
+        <div class="c9-ring-center">
+          <i class="fa-solid fa-clock" style="font-size: 20px; color: var(--color-proposed);"></i>
+          <div class="c9-ring-steps" style="color: var(--color-proposed);">Proposed</div>
+        </div>
+      </div>
+      <div class="c9-ring-title">Onboarding — Feb</div>
+      <div class="c9-ring-subtitle">3 new hires</div>
+      <div class="c9-ring-actions">
+        <button class="c9-ring-btn" style="background: var(--color-primary); color: white; border-color: var(--color-primary);">Approve</button>
+      </div>
+    </div>
+
+    <!-- Ring 7 — Proposed -->
+    <div class="c9-ring-card proposed">
+      <div class="c9-ring-wrapper">
+        <svg class="c9-ring-svg" viewBox="0 0 120 120">
+          <circle class="c9-ring-bg" cx="60" cy="60" r="50" stroke-dasharray="8 6" />
+        </svg>
+        <div class="c9-ring-center">
+          <i class="fa-solid fa-clock" style="font-size: 20px; color: var(--color-proposed);"></i>
+          <div class="c9-ring-steps" style="color: var(--color-proposed);">Proposed</div>
+        </div>
+      </div>
+      <div class="c9-ring-title">Succession — VP Sales</div>
+      <div class="c9-ring-subtitle">AI-generated</div>
+      <div class="c9-ring-actions">
+        <button class="c9-ring-btn" style="background: var(--color-primary); color: white; border-color: var(--color-primary);">Approve</button>
+      </div>
+    </div>
+
+    <!-- Ring 8 — Paused 33% -->
+    <div class="c9-ring-card paused">
+      <div class="c9-ring-wrapper">
+        <svg class="c9-ring-svg" viewBox="0 0 120 120">
+          <circle class="c9-ring-bg" cx="60" cy="60" r="50" />
+          <circle class="c9-ring-progress" cx="60" cy="60" r="50"
+            stroke="var(--color-paused)"
+            stroke-dasharray="314" stroke-dashoffset="210" />
+        </svg>
+        <div class="c9-ring-center">
+          <div class="c9-ring-percent" style="color: var(--color-paused);">33%</div>
+          <div class="c9-ring-steps">2/6 steps</div>
+        </div>
+      </div>
+      <div class="c9-ring-title">Benefits Enrollment</div>
+      <div class="c9-ring-subtitle">Budget hold</div>
+      <div class="c9-ring-actions">
+        <button class="c9-ring-btn"><i class="fa-solid fa-play" style="font-size: 9px;"></i> Resume</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     CONCEPT 10 — Priority Split View
+     ========================================== -->
+<div class="concept" id="concept-10">
+  <div class="concept-desc">
+    <strong>Concept 10 — Priority Split.</strong>
+    Two distinct zones side by side. Left: <strong>"Needs You"</strong> — automations that are blocked, waiting for approval,
+    or flagging something. Right: <strong>"Running Fine"</strong> — everything humming along autonomously.
+    Forces attention to what matters. Different visual energy per zone.
+  </div>
+
+  <div class="page-header"><h1>Automations</h1></div>
+
+  <div class="c10-layout">
+    <!-- Urgent Zone -->
+    <div class="c10-zone urgent">
+      <div class="c10-zone-header">
+        <div class="c10-zone-icon" style="background: var(--color-paused-light); color: var(--color-paused);">
+          <i class="fa-solid fa-hand"></i>
+        </div>
+        <div>
+          <div class="c10-zone-title">Needs You</div>
+          <div class="c10-zone-count">3 automations waiting</div>
+        </div>
+      </div>
+
+      <!-- Waiting for review -->
+      <div class="c10-item attention">
+        <div class="c10-item-header">
+          <div class="c10-item-title">Q1 Hiring Pipeline Review</div>
+          <span class="badge badge-running" style="font-size: 11px;">4/7</span>
+        </div>
+        <div class="c10-item-desc">
+          <i class="fa-solid fa-triangle-exclamation" style="color: var(--color-paused); margin-right: 4px;"></i>
+          <strong>Pipeline health report is ready for your review.</strong> 2 roles flagged as pipeline-weak, 4 roles below market compensation. Review findings before I generate recommendations.
+        </div>
+        <div class="c10-item-actions">
+          <button class="c10-item-btn primary">Review Findings</button>
+          <button class="c10-item-btn"><i class="fa-solid fa-pause" style="font-size: 9px;"></i> Pause</button>
+          <button class="c10-item-btn"><i class="fa-solid fa-ellipsis" style="font-size: 9px;"></i></button>
+        </div>
+      </div>
+
+      <!-- Needs approval -->
+      <div class="c10-item proposed-item">
+        <div class="c10-item-header">
+          <div class="c10-item-title">Onboarding — Feb New Hires</div>
+          <span class="badge badge-proposed" style="font-size: 11px;">Proposed</span>
+        </div>
+        <div class="c10-item-desc">
+          3 new employees starting Feb 15. I've prepared an onboarding automation covering document collection, IT setup requests, and welcome materials. Approve to start.
+        </div>
+        <div class="c10-item-actions">
+          <button class="c10-item-btn primary"><i class="fa-solid fa-check" style="font-size: 9px;"></i> Approve</button>
+          <button class="c10-item-btn">View Plan</button>
+          <button class="c10-item-btn"><i class="fa-solid fa-ellipsis" style="font-size: 9px;"></i></button>
+        </div>
+      </div>
+
+      <!-- Paused — user action needed -->
+      <div class="c10-item attention">
+        <div class="c10-item-header">
+          <div class="c10-item-title">Comp Review — Engineering</div>
+          <span class="badge badge-paused" style="font-size: 11px;">Paused · 75%</span>
+        </div>
+        <div class="c10-item-desc">
+          You paused this 3 days ago to check budget numbers. 6 of 8 steps are done — 7 employees flagged as below market. Ready to resume?
+        </div>
+        <div class="c10-item-actions">
+          <button class="c10-item-btn primary"><i class="fa-solid fa-play" style="font-size: 9px;"></i> Resume</button>
+          <button class="c10-item-btn"><i class="fa-solid fa-pen" style="font-size: 9px;"></i> Edit</button>
+          <button class="c10-item-btn"><i class="fa-solid fa-ellipsis" style="font-size: 9px;"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calm Zone -->
+    <div class="c10-zone calm">
+      <div class="c10-zone-header">
+        <div class="c10-zone-icon" style="background: var(--color-done-light); color: var(--color-done);">
+          <i class="fa-solid fa-check"></i>
+        </div>
+        <div>
+          <div class="c10-zone-title">Running Fine</div>
+          <div class="c10-zone-count">4 automations on track</div>
+        </div>
+      </div>
+
+      <div class="c10-tab-bar">
+        <button class="c10-tab active">Active</button>
+        <button class="c10-tab">Completed</button>
+      </div>
+
+      <div class="c10-calm-item">
+        <div class="c10-calm-dot" style="background: var(--color-working);"></div>
+        <div class="c10-calm-info">
+          <div class="c10-calm-name">Backfill — Tony Ramirez</div>
+          <div class="c10-calm-meta">Screening candidates · 3 strong matches found</div>
+        </div>
+        <div class="c10-calm-progress">
+          <div class="c10-calm-fill" style="width: 60%; background: var(--color-working);"></div>
+        </div>
+      </div>
+
+      <div class="c10-calm-item">
+        <div class="c10-calm-dot" style="background: var(--color-working);"></div>
+        <div class="c10-calm-info">
+          <div class="c10-calm-name">PTO Balance Audit</div>
+          <div class="c10-calm-meta">Analyzing department patterns · 142 employees</div>
+        </div>
+        <div class="c10-calm-progress">
+          <div class="c10-calm-fill" style="width: 40%; background: var(--color-working);"></div>
+        </div>
+      </div>
+
+      <div class="c10-calm-item">
+        <div class="c10-calm-dot" style="background: var(--color-done);"></div>
+        <div class="c10-calm-info">
+          <div class="c10-calm-name">Flight Risk — Marketing</div>
+          <div class="c10-calm-meta">Continuous · 2 high risk, 5 moderate · Last check 2h ago</div>
+        </div>
+        <div style="font-size: 11px; color: var(--text-neutral-medium);">Ongoing</div>
+      </div>
+
+      <div class="c10-calm-item">
+        <div class="c10-calm-dot" style="background: var(--color-working);"></div>
+        <div class="c10-calm-info">
+          <div class="c10-calm-name">Succession Plan — VP Sales</div>
+          <div class="c10-calm-meta">Identifying internal candidates · 1/4 steps</div>
+        </div>
+        <div class="c10-calm-progress">
+          <div class="c10-calm-fill" style="width: 25%; background: var(--color-working);"></div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border-neutral-weak); text-align: center;">
+        <div style="font-size: 12px; color: var(--text-neutral-weak); margin-bottom: 4px;">This month</div>
+        <div style="font-size: 24px; font-weight: 700; color: var(--color-done);">14</div>
+        <div style="font-size: 12px; color: var(--text-neutral-medium);">automations completed</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showConcept(num) {
+  document.querySelectorAll('.concept').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.switcher-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('concept-' + num).classList.add('active');
+  const btns = document.querySelectorAll('.switcher-btn');
+  btns[num - 6].classList.add('active');
+}
+</script>
+
+</body>
+</html>

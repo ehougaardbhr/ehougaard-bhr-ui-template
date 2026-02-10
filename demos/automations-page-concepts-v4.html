@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automations Page — Refined Concepts (12a + 12×15)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-paused: #D97706;
+      --color-paused-light: #FEF3C7;
+      --color-queued: #A8A29E;
+      --color-proposed: #7C3AED;
+      --color-proposed-light: #EDE9FE;
+      --color-cancelled: #DC2626;
+      --color-cancelled-light: #FEE2E2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0EDEB;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    .switcher {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      padding: 12px 32px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .switcher-label { font-size: 13px; font-weight: 600; color: var(--text-neutral-medium); margin-right: 8px; }
+    .switcher-btn {
+      padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-medium); cursor: pointer; transition: all 0.15s;
+    }
+    .switcher-btn.active { background: var(--text-neutral-xx-strong); color: white; border-color: var(--text-neutral-xx-strong); }
+    .switcher-btn:hover:not(.active) { background: var(--surface-neutral-xx-weak); }
+
+    .concept { display: none; padding: 32px; max-width: 1100px; margin: 0 auto; }
+    .concept.active { display: block; }
+
+    .concept-desc {
+      background: var(--color-primary-light); border: 1px solid #c6e6bc; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 32px; font-size: 14px; line-height: 1.6; color: var(--text-neutral-strong);
+    }
+    .concept-desc strong { color: var(--text-neutral-xx-strong); }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 {
+      font-family: Fields, Georgia, serif;
+      font-size: 48px; font-weight: 700; line-height: 56px; color: var(--color-primary);
+    }
+
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+    .badge-running { background: var(--color-working-light); color: var(--color-working); }
+    .badge-paused { background: var(--color-paused-light); color: var(--color-paused); }
+    .badge-proposed { background: var(--color-proposed-light); color: var(--color-proposed); }
+
+    .action-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-strong); cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .action-btn:hover { background: var(--surface-neutral-xx-weak); }
+    .action-btn.primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .action-btn.primary:hover { opacity: 0.9; }
+    .action-btn.danger { color: var(--color-cancelled); border-color: #fca5a5; }
+    .action-btn.danger:hover { background: var(--color-cancelled-light); }
+
+    .icon-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: none; background: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-neutral-medium); transition: all 0.15s;
+    }
+    .icon-btn:hover { background: var(--surface-neutral-xx-weak); }
+
+    .progress-bar { height: 6px; background: var(--surface-neutral-x-weak); border-radius: 3px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 3px; }
+
+    /* ==========================================
+       SHARED: Alert Cards
+       ========================================== */
+    .alert-section { margin-bottom: 8px; }
+    .alert-count {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+      font-size: 13px; color: var(--text-neutral-medium);
+    }
+    .alert-count-badge {
+      background: var(--color-paused); color: white; border-radius: 99px;
+      padding: 2px 10px; font-size: 12px; font-weight: 700;
+    }
+
+    .alert-card {
+      background: var(--surface-neutral-white); border-radius: 12px; padding: 20px 24px;
+      margin-bottom: 10px; display: flex; align-items: start; gap: 16px;
+      border: 1px solid var(--border-neutral-weak); position: relative; overflow: hidden;
+    }
+    .alert-card::before {
+      content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+    }
+    .alert-card.review::before { background: var(--color-paused); }
+    .alert-card.approve::before { background: var(--color-proposed); }
+    .alert-card.resume::before { background: var(--color-paused); }
+
+    .alert-icon {
+      width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+    }
+    .alert-content { flex: 1; }
+    .alert-type {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 4px; display: flex; align-items: center; gap: 6px;
+    }
+    .alert-title { font-size: 15px; font-weight: 700; color: var(--text-neutral-xx-strong); margin-bottom: 4px; }
+    .alert-desc { font-size: 13px; color: var(--text-neutral-medium); line-height: 1.5; }
+    .alert-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .alert-dismiss {
+      position: absolute; top: 12px; right: 12px; width: 28px; height: 28px;
+      border-radius: 6px; border: none; background: none; cursor: pointer;
+      color: var(--text-neutral-weak); display: flex; align-items: center; justify-content: center;
+    }
+    .alert-dismiss:hover { background: var(--surface-neutral-xx-weak); color: var(--text-neutral-medium); }
+
+    /* ==========================================
+       SHARED: Quiet running rows
+       ========================================== */
+    .section-label {
+      font-size: 12px; font-weight: 700; color: var(--text-neutral-weak);
+      text-transform: uppercase; letter-spacing: 0.5px; margin: 24px 0 12px;
+    }
+    .quiet-row {
+      display: flex; align-items: center; gap: 14px; padding: 12px 18px;
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 8px; margin-bottom: 4px; font-size: 13px;
+      transition: background 0.12s; cursor: pointer;
+    }
+    .quiet-row:hover { background: var(--surface-neutral-xx-weak); }
+    .quiet-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .quiet-name { flex: 1; font-weight: 500; color: var(--text-neutral-strong); }
+    .quiet-meta { font-size: 12px; color: var(--text-neutral-weak); }
+
+    /* ==========================================
+       CONCEPT A (12a): Alert Stack + Global Controls
+       ========================================== */
+
+    .toolbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px; padding: 12px 20px;
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 10px;
+    }
+    .toolbar-left { display: flex; align-items: center; gap: 16px; }
+    .toolbar-stat {
+      display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-neutral-medium);
+    }
+    .toolbar-stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .toolbar-stat strong { color: var(--text-neutral-xx-strong); font-weight: 700; }
+    .toolbar-right { display: flex; align-items: center; gap: 8px; }
+
+    .toolbar-divider { width: 1px; height: 24px; background: var(--border-neutral-weak); }
+
+    /* Tab switcher for active/history */
+    .tab-switch {
+      display: flex; gap: 0; background: var(--surface-neutral-x-weak); border-radius: 8px; padding: 3px;
+    }
+    .tab-switch-btn {
+      padding: 6px 16px; border-radius: 6px; font-size: 12px; font-weight: 600;
+      border: none; background: none; cursor: pointer; color: var(--text-neutral-medium);
+      transition: all 0.15s;
+    }
+    .tab-switch-btn.active {
+      background: var(--surface-neutral-white); color: var(--text-neutral-xx-strong);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    }
+
+    /* Dropdown menu mock */
+    .dropdown-trigger {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-strong); cursor: pointer;
+    }
+    .dropdown-trigger:hover { background: var(--surface-neutral-xx-weak); }
+
+    /* ==========================================
+       CONCEPT B (12×15): Hero Banner + Alert Stack Below
+       ========================================== */
+
+    .hero-banner {
+      background: linear-gradient(135deg, #451a03 0%, #78350f 100%);
+      border-radius: 16px; padding: 24px 28px; margin-bottom: 20px;
+      color: white; position: relative; overflow: hidden;
+    }
+    .hero-banner::after {
+      content: ''; position: absolute; top: -60px; right: -60px;
+      width: 200px; height: 200px; border-radius: 50%;
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .hero-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .hero-header-left { display: flex; align-items: center; gap: 10px; }
+    .hero-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: rgba(255, 255, 255, 0.15); display: flex; align-items: center;
+      justify-content: center; font-size: 16px;
+    }
+    .hero-title { font-size: 18px; font-weight: 700; }
+    .hero-count {
+      background: var(--color-paused); border-radius: 99px; padding: 3px 12px;
+      font-size: 12px; font-weight: 700; margin-left: 8px;
+    }
+    .hero-controls { display: flex; gap: 8px; }
+    .hero-ctrl-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.1);
+      color: white; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+    }
+    .hero-ctrl-btn:hover { background: rgba(255,255,255,0.18); }
+
+    .hero-items { display: flex; gap: 12px; }
+    .hero-card {
+      flex: 1; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px; padding: 16px 18px; backdrop-filter: blur(10px);
+      transition: background 0.15s; cursor: pointer;
+    }
+    .hero-card:hover { background: rgba(255, 255, 255, 0.16); }
+    .hero-card-type {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+      opacity: 0.7; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
+    }
+    .hero-card-title { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+    .hero-card-desc { font-size: 12px; opacity: 0.7; line-height: 1.4; margin-bottom: 10px; }
+    .hero-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 600;
+      border: none; cursor: pointer; transition: opacity 0.15s;
+    }
+    .hero-btn.primary { background: white; color: #78350f; }
+    .hero-btn.secondary { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
+    .hero-btn:hover { opacity: 0.9; }
+
+    /* Below-banner section for concept B */
+    .below-banner-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .below-banner-title { font-size: 14px; font-weight: 600; color: var(--text-neutral-medium); }
+  </style>
+</head>
+<body>
+
+<div class="switcher">
+  <span class="switcher-label">CONCEPT:</span>
+  <button class="switcher-btn active" onclick="showConcept('a')">A — Alert Stack + Controls</button>
+  <button class="switcher-btn" onclick="showConcept('b')">B — Hero Banner + Stack</button>
+</div>
+
+<!-- ==========================================
+     CONCEPT A: #12 Refined with Global Controls
+     ========================================== -->
+<div class="concept active" id="concept-a">
+  <div class="concept-desc">
+    <strong>Concept A — Alert Stack with Global Controls.</strong>
+    Refines #12 with a toolbar for bulk management: pause all, resume all, and a view toggle (Active/History).
+    Summary stats in toolbar give at-a-glance status. Three-dot menu per alert for edit/cancel. Dropdown for bulk actions.
+  </div>
+
+  <div class="page-header"><h1>Automations</h1></div>
+
+  <!-- Global Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-left">
+      <div class="toolbar-stat">
+        <div class="toolbar-stat-dot" style="background: var(--color-working);"></div>
+        <strong>4</strong> running
+      </div>
+      <div class="toolbar-stat">
+        <div class="toolbar-stat-dot" style="background: var(--color-paused);"></div>
+        <strong>1</strong> paused
+      </div>
+      <div class="toolbar-stat">
+        <div class="toolbar-stat-dot" style="background: var(--color-proposed);"></div>
+        <strong>1</strong> proposed
+      </div>
+      <div class="toolbar-stat">
+        <div class="toolbar-stat-dot" style="background: var(--color-done);"></div>
+        <strong>14</strong> completed
+      </div>
+    </div>
+    <div class="toolbar-right">
+      <div class="tab-switch">
+        <button class="tab-switch-btn active">Active</button>
+        <button class="tab-switch-btn">History</button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
+      <div class="dropdown-trigger">
+        <i class="fa-solid fa-bolt" style="font-size: 12px; color: var(--color-primary);"></i>
+        Bulk Actions
+        <i class="fa-solid fa-chevron-down" style="font-size: 9px;"></i>
+      </div>
+
+      <button class="action-btn primary" style="font-size: 12px; padding: 6px 12px;">
+        <i class="fa-solid fa-plus" style="font-size: 10px;"></i> New
+      </button>
+    </div>
+  </div>
+
+  <!-- Alert Stack -->
+  <div class="alert-section">
+    <div class="alert-count">
+      <span class="alert-count-badge">3</span>
+      automations need your attention
+    </div>
+
+    <div class="alert-card review">
+      <div class="alert-icon" style="background: var(--color-paused-light); color: var(--color-paused);">
+        <i class="fa-solid fa-eye"></i>
+      </div>
+      <div class="alert-content">
+        <div class="alert-type" style="color: var(--color-paused);">
+          <i class="fa-solid fa-eye"></i> I have something to show you
+        </div>
+        <div class="alert-title">Q1 Hiring Pipeline Review</div>
+        <div class="alert-desc">
+          Pipeline health report is ready. <strong>2 roles are pipeline-weak</strong> and <strong>4 roles are below market compensation.</strong> Review the findings so I can generate recommendations.
+        </div>
+        <div class="alert-actions">
+          <button class="action-btn primary">Review Findings</button>
+          <button class="action-btn">View Plan</button>
+          <button class="action-btn"><i class="fa-solid fa-pause" style="font-size: 11px;"></i> Pause</button>
+          <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+        </div>
+      </div>
+      <button class="alert-dismiss"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="alert-card approve">
+      <div class="alert-icon" style="background: var(--color-proposed-light); color: var(--color-proposed);">
+        <i class="fa-solid fa-stamp"></i>
+      </div>
+      <div class="alert-content">
+        <div class="alert-type" style="color: var(--color-proposed);">
+          <i class="fa-solid fa-stamp"></i> I need your approval
+        </div>
+        <div class="alert-title">Onboarding — Feb New Hires</div>
+        <div class="alert-desc">
+          Proposed onboarding automation for <strong>3 new employees</strong> starting Feb 15.
+          Covers document collection, IT setup, and welcome materials.
+        </div>
+        <div class="alert-actions">
+          <button class="action-btn primary"><i class="fa-solid fa-check" style="font-size: 11px;"></i> Approve</button>
+          <button class="action-btn">View Plan</button>
+          <button class="action-btn danger"><i class="fa-solid fa-xmark" style="font-size: 11px;"></i> Decline</button>
+          <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+        </div>
+      </div>
+      <button class="alert-dismiss"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <div class="alert-card resume">
+      <div class="alert-icon" style="background: var(--color-paused-light); color: var(--color-paused);">
+        <i class="fa-solid fa-pause"></i>
+      </div>
+      <div class="alert-content">
+        <div class="alert-type" style="color: var(--color-paused);">
+          <i class="fa-solid fa-pause"></i> Paused — waiting on you
+        </div>
+        <div class="alert-title">Comp Review — Engineering</div>
+        <div class="alert-desc">
+          You paused this 3 days ago to check budget numbers. <strong>6/8 steps done</strong>, 7 employees flagged below market. Ready to resume?
+        </div>
+        <div class="alert-actions">
+          <button class="action-btn primary"><i class="fa-solid fa-play" style="font-size: 11px;"></i> Resume</button>
+          <button class="action-btn"><i class="fa-solid fa-pen" style="font-size: 11px;"></i> Edit</button>
+          <button class="action-btn danger"><i class="fa-solid fa-xmark" style="font-size: 11px;"></i> Cancel</button>
+          <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+        </div>
+      </div>
+      <button class="alert-dismiss"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+  </div>
+
+  <!-- Running Smoothly -->
+  <div class="section-label" style="display: flex; align-items: center; justify-content: space-between;">
+    <span>Running smoothly</span>
+    <button class="action-btn" style="font-size: 11px; padding: 4px 10px; text-transform: uppercase; letter-spacing: 0.3px;">
+      <i class="fa-solid fa-pause" style="font-size: 9px;"></i> Pause All
+    </button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Backfill — Tony Ramirez</span>
+    <span class="quiet-meta">3/5 · Screening candidates · 3 strong matches</span>
+    <div style="width: 80px;">
+      <div class="progress-bar"><div class="progress-fill" style="width: 60%; background: var(--color-working);"></div></div>
+    </div>
+    <button class="icon-btn"><i class="fa-solid fa-pause" style="font-size: 10px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">PTO Balance Audit</span>
+    <span class="quiet-meta">2/5 · Analyzing patterns · 142 employees</span>
+    <div style="width: 80px;">
+      <div class="progress-bar"><div class="progress-fill" style="width: 40%; background: var(--color-working);"></div></div>
+    </div>
+    <button class="icon-btn"><i class="fa-solid fa-pause" style="font-size: 10px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-done);"></div>
+    <span class="quiet-name">Flight Risk — Marketing</span>
+    <span class="quiet-meta">Continuous · Last check 2h ago · 2 high, 5 moderate</span>
+    <div style="width: 80px;"></div>
+    <button class="icon-btn"><i class="fa-solid fa-pause" style="font-size: 10px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Succession Plan — VP Sales</span>
+    <span class="quiet-meta">1/4 · Identifying internal candidates</span>
+    <div style="width: 80px;">
+      <div class="progress-bar"><div class="progress-fill" style="width: 25%; background: var(--color-working);"></div></div>
+    </div>
+    <button class="icon-btn"><i class="fa-solid fa-pause" style="font-size: 10px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+</div>
+
+<!-- ==========================================
+     CONCEPT B: 12 × 15 Hybrid — Hero Banner + Stack
+     ========================================== -->
+<div class="concept" id="concept-b">
+  <div class="concept-desc">
+    <strong>Concept B — Hero Banner + Alert Stack.</strong>
+    The baby of 12 and 15. Dark hero banner at top with attention items rendered as cards inside it —
+    impossible to miss, action buttons right there. Below the banner: the #12 quiet running list with
+    per-row pause and management. Banner disappears when nothing needs you.
+  </div>
+
+  <div class="page-header"><h1>Automations</h1></div>
+
+  <!-- Hero Banner with Attention Items -->
+  <div class="hero-banner">
+    <div class="hero-header">
+      <div class="hero-header-left">
+        <div class="hero-icon"><i class="fa-solid fa-hand"></i></div>
+        <div class="hero-title">Needs your attention</div>
+        <span class="hero-count">3</span>
+      </div>
+      <div class="hero-controls">
+        <button class="hero-ctrl-btn">
+          <i class="fa-solid fa-pause" style="font-size: 10px;"></i> Pause All
+        </button>
+        <button class="hero-ctrl-btn">
+          <i class="fa-solid fa-ellipsis" style="font-size: 11px;"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-items">
+      <div class="hero-card">
+        <div class="hero-card-type"><i class="fa-solid fa-eye"></i> Something to show you</div>
+        <div class="hero-card-title">Q1 Hiring Pipeline Review</div>
+        <div class="hero-card-desc">Pipeline health report ready. 2 weak pipelines, 4 below-market roles. Review to proceed.</div>
+        <div style="display: flex; gap: 6px;">
+          <button class="hero-btn primary">Review Findings</button>
+          <button class="hero-btn secondary">Pause</button>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-card-type"><i class="fa-solid fa-stamp"></i> Approval needed</div>
+        <div class="hero-card-title">Onboarding — Feb Hires</div>
+        <div class="hero-card-desc">3 new employees starting Feb 15. Document collection, IT setup, welcome materials.</div>
+        <div style="display: flex; gap: 6px;">
+          <button class="hero-btn primary">Approve</button>
+          <button class="hero-btn secondary">View Plan</button>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-card-type"><i class="fa-solid fa-pause"></i> Paused 3 days</div>
+        <div class="hero-card-title">Comp Review — Eng</div>
+        <div class="hero-card-desc">75% done. 7 employees below market. You paused for budget review.</div>
+        <div style="display: flex; gap: 6px;">
+          <button class="hero-btn primary">Resume</button>
+          <button class="hero-btn secondary">Edit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Running Smoothly — #12 Style -->
+  <div class="below-banner-header">
+    <div class="below-banner-title">Running smoothly · 4 automations</div>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <div class="tab-switch">
+        <button class="tab-switch-btn active">Active</button>
+        <button class="tab-switch-btn">History</button>
+      </div>
+      <button class="action-btn" style="font-size: 11px; padding: 4px 10px;">
+        <i class="fa-solid fa-pause" style="font-size: 9px;"></i> Pause All
+      </button>
+      <button class="action-btn primary" style="font-size: 12px; padding: 5px 12px;">
+        <i class="fa-solid fa-plus" style="font-size: 10px;"></i> New
+      </button>
+    </div>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Backfill — Tony Ramirez</span>
+    <span class="quiet-meta">3/5 · Screening candidates · 3 strong matches</span>
+    <div style="width: 80px;">
+      <div class="progress-bar"><div class="progress-fill" style="width: 60%; background: var(--color-working);"></div></div>
+    </div>
+    <button class="icon-btn"><i class="fa-solid fa-pause" style="font-size: 10px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">PTO Balance Audit</span>
+    <span class="quiet-meta">2/5 · Analyzing patterns · 142 employees</span>
+    <div style="width: 80px;">
+      <div class="progress-bar"><div class="progress-fill" style="width: 40%; background: var(--color-working);"></div></div>
+    </div>
+    <button class="icon-btn"><i class="fa-solid fa-pause" style="font-size: 10px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-done);"></div>
+    <span class="quiet-name">Flight Risk — Marketing</span>
+    <span class="quiet-meta">Continuous · Last check 2h ago · 2 high, 5 moderate</span>
+    <div style="width: 80px;"></div>
+    <button class="icon-btn"><i class="fa-solid fa-pause" style="font-size: 10px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+
+  <div class="quiet-row">
+    <div class="quiet-dot" style="background: var(--color-working);"></div>
+    <span class="quiet-name">Succession Plan — VP Sales</span>
+    <span class="quiet-meta">1/4 · Identifying internal candidates</span>
+    <div style="width: 80px;">
+      <div class="progress-bar"><div class="progress-fill" style="width: 25%; background: var(--color-working);"></div></div>
+    </div>
+    <button class="icon-btn"><i class="fa-solid fa-pause" style="font-size: 10px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+    <button class="icon-btn"><i class="fa-solid fa-chevron-right" style="font-size: 11px;"></i></button>
+  </div>
+</div>
+
+<script>
+function showConcept(id) {
+  document.querySelectorAll('.concept').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.switcher-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('concept-' + id).classList.add('active');
+  const idx = id === 'a' ? 0 : 1;
+  document.querySelectorAll('.switcher-btn')[idx].classList.add('active');
+}
+</script>
+
+</body>
+</html>

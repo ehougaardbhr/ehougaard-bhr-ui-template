@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automations Page — 5 Concepts</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --color-primary: #2e7918;
+      --color-primary-light: #E8F5E3;
+      --surface-neutral-white: #FFFFFF;
+      --surface-neutral-xx-weak: #F5F3F2;
+      --surface-neutral-x-weak: #EDEBEA;
+      --border-neutral-weak: #E5E5E5;
+      --border-neutral-medium: #D4D4D4;
+      --text-neutral-xx-strong: #1C1917;
+      --text-neutral-x-strong: #292524;
+      --text-neutral-strong: #44403C;
+      --text-neutral-medium: #78716C;
+      --text-neutral-weak: #A8A29E;
+      --color-working: #2563EB;
+      --color-working-light: #DBEAFE;
+      --color-done: #059669;
+      --color-done-light: #D1FAE5;
+      --color-paused: #D97706;
+      --color-paused-light: #FEF3C7;
+      --color-queued: #A8A29E;
+      --color-queued-light: #F5F3F2;
+      --color-proposed: #7C3AED;
+      --color-proposed-light: #EDE9FE;
+      --color-cancelled: #DC2626;
+      --color-cancelled-light: #FEE2E2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #F0EDEB;
+      color: var(--text-neutral-x-strong);
+      min-height: 100vh;
+    }
+
+    /* Concept Switcher */
+    .switcher {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--surface-neutral-white);
+      border-bottom: 1px solid var(--border-neutral-weak);
+      padding: 12px 32px;
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .switcher-label {
+      font-size: 13px; font-weight: 600; color: var(--text-neutral-medium);
+      margin-right: 8px;
+    }
+    .switcher-btn {
+      padding: 8px 20px; border-radius: 99px; font-size: 13px; font-weight: 600;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-medium); cursor: pointer; transition: all 0.15s ease;
+    }
+    .switcher-btn.active {
+      background: var(--text-neutral-xx-strong); color: white; border-color: var(--text-neutral-xx-strong);
+    }
+    .switcher-btn:hover:not(.active) {
+      background: var(--surface-neutral-xx-weak);
+    }
+
+    .concept { display: none; padding: 32px; max-width: 1200px; margin: 0 auto; }
+    .concept.active { display: block; }
+
+    .concept-desc {
+      background: var(--color-primary-light); border: 1px solid #c6e6bc; border-radius: 12px;
+      padding: 16px 20px; margin-bottom: 32px; font-size: 14px; line-height: 1.6; color: var(--text-neutral-strong);
+    }
+    .concept-desc strong { color: var(--text-neutral-xx-strong); }
+
+    /* Page header (shared) */
+    .page-header {
+      margin-bottom: 24px;
+    }
+    .page-header h1 {
+      font-family: Fields, Georgia, serif;
+      font-size: 48px; font-weight: 700; line-height: 56px; color: var(--color-primary);
+    }
+    .page-header .subtitle {
+      font-size: 15px; color: var(--text-neutral-medium); margin-top: 4px;
+    }
+
+    /* Tabs (shared) */
+    .tab-bar {
+      display: flex; gap: 0; border-bottom: 1px solid var(--border-neutral-weak); margin-bottom: 24px;
+    }
+    .tab {
+      padding: 12px 24px; font-size: 14px; font-weight: 500; color: var(--text-neutral-medium);
+      cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+      background: none; border-top: none; border-left: none; border-right: none;
+    }
+    .tab.active {
+      color: var(--color-primary); font-weight: 600; border-bottom-color: var(--color-primary);
+    }
+    .tab:hover:not(.active) { color: var(--text-neutral-strong); }
+
+    /* Cards */
+    .card {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px; padding: 20px 24px; margin-bottom: 12px;
+      transition: box-shadow 0.15s;
+    }
+    .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .card-row { display: flex; align-items: center; gap: 16px; }
+    .card-content { flex: 1; min-width: 0; }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .card-meta { font-size: 13px; color: var(--text-neutral-medium); margin-top: 2px; }
+    .card-actions { display: flex; gap: 8px; align-items: center; }
+
+    /* Status badges */
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 12px; border-radius: 99px; font-size: 12px; font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-running { background: var(--color-working-light); color: var(--color-working); }
+    .badge-paused { background: var(--color-paused-light); color: var(--color-paused); }
+    .badge-completed { background: var(--color-done-light); color: var(--color-done); }
+    .badge-proposed { background: var(--color-proposed-light); color: var(--color-proposed); }
+    .badge-cancelled { background: var(--color-cancelled-light); color: var(--color-cancelled); }
+
+    /* Progress bar */
+    .progress-bar { height: 6px; background: var(--surface-neutral-x-weak); border-radius: 3px; overflow: hidden; width: 120px; }
+    .progress-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+    .progress-fill.running { background: var(--color-working); }
+    .progress-fill.paused { background: var(--color-paused); }
+    .progress-fill.completed { background: var(--color-done); }
+
+    /* Action buttons */
+    .action-btn {
+      padding: 6px 14px; border-radius: 8px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border-neutral-medium); background: var(--surface-neutral-white);
+      color: var(--text-neutral-strong); cursor: pointer; transition: all 0.15s;
+      display: inline-flex; align-items: center; gap: 6px;
+    }
+    .action-btn:hover { background: var(--surface-neutral-xx-weak); }
+    .action-btn.primary { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+    .action-btn.primary:hover { opacity: 0.9; }
+    .action-btn.danger { color: var(--color-cancelled); border-color: #fca5a5; }
+    .action-btn.danger:hover { background: var(--color-cancelled-light); }
+
+    /* Icon menu (three dots) */
+    .icon-btn {
+      width: 32px; height: 32px; border-radius: 8px; border: none; background: none;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      color: var(--text-neutral-medium); transition: all 0.15s;
+    }
+    .icon-btn:hover { background: var(--surface-neutral-xx-weak); color: var(--text-neutral-strong); }
+
+    /* Stats row */
+    .stats-row {
+      display: flex; gap: 16px; margin-bottom: 24px;
+    }
+    .stat-card {
+      flex: 1; background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px; padding: 20px 24px; text-align: center;
+    }
+    .stat-number { font-size: 32px; font-weight: 700; color: var(--text-neutral-xx-strong); }
+    .stat-label { font-size: 13px; color: var(--text-neutral-medium); margin-top: 4px; }
+
+    /* ==========================================
+       CONCEPT 1 — Card List with Inline Actions
+       ========================================== */
+    .c1-header-row {
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+    }
+    .c1-progress-section {
+      display: flex; align-items: center; gap: 12px; margin-top: 8px;
+    }
+    .c1-progress-text { font-size: 12px; color: var(--text-neutral-medium); }
+
+    /* ==========================================
+       CONCEPT 2 — Table/Spreadsheet View
+       ========================================== */
+    .c2-table {
+      width: 100%; border-collapse: separate; border-spacing: 0;
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px; overflow: hidden;
+    }
+    .c2-table thead th {
+      padding: 12px 16px; font-size: 12px; font-weight: 600; color: var(--text-neutral-medium);
+      text-transform: uppercase; letter-spacing: 0.5px; text-align: left;
+      background: var(--surface-neutral-xx-weak); border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .c2-table tbody td {
+      padding: 16px 16px; font-size: 14px; border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .c2-table tbody tr:last-child td { border-bottom: none; }
+    .c2-table tbody tr:hover { background: var(--surface-neutral-xx-weak); }
+    .c2-name { font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .c2-name a { color: inherit; text-decoration: none; }
+    .c2-name a:hover { color: var(--color-primary); }
+
+    /* ==========================================
+       CONCEPT 3 — Kanban Board
+       ========================================== */
+    .c3-board {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+    }
+    .c3-column {
+      background: var(--surface-neutral-xx-weak); border-radius: 12px; padding: 16px;
+      min-height: 400px;
+    }
+    .c3-col-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border-neutral-weak);
+    }
+    .c3-col-title {
+      font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .c3-col-count {
+      background: var(--surface-neutral-x-weak); border-radius: 99px;
+      padding: 2px 10px; font-size: 12px; font-weight: 600; color: var(--text-neutral-medium);
+    }
+    .c3-card {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer;
+      transition: box-shadow 0.15s;
+    }
+    .c3-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .c3-card-title { font-size: 14px; font-weight: 600; color: var(--text-neutral-xx-strong); margin-bottom: 6px; }
+    .c3-card-meta { font-size: 12px; color: var(--text-neutral-medium); }
+    .c3-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 10px; }
+    .c3-avatar {
+      width: 24px; height: 24px; border-radius: 50%; background: var(--surface-neutral-x-weak);
+      display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600;
+      color: var(--text-neutral-medium);
+    }
+
+    /* ==========================================
+       CONCEPT 4 — Timeline/Activity Feed
+       ========================================== */
+    .c4-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+    .c4-sidebar { }
+    .c4-sidebar-card {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px; padding: 14px 18px; margin-bottom: 8px; cursor: pointer;
+      transition: all 0.15s; display: flex; align-items: center; gap: 12px;
+    }
+    .c4-sidebar-card:hover, .c4-sidebar-card.selected {
+      border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary);
+    }
+    .c4-sidebar-icon {
+      width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 16px; flex-shrink: 0;
+    }
+    .c4-sidebar-info { flex: 1; min-width: 0; }
+    .c4-sidebar-title { font-size: 14px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .c4-sidebar-meta { font-size: 12px; color: var(--text-neutral-medium); }
+
+    .c4-main {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px; padding: 28px 32px;
+    }
+    .c4-detail-header { display: flex; align-items: start; justify-content: space-between; margin-bottom: 24px; }
+    .c4-detail-title { font-size: 20px; font-weight: 700; color: var(--text-neutral-xx-strong); }
+
+    .c4-timeline { position: relative; padding-left: 28px; }
+    .c4-timeline::before {
+      content: ''; position: absolute; left: 8px; top: 4px; bottom: 4px;
+      width: 2px; background: var(--border-neutral-weak);
+    }
+    .c4-event {
+      position: relative; margin-bottom: 20px; padding-bottom: 20px;
+      border-bottom: 1px solid var(--surface-neutral-xx-weak);
+    }
+    .c4-event:last-child { border-bottom: none; margin-bottom: 0; }
+    .c4-event-dot {
+      position: absolute; left: -24px; top: 4px; width: 14px; height: 14px;
+      border-radius: 50%; border: 2px solid var(--surface-neutral-white);
+    }
+    .c4-event-dot.done { background: var(--color-done); }
+    .c4-event-dot.working { background: var(--color-working); }
+    .c4-event-dot.queued { background: var(--color-queued); }
+    .c4-event-time { font-size: 11px; color: var(--text-neutral-weak); margin-bottom: 4px; }
+    .c4-event-title { font-size: 14px; font-weight: 600; color: var(--text-neutral-xx-strong); }
+    .c4-event-desc { font-size: 13px; color: var(--text-neutral-medium); margin-top: 4px; }
+
+    /* ==========================================
+       CONCEPT 5 — Summary Dashboard + Expandable Cards
+       ========================================== */
+    .c5-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .c5-card {
+      background: var(--surface-neutral-white); border: 1px solid var(--border-neutral-weak);
+      border-radius: 12px; overflow: hidden; transition: box-shadow 0.15s;
+    }
+    .c5-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .c5-card-header {
+      padding: 20px 24px; display: flex; align-items: start; justify-content: space-between;
+      cursor: pointer;
+    }
+    .c5-card-top { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .c5-card-icon {
+      width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 18px; flex-shrink: 0;
+    }
+    .c5-card-title { font-size: 16px; font-weight: 700; color: var(--text-neutral-xx-strong); }
+    .c5-card-subtitle { font-size: 13px; color: var(--text-neutral-medium); margin-top: 2px; }
+    .c5-card-stats { display: flex; gap: 24px; margin-top: 12px; }
+    .c5-stat-item { }
+    .c5-stat-value { font-size: 20px; font-weight: 700; }
+    .c5-stat-label { font-size: 11px; color: var(--text-neutral-medium); text-transform: uppercase; letter-spacing: 0.3px; }
+    .c5-card-body {
+      border-top: 1px solid var(--border-neutral-weak); padding: 16px 24px;
+      background: var(--surface-neutral-xx-weak);
+    }
+    .c5-action-item {
+      display: flex; align-items: center; gap: 12px; padding: 8px 0;
+      font-size: 13px; color: var(--text-neutral-strong);
+    }
+    .c5-action-icon { width: 20px; text-align: center; }
+    .c5-card-footer {
+      padding: 12px 24px; border-top: 1px solid var(--border-neutral-weak);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Concept Switcher -->
+<div class="switcher">
+  <span class="switcher-label">CONCEPT:</span>
+  <button class="switcher-btn active" onclick="showConcept(1)">1 — Card List</button>
+  <button class="switcher-btn" onclick="showConcept(2)">2 — Table</button>
+  <button class="switcher-btn" onclick="showConcept(3)">3 — Kanban</button>
+  <button class="switcher-btn" onclick="showConcept(4)">4 — Timeline</button>
+  <button class="switcher-btn" onclick="showConcept(5)">5 — Dashboard</button>
+</div>
+
+<!-- ==========================================
+     CONCEPT 1 — Card List with Inline Actions
+     Clean vertical list of automation cards.
+     Each card shows status, progress, and inline action buttons.
+     Simple, scannable, familiar CRUD pattern.
+     ========================================== -->
+<div class="concept active" id="concept-1">
+  <div class="concept-desc">
+    <strong>Concept 1 — Card List with Inline Actions.</strong>
+    Simple vertical list. Each automation is a card with status badge, progress bar, and action buttons inline.
+    Tabs switch between Active and History. Familiar, scannable, works well at 10+ items.
+  </div>
+
+  <div class="page-header">
+    <h1>Automations</h1>
+  </div>
+
+  <div class="c1-header-row">
+    <div class="tab-bar" style="margin-bottom: 0; border-bottom: none;">
+      <button class="tab active">Active <span style="background: var(--surface-neutral-x-weak); padding: 2px 8px; border-radius: 99px; font-size: 11px; margin-left: 6px;">7</span></button>
+      <button class="tab">History</button>
+    </div>
+    <button class="action-btn primary"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New Automation</button>
+  </div>
+
+  <div class="tab-bar"></div>
+
+  <!-- Running -->
+  <div class="card">
+    <div class="card-row">
+      <div style="width: 4px; height: 40px; border-radius: 2px; background: var(--color-working); flex-shrink: 0;"></div>
+      <div class="card-content">
+        <div class="card-title">Q1 Hiring Pipeline Review</div>
+        <div class="card-meta">Started Jan 15 · 4/7 steps complete · Waiting for review</div>
+        <div class="c1-progress-section">
+          <div class="progress-bar" style="width: 160px;">
+            <div class="progress-fill running" style="width: 57%;"></div>
+          </div>
+          <span class="c1-progress-text">57%</span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span>
+        <button class="action-btn"><i class="fa-solid fa-pause" style="font-size: 11px;"></i> Pause</button>
+        <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-row">
+      <div style="width: 4px; height: 40px; border-radius: 2px; background: var(--color-working); flex-shrink: 0;"></div>
+      <div class="card-content">
+        <div class="card-title">Backfill Plan — Tony Ramirez (Sr. Marketing Manager)</div>
+        <div class="card-meta">Started Jan 22 · 3/5 steps complete · Screening candidates</div>
+        <div class="c1-progress-section">
+          <div class="progress-bar" style="width: 160px;">
+            <div class="progress-fill running" style="width: 60%;"></div>
+          </div>
+          <span class="c1-progress-text">60%</span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span>
+        <button class="action-btn"><i class="fa-solid fa-pause" style="font-size: 11px;"></i> Pause</button>
+        <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-row">
+      <div style="width: 4px; height: 40px; border-radius: 2px; background: var(--color-paused); flex-shrink: 0;"></div>
+      <div class="card-content">
+        <div class="card-title">Annual Compensation Review — Engineering</div>
+        <div class="card-meta">Started Jan 10 · 6/8 steps complete · Paused by Jess</div>
+        <div class="c1-progress-section">
+          <div class="progress-bar" style="width: 160px;">
+            <div class="progress-fill paused" style="width: 75%;"></div>
+          </div>
+          <span class="c1-progress-text">75%</span>
+        </div>
+      </div>
+      <div class="card-actions">
+        <span class="badge badge-paused"><i class="fa-solid fa-pause" style="font-size: 6px;"></i> Paused</span>
+        <button class="action-btn"><i class="fa-solid fa-play" style="font-size: 11px;"></i> Resume</button>
+        <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-row">
+      <div style="width: 4px; height: 40px; border-radius: 2px; background: var(--color-proposed); flex-shrink: 0;"></div>
+      <div class="card-content">
+        <div class="card-title">Onboarding Checklist — 3 New Hires (Feb)</div>
+        <div class="card-meta">Proposed Jan 28 · Awaiting approval to start</div>
+      </div>
+      <div class="card-actions">
+        <span class="badge badge-proposed"><i class="fa-solid fa-clock" style="font-size: 10px;"></i> Proposed</span>
+        <button class="action-btn primary"><i class="fa-solid fa-check" style="font-size: 11px;"></i> Approve</button>
+        <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-row">
+      <div style="width: 4px; height: 40px; border-radius: 2px; background: var(--color-working); flex-shrink: 0;"></div>
+      <div class="card-content">
+        <div class="card-title">Flight Risk Monitoring — Marketing Team</div>
+        <div class="card-meta">Started Dec 1 · Continuous · Last check: 2 hours ago</div>
+      </div>
+      <div class="card-actions">
+        <span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span>
+        <button class="action-btn"><i class="fa-solid fa-pause" style="font-size: 11px;"></i> Pause</button>
+        <button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     CONCEPT 2 — Table/Spreadsheet View
+     Dense, sortable table. Great for power users
+     managing many automations. Bulk actions possible.
+     ========================================== -->
+<div class="concept" id="concept-2">
+  <div class="concept-desc">
+    <strong>Concept 2 — Table View.</strong>
+    Dense, sortable table layout. Optimized for scanning many automations at once.
+    Columns: name, status, progress, started, last activity, owner. Bulk select + actions.
+  </div>
+
+  <div class="page-header">
+    <h1>Automations</h1>
+  </div>
+
+  <div class="c1-header-row">
+    <div class="tab-bar" style="margin-bottom: 0; border-bottom: none;">
+      <button class="tab active">Active <span style="background: var(--surface-neutral-x-weak); padding: 2px 8px; border-radius: 99px; font-size: 11px; margin-left: 6px;">7</span></button>
+      <button class="tab">History</button>
+    </div>
+    <div style="display: flex; gap: 8px;">
+      <button class="action-btn"><i class="fa-solid fa-filter" style="font-size: 11px;"></i> Filter</button>
+      <button class="action-btn primary"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New Automation</button>
+    </div>
+  </div>
+
+  <div class="tab-bar"></div>
+
+  <table class="c2-table">
+    <thead>
+      <tr>
+        <th style="width: 36px;"><input type="checkbox" style="cursor: pointer;"></th>
+        <th>Automation</th>
+        <th>Status</th>
+        <th>Progress</th>
+        <th>Started</th>
+        <th>Last Activity</th>
+        <th style="width: 80px;"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><input type="checkbox" style="cursor: pointer;"></td>
+        <td>
+          <div class="c2-name"><a href="#">Q1 Hiring Pipeline Review</a></div>
+          <div style="font-size: 12px; color: var(--text-neutral-medium);">Waiting for review</div>
+        </td>
+        <td><span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span></td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="progress-bar"><div class="progress-fill running" style="width: 57%;"></div></div>
+            <span style="font-size: 12px; color: var(--text-neutral-medium);">4/7</span>
+          </div>
+        </td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">Jan 15</td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">2 hours ago</td>
+        <td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" style="cursor: pointer;"></td>
+        <td>
+          <div class="c2-name"><a href="#">Backfill Plan — Tony Ramirez</a></div>
+          <div style="font-size: 12px; color: var(--text-neutral-medium);">Screening candidates</div>
+        </td>
+        <td><span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span></td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="progress-bar"><div class="progress-fill running" style="width: 60%;"></div></div>
+            <span style="font-size: 12px; color: var(--text-neutral-medium);">3/5</span>
+          </div>
+        </td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">Jan 22</td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">30 min ago</td>
+        <td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" style="cursor: pointer;"></td>
+        <td>
+          <div class="c2-name"><a href="#">Annual Comp Review — Engineering</a></div>
+          <div style="font-size: 12px; color: var(--text-neutral-medium);">Paused by Jess</div>
+        </td>
+        <td><span class="badge badge-paused"><i class="fa-solid fa-pause" style="font-size: 6px;"></i> Paused</span></td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="progress-bar"><div class="progress-fill paused" style="width: 75%;"></div></div>
+            <span style="font-size: 12px; color: var(--text-neutral-medium);">6/8</span>
+          </div>
+        </td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">Jan 10</td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">3 days ago</td>
+        <td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" style="cursor: pointer;"></td>
+        <td>
+          <div class="c2-name"><a href="#">Onboarding Checklist — Feb New Hires</a></div>
+          <div style="font-size: 12px; color: var(--text-neutral-medium);">Awaiting approval</div>
+        </td>
+        <td><span class="badge badge-proposed"><i class="fa-solid fa-clock" style="font-size: 10px;"></i> Proposed</span></td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">—</td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">Jan 28</td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">Jan 28</td>
+        <td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" style="cursor: pointer;"></td>
+        <td>
+          <div class="c2-name"><a href="#">Flight Risk Monitoring — Marketing</a></div>
+          <div style="font-size: 12px; color: var(--text-neutral-medium);">Continuous monitoring</div>
+        </td>
+        <td><span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span></td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">Ongoing</td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">Dec 1</td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">2 hours ago</td>
+        <td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+      </tr>
+      <tr>
+        <td><input type="checkbox" style="cursor: pointer;"></td>
+        <td>
+          <div class="c2-name"><a href="#">PTO Balance Audit — All Departments</a></div>
+          <div style="font-size: 12px; color: var(--text-neutral-medium);">Analyzing patterns</div>
+        </td>
+        <td><span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span></td>
+        <td>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="progress-bar"><div class="progress-fill running" style="width: 40%;"></div></div>
+            <span style="font-size: 12px; color: var(--text-neutral-medium);">2/5</span>
+          </div>
+        </td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">Feb 1</td>
+        <td style="font-size: 13px; color: var(--text-neutral-medium);">1 hour ago</td>
+        <td><button class="icon-btn"><i class="fa-solid fa-ellipsis"></i></button></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ==========================================
+     CONCEPT 3 — Kanban Board
+     Visual columns by status. Drag-and-drop feel.
+     Great for seeing distribution of work across states.
+     ========================================== -->
+<div class="concept" id="concept-3">
+  <div class="concept-desc">
+    <strong>Concept 3 — Kanban Board.</strong>
+    Automations organized into status columns: Proposed, Running, Paused, Completed.
+    Visual at a glance, shows distribution of work. Cards are compact with key details.
+  </div>
+
+  <div class="page-header">
+    <h1>Automations</h1>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+    <div style="font-size: 14px; color: var(--text-neutral-medium);">12 automations across 4 states</div>
+    <button class="action-btn primary"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New Automation</button>
+  </div>
+
+  <div class="c3-board">
+    <!-- Proposed -->
+    <div class="c3-column">
+      <div class="c3-col-header">
+        <span class="c3-col-title" style="color: var(--color-proposed);">Proposed</span>
+        <span class="c3-col-count">2</span>
+      </div>
+      <div class="c3-card">
+        <div class="c3-card-title">Onboarding Checklist — Feb New Hires</div>
+        <div class="c3-card-meta">3 new hires · Awaiting approval</div>
+        <div class="c3-card-footer">
+          <span class="badge badge-proposed" style="font-size: 11px; padding: 2px 8px;">Needs Approval</span>
+          <div class="c3-avatar">JM</div>
+        </div>
+      </div>
+      <div class="c3-card">
+        <div class="c3-card-title">Succession Plan — VP Sales</div>
+        <div class="c3-card-meta">Proposed by AI · Review needed</div>
+        <div class="c3-card-footer">
+          <span class="badge badge-proposed" style="font-size: 11px; padding: 2px 8px;">Needs Approval</span>
+          <div class="c3-avatar">AI</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Running -->
+    <div class="c3-column">
+      <div class="c3-col-header">
+        <span class="c3-col-title" style="color: var(--color-working);">Running</span>
+        <span class="c3-col-count">5</span>
+      </div>
+      <div class="c3-card">
+        <div class="c3-card-title">Q1 Hiring Pipeline Review</div>
+        <div class="c3-card-meta">4/7 steps · Waiting for review</div>
+        <div class="c3-card-footer">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div class="progress-bar" style="width: 60px;"><div class="progress-fill running" style="width: 57%;"></div></div>
+            <span style="font-size: 11px; color: var(--text-neutral-medium);">57%</span>
+          </div>
+          <div class="c3-avatar">JM</div>
+        </div>
+      </div>
+      <div class="c3-card">
+        <div class="c3-card-title">Backfill — Tony Ramirez</div>
+        <div class="c3-card-meta">3/5 steps · Screening</div>
+        <div class="c3-card-footer">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div class="progress-bar" style="width: 60px;"><div class="progress-fill running" style="width: 60%;"></div></div>
+            <span style="font-size: 11px; color: var(--text-neutral-medium);">60%</span>
+          </div>
+          <div class="c3-avatar">JM</div>
+        </div>
+      </div>
+      <div class="c3-card">
+        <div class="c3-card-title">Flight Risk — Marketing</div>
+        <div class="c3-card-meta">Continuous · Last: 2h ago</div>
+        <div class="c3-card-footer">
+          <span style="font-size: 11px; color: var(--text-neutral-medium);">Ongoing</span>
+          <div class="c3-avatar">AI</div>
+        </div>
+      </div>
+      <div class="c3-card">
+        <div class="c3-card-title">PTO Balance Audit</div>
+        <div class="c3-card-meta">2/5 steps · Analyzing</div>
+        <div class="c3-card-footer">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div class="progress-bar" style="width: 60px;"><div class="progress-fill running" style="width: 40%;"></div></div>
+            <span style="font-size: 11px; color: var(--text-neutral-medium);">40%</span>
+          </div>
+          <div class="c3-avatar">AI</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Paused -->
+    <div class="c3-column">
+      <div class="c3-col-header">
+        <span class="c3-col-title" style="color: var(--color-paused);">Paused</span>
+        <span class="c3-col-count">2</span>
+      </div>
+      <div class="c3-card">
+        <div class="c3-card-title">Comp Review — Engineering</div>
+        <div class="c3-card-meta">6/8 steps · Paused by Jess</div>
+        <div class="c3-card-footer">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div class="progress-bar" style="width: 60px;"><div class="progress-fill paused" style="width: 75%;"></div></div>
+            <span style="font-size: 11px; color: var(--text-neutral-medium);">75%</span>
+          </div>
+          <div class="c3-avatar">JM</div>
+        </div>
+      </div>
+      <div class="c3-card">
+        <div class="c3-card-title">Benefits Enrollment Prep</div>
+        <div class="c3-card-meta">2/6 steps · Budget hold</div>
+        <div class="c3-card-footer">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <div class="progress-bar" style="width: 60px;"><div class="progress-fill paused" style="width: 33%;"></div></div>
+            <span style="font-size: 11px; color: var(--text-neutral-medium);">33%</span>
+          </div>
+          <div class="c3-avatar">JM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Completed -->
+    <div class="c3-column">
+      <div class="c3-col-header">
+        <span class="c3-col-title" style="color: var(--color-done);">Completed</span>
+        <span class="c3-col-count">3</span>
+      </div>
+      <div class="c3-card" style="opacity: 0.7;">
+        <div class="c3-card-title">Q4 Headcount Report</div>
+        <div class="c3-card-meta">Completed Dec 20</div>
+        <div class="c3-card-footer">
+          <span class="badge badge-completed" style="font-size: 11px; padding: 2px 8px;">Done</span>
+          <div class="c3-avatar">AI</div>
+        </div>
+      </div>
+      <div class="c3-card" style="opacity: 0.7;">
+        <div class="c3-card-title">Year-End Compliance Audit</div>
+        <div class="c3-card-meta">Completed Dec 31</div>
+        <div class="c3-card-footer">
+          <span class="badge badge-completed" style="font-size: 11px; padding: 2px 8px;">Done</span>
+          <div class="c3-avatar">JM</div>
+        </div>
+      </div>
+      <div class="c3-card" style="opacity: 0.7;">
+        <div class="c3-card-title">Backfill — Sarah Chen</div>
+        <div class="c3-card-meta">Completed Jan 8</div>
+        <div class="c3-card-footer">
+          <span class="badge badge-completed" style="font-size: 11px; padding: 2px 8px;">Done</span>
+          <div class="c3-avatar">JM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     CONCEPT 4 — Master/Detail with Timeline
+     Sidebar list + detail pane with activity timeline.
+     Best for deep audit of individual automations.
+     ========================================== -->
+<div class="concept" id="concept-4">
+  <div class="concept-desc">
+    <strong>Concept 4 — Master/Detail with Activity Timeline.</strong>
+    Left sidebar lists all automations. Right pane shows the selected automation's detail
+    with a full activity timeline — every action the AI took, every decision point. Ideal for audit.
+  </div>
+
+  <div class="page-header">
+    <h1>Automations</h1>
+  </div>
+
+  <div class="c4-layout">
+    <!-- Sidebar -->
+    <div class="c4-sidebar">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <div class="tab-bar" style="margin-bottom: 0; border-bottom: none;">
+          <button class="tab active" style="padding: 8px 16px; font-size: 13px;">Active</button>
+          <button class="tab" style="padding: 8px 16px; font-size: 13px;">History</button>
+        </div>
+      </div>
+
+      <div class="c4-sidebar-card selected">
+        <div class="c4-sidebar-icon" style="background: var(--color-working-light); color: var(--color-working);">
+          <i class="fa-solid fa-briefcase"></i>
+        </div>
+        <div class="c4-sidebar-info">
+          <div class="c4-sidebar-title">Q1 Hiring Pipeline Review</div>
+          <div class="c4-sidebar-meta">4/7 steps · Running</div>
+        </div>
+      </div>
+
+      <div class="c4-sidebar-card">
+        <div class="c4-sidebar-icon" style="background: var(--color-working-light); color: var(--color-working);">
+          <i class="fa-solid fa-user-plus"></i>
+        </div>
+        <div class="c4-sidebar-info">
+          <div class="c4-sidebar-title">Backfill — Tony Ramirez</div>
+          <div class="c4-sidebar-meta">3/5 steps · Running</div>
+        </div>
+      </div>
+
+      <div class="c4-sidebar-card">
+        <div class="c4-sidebar-icon" style="background: var(--color-paused-light); color: var(--color-paused);">
+          <i class="fa-solid fa-dollar-sign"></i>
+        </div>
+        <div class="c4-sidebar-info">
+          <div class="c4-sidebar-title">Comp Review — Engineering</div>
+          <div class="c4-sidebar-meta">6/8 steps · Paused</div>
+        </div>
+      </div>
+
+      <div class="c4-sidebar-card">
+        <div class="c4-sidebar-icon" style="background: var(--color-proposed-light); color: var(--color-proposed);">
+          <i class="fa-solid fa-clipboard-list"></i>
+        </div>
+        <div class="c4-sidebar-info">
+          <div class="c4-sidebar-title">Onboarding — Feb Hires</div>
+          <div class="c4-sidebar-meta">Proposed · Needs approval</div>
+        </div>
+      </div>
+
+      <div class="c4-sidebar-card">
+        <div class="c4-sidebar-icon" style="background: var(--color-working-light); color: var(--color-working);">
+          <i class="fa-solid fa-shield"></i>
+        </div>
+        <div class="c4-sidebar-info">
+          <div class="c4-sidebar-title">Flight Risk — Marketing</div>
+          <div class="c4-sidebar-meta">Continuous · Running</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail Pane -->
+    <div class="c4-main">
+      <div class="c4-detail-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+            <span class="c4-detail-title">Q1 Hiring Pipeline Review</span>
+            <span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span>
+          </div>
+          <div style="font-size: 13px; color: var(--text-neutral-medium);">Started Jan 15, 2025 · 4 of 7 steps complete</div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button class="action-btn"><i class="fa-solid fa-pause" style="font-size: 11px;"></i> Pause</button>
+          <button class="action-btn"><i class="fa-solid fa-pen" style="font-size: 11px;"></i> Edit</button>
+          <button class="action-btn danger"><i class="fa-solid fa-xmark" style="font-size: 11px;"></i> Cancel</button>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 24px;">
+        <div class="progress-bar" style="flex: 1;">
+          <div class="progress-fill running" style="width: 57%;"></div>
+        </div>
+        <span style="font-size: 13px; font-weight: 600; color: var(--text-neutral-medium);">57%</span>
+      </div>
+
+      <div style="font-size: 13px; font-weight: 600; color: var(--text-neutral-medium); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px;">
+        Activity Timeline
+      </div>
+
+      <div class="c4-timeline">
+        <div class="c4-event">
+          <div class="c4-event-dot done"></div>
+          <div class="c4-event-time">Jan 15, 9:00 AM</div>
+          <div class="c4-event-title">Plan created</div>
+          <div class="c4-event-desc">AI generated hiring pipeline review plan with 7 action items based on Q1 hiring goals.</div>
+        </div>
+        <div class="c4-event">
+          <div class="c4-event-dot done"></div>
+          <div class="c4-event-time">Jan 15, 9:02 AM</div>
+          <div class="c4-event-title">Pulled open requisitions</div>
+          <div class="c4-event-desc">Retrieved 12 open job postings across Engineering, Marketing, and Sales. Flagged 3 that have been open 60+ days.</div>
+        </div>
+        <div class="c4-event">
+          <div class="c4-event-dot done"></div>
+          <div class="c4-event-time">Jan 15, 9:05 AM</div>
+          <div class="c4-event-title">Analyzed candidate pipelines</div>
+          <div class="c4-event-desc">Screened 47 candidates across active requisitions. Generated pipeline health scores. 2 roles flagged as pipeline-weak.</div>
+        </div>
+        <div class="c4-event">
+          <div class="c4-event-dot done"></div>
+          <div class="c4-event-time">Jan 16, 2:30 PM</div>
+          <div class="c4-event-title">Compensation benchmarking complete</div>
+          <div class="c4-event-desc">Compared offered ranges against market data for 12 positions. 4 roles below market median by 10%+.</div>
+        </div>
+        <div class="c4-event">
+          <div class="c4-event-dot working"></div>
+          <div class="c4-event-time">Jan 17, 10:00 AM</div>
+          <div class="c4-event-title">Review gate: Pipeline health report ready</div>
+          <div class="c4-event-desc">Waiting for your review of the pipeline health findings before proceeding to recommendations.</div>
+        </div>
+        <div class="c4-event">
+          <div class="c4-event-dot queued"></div>
+          <div class="c4-event-time">Pending</div>
+          <div class="c4-event-title">Generate hiring recommendations</div>
+          <div class="c4-event-desc">Will produce prioritized recommendations for each role based on pipeline health and market data.</div>
+        </div>
+        <div class="c4-event">
+          <div class="c4-event-dot queued"></div>
+          <div class="c4-event-time">Pending</div>
+          <div class="c4-event-title">Draft executive summary</div>
+          <div class="c4-event-desc">Will compile findings, recommendations, and risk areas into a shareable summary artifact.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================
+     CONCEPT 5 — Summary Dashboard + Expandable Cards
+     Stats across the top, then rich expandable cards
+     with inline step details and actions.
+     ========================================== -->
+<div class="concept" id="concept-5">
+  <div class="concept-desc">
+    <strong>Concept 5 — Dashboard with Expandable Cards.</strong>
+    Summary stats at top (running, paused, completed, needs attention). Below, rich 2-column
+    cards that show key metrics inline and expand to reveal step-level detail and actions.
+  </div>
+
+  <div class="page-header">
+    <h1>Automations</h1>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-number" style="color: var(--color-working);">5</div>
+      <div class="stat-label">Running</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color: var(--color-paused);">2</div>
+      <div class="stat-label">Paused</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color: var(--color-proposed);">2</div>
+      <div class="stat-label">Needs Attention</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-number" style="color: var(--color-done);">14</div>
+      <div class="stat-label">Completed This Month</div>
+    </div>
+  </div>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+    <div class="tab-bar" style="margin-bottom: 0; border-bottom: none;">
+      <button class="tab active">Active</button>
+      <button class="tab">History</button>
+    </div>
+    <button class="action-btn primary"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New Automation</button>
+  </div>
+
+  <div class="tab-bar"></div>
+
+  <div class="c5-grid">
+    <!-- Card 1 -->
+    <div class="c5-card">
+      <div class="c5-card-header">
+        <div>
+          <div class="c5-card-top">
+            <div class="c5-card-icon" style="background: var(--color-working-light); color: var(--color-working);">
+              <i class="fa-solid fa-briefcase"></i>
+            </div>
+            <div>
+              <div class="c5-card-title">Q1 Hiring Pipeline Review</div>
+              <div class="c5-card-subtitle">Started Jan 15</div>
+            </div>
+          </div>
+          <div class="c5-card-stats">
+            <div class="c5-stat-item">
+              <div class="c5-stat-value" style="color: var(--color-working);">4/7</div>
+              <div class="c5-stat-label">Steps Done</div>
+            </div>
+            <div class="c5-stat-item">
+              <div class="c5-stat-value" style="color: var(--color-paused);">1</div>
+              <div class="c5-stat-label">Awaiting Review</div>
+            </div>
+            <div class="c5-stat-item">
+              <div class="c5-stat-value">12</div>
+              <div class="c5-stat-label">Roles Analyzed</div>
+            </div>
+          </div>
+        </div>
+        <span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span>
+      </div>
+      <div class="c5-card-body">
+        <div class="c5-action-item">
+          <span class="c5-action-icon" style="color: var(--color-done);"><i class="fa-solid fa-check"></i></span>
+          Pulled 12 open requisitions
+        </div>
+        <div class="c5-action-item">
+          <span class="c5-action-icon" style="color: var(--color-done);"><i class="fa-solid fa-check"></i></span>
+          Screened 47 candidates
+        </div>
+        <div class="c5-action-item">
+          <span class="c5-action-icon" style="color: var(--color-working);"><i class="fa-solid fa-arrow-right"></i></span>
+          <strong>Review pipeline health report</strong>
+        </div>
+        <div class="c5-action-item" style="opacity: 0.5;">
+          <span class="c5-action-icon"><i class="fa-regular fa-circle"></i></span>
+          Generate recommendations
+        </div>
+      </div>
+      <div class="c5-card-footer">
+        <a href="#" style="font-size: 13px; color: var(--color-primary); text-decoration: none; font-weight: 500;">View Details</a>
+        <div style="display: flex; gap: 6px;">
+          <button class="action-btn" style="padding: 4px 10px; font-size: 12px;"><i class="fa-solid fa-pause" style="font-size: 10px;"></i> Pause</button>
+          <button class="icon-btn" style="width: 28px; height: 28px;"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2 -->
+    <div class="c5-card">
+      <div class="c5-card-header">
+        <div>
+          <div class="c5-card-top">
+            <div class="c5-card-icon" style="background: var(--color-working-light); color: var(--color-working);">
+              <i class="fa-solid fa-user-plus"></i>
+            </div>
+            <div>
+              <div class="c5-card-title">Backfill — Tony Ramirez</div>
+              <div class="c5-card-subtitle">Sr. Marketing Manager · Started Jan 22</div>
+            </div>
+          </div>
+          <div class="c5-card-stats">
+            <div class="c5-stat-item">
+              <div class="c5-stat-value" style="color: var(--color-working);">3/5</div>
+              <div class="c5-stat-label">Steps Done</div>
+            </div>
+            <div class="c5-stat-item">
+              <div class="c5-stat-value">8</div>
+              <div class="c5-stat-label">Candidates</div>
+            </div>
+            <div class="c5-stat-item">
+              <div class="c5-stat-value" style="color: var(--color-done);">3</div>
+              <div class="c5-stat-label">Strong Matches</div>
+            </div>
+          </div>
+        </div>
+        <span class="badge badge-running"><i class="fa-solid fa-circle" style="font-size: 6px;"></i> Running</span>
+      </div>
+      <div class="c5-card-body">
+        <div class="c5-action-item">
+          <span class="c5-action-icon" style="color: var(--color-done);"><i class="fa-solid fa-check"></i></span>
+          Analyzed org impact
+        </div>
+        <div class="c5-action-item">
+          <span class="c5-action-icon" style="color: var(--color-done);"><i class="fa-solid fa-check"></i></span>
+          Drafted job posting
+        </div>
+        <div class="c5-action-item">
+          <span class="c5-action-icon" style="color: var(--color-working);"><i class="fa-solid fa-arrow-right"></i></span>
+          <strong>Screening candidates</strong>
+        </div>
+        <div class="c5-action-item" style="opacity: 0.5;">
+          <span class="c5-action-icon"><i class="fa-regular fa-circle"></i></span>
+          Generate shortlist
+        </div>
+      </div>
+      <div class="c5-card-footer">
+        <a href="#" style="font-size: 13px; color: var(--color-primary); text-decoration: none; font-weight: 500;">View Details</a>
+        <div style="display: flex; gap: 6px;">
+          <button class="action-btn" style="padding: 4px 10px; font-size: 12px;"><i class="fa-solid fa-pause" style="font-size: 10px;"></i> Pause</button>
+          <button class="icon-btn" style="width: 28px; height: 28px;"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 3 -->
+    <div class="c5-card">
+      <div class="c5-card-header">
+        <div>
+          <div class="c5-card-top">
+            <div class="c5-card-icon" style="background: var(--color-paused-light); color: var(--color-paused);">
+              <i class="fa-solid fa-dollar-sign"></i>
+            </div>
+            <div>
+              <div class="c5-card-title">Comp Review — Engineering</div>
+              <div class="c5-card-subtitle">Paused Jan 20 · Started Jan 10</div>
+            </div>
+          </div>
+          <div class="c5-card-stats">
+            <div class="c5-stat-item">
+              <div class="c5-stat-value" style="color: var(--color-paused);">6/8</div>
+              <div class="c5-stat-label">Steps Done</div>
+            </div>
+            <div class="c5-stat-item">
+              <div class="c5-stat-value">24</div>
+              <div class="c5-stat-label">Employees</div>
+            </div>
+            <div class="c5-stat-item">
+              <div class="c5-stat-value" style="color: var(--color-cancelled);">7</div>
+              <div class="c5-stat-label">Below Market</div>
+            </div>
+          </div>
+        </div>
+        <span class="badge badge-paused"><i class="fa-solid fa-pause" style="font-size: 6px;"></i> Paused</span>
+      </div>
+      <div class="c5-card-footer">
+        <a href="#" style="font-size: 13px; color: var(--color-primary); text-decoration: none; font-weight: 500;">View Details</a>
+        <div style="display: flex; gap: 6px;">
+          <button class="action-btn" style="padding: 4px 10px; font-size: 12px;"><i class="fa-solid fa-play" style="font-size: 10px;"></i> Resume</button>
+          <button class="icon-btn" style="width: 28px; height: 28px;"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 4 -->
+    <div class="c5-card">
+      <div class="c5-card-header">
+        <div>
+          <div class="c5-card-top">
+            <div class="c5-card-icon" style="background: var(--color-proposed-light); color: var(--color-proposed);">
+              <i class="fa-solid fa-clipboard-list"></i>
+            </div>
+            <div>
+              <div class="c5-card-title">Onboarding — Feb New Hires</div>
+              <div class="c5-card-subtitle">Proposed Jan 28 · 3 new hires</div>
+            </div>
+          </div>
+        </div>
+        <span class="badge badge-proposed"><i class="fa-solid fa-clock" style="font-size: 10px;"></i> Proposed</span>
+      </div>
+      <div class="c5-card-footer">
+        <a href="#" style="font-size: 13px; color: var(--color-primary); text-decoration: none; font-weight: 500;">View Details</a>
+        <div style="display: flex; gap: 6px;">
+          <button class="action-btn primary" style="padding: 4px 10px; font-size: 12px;"><i class="fa-solid fa-check" style="font-size: 10px;"></i> Approve</button>
+          <button class="icon-btn" style="width: 28px; height: 28px;"><i class="fa-solid fa-ellipsis" style="font-size: 12px;"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showConcept(num) {
+  document.querySelectorAll('.concept').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.switcher-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('concept-' + num).classList.add('active');
+  document.querySelectorAll('.switcher-btn')[num - 1].classList.add('active');
+}
+</script>
+
+</body>
+</html>
