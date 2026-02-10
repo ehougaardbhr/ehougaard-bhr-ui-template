@@ -435,10 +435,10 @@ function InlineSectionRow({
           style={{
             width: '20px',
             height: '20px',
-            backgroundColor: 'var(--color-primary-strong)',
+            backgroundColor: isCompleted && !isProposal ? '#059669' : 'var(--color-primary-strong)',
           }}
         >
-          <Icon name="sparkles" size={10} style={{ color: '#fff' }} />
+          <Icon name={isCompleted && !isProposal ? 'check' : 'sparkles'} size={isCompleted && !isProposal ? 11 : 10} style={{ color: '#fff' }} />
         </div>
         <span
           style={{
@@ -539,35 +539,13 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
   const { addNotification } = useAINotifications();
   const settings = artifact.settings as PlanSettings;
 
-  // Track which sections are collapsed (in execution, completed sections collapse by default)
-  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    const isProposal = settings.status === 'proposed' || settings.status === 'draft' || settings.status === 'pending_approval';
-    if (!isProposal) {
-      settings.sections.forEach(section => {
-        const allCompleted = section.actionItems?.every(item => item.status === 'done') ?? false;
-        initial[section.id] = allCompleted;
-      });
-    }
-    return initial;
-  });
+  // Track which sections are collapsed (all start expanded)
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
 
   const isProposal = settings.status === 'proposed' || settings.status === 'draft' || settings.status === 'pending_approval';
 
-  // Auto-collapse sections when all items become completed
+  // No auto-collapse — sections stay expanded so deliverables are always visible
   useEffect(() => {
-    if (!isProposal) {
-      const updates: Record<string, boolean> = {};
-      settings.sections.forEach(section => {
-        const allCompleted = section.actionItems?.every(item => item.status === 'done') ?? false;
-        if (allCompleted && !collapsedSections[section.id]) {
-          updates[section.id] = true;
-        }
-      });
-      if (Object.keys(updates).length > 0) {
-        setCollapsedSections(prev => ({ ...prev, ...updates }));
-      }
-    }
   }, [settings.sections, isProposal, collapsedSections]);
 
   // Calculate progress (only sections with action items)

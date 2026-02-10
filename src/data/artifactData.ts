@@ -55,6 +55,7 @@ export interface ActionItem {
   dueDate?: string;
   toolCall?: string; // Tool name from registry, e.g. 'analyze_compensation'
   toolParams?: Record<string, unknown>; // Parameters for the tool call
+  dependsOn?: string[]; // IDs of action items that must complete before this can start
 }
 
 export interface PlanSection {
@@ -362,6 +363,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'analyze_org_impact',
               toolParams: { scenario: 'departure', employeeId: 15, department: 'Technology' },
+              dependsOn: [],
             },
             {
               id: 'ai-2',
@@ -369,6 +371,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'identify_flight_risks',
               toolParams: { team: 'Uma Patel direct reports', department: 'Technology' },
+              dependsOn: [],
             },
             {
               id: 'ai-3',
@@ -376,6 +379,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'analyze_compensation',
               toolParams: { department: 'Technology', benchmark: true },
+              dependsOn: [],
             },
           ],
         },
@@ -390,6 +394,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'assess_promotion_readiness',
               toolParams: { candidates: ['Daniel Kim', 'Rachel Green'], targetRole: 'Senior Software Engineer' },
+              dependsOn: ['ai-1'],
             },
             {
               id: 'ai-5',
@@ -397,6 +402,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'analyze_org_impact',
               toolParams: { scenario: 'promotion', employeeName: 'Daniel Kim', targetRole: 'Senior Software Engineer' },
+              dependsOn: ['ai-4'],
             },
             {
               id: 'ai-6',
@@ -404,6 +410,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'draft_development_plan',
               toolParams: { employeeName: 'Daniel Kim', targetRole: 'Senior Software Engineer' },
+              dependsOn: ['ai-4'],
             },
           ],
         },
@@ -418,6 +425,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'screen_talent_pool',
               toolParams: { pool: 'Technology', requirements: { skills: ['React', 'TypeScript', 'Node.js'], minExperience: 5 } },
+              dependsOn: [],
             },
             {
               id: 'ai-7',
@@ -425,6 +433,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'create_job_posting',
               toolParams: { template: 'Senior Software Engineer', department: 'Technology', salaryRange: 'from_pay_band' },
+              dependsOn: ['ai-3'],
             },
             {
               id: 'ai-9',
@@ -432,6 +441,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'draft_candidate_outreach',
               toolParams: { candidates: 'top_ranked', role: 'Senior Software Engineer' },
+              dependsOn: ['ai-8'],
             },
           ],
         },
@@ -446,6 +456,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'propose_compensation_change',
               toolParams: { employees: 'flagged_below_midpoint', department: 'Technology', rationale: 'retention_risk' },
+              dependsOn: ['ai-3'],
             },
             {
               id: 'ai-11',
@@ -453,6 +464,7 @@ export const mockArtifacts: Artifact[] = [
               status: 'planned',
               toolCall: 'generate_report',
               toolParams: { type: 'team_health', department: 'Technology', metrics: ['turnover', 'tenure', 'comp_ratio', 'flight_risk'] },
+              dependsOn: ['ai-2', 'ai-10'],
             },
           ],
         },

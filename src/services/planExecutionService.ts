@@ -1,4 +1,4 @@
-import type { PlanSettings, ActionItem, ReviewStep } from '../data/artifactData';
+import type { PlanSettings, ActionItem } from '../data/artifactData';
 
 interface ExecutionCallbacks {
   updateArtifactSettings: (id: string, settings: Partial<PlanSettings>) => void;
@@ -10,6 +10,11 @@ interface ExecutionCallbacks {
   }) => void;
 }
 
+interface ItemLocation {
+  sectionIndex: number;
+  itemIndex: number;
+}
+
 class PlanExecutionEngine {
   private artifactId: string;
   private conversationId: string;
@@ -17,8 +22,7 @@ class PlanExecutionEngine {
   private callbacks: ExecutionCallbacks;
   private timers: NodeJS.Timeout[] = [];
   private paused: boolean = false;
-  private currentSectionIndex: number = 0;
-  private currentItemIndex: number = 0;
+  private executingItems: Set<string> = new Set();
 
   constructor(artifactId: string, conversationId: string, settings: PlanSettings, callbacks: ExecutionCallbacks) {
     this.artifactId = artifactId;
@@ -36,170 +40,164 @@ class PlanExecutionEngine {
       conversationId: this.conversationId,
     });
 
-    // Start with the first section
-    this.currentSectionIndex = 0;
-    this.currentItemIndex = 0;
-    this.executeSection();
+    // Kick off the dependency-based scheduler
+    this.scheduleReady();
   }
 
-  private executeSection(): void {
-    if (this.paused) return;
-
-    // Check if we've completed all sections
-    if (this.currentSectionIndex >= this.settings.sections.length) {
-      this.complete();
-      return;
-    }
-
-    const section = this.settings.sections[this.currentSectionIndex];
-    if (!section) {
-      // All sections complete
-      this.complete();
-      return;
-    }
-
-    // Queue items up to the first review gate in this section
-    this.queueItemsUpToNextGate();
-
-    // Start executing items with staggered timing
-    this.currentItemIndex = 0;
-    this.executeNextItem();
-  }
-
-  private queueItemsUpToNextGate(): void {
-    const section = this.settings.sections[this.currentSectionIndex];
-    if (!section) return;
-
-    const updatedSections = [...this.settings.sections];
-    const updatedItems = [...section.actionItems];
-    let startIdx = this.currentItemIndex;
-
-    for (let i = startIdx; i < updatedItems.length; i++) {
-      const item = updatedItems[i];
-      if (item.status === 'planned') {
-        updatedItems[i] = { ...item, status: 'queued' };
+  private findItemLocation(itemId: string): ItemLocation | null {
+    for (let si = 0; si < this.settings.sections.length; si++) {
+      const section = this.settings.sections[si];
+      for (let ii = 0; ii < section.actionItems.length; ii++) {
+        if (section.actionItems[ii].id === itemId) {
+          return { sectionIndex: si, itemIndex: ii };
+        }
       }
-      // Stop queuing after item that has a review gate
-      const hasGate = this.settings.reviewSteps?.some(rs => rs.afterItem === item.id && rs.status !== 'passed');
-      if (hasGate) break;
     }
-
-    updatedSections[this.currentSectionIndex] = { ...section, actionItems: updatedItems };
-    this.settings.sections = updatedSections;
-
-    this.callbacks.updateArtifactSettings(this.artifactId, {
-      sections: updatedSections,
-    });
+    return null;
   }
 
-  private executeNextItem(): void {
-    if (this.paused) return;
+  private getItemById(itemId: string): ActionItem | null {
+    for (const section of this.settings.sections) {
+      for (const item of section.actionItems) {
+        if (item.id === itemId) return item;
+      }
+    }
+    return null;
+  }
 
-    const section = this.settings.sections[this.currentSectionIndex];
-    const item = section?.actionItems[this.currentItemIndex];
+  private isItemReady(item: ActionItem): boolean {
+    // Only schedule planned items
+    if (item.status !== 'planned') return false;
 
-    if (!item) {
-      // Section complete, advance to next section
-      this.advanceToNextSection();
-      return;
+    // Already executing
+    if (this.executingItems.has(item.id)) return false;
+
+    // Check all dependencies are done
+    const deps = item.dependsOn || [];
+    for (const depId of deps) {
+      const depItem = this.getItemById(depId);
+      if (!depItem || depItem.status !== 'done') return false;
+
+      // Check if a review gate sits after this dependency and hasn't passed
+      const gate = this.settings.reviewSteps?.find(
+        rs => rs.afterItem === depId && rs.status !== 'passed'
+      );
+      if (gate) return false;
     }
 
-    // Set item to working
-    this.updateItemStatus(this.currentSectionIndex, this.currentItemIndex, 'working');
+    return true;
+  }
+
+  private scheduleReady(): void {
+    if (this.paused) return;
+
+    // Find all ready items across all sections
+    const readyItems: Array<{ item: ActionItem; loc: ItemLocation }> = [];
+
+    for (let si = 0; si < this.settings.sections.length; si++) {
+      const section = this.settings.sections[si];
+      for (let ii = 0; ii < section.actionItems.length; ii++) {
+        const item = section.actionItems[ii];
+        if (this.isItemReady(item)) {
+          readyItems.push({ item, loc: { sectionIndex: si, itemIndex: ii } });
+        }
+      }
+    }
+
+    // Queue and execute ready items with staggered starts
+    readyItems.forEach(({ item, loc }, index) => {
+      // Queue immediately
+      this.updateItemStatus(loc.sectionIndex, loc.itemIndex, 'queued');
+
+      // Stagger execution start by 200-400ms per item
+      const staggerDelay = index * (200 + Math.random() * 200);
+      const timer = setTimeout(() => {
+        this.executeItem(item.id, loc);
+      }, staggerDelay);
+      this.timers.push(timer);
+    });
+
+    // Check if we're done or stuck waiting for reviews
+    if (readyItems.length === 0 && this.executingItems.size === 0) {
+      const allDone = this.settings.sections.every(s =>
+        s.actionItems.every(item => item.status === 'done')
+      );
+      if (allDone) {
+        this.complete();
+      }
+      // Otherwise we're waiting for a review gate — paused state
+    }
+  }
+
+  private executeItem(itemId: string, loc: ItemLocation): void {
+    if (this.paused) return;
+
+    this.executingItems.add(itemId);
+    this.updateItemStatus(loc.sectionIndex, loc.itemIndex, 'working');
 
     // Random duration 3-5 seconds
     const duration = 3000 + Math.random() * 2000;
 
     const timer = setTimeout(() => {
-      // Set item to done
-      this.updateItemStatus(this.currentSectionIndex, this.currentItemIndex, 'done');
+      this.executingItems.delete(itemId);
+      this.updateItemStatus(loc.sectionIndex, loc.itemIndex, 'done');
 
       // Check for review gate after this item
       const staggerTimer = setTimeout(() => {
-        this.checkForReviewAfterItem(item.id);
-      }, 1500);
-
+        this.checkReviewGateAfterItem(itemId);
+        // Schedule next wave of ready items
+        this.scheduleReady();
+      }, 500);
       this.timers.push(staggerTimer);
     }, duration);
 
     this.timers.push(timer);
   }
 
-  private checkForReviewAfterItem(itemId: string): void {
+  private checkReviewGateAfterItem(itemId: string): void {
     const reviewStep = this.settings.reviewSteps?.find(
       rs => rs.afterItem === itemId && rs.status !== 'passed'
     );
 
     if (reviewStep) {
-      this.pauseForReview(reviewStep);
-    } else {
-      // Move to next item
-      this.currentItemIndex++;
-      const section = this.settings.sections[this.currentSectionIndex];
-      if (this.currentItemIndex >= (section?.actionItems.length ?? 0)) {
-        this.advanceToNextSection();
-      } else {
-        this.executeNextItem();
-      }
+      // Activate the review gate
+      const updatedReviewSteps = (this.settings.reviewSteps || []).map(rs =>
+        rs.id === reviewStep.id ? { ...rs, status: 'ready' as const } : rs
+      );
+
+      this.settings.reviewSteps = updatedReviewSteps;
+
+      this.callbacks.updateArtifactSettings(this.artifactId, {
+        reviewSteps: updatedReviewSteps,
+      });
+
+      // Fire notification
+      this.callbacks.addNotification({
+        type: 'action_needed',
+        title: 'Needs Your Review',
+        message: reviewStep.description,
+        conversationId: this.conversationId,
+      });
     }
   }
 
-  private pauseForReview(reviewStep: ReviewStep): void {
-    this.paused = true;
-
-    // Update review step to ready (find by ID)
-    const updatedReviewSteps = (this.settings.reviewSteps || []).map(rs =>
-      rs.id === reviewStep.id ? { ...rs, status: 'ready' as const } : rs
-    );
-
-    this.settings.reviewSteps = updatedReviewSteps;
-
-    this.callbacks.updateArtifactSettings(this.artifactId, {
-      reviewSteps: updatedReviewSteps,
-    });
-
-    // Fire notification
-    this.callbacks.addNotification({
-      type: 'action_needed',
-      title: 'Needs Your Review',
-      message: reviewStep.description,
-      conversationId: this.conversationId,
-    });
-  }
-
   resume(): void {
-    if (!this.paused) return;
+    // Mark all 'ready' review steps as 'passed' (UI already updated artifact context,
+    // but we need to sync the engine's internal state)
+    if (this.settings.reviewSteps) {
+      this.settings.reviewSteps = this.settings.reviewSteps.map(rs =>
+        rs.status === 'ready' ? { ...rs, status: 'passed' as const } : rs
+      );
+    }
 
     this.paused = false;
 
     // Small delay before continuing
     const timer = setTimeout(() => {
-      // Continue with remaining items in current section
-      this.currentItemIndex++;
-      const section = this.settings.sections[this.currentSectionIndex];
-      if (this.currentItemIndex >= (section?.actionItems.length ?? 0)) {
-        this.advanceToNextSection();
-      } else {
-        // Queue remaining items up to the next gate, then continue executing
-        this.queueItemsUpToNextGate();
-        this.executeNextItem();
-      }
-    }, 1000);
+      this.scheduleReady();
+    }, 500);
 
     this.timers.push(timer);
-  }
-
-  private advanceToNextSection(): void {
-    this.currentSectionIndex++;
-    this.currentItemIndex = 0;
-
-    if (this.currentSectionIndex >= this.settings.sections.length) {
-      // All sections complete
-      this.complete();
-    } else {
-      // Execute next section
-      this.executeSection();
-    }
   }
 
   private complete(): void {
