@@ -276,7 +276,7 @@ function ArtifactChips({
   if (artifacts.length === 0) return null;
 
   return (
-    <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid var(--border-neutral-weak)' }}>
+    <div style={{ marginTop: '8px', paddingTop: '8px', paddingBottom: '8px', borderBottom: '1px solid var(--border-neutral-weak)' }}>
       <div
         style={{
           fontSize: '12px',
