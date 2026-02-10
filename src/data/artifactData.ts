@@ -461,7 +461,7 @@ export const mockArtifacts: Artifact[] = [
         { id: 'rs-1', description: 'Review impact and risk findings before proceeding', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-3', type: 'findings' },
         // Section 2: after analysis, then after draft
         { id: 'rs-2', description: 'Review internal candidate assessment results', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-5', type: 'findings' },
-        { id: 'rs-3', description: 'Review development plan before sharing with candidate', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-6', type: 'artifact' },
+        { id: 'rs-3', description: 'Approve development plan before sharing with candidate', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-6', type: 'artifact' },
         // Section 3: after screening, after job posting, after outreach
         { id: 'rs-4', description: 'Review talent pool screening results', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-8', type: 'findings' },
         { id: 'rs-5', description: 'Approve job posting before publishing', reviewer: 'Shannon Rivera', status: 'planned', afterItem: 'ai-7', type: 'artifact' },

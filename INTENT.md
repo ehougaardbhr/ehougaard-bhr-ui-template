@@ -225,31 +225,35 @@ Redesign how human checkpoints appear in plan cards. The old "review step" conce
 
 The old design rendered both as identical tiny inline items (16px icon, same indentation as action items). They were visually indistinguishable from regular tasks and didn't communicate who approves, what they're approving, or the blocking nature.
 
-## Current Direction — Concept 1 (Inline Connector Card) + Section Artifacts
+## Current Direction — Compact Approval Pills + Artifact Chips
 
-### Approval Gates (blocking, inline)
-Rendered as small cards between action items using the "Inline Connector Card" pattern:
-- Dotted connector ties the gate to the preceding action item
-- Distinct card shape with background tint separates them from plain text action items
-- Approver shown with name + job title (person) or group name (e.g. "HR Admins")
+### Approval Gates (blocking, inline pills)
+Rendered as compact single-line pills between action items:
+- Colored background pill with icon + description + approver name
+- Sit inline within the action list flow, between the items they gate
+- Approver shown as name only (person) or group name (e.g. "HR Admins")
 - **4 states:**
-  - **Planned** — grey, muted. Future gate, not yet relevant.
-  - **Waiting** — amber background/border, pulsing icon. Workflow is blocked here now.
-  - **Rejected** — red. Approver sent it back with a reason (shown inline). AI re-works upstream.
-  - **Approved** — green. Gate passed, workflow continues.
+  - **Planned** — grey pill, clock icon. Future gate, not yet relevant.
+  - **Waiting** — amber pill, warning icon. Workflow is blocked here now.
+  - **Rejected** — red pill, X icon, includes rejection reason inline. AI re-works upstream.
+  - **Approved** — green pill, checkmark icon, shows "by [Name]" + timestamp.
+- Much lighter than the connector cards — doesn't break the list flow or compete with section headers
 
-### Artifacts Produced (non-blocking, grouped at section end)
-Rendered as a quiet summary block at the bottom of each section:
-- Lists what the AI produced (reports, analyses, documents, charts)
-- Each artifact has a "View" link
-- Artifacts that haven't been produced yet show as greyed out with "Pending"
-- Not part of the action item flow — they're outputs, not steps
+### Artifacts Produced (non-blocking, chip buttons at section end)
+Rendered as compact chip buttons at the bottom of each section:
+- "I will create:" label above the chips
+- Each chip has an icon + artifact name, styled as a bordered button
+- Ready/completed artifacts: solid border, hover turns green
+- Pending artifacts: dashed border, muted text, no hover
+- Derived from action items' `toolCall` fields — map tool names to human-readable artifact names
 
 ### Key Design Decisions
 - **Amber for "waiting", not green.** Green = approved/done. Waiting = needs attention = amber, consistent with AttentionCard.
-- **Approver can be a person or a group.** Person shows name + job title. Group shows group name (e.g. "HR Admins").
-- **Rejection reason surfaces inline** in the approval gate meta line, so context is visible without clicking.
-- **"Review" is not a gate.** Reviewing artifacts is optional/informational. Only "approval" blocks the workflow. This simplifies the mental model: if you see an approval gate, the workflow is stopped. If you see artifacts, you can look whenever.
+- **Approver can be a person or a group.** Person shows name. Group shows group name (e.g. "HR Admins").
+- **Rejection reason surfaces inline** in the pill text.
+- **"Review" is not a gate.** Reviewing artifacts is optional/informational. Only "approval" blocks the workflow.
+- **Pills sit between items, not at section end.** Approvals can gate mid-section (e.g., approve candidate assessment before drafting development plan).
+- **Artifact chips match Plan Detail Page pattern.** Same chip style as FindingCard artifact buttons for visual consistency across surfaces.
 
 ## What's Done
 
@@ -260,14 +264,18 @@ Rendered as a quiet summary block at the bottom of each section:
   - Concept 3: Indented Sub-row with Meta Line
   - Concept 4: Left-border Card
   - Concept 5: Compact Single Row with Type Tag
-- [x] User selected Concept 1 (Inline Connector Card) as best foundation
+- [x] User selected Concept 1 (Inline Connector Card) as starting point
 - [x] Key reframe: split "review step" into two distinct concepts — approval gates (blocking) vs artifacts (non-blocking). Review at leisure ≠ approval required.
-- [x] v2 mockup: `demos/review-step-ux-v2.html` — full plan with:
-  - All 4 approval gate states (planned, waiting, rejected, approved)
-  - Artifacts grouped at section end with view links
-  - Person + job title approvers and group approvers ("HR Admins")
+- [x] Iterated from connector cards → compact pills. Cards were too heavy for inline use; pills are lighter and don't break list flow.
+- [x] Added "I will create:" label over artifact chips
+- [x] Moved artifacts from row-based list to chip buttons matching Plan Detail Page FindingCard style
+- [x] Moved approval pills from section footer to inline between action items (approvals can gate mid-section)
+- [x] v2 mockup (final): `demos/review-step-ux-v2.html` — full plan with:
+  - All 4 approval pill states (planned, waiting, rejected, approved)
+  - Artifact chips at section end with "I will create:" label
+  - Person + group approvers ("HR Admins")
   - Rejection scenario with inline reason + AI re-working
-  - Two scenarios: mid-execution plan + rejected gate excerpt
+  - Approval pills between items within sections (not just at section boundaries)
 
 ## Rejected Approaches
 
@@ -278,18 +286,18 @@ Rendered as a quiet summary block at the bottom of each section:
 - **Concept 5 (Compact Single Row)** — too similar to action items. Color coding alone wasn't enough differentiation.
 - **Green for "needs action"** — original design used green for the waiting/ready state. Green = done in our design system. Switched to amber.
 - **Inline artifacts after each action item** — considered but rejected in favor of grouped at section end. Inline artifacts cluttered the action list and made it harder to scan the workflow steps.
+- **Connector cards (Concept 1 original)** — the card+connector pattern from v2's first iteration was too visually heavy inline. Iterated to compact pills which are lighter and don't break list rhythm.
+- **Approval pills grouped at section end** — tried this but approvals need to sit between the specific items they gate, not at the bottom. Mid-section approvals are common (approve assessment before drafting dev plan).
+- **Artifact rows (list format)** — full-width rows with icon + name + "View" link were too heavy. Switched to chip buttons matching Plan Detail Page pattern.
 
 ## Open Questions
 
-1. **Data model changes needed.** Current `ReviewStep` interface needs to split into `ApprovalGate` and artifact output tracking. The `type: 'findings' | 'artifact'` field was a proto-version of this split.
-2. **Should artifacts link to the artifact panel** (slide-out from Plan Detail Page) or open in a new context?
-3. **Rejection flow:** When an approval is rejected, does the AI automatically re-do the upstream work, or does it ask the user what to do?
-4. **Multiple approvers:** Can a gate require approval from multiple people/groups? (e.g., both Uma Patel AND HR Admins)
+1. **Should artifacts link to the artifact panel** (slide-out from Plan Detail Page) or open in a new context?
+2. **Rejection flow:** When an approval is rejected, does the AI automatically re-do the upstream work, or does it ask the user what to do?
+3. **Multiple approvers:** Can a gate require approval from multiple people/groups? (e.g., both Uma Patel AND HR Admins)
 
 ## Next Steps
 
-1. User reviews v2 mockup, gives feedback on visual design
-2. Finalize which states/interactions to implement
-3. Update data model: split `ReviewStep` into `ApprovalGate` + artifact output tracking
-4. Implement in `PlanInlineCard.tsx` component
-5. Update `AI-AGENT-INTENT.md` Review Gate Design section to reflect the approval vs artifact split
+1. **Implement in `PlanInlineCard.tsx`** — replace `ReviewStepRow` with `ApprovalPill`, add `ArtifactChips` section footer
+2. No data model changes needed — map existing `ReviewStep.status` to new visual states, derive artifacts from `toolCall` fields
+3. Update `AI-AGENT-INTENT.md` Review Gate Design section to reflect the approval vs artifact split

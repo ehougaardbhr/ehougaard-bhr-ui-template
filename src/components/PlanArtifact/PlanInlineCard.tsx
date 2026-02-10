@@ -165,8 +165,22 @@ function InlineActionItem({
   );
 }
 
-// Review step row (rounded square icon with hand)
-function ReviewStepRow({
+// Map tool calls to human-readable artifact names and icons
+const toolArtifactMap: Record<string, { label: string; icon: IconName }> = {
+  analyze_org_impact: { label: 'Org Impact Analysis', icon: 'chart-simple' },
+  identify_flight_risks: { label: 'Flight Risk Report', icon: 'chart-simple' },
+  analyze_compensation: { label: 'Compensation Analysis', icon: 'chart-simple' },
+  assess_promotion_readiness: { label: 'Readiness Scores', icon: 'clipboard-check' },
+  draft_development_plan: { label: 'Development Plan', icon: 'file-lines' },
+  screen_talent_pool: { label: 'Screening Results', icon: 'users' },
+  create_job_posting: { label: 'Job Posting', icon: 'file-lines' },
+  draft_candidate_outreach: { label: 'Outreach Messages', icon: 'file-lines' },
+  propose_compensation_change: { label: 'Comp Proposals', icon: 'file-lines' },
+  generate_report: { label: 'Analytics Report', icon: 'chart-simple' },
+};
+
+// Approval pill — compact inline pill for blocking approval gates
+function ApprovalPill({
   step,
   onReview,
   isProposal,
@@ -175,96 +189,126 @@ function ReviewStepRow({
   onReview: () => void;
   isProposal?: boolean;
 }) {
-  const isReady = step.status === 'ready' && !isProposal;
+  // Map ReviewStep status to visual state
+  const visualState = isProposal
+    ? 'planned'
+    : step.status === 'ready'
+    ? 'waiting'
+    : step.status === 'passed'
+    ? 'approved'
+    : 'planned';
+
+  const stateStyles = {
+    planned: {
+      bg: 'var(--surface-neutral-xx-weak)',
+      color: 'var(--text-neutral-weak)',
+      border: '1px solid var(--border-neutral-weak)',
+      iconName: 'lock' as IconName,
+    },
+    waiting: {
+      bg: '#FEF3C7',
+      color: '#92400E',
+      border: '1px solid #FCD34D',
+      iconName: 'lock' as IconName,
+    },
+    approved: {
+      bg: '#D1FAE5',
+      color: '#065F46',
+      border: '1px solid #A7F3D0',
+      iconName: 'check-circle' as IconName,
+    },
+    rejected: {
+      bg: '#FEE2E2',
+      color: '#991B1B',
+      border: '1px solid #FECACA',
+      iconName: 'xmark' as IconName,
+    },
+  };
+
+  const style = stateStyles[visualState];
 
   return (
     <div
-      className={`flex items-center gap-1.5 transition-colors ${isReady ? 'review-ready' : ''}`}
+      className="inline-flex items-center gap-1.5"
       style={{
-        padding: '5px 0 5px 0',
-        background: isReady ? 'rgba(46, 121, 24, 0.05)' : 'transparent',
-        borderRadius: isReady ? '6px' : undefined,
-        paddingLeft: isReady ? '6px' : '0',
-        paddingRight: isReady ? '6px' : '0',
-        marginLeft: isReady ? '-6px' : '0',
-        marginRight: isReady ? '-6px' : '0',
+        padding: '4px 10px',
+        borderRadius: '6px',
+        fontSize: '13px',
+        lineHeight: '18px',
+        fontWeight: 500,
+        backgroundColor: style.bg,
+        color: style.color,
+        border: style.border,
+        margin: '3px 0',
+        cursor: visualState === 'waiting' ? 'pointer' : undefined,
       }}
+      onClick={visualState === 'waiting' ? onReview : undefined}
     >
+      <Icon name={style.iconName} size={12} />
+      <span>
+        {visualState === 'approved' ? 'Approved' : step.description}
+      </span>
+      <span style={{ fontWeight: 400, opacity: 0.7 }}>
+        {visualState === 'approved'
+          ? `by ${step.reviewer}`
+          : `- ${step.reviewer}`}
+      </span>
+    </div>
+  );
+}
+
+// Artifact chips — "I will create:" section at end of each section
+function ArtifactChips({
+  items,
+  isProposal,
+}: {
+  items: ActionItem[];
+  isProposal: boolean;
+}) {
+  const artifacts = items
+    .filter(item => item.toolCall && toolArtifactMap[item.toolCall])
+    .map(item => ({
+      id: item.id,
+      ...toolArtifactMap[item.toolCall!],
+      done: !isProposal && item.status === 'done',
+    }));
+
+  if (artifacts.length === 0) return null;
+
+  return (
+    <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid var(--border-neutral-weak)' }}>
       <div
-        className={`flex items-center justify-center flex-shrink-0 ${isReady ? 'review-pulse' : ''}`}
         style={{
-          width: '16px',
-          height: '16px',
-          borderRadius: '4px',
-          backgroundColor: '#E8F5E3',
-          color: '#2e7918',
-          position: 'relative',
-          opacity: step.status === 'planned' ? 0.7 : step.status === 'future' ? 0.45 : 1,
-          border: isReady ? '1.5px solid #2e7918' : 'none',
+          fontSize: '12px',
+          color: 'var(--text-neutral-weak)',
+          marginBottom: '6px',
         }}
       >
-        <Icon name="eye" size={9} />
-        {step.status === 'passed' && (
+        I will create:
+      </div>
+      <div className="flex flex-wrap gap-1.5">
+        {artifacts.map(artifact => (
           <div
+            key={artifact.id}
+            className="inline-flex items-center gap-1.5"
             style={{
-              position: 'absolute',
-              top: '-3px',
-              right: '-3px',
-              width: '9px',
-              height: '9px',
-              borderRadius: '50%',
-              backgroundColor: '#059669',
-              color: 'white',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              padding: '5px 10px',
+              borderRadius: '6px',
+              fontSize: '12px',
+              fontWeight: 500,
+              border: artifact.done
+                ? '1px solid var(--border-neutral-weak)'
+                : '1px dashed var(--border-neutral-weak)',
+              backgroundColor: artifact.done ? 'var(--surface-neutral-xx-weak)' : 'transparent',
+              color: artifact.done ? 'var(--text-neutral-strong)' : 'var(--text-neutral-weak)',
+              cursor: artifact.done ? 'pointer' : 'default',
             }}
           >
-            <Icon name="check" size={5} />
+            <Icon name={artifact.icon} size={11} style={{ opacity: artifact.done ? 0.6 : 0.35 }} />
+            {artifact.label}
           </div>
-        )}
+        ))}
       </div>
-      <span
-        style={{
-          flex: 1,
-          fontSize: '14px',
-          lineHeight: '20px',
-          color:
-            step.status === 'ready'
-              ? '#256314'
-              : step.status === 'passed'
-              ? 'var(--text-neutral-medium)'
-              : step.status === 'future'
-              ? 'var(--text-neutral-weak)'
-              : 'var(--text-neutral-strong)',
-          fontWeight: step.status === 'ready' ? 500 : 400,
-        }}
-      >
-        {step.description}
-      </span>
-      {isReady && (
-        <button
-          onClick={onReview}
-          style={{
-            padding: '4px 10px',
-            borderRadius: '6px',
-            fontSize: '11px',
-            fontWeight: 600,
-            border: 'none',
-            cursor: 'pointer',
-            backgroundColor: '#2e7918',
-            color: 'white',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '4px',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-          }}
-        >
-          <Icon name="eye" size={9} />
-          Needs review
-        </button>
-      )}
     </div>
   );
 }
@@ -410,7 +454,7 @@ function InlineSectionRow({
               color: 'var(--text-neutral-weak)',
             }}
           >
-            Pending {blockedByReviewer}'s review
+            Pending {blockedByReviewer}'s approval
           </span>
         )}
       </div>
@@ -427,7 +471,8 @@ function InlineSectionRow({
             else displayStatus = 'planned';
           }
 
-          const reviewAfterThis = reviewSteps.find(rs => rs.afterItem === item.id);
+          // Only show approval gates (type: 'artifact'), not informational reviews
+          const reviewAfterThis = reviewSteps.find(rs => rs.afterItem === item.id && rs.type === 'artifact');
 
           return (
             <React.Fragment key={item.id}>
@@ -436,7 +481,7 @@ function InlineSectionRow({
                 displayStatus={displayStatus}
               />
               {reviewAfterThis && (
-                <ReviewStepRow
+                <ApprovalPill
                   step={reviewAfterThis}
                   onReview={() => onReviewStep(reviewAfterThis.id)}
                   isProposal={isProposal}
@@ -445,6 +490,8 @@ function InlineSectionRow({
             </React.Fragment>
           );
         })}
+        {/* Artifact chips at section end */}
+        <ArtifactChips items={items} isProposal={isProposal} />
       </div>
     </div>
   );
@@ -496,7 +543,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
 
   // Determine card badge
   const reviewSteps = settings.reviewSteps || [];
-  const hasReadyReview = reviewSteps.some(rs => rs.status === 'ready');
+  const hasReadyReview = reviewSteps.some(rs => rs.status === 'ready' && rs.type === 'artifact');
 
   let badgeLabel = 'Proposed';
   let badgeIcon = 'file-pen';
@@ -511,7 +558,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
       badgeBg = '#D1FAE5';
       badgeColor = '#065F46';
     } else if (hasReadyReview) {
-      badgeLabel = 'Needs Your Review';
+      badgeLabel = 'Needs Your Approval';
       badgeIcon = 'hand';
       badgeBg = '#FEF3C7';
       badgeColor = '#D97706';
@@ -564,13 +611,6 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
   return (
     <>
       <style>{`
-        @keyframes review-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(46, 121, 24, 0.3); }
-          50% { box-shadow: 0 0 0 3px rgba(46, 121, 24, 0.08); }
-        }
-        .review-pulse {
-          animation: review-pulse 2.5s ease-in-out infinite;
-        }
         .plan-progress-bar {
           transition: width 0.3s ease-out;
         }
@@ -710,9 +750,9 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
 
           // Find review steps that belong to this section (afterItem matches an item in this section)
           const sectionItemIds = new Set(section.actionItems.map(item => item.id));
-          const sectionReviewSteps = reviewSteps.filter(rs => sectionItemIds.has(rs.afterItem));
+          const sectionReviewSteps = reviewSteps.filter(rs => sectionItemIds.has(rs.afterItem) && rs.type === 'artifact');
 
-          // Section is blocked if any review step within it has status 'ready'
+          // Section is blocked if any approval step within it has status 'ready'
           const readyReview = sectionReviewSteps.find(rs => rs.status === 'ready');
           const isBlocked = !isProposal && !!readyReview;
 
