@@ -129,7 +129,7 @@ export function AutomationsCard() {
               "
               style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
             >
-              Automations Running
+              Agents Running
             </h3>
           </div>
           <a
@@ -150,7 +150,7 @@ export function AutomationsCard() {
         {allAutomations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-center">
             <Icon name="sparkles" size={32} className="text-[var(--text-neutral-weak)] mb-3" />
-            <p className="text-sm text-[var(--text-neutral-medium)]">No automations running</p>
+            <p className="text-sm text-[var(--text-neutral-medium)]">No agents running</p>
           </div>
         ) : (
           <div className="flex flex-col">

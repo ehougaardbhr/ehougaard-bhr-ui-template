@@ -49,7 +49,7 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
         border border-[var(--border-neutral-x-weak)]
         rounded-[var(--radius-small)]
         flex items-start gap-3.5
-        px-5 py-4 mb-2
+        px-5 py-4 mb-3
         transition-shadow duration-150
         hover:shadow-md
       `}

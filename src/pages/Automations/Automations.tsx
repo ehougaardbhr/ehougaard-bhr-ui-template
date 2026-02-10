@@ -24,7 +24,7 @@ export function Automations() {
 
         {/* Page header */}
         <div className="flex items-center justify-between mb-7">
-          <h1>Automations</h1>
+          <h1>Agents</h1>
           <Button variant="primary" size="small">
             + New
           </Button>
@@ -39,7 +39,7 @@ export function Automations() {
                 <span className="bg-[var(--text-neutral-strong)] text-white rounded-full px-2.5 py-px text-xs font-bold">
                   {alertsData.length}
                 </span>
-                automations need your attention
+                agents need your attention
               </div>
               <TabSwitch />
             </div>
@@ -59,7 +59,7 @@ export function Automations() {
             </div>
             <div>
               <strong>Nothing needs your attention.</strong>{' '}
-              All {runningRows.length} automations are running smoothly.
+              All {runningRows.length} agents are running smoothly.
             </div>
           </div>
         )}
@@ -67,7 +67,7 @@ export function Automations() {
         {/* Running section — unified card container */}
         <div className="flex items-center justify-between mb-2.5">
           <span className="text-xs font-bold text-[var(--text-neutral-weak)] uppercase tracking-wide">
-            {hasAlerts ? 'Running smoothly' : 'All automations'}
+            {hasAlerts ? 'Running smoothly' : 'All agents'}
           </span>
           {!hasAlerts && <TabSwitch />}
         </div>

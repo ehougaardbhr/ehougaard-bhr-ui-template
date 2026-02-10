@@ -17,7 +17,7 @@ const navItems: NavItem[] = [
   { path: '/my-info', label: 'My Info', icon: 'circle-user' },
   { path: '/people', label: 'People', icon: 'user-group' },
   { path: '/hiring', label: 'Hiring', icon: 'id-badge' },
-  { path: '/automations', label: 'Automations', icon: 'bolt' },
+  { path: '/automations', label: 'Agents', icon: 'bolt' },
   { path: '/reports', label: 'Reports', icon: 'chart-pie-simple' },
   { path: '/files', label: 'Files', icon: 'file-lines' },
   { path: '/payroll', label: 'Payroll', icon: 'circle-dollar' },

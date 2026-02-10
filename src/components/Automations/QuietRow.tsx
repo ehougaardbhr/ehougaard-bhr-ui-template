@@ -74,7 +74,7 @@ export function QuietRow({ automation, onNavigate, isLast = false }: QuietRowPro
             : 'bg-[var(--border-neutral-medium)]'
           }
         `}
-        aria-label={enabled ? 'Disable automation' : 'Enable automation'}
+        aria-label={enabled ? 'Disable agent' : 'Enable agent'}
       >
         <div
           className={`
