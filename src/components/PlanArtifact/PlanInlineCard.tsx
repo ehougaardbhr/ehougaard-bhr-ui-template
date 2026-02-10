@@ -261,9 +261,11 @@ function ApprovalPill({
 function ArtifactChips({
   items,
   isProposal,
+  isLast,
 }: {
   items: ActionItem[];
   isProposal: boolean;
+  isLast?: boolean;
 }) {
   const artifacts = items
     .filter(item => item.toolCall && toolArtifactMap[item.toolCall])
@@ -276,7 +278,7 @@ function ArtifactChips({
   if (artifacts.length === 0) return null;
 
   return (
-    <div style={{ marginTop: '8px', paddingTop: '8px', paddingBottom: '8px', borderBottom: '1px solid var(--border-neutral-weak)' }}>
+    <div style={{ marginTop: '6px', paddingTop: '6px', paddingBottom: '16px', borderBottom: isLast ? 'none' : '1px solid var(--border-neutral-weak)' }}>
       <div
         style={{
           fontSize: '12px',
@@ -374,6 +376,7 @@ function InlineSectionRow({
   onToggleExpand,
   reviewSteps,
   onReviewStep,
+  isLast,
 }: {
   section: PlanSection;
   isProposal: boolean;
@@ -385,6 +388,7 @@ function InlineSectionRow({
   onToggleExpand: () => void;
   reviewSteps: ReviewStep[];
   onReviewStep: (stepId: string) => void;
+  isLast?: boolean;
 }) {
   const items = section.actionItems || [];
 
@@ -400,7 +404,7 @@ function InlineSectionRow({
     : '#A8A29E';
 
   return (
-    <div style={{ padding: '10px 16px 4px' }}>
+    <div style={{ padding: '12px 16px 4px' }}>
       {/* Section header */}
       <div className="flex items-center gap-2 mb-1.5">
         <Icon name={iconName} size={15} style={{ color: iconColor, width: '20px', textAlign: 'center' }} />
@@ -491,7 +495,7 @@ function InlineSectionRow({
           );
         })}
         {/* Artifact chips at section end */}
-        <ArtifactChips items={items} isProposal={isProposal} />
+        <ArtifactChips items={items} isProposal={isProposal} isLast={isLast} />
       </div>
     </div>
   );
@@ -741,7 +745,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
         {/* Sections with inline review steps (skip sections with no action items) */}
         {settings.sections
           .filter(section => section.actionItems && section.actionItems.length > 0)
-          .map(section => {
+          .map((section, idx, arr) => {
           const allCompleted = section.actionItems?.every(item => item.status === 'done') ?? false;
           const isCollapsed = collapsedSections[section.id] ?? false;
 
@@ -776,6 +780,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
                   onToggleExpand={() => handleToggleSection(section.id)}
                   reviewSteps={reviewSteps}
                   onReviewStep={handleReviewStep}
+                  isLast={idx === arr.length - 1}
                 />
               )}
             </div>
