@@ -244,15 +244,17 @@ function ApprovalPill({
       }}
       onClick={visualState === 'waiting' ? onReview : undefined}
     >
-      <Icon name={style.iconName} size={12} />
-      <span>
-        {visualState === 'approved' ? 'Approved' : step.description}
-      </span>
-      <span style={{ fontWeight: 400, opacity: 0.7 }}>
-        {visualState === 'approved'
-          ? `by ${step.reviewer}`
-          : `- ${step.reviewer}`}
-      </span>
+      <Icon name={style.iconName} size={12} style={{ flexShrink: 0, marginTop: '3px', alignSelf: 'flex-start' }} />
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0 6px' }}>
+        <span>
+          {visualState === 'approved' ? 'Approved' : step.description}
+        </span>
+        <span style={{ fontWeight: 400, opacity: 0.7, whiteSpace: 'nowrap' }}>
+          {visualState === 'approved'
+            ? `by ${step.reviewer}`
+            : step.reviewer}
+        </span>
+      </div>
     </div>
   );
 }
@@ -407,7 +409,16 @@ function InlineSectionRow({
     <div style={{ padding: '12px 16px 4px' }}>
       {/* Section header */}
       <div className="flex items-center gap-2 mb-1.5">
-        <Icon name={iconName} size={15} style={{ color: iconColor, width: '20px', textAlign: 'center' }} />
+        <div
+          className="flex items-center justify-center flex-shrink-0 rounded-full"
+          style={{
+            width: '20px',
+            height: '20px',
+            backgroundColor: 'var(--color-primary-strong)',
+          }}
+        >
+          <Icon name="sparkles" size={10} style={{ color: '#fff' }} />
+        </div>
         <span
           style={{
             fontSize: '15px',
