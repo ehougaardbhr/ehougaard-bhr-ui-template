@@ -284,7 +284,7 @@ function ArtifactChips({
           marginBottom: '6px',
         }}
       >
-        I will create:
+        Deliverables:
       </div>
       <div className="flex flex-wrap gap-1.5">
         {artifacts.map(artifact => (
