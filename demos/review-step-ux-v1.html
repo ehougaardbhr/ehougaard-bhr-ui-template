@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Step UX — 5 Concepts</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #f3f2f0;
+    padding: 40px 20px;
+    color: #48413f;
+  }
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 40px;
+    line-height: 1.5;
+  }
+  .concept-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #999;
+    margin-bottom: 8px;
+    margin-top: 48px;
+  }
+  .concept-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+  }
+  .concept-desc {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  /* Plan card shell */
+  .plan-card {
+    background: white;
+    border: 1px solid #e5e3e0;
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .section-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0.5;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding-left: 4px;
+  }
+
+  /* Action items */
+  .action-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: #48413f;
+  }
+  .action-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d6d3d1;
+    flex-shrink: 0;
+  }
+  .action-dot.done {
+    background: #059669;
+  }
+  .action-item.done {
+    color: #999;
+    text-decoration: line-through;
+  }
+  .action-check {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #d1fae5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: -5px;
+  }
+  .action-check svg {
+    width: 10px;
+    height: 10px;
+    color: #059669;
+  }
+
+  /* ============================
+     CONCEPT 1: Inline connector
+     ============================ */
+  .review-c1 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    margin: 2px 0;
+  }
+  .review-c1-connector {
+    width: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+  }
+  .review-c1-connector .dot {
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: #d97706;
+    opacity: 0.4;
+  }
+  .review-c1-body {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .review-c1-body.passed {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+  }
+  .review-c1-icon {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+  .review-c1-icon.pending {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  .review-c1-icon.passed {
+    background: #d1fae5;
+    color: #059669;
+  }
+  .review-c1-text {
+    flex: 1;
+    color: #92400e;
+  }
+  .review-c1-text.passed {
+    color: #065f46;
+  }
+  .review-c1-reviewer {
+    font-size: 12px;
+    color: #b45309;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .review-c1-reviewer.passed {
+    color: #047857;
+  }
+
+  /* ============================
+     CONCEPT 2: Divider gate
+     ============================ */
+  .review-c2 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    margin: 4px 0 4px 0;
+  }
+  .review-c2-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #e5e3e0 20%, #e5e3e0 80%, transparent);
+  }
+  .review-c2-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #92400e;
+    white-space: nowrap;
+    padding: 3px 10px;
+    background: #fffbeb;
+    border-radius: 100px;
+    border: 1px solid #fde68a;
+  }
+  .review-c2-label.passed {
+    color: #065f46;
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+  }
+  .review-c2-label svg {
+    width: 12px;
+    height: 12px;
+    flex-shrink: 0;
+  }
+  .review-c2-reviewer {
+    font-weight: 400;
+    opacity: 0.7;
+  }
+
+  /* ============================
+     CONCEPT 3: Indented sub-row
+     ============================ */
+  .review-c3 {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 4px 0 4px 22px;
+    margin: 0px 0;
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .review-c3-icon {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .review-c3-icon.pending {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  .review-c3-icon.passed {
+    background: #d1fae5;
+    color: #059669;
+  }
+  .review-c3-icon svg {
+    width: 10px;
+    height: 10px;
+  }
+  .review-c3-content {
+    flex: 1;
+  }
+  .review-c3-action {
+    color: #92400e;
+    font-weight: 500;
+  }
+  .review-c3-action.passed {
+    color: #065f46;
+  }
+  .review-c3-meta {
+    font-size: 12px;
+    color: #b45309;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .review-c3-meta.passed {
+    color: #047857;
+  }
+  .review-c3-meta svg {
+    width: 10px;
+    height: 10px;
+    opacity: 0.6;
+  }
+
+  /* ============================
+     CONCEPT 4: Left-border card
+     ============================ */
+  .review-c4 {
+    margin: 6px 0 6px 3px;
+    padding: 8px 12px;
+    border-left: 2px solid #d97706;
+    background: #fffbeb;
+    border-radius: 0 6px 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .review-c4.passed {
+    border-left-color: #059669;
+    background: #f0fdf4;
+  }
+  .review-c4-content {
+    flex: 1;
+    min-width: 0;
+  }
+  .review-c4-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #92400e;
+    line-height: 18px;
+  }
+  .review-c4-top.passed {
+    color: #065f46;
+  }
+  .review-c4-top svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    opacity: 0.7;
+  }
+  .review-c4-bottom {
+    font-size: 12px;
+    color: #b45309;
+    margin-top: 2px;
+    padding-left: 19px;
+  }
+  .review-c4-bottom.passed {
+    color: #047857;
+  }
+  .review-c4-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 100px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .review-c4-badge.pending {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  .review-c4-badge.passed {
+    background: #d1fae5;
+    color: #059669;
+  }
+
+  /* ============================
+     CONCEPT 5: Compact icon row with tooltip-style
+     ============================ */
+  .review-c5 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    margin: 1px 0;
+  }
+  .review-c5-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .review-c5-icon.pending {
+    background: #fef3c7;
+    color: #d97706;
+    border: 1.5px solid #fbbf24;
+  }
+  .review-c5-icon.passed {
+    background: #d1fae5;
+    color: #059669;
+    border: 1.5px solid #6ee7b7;
+  }
+  .review-c5-icon svg {
+    width: 10px;
+    height: 10px;
+  }
+  .review-c5-text {
+    flex: 1;
+    font-size: 13px;
+    line-height: 18px;
+  }
+  .review-c5-desc {
+    color: #92400e;
+    font-weight: 500;
+  }
+  .review-c5-desc.passed {
+    color: #065f46;
+  }
+  .review-c5-sep {
+    color: #d4d2cf;
+    margin: 0 2px;
+  }
+  .review-c5-reviewer {
+    color: #b45309;
+    font-weight: 400;
+  }
+  .review-c5-reviewer.passed {
+    color: #047857;
+  }
+  .review-c5-type {
+    font-size: 11px;
+    color: #c2956c;
+    border: 1px solid #e5d8c9;
+    padding: 1px 6px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .review-c5-type.passed {
+    color: #6dab8d;
+    border-color: #b8e0cb;
+  }
+
+  .status-legend {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 11px;
+    color: #999;
+  }
+  .status-legend span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Review Step UX — 5 Concepts</h1>
+<p class="subtitle">
+  Each concept shows the same section (External Hiring Pipeline) with 3 action items and 3 review gates.
+  Two states shown: pending review and passed.
+  Core UX question: how to make reviewer, artifact type, and review status clear without breaking list hierarchy.
+</p>
+
+<!-- ===================================
+     CONCEPT 1: Inline Connector Card
+     =================================== -->
+<div class="concept-label">Concept 1</div>
+<div class="concept-title">Inline Connector Card</div>
+<p class="concept-desc">
+  Review steps sit between items as small cards with an amber background. A dotted connector ties them to the preceding action. Reviewer shown right-aligned. The card shape distinguishes them from the text-only action items above/below.
+</p>
+
+<div class="plan-card">
+  <div class="section-header">
+    <div class="section-icon">👥</div>
+    <div class="section-title">External Hiring Pipeline</div>
+  </div>
+  <div class="action-list">
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Screen Technology talent pool for candidates matching role requirements
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c1">
+      <div class="review-c1-connector">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="review-c1-body">
+        <div class="review-c1-icon pending">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 2C4.69 2 2 4.69 2 8s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10.5c-2.49 0-4.5-2.01-4.5-4.5S5.51 3.5 8 3.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm-.5-7h1v3.5h-1V5.5zm0 4.5h1v1h-1v-1z"/></svg>
+        </div>
+        <span class="review-c1-text">Review talent pool screening results</span>
+        <span class="review-c1-reviewer">Uma Patel</span>
+      </div>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Create job posting for Senior Software Engineer using role data and pay band
+    </div>
+
+    <!-- Review: passed -->
+    <div class="review-c1">
+      <div class="review-c1-connector">
+        <div class="dot" style="background: #059669;"></div>
+        <div class="dot" style="background: #059669;"></div>
+        <div class="dot" style="background: #059669;"></div>
+      </div>
+      <div class="review-c1-body passed">
+        <div class="review-c1-icon passed">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+        </div>
+        <span class="review-c1-text passed">Approve job posting before publishing</span>
+        <span class="review-c1-reviewer passed">Shannon Rivera ✓</span>
+      </div>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Draft personalized outreach to top-ranked external candidates
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c1">
+      <div class="review-c1-connector">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="review-c1-body">
+        <div class="review-c1-icon pending">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 2C4.69 2 2 4.69 2 8s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10.5c-2.49 0-4.5-2.01-4.5-4.5S5.51 3.5 8 3.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5zm-.5-7h1v3.5h-1V5.5zm0 4.5h1v1h-1v-1z"/></svg>
+        </div>
+        <span class="review-c1-text">Approve outreach messages before sending</span>
+        <span class="review-c1-reviewer">Uma Patel</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================
+     CONCEPT 2: Divider Gate
+     =================================== -->
+<div class="concept-label">Concept 2</div>
+<div class="concept-title">Divider Gate</div>
+<p class="concept-desc">
+  Review steps render as horizontal dividers with a centered pill label. Visually reads as a "gate" between action items — the work above must pass through this checkpoint. Extremely lightweight, doesn't compete with section headers.
+</p>
+
+<div class="plan-card">
+  <div class="section-header">
+    <div class="section-icon">👥</div>
+    <div class="section-title">External Hiring Pipeline</div>
+  </div>
+  <div class="action-list">
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Screen Technology talent pool for candidates matching role requirements
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c2">
+      <div class="review-c2-line"></div>
+      <div class="review-c2-label">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v3M8 10.5v0"/></svg>
+        Review screening results
+        <span class="review-c2-reviewer">· Uma Patel</span>
+      </div>
+      <div class="review-c2-line"></div>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Create job posting for Senior Software Engineer using role data and pay band
+    </div>
+
+    <!-- Review: passed -->
+    <div class="review-c2">
+      <div class="review-c2-line" style="background: linear-gradient(to right, transparent, #bbf7d0 20%, #bbf7d0 80%, transparent);"></div>
+      <div class="review-c2-label passed">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M5.5 8l2 2 3.5-3.5"/></svg>
+        Approved by Shannon Rivera
+      </div>
+      <div class="review-c2-line" style="background: linear-gradient(to right, transparent, #bbf7d0 20%, #bbf7d0 80%, transparent);"></div>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Draft personalized outreach to top-ranked external candidates
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c2">
+      <div class="review-c2-line"></div>
+      <div class="review-c2-label">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.5"/><path d="M8 5.5v3M8 10.5v0"/></svg>
+        Approve outreach messages
+        <span class="review-c2-reviewer">· Uma Patel</span>
+      </div>
+      <div class="review-c2-line"></div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================================
+     CONCEPT 3: Indented Sub-row
+     =================================== -->
+<div class="concept-label">Concept 3</div>
+<div class="concept-title">Indented Sub-row with Meta Line</div>
+<p class="concept-desc">
+  Review steps are indented under their parent action item and use a two-line layout: action on top, reviewer + type below. The indent visually nests them as "triggered by" the item above. Most information-dense — shows reviewer and what type of review.
+</p>
+
+<div class="plan-card">
+  <div class="section-header">
+    <div class="section-icon">👥</div>
+    <div class="section-title">External Hiring Pipeline</div>
+  </div>
+  <div class="action-list">
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Screen Technology talent pool for candidates matching role requirements
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c3">
+      <div class="review-c3-icon pending">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M8 3C4.5 3 1.7 5.1 1 8c.7 2.9 3.5 5 7 5s6.3-2.1 7-5c-.7-2.9-3.5-5-7-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5S6.1 4.5 8 4.5s3.5 1.6 3.5 3.5S9.9 11.5 8 11.5zm0-5.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </div>
+      <div class="review-c3-content">
+        <div class="review-c3-action">Review talent pool screening results</div>
+        <div class="review-c3-meta">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 8a5 5 0 0110 0H3z"/></svg>
+          Uma Patel · Findings review
+        </div>
+      </div>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Create job posting for Senior Software Engineer using role data and pay band
+    </div>
+
+    <!-- Review: passed -->
+    <div class="review-c3">
+      <div class="review-c3-icon passed">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+      </div>
+      <div class="review-c3-content">
+        <div class="review-c3-action passed">Approve job posting before publishing</div>
+        <div class="review-c3-meta passed">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 8a5 5 0 0110 0H3z"/></svg>
+          Shannon Rivera · Approved
+        </div>
+      </div>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Draft personalized outreach to top-ranked external candidates
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c3">
+      <div class="review-c3-icon pending">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M8 3C4.5 3 1.7 5.1 1 8c.7 2.9 3.5 5 7 5s6.3-2.1 7-5c-.7-2.9-3.5-5-7-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5S6.1 4.5 8 4.5s3.5 1.6 3.5 3.5S9.9 11.5 8 11.5zm0-5.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </div>
+      <div class="review-c3-content">
+        <div class="review-c3-action">Approve outreach messages before sending</div>
+        <div class="review-c3-meta">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 8a5 5 0 0110 0H3z"/></svg>
+          Uma Patel · Artifact approval
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================================
+     CONCEPT 4: Left-border Card
+     =================================== -->
+<div class="concept-label">Concept 4</div>
+<div class="concept-title">Left-border Card</div>
+<p class="concept-desc">
+  Review steps are mini-cards with a colored left border — amber for pending, green for passed. Reviewer and artifact type shown in a second line. The card clearly separates reviews from plain action items, and the left border creates a visual "checkpoint" lane.
+</p>
+
+<div class="plan-card">
+  <div class="section-header">
+    <div class="section-icon">👥</div>
+    <div class="section-title">External Hiring Pipeline</div>
+  </div>
+  <div class="action-list">
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Screen Technology talent pool for candidates matching role requirements
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c4">
+      <div class="review-c4-content">
+        <div class="review-c4-top">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M8 3C4.5 3 1.7 5.1 1 8c.7 2.9 3.5 5 7 5s6.3-2.1 7-5c-.7-2.9-3.5-5-7-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5S6.1 4.5 8 4.5s3.5 1.6 3.5 3.5S9.9 11.5 8 11.5zm0-5.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          Review talent pool screening results
+        </div>
+        <div class="review-c4-bottom">Uma Patel · Findings review</div>
+      </div>
+      <div class="review-c4-badge pending">Pending</div>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Create job posting for Senior Software Engineer using role data and pay band
+    </div>
+
+    <!-- Review: passed -->
+    <div class="review-c4 passed">
+      <div class="review-c4-content">
+        <div class="review-c4-top passed">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+          Approve job posting before publishing
+        </div>
+        <div class="review-c4-bottom passed">Shannon Rivera · Approved</div>
+      </div>
+      <div class="review-c4-badge passed">Approved</div>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Draft personalized outreach to top-ranked external candidates
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c4">
+      <div class="review-c4-content">
+        <div class="review-c4-top">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13"><path d="M8 3C4.5 3 1.7 5.1 1 8c.7 2.9 3.5 5 7 5s6.3-2.1 7-5c-.7-2.9-3.5-5-7-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5S6.1 4.5 8 4.5s3.5 1.6 3.5 3.5S9.9 11.5 8 11.5zm0-5.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+          Approve outreach messages before sending
+        </div>
+        <div class="review-c4-bottom">Uma Patel · Artifact approval</div>
+      </div>
+      <div class="review-c4-badge pending">Pending</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================================
+     CONCEPT 5: Compact Single Row
+     =================================== -->
+<div class="concept-label">Concept 5</div>
+<div class="concept-title">Compact Single Row with Type Tag</div>
+<p class="concept-desc">
+  Stays in the list flow but uses a distinct circle icon (amber/green), amber-tinted text, inline reviewer name separated by ·, and a subtle type tag on the right. Lightest-weight option — review steps are peers of action items but visually coded differently via color and icon shape.
+</p>
+
+<div class="plan-card">
+  <div class="section-header">
+    <div class="section-icon">👥</div>
+    <div class="section-title">External Hiring Pipeline</div>
+  </div>
+  <div class="action-list">
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Screen Technology talent pool for candidates matching role requirements
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c5">
+      <div class="review-c5-icon pending">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M8 3C4.5 3 1.7 5.1 1 8c.7 2.9 3.5 5 7 5s6.3-2.1 7-5c-.7-2.9-3.5-5-7-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5S6.1 4.5 8 4.5s3.5 1.6 3.5 3.5S9.9 11.5 8 11.5zm0-5.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </div>
+      <div class="review-c5-text">
+        <span class="review-c5-desc">Review screening results</span>
+        <span class="review-c5-sep">·</span>
+        <span class="review-c5-reviewer">Uma Patel</span>
+      </div>
+      <span class="review-c5-type">Findings</span>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Create job posting for Senior Software Engineer using role data and pay band
+    </div>
+
+    <!-- Review: passed -->
+    <div class="review-c5">
+      <div class="review-c5-icon passed">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+      </div>
+      <div class="review-c5-text">
+        <span class="review-c5-desc passed">Approve job posting</span>
+        <span class="review-c5-sep">·</span>
+        <span class="review-c5-reviewer passed">Shannon Rivera ✓</span>
+      </div>
+      <span class="review-c5-type passed">Artifact</span>
+    </div>
+
+    <div class="action-item">
+      <div class="action-dot"></div>
+      Draft personalized outreach to top-ranked external candidates
+    </div>
+
+    <!-- Review: pending -->
+    <div class="review-c5">
+      <div class="review-c5-icon pending">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="10" height="10"><path d="M8 3C4.5 3 1.7 5.1 1 8c.7 2.9 3.5 5 7 5s6.3-2.1 7-5c-.7-2.9-3.5-5-7-5zm0 8.5c-1.9 0-3.5-1.6-3.5-3.5S6.1 4.5 8 4.5s3.5 1.6 3.5 3.5S9.9 11.5 8 11.5zm0-5.5c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+      </div>
+      <div class="review-c5-text">
+        <span class="review-c5-desc">Approve outreach messages</span>
+        <span class="review-c5-sep">·</span>
+        <span class="review-c5-reviewer">Uma Patel</span>
+      </div>
+      <span class="review-c5-type">Artifact</span>
+    </div>
+  </div>
+</div>
+
+<div style="height: 80px;"></div>
+
+</div>
+</body>
+</html>

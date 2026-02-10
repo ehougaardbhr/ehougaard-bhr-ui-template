@@ -211,3 +211,85 @@ Based on UX review of v4:
 3. Wire up per-automation management actions (pause/resume/cancel/edit via ellipsis)
 4. Implement history tab
 5. Replace dummy AutomationsCard data with real automation types
+
+---
+
+# INTENT — Plan Review Steps → Approval Gates + Artifacts
+
+## Goal
+
+Redesign how human checkpoints appear in plan cards. The old "review step" concept conflated two fundamentally different things:
+
+1. **Artifacts to review** — non-blocking, informational. "The AI produced this, look at it whenever you want." These are outputs the user can inspect at leisure.
+2. **Approval gates** — blocking. "The workflow cannot proceed until [person/group] approves this." These are real human-in-the-loop checkpoints that pause execution.
+
+The old design rendered both as identical tiny inline items (16px icon, same indentation as action items). They were visually indistinguishable from regular tasks and didn't communicate who approves, what they're approving, or the blocking nature.
+
+## Current Direction — Concept 1 (Inline Connector Card) + Section Artifacts
+
+### Approval Gates (blocking, inline)
+Rendered as small cards between action items using the "Inline Connector Card" pattern:
+- Dotted connector ties the gate to the preceding action item
+- Distinct card shape with background tint separates them from plain text action items
+- Approver shown with name + job title (person) or group name (e.g. "HR Admins")
+- **4 states:**
+  - **Planned** — grey, muted. Future gate, not yet relevant.
+  - **Waiting** — amber background/border, pulsing icon. Workflow is blocked here now.
+  - **Rejected** — red. Approver sent it back with a reason (shown inline). AI re-works upstream.
+  - **Approved** — green. Gate passed, workflow continues.
+
+### Artifacts Produced (non-blocking, grouped at section end)
+Rendered as a quiet summary block at the bottom of each section:
+- Lists what the AI produced (reports, analyses, documents, charts)
+- Each artifact has a "View" link
+- Artifacts that haven't been produced yet show as greyed out with "Pending"
+- Not part of the action item flow — they're outputs, not steps
+
+### Key Design Decisions
+- **Amber for "waiting", not green.** Green = approved/done. Waiting = needs attention = amber, consistent with AttentionCard.
+- **Approver can be a person or a group.** Person shows name + job title. Group shows group name (e.g. "HR Admins").
+- **Rejection reason surfaces inline** in the approval gate meta line, so context is visible without clicking.
+- **"Review" is not a gate.** Reviewing artifacts is optional/informational. Only "approval" blocks the workflow. This simplifies the mental model: if you see an approval gate, the workflow is stopped. If you see artifacts, you can look whenever.
+
+## What's Done
+
+- [x] Identified core UX problem: review steps were tiny, visually identical to action items, didn't show reviewer/artifact/status clearly
+- [x] v1 mockup: `demos/review-step-ux-v1.html` — 5 concepts compared:
+  - Concept 1: Inline Connector Card (selected)
+  - Concept 2: Divider Gate
+  - Concept 3: Indented Sub-row with Meta Line
+  - Concept 4: Left-border Card
+  - Concept 5: Compact Single Row with Type Tag
+- [x] User selected Concept 1 (Inline Connector Card) as best foundation
+- [x] Key reframe: split "review step" into two distinct concepts — approval gates (blocking) vs artifacts (non-blocking). Review at leisure ≠ approval required.
+- [x] v2 mockup: `demos/review-step-ux-v2.html` — full plan with:
+  - All 4 approval gate states (planned, waiting, rejected, approved)
+  - Artifacts grouped at section end with view links
+  - Person + job title approvers and group approvers ("HR Admins")
+  - Rejection scenario with inline reason + AI re-working
+  - Two scenarios: mid-execution plan + rejected gate excerpt
+
+## Rejected Approaches
+
+- **Old "review step" pattern** — 16px green square icon with eye, same visual weight as action items. Didn't communicate blocking nature, reviewer identity, or what was being reviewed.
+- **Concept 2 (Divider Gate)** — lightweight but too minimal. Didn't show enough information (reviewer title, artifact type).
+- **Concept 3 (Indented Sub-row)** — good information density but nesting implied dependency rather than blocking. Muddied hierarchy.
+- **Concept 4 (Left-border Card)** — heaviest visual weight. Would dominate the plan card when there are 7 review gates.
+- **Concept 5 (Compact Single Row)** — too similar to action items. Color coding alone wasn't enough differentiation.
+- **Green for "needs action"** — original design used green for the waiting/ready state. Green = done in our design system. Switched to amber.
+- **Inline artifacts after each action item** — considered but rejected in favor of grouped at section end. Inline artifacts cluttered the action list and made it harder to scan the workflow steps.
+
+## Open Questions
+
+1. **Data model changes needed.** Current `ReviewStep` interface needs to split into `ApprovalGate` and artifact output tracking. The `type: 'findings' | 'artifact'` field was a proto-version of this split.
+2. **Should artifacts link to the artifact panel** (slide-out from Plan Detail Page) or open in a new context?
+3. **Rejection flow:** When an approval is rejected, does the AI automatically re-do the upstream work, or does it ask the user what to do?
+4. **Multiple approvers:** Can a gate require approval from multiple people/groups? (e.g., both Uma Patel AND HR Admins)
+
+## Next Steps
+
+1. User reviews v2 mockup, gives feedback on visual design
+2. Finalize which states/interactions to implement
+3. Update data model: split `ReviewStep` into `ApprovalGate` + artifact output tracking
+4. Implement in `PlanInlineCard.tsx` component
+5. Update `AI-AGENT-INTENT.md` Review Gate Design section to reflect the approval vs artifact split

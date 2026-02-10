@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Review Step UX v2 — Artifacts + Approval Gates</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: Inter, system-ui, sans-serif;
+    background: #f3f2f0;
+    padding: 40px 20px;
+    color: #48413f;
+  }
+  .page {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #1a1a1a;
+  }
+  .subtitle {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 40px;
+    line-height: 1.5;
+  }
+
+  /* Plan card shell */
+  .plan-card {
+    background: white;
+    border: 1px solid #e5e3e0;
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 32px;
+  }
+  .plan-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #2e7918;
+    margin-bottom: 6px;
+  }
+  .plan-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 100px;
+    margin-bottom: 16px;
+  }
+  .plan-status.running {
+    background: #dbeafe;
+    color: #2563eb;
+  }
+
+  /* Section */
+  .section {
+    margin-bottom: 20px;
+  }
+  .section:last-child {
+    margin-bottom: 0;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .section-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    opacity: 0.5;
+  }
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  .action-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding-left: 4px;
+  }
+
+  /* Action items */
+  .action-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: #48413f;
+  }
+  .action-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #d6d3d1;
+    flex-shrink: 0;
+  }
+  .action-dot.done { background: #059669; }
+  .action-item.done {
+    color: #999;
+    text-decoration: line-through;
+  }
+  /* Done check circle */
+  .action-check {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #d1fae5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-left: -5px;
+  }
+  .action-check svg { width: 10px; height: 10px; color: #059669; }
+  /* Working spinner */
+  .action-spinner {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 2px solid #dbeafe;
+    border-top-color: #2563eb;
+    animation: spin 0.8s linear infinite;
+    flex-shrink: 0;
+    margin-left: -5px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ====================================
+     APPROVAL PILL — Section footer style
+     ==================================== */
+  .approval-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 500;
+    margin-top: 6px;
+  }
+  .approval-pill svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+  .approval-pill .approver {
+    font-weight: 400;
+  }
+  .approval-pill .timestamp {
+    font-weight: 400;
+    opacity: 0.7;
+  }
+
+  /* --- Approved --- */
+  .approval-pill.approved {
+    background: #f0fdf4;
+    color: #15803d;
+  }
+
+  /* --- Waiting --- */
+  .approval-pill.waiting {
+    background: #fffbeb;
+    color: #c2410c;
+  }
+
+  /* --- Planned --- */
+  .approval-pill.planned {
+    background: #f5f5f4;
+    color: #a8a29e;
+  }
+
+  /* --- Rejected --- */
+  .approval-pill.rejected {
+    background: #fef2f2;
+    color: #dc2626;
+  }
+
+  /* ====================================
+     ARTIFACTS PRODUCED — Chip style
+     ==================================== */
+  .artifacts-produced {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #eceae7;
+  }
+  .artifacts-label {
+    font-size: 12px;
+    color: #a8a29e;
+    margin-bottom: 8px;
+  }
+  .artifacts-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .artifact-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid #d4d2cf;
+    background: #fafaf9;
+    color: #48413f;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .artifact-chip:hover {
+    background: #f0fdf4;
+    border-color: #2e7918;
+    color: #2e7918;
+  }
+  .artifact-chip svg {
+    width: 12px;
+    height: 12px;
+    opacity: 0.6;
+  }
+  .artifact-chip:hover svg {
+    opacity: 1;
+  }
+  .artifact-chip.pending {
+    border-style: dashed;
+    border-color: #e0dedb;
+    color: #a8a29e;
+    background: transparent;
+    cursor: default;
+  }
+  .artifact-chip.pending:hover {
+    background: transparent;
+    border-color: #e0dedb;
+    color: #a8a29e;
+  }
+  .artifact-chip.pending svg {
+    opacity: 0.35;
+  }
+
+  .scenario-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #999;
+    margin-bottom: 12px;
+    margin-top: 48px;
+  }
+  .scenario-desc {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .section-divider {
+    height: 1px;
+    background: #eceae7;
+    margin: 16px 0;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Review Step UX v2 — Artifacts + Approval Gates</h1>
+<p class="subtitle">
+  Two distinct concepts: <strong>Approval gates</strong> (blocking, requires human action) shown as inline connector cards,
+  and <strong>Artifacts produced</strong> (non-blocking, review at leisure) grouped at the end of each section.
+  Four approval states: planned, waiting, rejected, approved.
+</p>
+
+<!-- ===================================
+     SCENARIO A: Mid-execution
+     Plan is running, section 1 done, section 2 in progress
+     =================================== -->
+<div class="scenario-label">Scenario A — Mid-execution</div>
+<p class="scenario-desc">
+  Section 1 is complete (all items done, approval passed). Section 2 is in progress — one approval is waiting, one action is working. Section 3 is still planned/future.
+</p>
+
+<div class="plan-card">
+  <div class="plan-title">Backfill Plan: Senior Software Engineer (Tony Ramirez)</div>
+  <div class="plan-status running">
+    <svg viewBox="0 0 8 8" width="8" height="8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg>
+    Running
+  </div>
+
+  <!-- Section 1: Complete -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">📋</div>
+      <div class="section-title">Impact & Risk Assessment</div>
+    </div>
+    <div class="action-list">
+      <div class="action-item done">
+        <div class="action-check">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+        </div>
+        Analyze org impact of Tony Ramirez's departure on team structure
+      </div>
+      <div class="action-item done">
+        <div class="action-check">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+        </div>
+        Identify flight risks among Uma Patel's remaining direct reports
+      </div>
+      <div class="action-item done">
+        <div class="action-check">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+        </div>
+        Run compensation analysis for Technology team
+      </div>
+
+    </div>
+
+    <!-- Approval pill -->
+    <div class="approval-pill approved">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm3.4 5.3l-4 4a.7.7 0 01-1 0l-2-2a.7.7 0 011-1L7 8.9l3.5-3.5a.7.7 0 011 1z"/></svg>
+      Approved <span class="approver">by Uma Patel</span> <span class="timestamp">2d ago</span>
+    </div>
+
+    <!-- Artifacts from this section -->
+    <div class="artifacts-produced">
+      <div class="artifacts-label">I will create:</div>
+      <div class="artifacts-chips">
+        <div class="artifact-chip">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v1H2V3zm2 3h8v1H4V6zm1 3h6v1H5V9zm2 3h2v1H7v-1z"/></svg>
+          Org Impact Analysis
+        </div>
+        <div class="artifact-chip">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 1.5a5.5 5.5 0 110 11 5.5 5.5 0 010-11zM7 5h2v4H7V5zm0 5h2v1.5H7V10z"/></svg>
+          Flight Risk Report
+        </div>
+        <div class="artifact-chip">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 12h3V6H2v6zm4 0h3V2H6v10zm4 0h3V8h-3v4z"/></svg>
+          Compensation Analysis
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 2: In Progress -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">👤</div>
+      <div class="section-title">Internal Candidate Evaluation</div>
+    </div>
+    <div class="action-list">
+      <div class="action-item done">
+        <div class="action-check">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+        </div>
+        Score promotion readiness for Daniel Kim and Rachel Green
+      </div>
+      <div class="action-item done">
+        <div class="action-check">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+        </div>
+        Model org impact of promoting Daniel Kim to Senior Software Engineer
+      </div>
+
+      <!-- Approval: waiting, between items -->
+      <div class="approval-pill waiting">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1.5a6.5 6.5 0 100 13 6.5 6.5 0 000-13zM7 4h2v1H7V4zm0 2.5h2v5H7v-5z"/></svg>
+        Approve candidate assessment <span class="approver">- Uma Patel</span>
+      </div>
+
+      <div class="action-item" style="color: #a8a29e;">
+        <div class="action-dot"></div>
+        Draft development plan for top internal candidate based on skill gaps
+      </div>
+
+      <!-- Approval: planned, after last item -->
+      <div class="approval-pill planned">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.5 3v4.5l-3 1.5-.5-1 2.5-1.25V4h1z"/></svg>
+        Approve development plan <span class="approver">- Uma Patel</span>
+      </div>
+    </div>
+
+    <!-- Artifacts from this section (some ready, some pending) -->
+    <div class="artifacts-produced">
+      <div class="artifacts-label">I will create:</div>
+      <div class="artifacts-chips">
+        <div class="artifact-chip">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 8a5 5 0 0110 0H3z"/></svg>
+          Candidate Readiness Scores
+        </div>
+        <div class="artifact-chip">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M2 3h12v1H2V3zm2 3h8v1H4V6zm1 3h6v1H5V9z"/></svg>
+          Promotion Impact Model
+        </div>
+        <div class="artifact-chip pending">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 1h8a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V3a2 2 0 012-2zm0 1.5a.5.5 0 00-.5.5v10a.5.5 0 00.5.5h8a.5.5 0 00.5-.5V3a.5.5 0 00-.5-.5H4z"/></svg>
+          Development Plan
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 3: Future/Planned -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">👥</div>
+      <div class="section-title">External Hiring Pipeline</div>
+    </div>
+    <div class="action-list">
+      <div class="action-item" style="color: #a8a29e;">
+        <div class="action-dot"></div>
+        Screen Technology talent pool for candidates matching role requirements
+      </div>
+
+      <!-- Approval: after screening -->
+      <div class="approval-pill planned">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.5 3v4.5l-3 1.5-.5-1 2.5-1.25V4h1z"/></svg>
+        Approve screening results <span class="approver">- Uma Patel</span>
+      </div>
+
+      <div class="action-item" style="color: #a8a29e;">
+        <div class="action-dot"></div>
+        Create job posting for Senior Software Engineer using role data and pay band
+      </div>
+
+      <!-- Approval: after job posting -->
+      <div class="approval-pill planned">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.5 3v4.5l-3 1.5-.5-1 2.5-1.25V4h1z"/></svg>
+        Approve job posting <span class="approver">- HR Admins</span>
+      </div>
+
+      <div class="action-item" style="color: #a8a29e;">
+        <div class="action-dot"></div>
+        Draft personalized outreach to top-ranked external candidates
+      </div>
+
+      <!-- Approval: after outreach -->
+      <div class="approval-pill planned">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.5 3v4.5l-3 1.5-.5-1 2.5-1.25V4h1z"/></svg>
+        Approve outreach messages <span class="approver">- Uma Patel</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- Section 4: Future -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon">🛡</div>
+      <div class="section-title">Retention Actions</div>
+    </div>
+    <div class="action-list">
+      <div class="action-item" style="color: #a8a29e;">
+        <div class="action-dot"></div>
+        Draft compensation adjustment proposals for at-risk team members
+      </div>
+
+      <!-- Approval: after comp proposals -->
+      <div class="approval-pill planned">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm.5 3v4.5l-3 1.5-.5-1 2.5-1.25V4h1z"/></svg>
+        Approve compensation adjustments <span class="approver">- Shannon Rivera</span>
+      </div>
+
+      <div class="action-item" style="color: #a8a29e;">
+        <div class="action-dot"></div>
+        Generate workforce analytics report on Technology team health
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===================================
+     SCENARIO B: Rejected state
+     =================================== -->
+<div class="scenario-label">Scenario B — Rejected Gate</div>
+<p class="scenario-desc">
+  Shows what happens when an approver sends something back. The rejected state uses red to signal "action needed — this was sent back for rework." The AI would then re-do the upstream work.
+</p>
+
+<div class="plan-card">
+  <div class="plan-title" style="font-size: 15px;">External Hiring Pipeline <span style="font-weight: 400; color: #999; font-size: 13px;">— excerpt</span></div>
+
+  <div class="action-list" style="margin-top: 12px;">
+    <div class="action-item done">
+      <div class="action-check">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M6.5 11.5L3 8l1-1 2.5 2.5L12 4l1 1-6.5 6.5z"/></svg>
+      </div>
+      Create job posting for Senior Software Engineer using role data and pay band
+    </div>
+
+    <!-- Rejected pill between items -->
+    <div class="approval-pill rejected">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm3 9.5L9.5 12 8 10.5 6.5 12 5 10.5 6.5 9 5 7.5 6.5 6 8 7.5 9.5 6 11 7.5 9.5 9 11 10.5z"/></svg>
+      Rejected <span class="approver">by HR Admins · "Salary range needs to match updated bands"</span>
+    </div>
+
+    <div class="action-item">
+      <div class="action-spinner"></div>
+      <span>Revising job posting with updated salary bands...</span>
+    </div>
+  </div>
+</div>
+
+
+<div style="height: 80px;"></div>
+
+</div>
+</body>
+</html>
