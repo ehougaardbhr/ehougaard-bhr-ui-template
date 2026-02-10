@@ -146,6 +146,7 @@ import {
   Inbox,
   Settings,
   CirclePlus,
+  Zap,
 } from 'lucide-react';
 
 export type IconName =
@@ -515,6 +516,14 @@ export function Icon({ name, size = 24, className = '', variant = 'solid', style
 
   if (name === 'chart-pie-simple' && variant === 'regular') {
     return <PieChart size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+
+  if (name === 'bolt' && variant === 'regular') {
+    return <Zap size={size} className={className} strokeWidth={2.25} style={style} />;
+  }
+
+  if (name === 'bolt' && variant === 'solid') {
+    return <Zap size={size} className={className} strokeWidth={2.25} fill="currentColor" style={style} />;
   }
 
   // Handle Font Awesome icons

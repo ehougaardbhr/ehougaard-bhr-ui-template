@@ -118,7 +118,7 @@ export function AutomationsCard() {
         <div className="flex items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
             <Icon
-              name="sparkles"
+              name="bolt"
               size={20}
               className="text-[var(--color-primary-strong)]"
             />
