@@ -104,6 +104,7 @@
     .alert-count {
       display: flex; align-items: center; gap: 8px; margin-bottom: 14px;
       font-size: 13px; font-weight: 500; color: var(--text-neutral-medium);
+      justify-content: space-between;
     }
     .alert-count-badge {
       background: var(--text-neutral-strong); color: white; border-radius: 99px;
@@ -166,18 +167,15 @@
     }
     .icon-btn:hover { background: var(--surface-neutral-xx-weak); color: var(--text-neutral-strong); }
 
-    /* Inline Finding Preview — compact, neutral bg, left accent border */
+    /* Inline Finding Preview — flat, no container */
     .finding-preview {
-      margin-top: 8px; padding: 8px 12px;
-      background: var(--surface-neutral-xx-weak);
-      border-left: 3px solid var(--color-findings);
-      border-radius: 0 6px 6px 0;
+      margin-top: 6px; padding: 0 0 0 2px;
     }
     .finding-row {
       display: flex; align-items: center; gap: 8px; padding: 3px 0;
       font-size: 12px; color: var(--text-neutral-strong); line-height: 1.5;
     }
-    .finding-row + .finding-row { border-top: 1px solid rgba(0,0,0,0.04); padding-top: 5px; margin-top: 2px; }
+    .finding-row + .finding-row { padding-top: 1px; }
     .finding-dot {
       width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
     }
@@ -186,12 +184,9 @@
     .finding-label { font-weight: 600; }
     .finding-detail { color: var(--text-neutral-medium); }
 
-    /* Approval preview — compact, neutral bg, left accent border */
+    /* Approval preview — flat, no container */
     .approval-preview {
-      margin-top: 8px; padding: 8px 12px;
-      background: var(--surface-neutral-xx-weak);
-      border-left: 3px solid var(--color-proposed);
-      border-radius: 0 6px 6px 0;
+      margin-top: 6px; padding: 0 0 0 2px;
     }
     .approval-preview-row {
       display: flex; align-items: center; gap: 8px; padding: 2px 0;
@@ -199,12 +194,9 @@
     }
     .approval-preview-row i { color: var(--color-proposed); font-size: 10px; width: 12px; text-align: center; }
 
-    /* Paused preview — compact, neutral bg, left accent border */
+    /* Paused preview — flat, no container */
     .paused-preview {
-      margin-top: 8px; padding: 8px 12px;
-      background: var(--surface-neutral-xx-weak);
-      border-left: 3px solid var(--color-paused);
-      border-radius: 0 6px 6px 0;
+      margin-top: 6px; padding: 0 0 0 2px;
     }
     .paused-preview-row {
       display: flex; align-items: center; gap: 8px; padding: 2px 0;
@@ -274,18 +266,20 @@
   <div class="page-header">
     <h1>Automations</h1>
     <div class="page-header-right">
-      <div class="tab-switch">
-        <button class="tab-switch-btn active">Active</button>
-        <button class="tab-switch-btn">History</button>
-      </div>
       <button class="new-btn"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New</button>
     </div>
   </div>
 
   <div class="alert-section">
     <div class="alert-count">
-      <span class="alert-count-badge">3</span>
-      automations need your attention
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span class="alert-count-badge">3</span>
+        automations need your attention
+      </div>
+      <div class="tab-switch" style="margin-left: auto;">
+        <button class="tab-switch-btn active">Active</button>
+        <button class="tab-switch-btn">History</button>
+      </div>
     </div>
 
     <!-- Alert 1: Review ready — teal, problems only -->
@@ -460,10 +454,6 @@
   <div class="page-header">
     <h1>Automations</h1>
     <div class="page-header-right">
-      <div class="tab-switch">
-        <button class="tab-switch-btn active">Active</button>
-        <button class="tab-switch-btn">History</button>
-      </div>
       <button class="new-btn"><i class="fa-solid fa-plus" style="font-size: 11px;"></i> New</button>
     </div>
   </div>
@@ -478,6 +468,10 @@
 
   <div class="section-header">
     <span class="section-title">All automations</span>
+    <div class="tab-switch">
+      <button class="tab-switch-btn active">Active</button>
+      <button class="tab-switch-btn">History</button>
+    </div>
   </div>
 
   <div class="quiet-row">
