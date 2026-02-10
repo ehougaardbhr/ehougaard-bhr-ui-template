@@ -429,12 +429,13 @@ function InlineSectionRow({
   return (
     <div style={{ padding: '12px 16px 4px' }}>
       {/* Section header */}
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1.5">
+      <div className="flex flex-wrap items-center gap-x-2 mb-1.5" style={{ paddingLeft: '28px' }}>
         <div
           className="flex items-center justify-center flex-shrink-0 rounded-full"
           style={{
             width: '20px',
             height: '20px',
+            marginLeft: '-28px',
             backgroundColor: isCompleted && !isProposal ? '#059669' : 'var(--color-primary-strong)',
           }}
         >
