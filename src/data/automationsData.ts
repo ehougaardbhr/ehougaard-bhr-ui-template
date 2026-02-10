@@ -1,0 +1,213 @@
+// Automations page mock data — matches v7 mockup design
+
+export interface FindingPreview {
+  severity: 'red' | 'amber';
+  label: string;
+  detail: string;
+}
+
+export interface PreviewRow {
+  iconClass: string;
+  text: string; // may contain HTML-like markup — rendered with dangerouslySetInnerHTML
+}
+
+export interface AutomationAlert {
+  id: string;
+  type: 'review' | 'approve' | 'paused';
+  title: string;
+  age: string;
+  findings?: FindingPreview[];
+  previewRows?: PreviewRow[];
+  ctaLabel: string;
+  ctaIcon?: string;
+  planId: string;
+}
+
+export interface RunningAutomation {
+  id: string;
+  name: string;
+  meta: string;
+  status: 'working' | 'done';
+  progress?: { current: number; total: number };
+  lastUpdate: string;
+  planId: string;
+}
+
+// --- Alert type config ---
+
+export const alertTypeConfig: Record<AutomationAlert['type'], {
+  color: string;
+  bgLight: string;
+  icon: string;
+  label: string;
+}> = {
+  review: {
+    color: '#0891B2',
+    bgLight: '#ECFEFF',
+    icon: 'fa-solid fa-eye',
+    label: 'I have something to show you',
+  },
+  approve: {
+    color: '#7C3AED',
+    bgLight: '#EDE9FE',
+    icon: 'fa-solid fa-stamp',
+    label: 'I need your approval',
+  },
+  paused: {
+    color: '#D97706',
+    bgLight: '#FEF3C7',
+    icon: 'fa-solid fa-pause',
+    label: 'Paused — waiting on you',
+  },
+};
+
+// --- Mock data: "With Alerts" state ---
+
+export const alertsData: AutomationAlert[] = [
+  {
+    id: 'alert-1',
+    type: 'review',
+    title: 'Q1 Hiring Pipeline Review',
+    age: 'Waiting since Jan 17',
+    findings: [
+      { severity: 'red', label: 'Senior DevOps Engineer', detail: '— 0 qualified candidates in pipeline' },
+      { severity: 'red', label: 'Product Manager, Growth', detail: '— 1 candidate, 45-day stale' },
+      { severity: 'amber', label: '4 roles below market rate', detail: '— avg 12% under, may hurt conversion' },
+    ],
+    ctaLabel: 'Review Findings',
+    planId: 'plan-backfill-mid',
+  },
+  {
+    id: 'alert-2',
+    type: 'approve',
+    title: 'Onboarding — Feb New Hires',
+    age: 'Proposed 2 days ago',
+    previewRows: [
+      { iconClass: 'fa-solid fa-list-check', text: '5-step plan: doc collection, IT setup, welcome kit, orientation, 30-day check-in' },
+      { iconClass: 'fa-solid fa-users', text: '<strong>3 employees</strong> starting Feb 15 — Sarah Chen, Marcus Rivera, Aisha Patel' },
+    ],
+    ctaLabel: 'Approve',
+    ctaIcon: 'fa-solid fa-check',
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'alert-3',
+    type: 'paused',
+    title: 'Comp Review — Engineering',
+    age: 'Paused 3 days ago',
+    previewRows: [
+      { iconClass: 'fa-solid fa-circle-half-stroke', text: '<strong>6/8 steps done</strong> — paused for budget review' },
+      { iconClass: 'fa-solid fa-arrow-trend-down', text: '<strong>7 employees</strong> below market rate identified so far' },
+    ],
+    ctaLabel: 'Resume',
+    ctaIcon: 'fa-solid fa-play',
+    planId: 'plan-backfill-mid',
+  },
+];
+
+// --- Mock data: Running rows (alerts state — 5 rows) ---
+
+export const runningRowsWithAlerts: RunningAutomation[] = [
+  {
+    id: 'run-1',
+    name: 'Backfill — Tony Ramirez',
+    meta: '3/5 · Screening candidates · 3 strong matches',
+    status: 'working',
+    progress: { current: 3, total: 5 },
+    lastUpdate: '30m ago',
+    planId: 'plan-backfill-mid',
+  },
+  {
+    id: 'run-2',
+    name: 'PTO Balance Audit',
+    meta: '2/5 · Analyzing department patterns · 142 employees',
+    status: 'working',
+    progress: { current: 2, total: 5 },
+    lastUpdate: '1h ago',
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'run-3',
+    name: 'Flight Risk — Marketing',
+    meta: 'Continuous · 2 high risk, 5 moderate',
+    status: 'done',
+    lastUpdate: '2h ago',
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'run-4',
+    name: 'Succession Plan — VP Sales',
+    meta: '1/4 · Identifying internal candidates',
+    status: 'working',
+    progress: { current: 1, total: 4 },
+    lastUpdate: '3h ago',
+    planId: 'plan-backfill-mid',
+  },
+  {
+    id: 'run-5',
+    name: 'Benefits Enrollment Prep',
+    meta: '3/6 · Compiling plan options · 4 vendors contacted',
+    status: 'working',
+    progress: { current: 3, total: 6 },
+    lastUpdate: '45m ago',
+    planId: 'plan-backfill-done',
+  },
+];
+
+// --- Mock data: Running rows (all-clear state — 6 rows, no alerts) ---
+
+export const runningRowsAllClear: RunningAutomation[] = [
+  {
+    id: 'clear-1',
+    name: 'Q1 Hiring Pipeline Review',
+    meta: '5/7 · Generating recommendations',
+    status: 'working',
+    progress: { current: 5, total: 7 },
+    lastUpdate: '10m ago',
+    planId: 'plan-backfill-mid',
+  },
+  {
+    id: 'clear-2',
+    name: 'Backfill — Tony Ramirez',
+    meta: '3/5 · Screening candidates · 3 strong matches',
+    status: 'working',
+    progress: { current: 3, total: 5 },
+    lastUpdate: '30m ago',
+    planId: 'plan-backfill-mid',
+  },
+  {
+    id: 'clear-3',
+    name: 'Onboarding — Feb New Hires',
+    meta: '1/5 · Collecting documents from 3 employees',
+    status: 'working',
+    progress: { current: 1, total: 5 },
+    lastUpdate: '15m ago',
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'clear-4',
+    name: 'PTO Balance Audit',
+    meta: '2/5 · Analyzing department patterns · 142 employees',
+    status: 'working',
+    progress: { current: 2, total: 5 },
+    lastUpdate: '1h ago',
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'clear-5',
+    name: 'Flight Risk — Marketing',
+    meta: 'Continuous · 2 high risk, 5 moderate',
+    status: 'done',
+    lastUpdate: '2h ago',
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'clear-6',
+    name: 'Comp Review — Engineering',
+    meta: '7/8 · Drafting adjustment proposals',
+    status: 'working',
+    progress: { current: 7, total: 8 },
+    lastUpdate: '20m ago',
+    planId: 'plan-backfill-mid',
+  },
+];
