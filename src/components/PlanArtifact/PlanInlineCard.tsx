@@ -429,7 +429,7 @@ function InlineSectionRow({
   return (
     <div style={{ padding: '12px 16px 4px' }}>
       {/* Section header */}
-      <div className="flex items-center gap-2 mb-1.5">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-1.5">
         <div
           className="flex items-center justify-center flex-shrink-0 rounded-full"
           style={{
@@ -445,11 +445,11 @@ function InlineSectionRow({
             fontSize: '15px',
             fontWeight: 600,
             color: 'var(--text-neutral-xx-strong)',
-            flex: 1,
           }}
         >
           {section.title}
         </span>
+        <span style={{ flex: 1, minWidth: '40px' }} />
         {/* Working badge */}
         {isWorking && !isProposal && (
           <span
