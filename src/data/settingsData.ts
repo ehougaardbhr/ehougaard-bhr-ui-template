@@ -73,6 +73,32 @@ export const settingsNavItems: SettingsNavItem[] = [
   { id: 'training', label: 'Training', icon: 'graduation-cap' },
 ];
 
+export const benefitsSubTabs: SubTab[] = [
+  { id: 'carriers-plans', label: 'Carriers & Plans' },
+  { id: 'eligibility-groups', label: 'Eligibility Groups' },
+  { id: 'benefits-integrations', label: 'Benefits Integrations' },
+  { id: 'files', label: 'Files' },
+  { id: 'benefits-admin', label: 'Benefits Administration' },
+];
+
+export interface SettingsCarrier {
+  id: string;
+  name: string;
+  planCount: number;
+  color: string; // for the icon square
+  isActive: boolean;
+}
+
+export const settingsCarriers: SettingsCarrier[] = [
+  { id: 'ampersand', name: 'Ampersand', planCount: 3, color: '#7c3aed', isActive: true },
+  { id: 'delta', name: 'Delta', planCount: 1, color: '#2e7918', isActive: true },
+  { id: 'fidelity', name: 'Fidelity', planCount: 4, color: '#166534', isActive: true },
+  { id: 'mutual', name: 'Mutual of Omaha', planCount: 2, color: '#1e3a5f', isActive: true },
+  { id: 'vista', name: 'Vista', planCount: 3, color: '#0ea5e9', isActive: true },
+  { id: 'wright', name: 'Wright-Martin', planCount: 1, color: '#6b7280', isActive: true },
+  { id: 'united', name: 'United Healthcare', planCount: 3, color: '#6b7280', isActive: false },
+];
+
 export const accountSubTabs: SubTab[] = [
   { id: 'account-info', label: 'Account Info' },
   { id: 'billing', label: 'Billing' },

@@ -3,6 +3,7 @@ import { Icon } from '../../components';
 import {
   settingsNavItems,
   accountSubTabs,
+  benefitsSubTabs,
   accountInfo,
   subscription,
   addOns,
@@ -10,11 +11,13 @@ import {
   fileStorage,
   upgrades,
   dataCenter,
+  settingsCarriers,
 } from '../../data/settingsData';
 
 export function Settings() {
   const [activeNav, setActiveNav] = useState('account');
   const [activeSubTab, setActiveSubTab] = useState('account-info');
+  const [benefitsSubTab, setBenefitsSubTab] = useState('carriers-plans');
 
   return (
     <div className="min-h-full">
@@ -60,7 +63,128 @@ export function Settings() {
 
         {/* Main Content Area */}
         <main className="flex-1 px-10 pt-0 pb-10 overflow-y-auto">
-          {/* Account Card */}
+          {activeNav === 'benefits' ? (
+          /* Benefits Settings */
+          <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] p-8">
+            <h2
+              className="text-[22px] font-semibold text-[var(--color-primary-strong)] mb-6 pb-6 border-b border-[var(--border-neutral-x-weak)]"
+              style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
+            >
+              Benefits
+            </h2>
+            <div className="flex gap-8">
+              {/* Benefits Sub-tabs */}
+              <div className="w-[200px] shrink-0">
+                <nav className="flex flex-col">
+                  {benefitsSubTabs.map((tab) => {
+                    const isActive = tab.id === benefitsSubTab;
+                    return (
+                      <button
+                        key={tab.id}
+                        onClick={() => setBenefitsSubTab(tab.id)}
+                        className={`
+                          text-left px-3 py-2 text-[15px] transition-colors rounded-[var(--radius-small)]
+                          ${
+                            isActive
+                              ? 'text-[var(--color-primary-strong)] font-semibold bg-[var(--surface-neutral-xx-weak)]'
+                              : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]'
+                          }
+                        `}
+                      >
+                        {tab.label}
+                      </button>
+                    );
+                  })}
+                </nav>
+              </div>
+              {/* Benefits Content */}
+              <div className="flex-1">
+                {benefitsSubTab === 'carriers-plans' && (
+                  <>
+                    <div className="flex items-center justify-between mb-6">
+                      <h3
+                        className="text-[22px] font-semibold text-[var(--color-primary-strong)]"
+                        style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
+                      >
+                        Carriers & Plans
+                      </h3>
+                      <button className="inline-flex items-center gap-2 h-10 px-5 bg-[var(--color-primary-strong)] text-white rounded-[var(--radius-full)] text-[15px] font-semibold hover:bg-[var(--color-primary-medium)] transition-colors">
+                        <Icon name="circle-plus" size={16} />
+                        Add Carrier
+                      </button>
+                    </div>
+                    {/* Active Carriers */}
+                    <div className="mb-8">
+                      <h4 className="text-[16px] font-semibold text-[var(--text-neutral-x-strong)] mb-4">
+                        Active Carriers
+                      </h4>
+                      <div className="space-y-2">
+                        {settingsCarriers
+                          .filter((c) => c.isActive)
+                          .map((carrier) => (
+                            <div
+                              key={carrier.id}
+                              className="flex items-center gap-4 px-4 py-3 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors cursor-pointer"
+                            >
+                              <Icon name="chevron-right" size={16} className="text-[var(--icon-neutral-strong)]" />
+                              <div
+                                className="w-10 h-10 rounded-[var(--radius-xx-small)] flex items-center justify-center shrink-0"
+                                style={{ backgroundColor: carrier.color }}
+                              >
+                                <Icon name="building" size={20} className="text-white" />
+                              </div>
+                              <span className="flex-1 text-[15px] font-medium text-[var(--text-neutral-x-strong)]">
+                                {carrier.name}
+                              </span>
+                              <span className="text-[15px] text-[var(--text-neutral-medium)]">
+                                {carrier.planCount} {carrier.planCount === 1 ? 'plan' : 'plans'}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                    {/* Inactive Carriers */}
+                    <div>
+                      <h4 className="text-[16px] font-semibold text-[var(--text-neutral-x-strong)] mb-4">
+                        Inactive Carriers
+                      </h4>
+                      <div className="space-y-2">
+                        {settingsCarriers
+                          .filter((c) => !c.isActive)
+                          .map((carrier) => (
+                            <div
+                              key={carrier.id}
+                              className="flex items-center gap-4 px-4 py-3 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-small)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors cursor-pointer opacity-75"
+                            >
+                              <Icon name="chevron-right" size={16} className="text-[var(--icon-neutral-strong)]" />
+                              <div
+                                className="w-10 h-10 rounded-[var(--radius-xx-small)] flex items-center justify-center shrink-0"
+                                style={{ backgroundColor: carrier.color }}
+                              >
+                                <Icon name="building" size={20} className="text-white" />
+                              </div>
+                              <span className="flex-1 text-[15px] font-medium text-[var(--text-neutral-x-strong)]">
+                                {carrier.name}
+                              </span>
+                              <span className="text-[15px] text-[var(--text-neutral-medium)]">
+                                {carrier.planCount} {carrier.planCount === 1 ? 'plan' : 'plans'}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+                {benefitsSubTab !== 'carriers-plans' && (
+                  <p className="text-[15px] text-[var(--text-neutral-medium)]">
+                    {benefitsSubTabs.find((t) => t.id === benefitsSubTab)?.label} content coming soon.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          ) : activeNav === 'account' ? (
+          /* Account Card */
           <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] p-8">
             {/* Account Heading */}
             <h2
@@ -317,6 +441,13 @@ export function Settings() {
           </div>
         </div>
           </div>
+          ) : (
+          <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] p-8">
+            <p className="text-[15px] text-[var(--text-neutral-medium)]">
+              {settingsNavItems.find((n) => n.id === activeNav)?.label} settings coming soon.
+            </p>
+          </div>
+          )}
         </main>
       </div>
     </div>
