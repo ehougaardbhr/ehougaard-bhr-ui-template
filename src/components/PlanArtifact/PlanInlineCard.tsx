@@ -6,6 +6,7 @@ import { useArtifact } from '../../contexts/ArtifactContext';
 import { useAINotifications } from '../../contexts/AINotificationContext';
 import { startPlanExecution, resumePlanExecution } from '../../services/planExecutionService';
 import type { Artifact, PlanSettings, PlanStatus, ActionItem, PlanSection, ReviewStep } from '../../data/artifactData';
+import { currentEmployee } from '../../data/currentEmployee';
 
 // Map section titles to icons based on keywords
 function getSectionIcon(title: string): IconName {
@@ -203,13 +204,13 @@ function ApprovalPill({
       bg: 'var(--surface-neutral-xx-weak)',
       color: 'var(--text-neutral-weak)',
       border: '1px solid var(--border-neutral-weak)',
-      iconName: 'lock' as IconName,
+      iconName: 'clipboard-check' as IconName,
     },
     waiting: {
       bg: '#FEF3C7',
       color: '#92400E',
       border: '1px solid #FCD34D',
-      iconName: 'lock' as IconName,
+      iconName: 'clipboard-check' as IconName,
     },
     approved: {
       bg: '#D1FAE5',
@@ -245,16 +246,36 @@ function ApprovalPill({
       onClick={visualState === 'waiting' ? onReview : undefined}
     >
       <Icon name={style.iconName} size={12} style={{ flexShrink: 0, marginTop: '3px', alignSelf: 'flex-start' }} />
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0 6px' }}>
-        <span>
-          {visualState === 'approved' ? 'Approved' : step.description}
-        </span>
-        <span style={{ fontWeight: 400, opacity: 0.7, whiteSpace: 'nowrap' }}>
-          {visualState === 'approved'
-            ? `by ${step.reviewer}`
-            : step.reviewer}
-        </span>
-      </div>
+      {(() => {
+        const currentName = `${currentEmployee.firstName} ${currentEmployee.lastName}`;
+        const isCurrentUser = step.reviewer === currentName
+          || step.reviewer === currentEmployee.preferredName
+          || step.reviewer === currentEmployee.firstName;
+
+        if (visualState === 'approved') {
+          return (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0 6px' }}>
+              <span>Approved</span>
+              <span style={{ fontWeight: 400, opacity: 0.7, whiteSpace: 'nowrap' }}>
+                {isCurrentUser ? 'by you' : `by ${step.reviewer}`}
+              </span>
+            </div>
+          );
+        }
+
+        if (isCurrentUser) {
+          return <span>Requires your approval</span>;
+        }
+
+        return (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0 6px' }}>
+            <span>{step.description}</span>
+            <span style={{ fontWeight: 400, opacity: 0.7, whiteSpace: 'nowrap' }}>
+              {step.reviewer}{step.reviewerTitle ? `, ${step.reviewerTitle}` : ''}
+            </span>
+          </div>
+        );
+      })()}
     </div>
   );
 }

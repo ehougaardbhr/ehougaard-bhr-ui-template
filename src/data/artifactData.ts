@@ -69,6 +69,7 @@ export interface ReviewStep {
   id: string;
   description: string;  // e.g. "Review — Sarah Chen"
   reviewer: string;
+  reviewerTitle?: string;
   status: 'planned' | 'passed' | 'ready' | 'future';
   afterItem: string;           // action item ID this gate follows
   type: 'findings' | 'artifact'; // review of analysis output vs created artifact
@@ -458,16 +459,16 @@ export const mockArtifacts: Artifact[] = [
       ],
       reviewSteps: [
         // Section 1: after all analysis completes
-        { id: 'rs-1', description: 'Review impact and risk findings before proceeding', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-3', type: 'findings' },
+        { id: 'rs-1', description: 'Review impact and risk findings before proceeding', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-3', type: 'findings' },
         // Section 2: after analysis, then after draft
-        { id: 'rs-2', description: 'Review internal candidate assessment results', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-5', type: 'findings' },
-        { id: 'rs-3', description: 'Approve development plan before sharing with candidate', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-6', type: 'artifact' },
+        { id: 'rs-2', description: 'Review internal candidate assessment results', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-5', type: 'findings' },
+        { id: 'rs-3', description: 'Approve development plan before sharing with candidate', reviewer: 'Jessica Cordova', reviewerTitle: 'Director, Demand Generation', status: 'planned', afterItem: 'ai-6', type: 'artifact' },
         // Section 3: after screening, after job posting, after outreach
-        { id: 'rs-4', description: 'Review talent pool screening results', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-8', type: 'findings' },
-        { id: 'rs-5', description: 'Approve job posting before publishing', reviewer: 'Shannon Rivera', status: 'planned', afterItem: 'ai-7', type: 'artifact' },
-        { id: 'rs-6', description: 'Approve outreach messages before sending', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-9', type: 'artifact' },
+        { id: 'rs-4', description: 'Review talent pool screening results', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-8', type: 'findings' },
+        { id: 'rs-5', description: 'Approve job posting before publishing', reviewer: 'Shannon Rivera', reviewerTitle: 'VP of People', status: 'planned', afterItem: 'ai-7', type: 'artifact' },
+        { id: 'rs-6', description: 'Approve outreach messages before sending', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-9', type: 'artifact' },
         // Section 4: after comp change proposal
-        { id: 'rs-7', description: 'Approve compensation adjustments', reviewer: 'Uma Patel', status: 'planned', afterItem: 'ai-10', type: 'artifact' },
+        { id: 'rs-7', description: 'Approve compensation adjustments', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-10', type: 'artifact' },
       ],
       approvedBy: undefined,
       approvedAt: undefined,
