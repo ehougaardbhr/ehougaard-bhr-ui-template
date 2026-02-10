@@ -1,14 +1,46 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faEye,
+  faClipboardCheck,
+  faPause,
+  faCheck,
+  faXmark,
+  faEllipsis,
+  faPlay,
+  faListCheck,
+  faUsers,
+  faCircleHalfStroke,
+  faArrowTrendDown,
+} from '@fortawesome/free-solid-svg-icons';
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import type { AutomationAlert } from '../../data/automationsData';
-import { alertTypeConfig } from '../../data/automationsData';
 
 interface AlertCardProps {
   alert: AutomationAlert;
   onNavigate: (planId: string) => void;
 }
 
-export function AlertCard({ alert, onNavigate }: AlertCardProps) {
-  const config = alertTypeConfig[alert.type];
+const typeIcons: Record<AutomationAlert['type'], IconDefinition> = {
+  review: faEye,
+  approve: faClipboardCheck,
+  paused: faPause,
+};
 
+const typeLabels: Record<AutomationAlert['type'], string> = {
+  review: 'I have something to show you',
+  approve: 'I need your approval',
+  paused: 'Paused — waiting on you',
+};
+
+// Map preview row icon classes to FA icon objects
+const previewIconMap: Record<string, IconDefinition> = {
+  'fa-solid fa-list-check': faListCheck,
+  'fa-solid fa-users': faUsers,
+  'fa-solid fa-circle-half-stroke': faCircleHalfStroke,
+  'fa-solid fa-arrow-trend-down': faArrowTrendDown,
+};
+
+export function AlertCard({ alert, onNavigate }: AlertCardProps) {
   return (
     <div
       className={`
@@ -23,36 +55,26 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
       `}
       style={{ boxShadow: 'var(--shadow-300)' }}
     >
-      {/* Left color bar */}
-      <div
-        className="absolute left-0 top-0 bottom-0 w-1"
-        style={{ background: config.color }}
-      />
-
       {/* Icon circle */}
       <div
-        className={`
+        className="
           w-[38px] h-[38px] rounded-[10px] shrink-0
-          flex items-center justify-center text-[15px]
-          ${config.bgLightClass} ${config.darkBgLightClass}
-        `}
-        style={{ color: config.color }}
+          flex items-center justify-center
+          bg-[var(--surface-neutral-x-weak)]
+          text-[var(--icon-neutral-strong)]
+        "
       >
-        <i className={config.icon} />
+        <FontAwesomeIcon icon={typeIcons[alert.type]} fontSize={15} />
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
         {/* Top row: type label + age */}
         <div className="flex items-center gap-2 mb-0.5">
-          <div
-            className="text-[11px] font-bold uppercase tracking-wide flex items-center gap-1.5"
-            style={{ color: config.color }}
-          >
-            <i className={config.icon} />
-            {config.label}
+          <div className="text-xs font-bold uppercase tracking-wide text-[var(--text-neutral-medium)]">
+            {typeLabels[alert.type]}
           </div>
-          <span className="text-[11px] text-[var(--text-neutral-weak)] ml-auto">
+          <span className="text-xs text-[var(--text-neutral-weak)] ml-auto">
             {alert.age}
           </span>
         </div>
@@ -61,7 +83,7 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
         <div
           onClick={() => onNavigate(alert.planId)}
           className="
-            text-[15px] font-semibold
+            text-sm font-semibold
             text-[var(--text-neutral-xx-strong)]
             mb-1 cursor-pointer
             hover:text-[var(--color-primary-strong)]
@@ -98,10 +120,13 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
                 key={i}
                 className="flex items-center gap-2 py-0.5 text-xs text-[var(--text-neutral-strong)] leading-relaxed"
               >
-                <i
-                  className={row.iconClass}
-                  style={{ color: config.color, fontSize: 10, width: 12, textAlign: 'center' }}
-                />
+                {previewIconMap[row.iconClass] && (
+                  <FontAwesomeIcon
+                    icon={previewIconMap[row.iconClass]}
+                    className="text-[var(--icon-neutral-strong)] shrink-0"
+                    style={{ fontSize: 10, width: 12 }}
+                  />
+                )}
                 <span dangerouslySetInnerHTML={{ __html: row.text }} />
               </div>
             ))}
@@ -110,21 +135,60 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-2 mt-2.5">
-          <button
-            onClick={() => onNavigate(alert.planId)}
-            className="
-              px-3.5 py-1.5 rounded-lg
-              text-[13px] font-medium text-white
-              bg-[var(--color-primary-strong)]
-              hover:bg-[var(--color-primary-medium)]
-              border border-transparent
-              inline-flex items-center gap-1.5
-              transition-colors cursor-pointer
-            "
-          >
-            {alert.ctaIcon && <i className={alert.ctaIcon} style={{ fontSize: 11 }} />}
-            {alert.ctaLabel}
-          </button>
+          {alert.type === 'approve' ? (
+            <>
+              <button
+                onClick={() => onNavigate(alert.planId)}
+                className="
+                  px-3.5 py-1.5 rounded-lg
+                  text-sm font-medium
+                  text-white
+                  bg-[var(--color-primary-strong)]
+                  hover:opacity-90
+                  border border-[var(--color-primary-strong)]
+                  inline-flex items-center gap-1.5
+                  transition-colors cursor-pointer
+                "
+              >
+                <FontAwesomeIcon icon={faCheck} fontSize={11} />
+                Approve
+              </button>
+              <button
+                className="
+                  px-3.5 py-1.5 rounded-lg
+                  text-sm font-medium
+                  text-[var(--text-neutral-strong)]
+                  bg-[var(--surface-neutral-white)]
+                  hover:bg-[var(--surface-neutral-xx-weak)]
+                  border border-[var(--border-neutral-medium)]
+                  inline-flex items-center gap-1.5
+                  transition-colors cursor-pointer
+                "
+                style={{ boxShadow: 'var(--shadow-100)' }}
+              >
+                <FontAwesomeIcon icon={faXmark} fontSize={11} />
+                Deny
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => onNavigate(alert.planId)}
+              className="
+                px-3.5 py-1.5 rounded-lg
+                text-sm font-medium
+                text-[var(--text-neutral-strong)]
+                bg-[var(--surface-neutral-white)]
+                hover:bg-[var(--surface-neutral-xx-weak)]
+                border border-[var(--border-neutral-medium)]
+                inline-flex items-center gap-1.5
+                transition-colors cursor-pointer
+              "
+              style={{ boxShadow: 'var(--shadow-100)' }}
+            >
+              {alert.type === 'paused' && <FontAwesomeIcon icon={faPlay} fontSize={11} />}
+              {alert.ctaLabel}
+            </button>
+          )}
           <button
             className="
               w-8 h-8 rounded-lg border-none bg-transparent
@@ -135,7 +199,7 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
               transition-colors cursor-pointer
             "
           >
-            <i className="fa-solid fa-ellipsis" />
+            <FontAwesomeIcon icon={faEllipsis} />
           </button>
         </div>
       </div>

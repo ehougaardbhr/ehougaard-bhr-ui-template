@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '../../components';
 import { AlertCard } from '../../components/Automations/AlertCard';
 import { QuietRow } from '../../components/Automations/QuietRow';
@@ -22,17 +24,7 @@ export function Automations() {
 
         {/* Page header */}
         <div className="flex items-center justify-between mb-7">
-          <h1
-            className="text-[var(--color-primary-strong)]"
-            style={{
-              fontFamily: 'Fields, system-ui, sans-serif',
-              fontSize: 48,
-              fontWeight: 700,
-              lineHeight: '56px',
-            }}
-          >
-            Automations
-          </h1>
+          <h1>Automations</h1>
           <Button variant="primary" size="small">
             + New
           </Button>
@@ -42,7 +34,7 @@ export function Automations() {
         {hasAlerts && (
           <div className="mb-7">
             {/* Count row */}
-            <div className="flex items-center justify-between mb-3.5 text-[13px] font-medium text-[var(--text-neutral-medium)]">
+            <div className="flex items-center justify-between mb-3.5 text-sm font-medium text-[var(--text-neutral-medium)]">
               <div className="flex items-center gap-2">
                 <span className="bg-[var(--text-neutral-strong)] text-white rounded-full px-2.5 py-px text-xs font-bold">
                   {alertsData.length}
@@ -63,7 +55,7 @@ export function Automations() {
         {!hasAlerts && (
           <div className="flex items-center gap-3 px-5 py-4 mb-7 bg-[#D1FAE5] dark:bg-[#064E3B] border border-[#A7F3D0] dark:border-[#065F46] rounded-[var(--radius-x-small)] text-sm text-[#065F46] dark:text-[#A7F3D0]">
             <div className="w-8 h-8 rounded-lg bg-[#059669] flex items-center justify-center text-white text-sm shrink-0">
-              <i className="fa-solid fa-check" />
+              <FontAwesomeIcon icon={faCheck} />
             </div>
             <div>
               <strong>Nothing needs your attention.</strong>{' '}
@@ -111,7 +103,7 @@ function TabSwitch() {
         <button
           key={label}
           className={`
-            px-4 py-1.5 rounded-md text-[13px] font-semibold
+            px-4 py-1.5 rounded-md text-sm font-semibold
             border-none cursor-pointer transition-all duration-150
             ${i === 0
               ? 'bg-[var(--surface-neutral-white)] text-[var(--text-neutral-xx-strong)] shadow-sm'
