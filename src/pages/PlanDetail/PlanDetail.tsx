@@ -321,6 +321,12 @@ function ReviewGateRow({ gate }: { gate: PlanReviewGate }) {
   );
 }
 
+const approvalStyles = {
+  approved: { bg: '#D1FAE5', color: '#059669', icon: 'check' as const, label: 'Approved' },
+  waiting: { bg: '#FEF3C7', color: '#D97706', icon: 'clock' as const, label: 'Awaiting approval' },
+  not_required: { bg: '#F5F3F2', color: '#A8A29E', icon: 'minus' as const, label: 'N/A' },
+};
+
 function DeliverableCard({
   deliverable,
   isActive,
@@ -330,19 +336,17 @@ function DeliverableCard({
   isActive: boolean;
   onClick: () => void;
 }) {
-  const isPending = deliverable.status === 'pending';
   const typeStyle = deliverableTypeStyles[deliverable.type];
+  const approvals = deliverable.approvals || [];
+  const hasApprovals = approvals.length > 0;
 
   return (
     <button
-      onClick={isPending ? undefined : onClick}
-      disabled={isPending}
+      onClick={onClick}
       className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
-        isPending
-          ? 'border-dashed border-[var(--border-neutral-weak)] opacity-60 cursor-default'
-          : isActive
-            ? 'border-[var(--color-primary-strong)] bg-[var(--surface-primary-x-weak)] shadow-sm'
-            : 'border-[var(--border-neutral-weak)] bg-[var(--surface-neutral-x-weak)] hover:border-[var(--color-primary-strong)] hover:bg-[var(--surface-primary-x-weak)] cursor-pointer'
+        isActive
+          ? 'border-[var(--color-primary-strong)] bg-[var(--surface-primary-x-weak)] shadow-sm'
+          : 'border-[var(--border-neutral-weak)] bg-[var(--surface-neutral-x-weak)] hover:border-[var(--color-primary-strong)] hover:bg-[var(--surface-primary-x-weak)] cursor-pointer'
       }`}
       style={{ minWidth: 180 }}
     >
@@ -356,9 +360,25 @@ function DeliverableCard({
         <div className="text-sm font-medium text-[var(--text-neutral-x-strong)] truncate">
           {deliverable.title}
         </div>
-        <div className="text-[11px] text-[var(--text-neutral-weak)] mt-0.5">
-          {isPending ? 'Pending' : 'View'}
-        </div>
+        {hasApprovals ? (
+          <div className="flex items-center gap-1.5 mt-1">
+            {approvals.map((a, idx) => {
+              const style = approvalStyles[a.status];
+              return (
+                <span
+                  key={idx}
+                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold"
+                  style={{ backgroundColor: style.bg, color: style.color }}
+                >
+                  <Icon name={style.icon} size={8} />
+                  {a.reviewer}
+                </span>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="text-[11px] text-[var(--text-neutral-weak)] mt-0.5">View</div>
+        )}
       </div>
     </button>
   );

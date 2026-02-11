@@ -23,12 +23,17 @@ export interface PlanReviewGate {
   sublabel?: string;
 }
 
+export interface DeliverableApproval {
+  reviewer: string;
+  status: 'approved' | 'waiting' | 'not_required';
+}
+
 export interface PlanDeliverable {
   id: string; // maps to artifactContents key
   icon: IconName;
   title: string;
   type: ArtifactContentType;
-  status: 'ready' | 'pending';
+  approvals?: DeliverableApproval[];
 }
 
 // ============================================================================
@@ -215,9 +220,12 @@ const planBackfillMid: PlanDetailData = {
     },
   ],
   deliverables: [
-    { id: 'comp', icon: 'chart-bar', title: 'Compensation Analysis', type: 'chart', status: 'ready' },
-    { id: 'org', icon: 'sitemap', title: 'Org Impact Report', type: 'report', status: 'ready' },
-    { id: 'jobreq', icon: 'briefcase', title: 'Job Requisition Draft', type: 'job', status: 'pending' },
+    { id: 'comp', icon: 'chart-bar', title: 'Compensation Analysis', type: 'chart' },
+    { id: 'org', icon: 'sitemap', title: 'Org Impact Report', type: 'report' },
+    {
+      id: 'jobreq', icon: 'briefcase', title: 'Job Requisition Draft', type: 'job',
+      approvals: [{ reviewer: 'Jessica Cordova', status: 'waiting' }],
+    },
   ],
   artifactContents: {
     comp: {
@@ -352,9 +360,12 @@ const planBackfillDone: PlanDetailData = {
     },
   ],
   deliverables: [
-    { id: 'comp', icon: 'chart-bar', title: 'Compensation Analysis', type: 'chart', status: 'ready' },
-    { id: 'org', icon: 'sitemap', title: 'Org Impact Report', type: 'report', status: 'ready' },
-    { id: 'jobreq', icon: 'briefcase', title: 'Job Requisition', type: 'job', status: 'ready' },
+    { id: 'comp', icon: 'chart-bar', title: 'Compensation Analysis', type: 'chart' },
+    { id: 'org', icon: 'sitemap', title: 'Org Impact Report', type: 'report' },
+    {
+      id: 'jobreq', icon: 'briefcase', title: 'Job Requisition', type: 'job',
+      approvals: [{ reviewer: 'Jessica Cordova', status: 'approved' }],
+    },
   ],
   artifactContents: {
     comp: planBackfillMid.artifactContents.comp,
