@@ -165,6 +165,66 @@ export const runningRowsWithAlerts: RunningAutomation[] = [
   },
 ];
 
+// --- Mock data: History (completed agent runs) ---
+
+export interface CompletedAutomation {
+  id: string;
+  name: string;
+  summary: string;
+  completedAt: string;
+  duration: string;
+  deliverables: number;
+  planId: string;
+}
+
+export const historyData: CompletedAutomation[] = [
+  {
+    id: 'hist-1',
+    name: 'Backfill — Tony Ramirez',
+    summary: 'Completed 3 deliverables: job requisition, candidate shortlist, interview schedule',
+    completedAt: 'Jan 15, 2026',
+    duration: 'Completed in 1 day',
+    deliverables: 3,
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'hist-2',
+    name: 'Q4 Performance Review Prep',
+    summary: 'Generated review packets for 28 employees across 4 departments',
+    completedAt: 'Dec 18, 2025',
+    duration: 'Completed in 3 days',
+    deliverables: 2,
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'hist-3',
+    name: 'Holiday Schedule Coverage',
+    summary: 'Mapped coverage gaps and created rotation schedule for Dec 20–Jan 2',
+    completedAt: 'Dec 12, 2025',
+    duration: 'Completed in 4 hours',
+    deliverables: 1,
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'hist-4',
+    name: 'New Hire Orientation — Nov Cohort',
+    summary: 'Onboarded 5 employees: doc collection, IT setup, welcome kits, orientation sessions',
+    completedAt: 'Nov 22, 2025',
+    duration: 'Completed in 5 days',
+    deliverables: 2,
+    planId: 'plan-backfill-done',
+  },
+  {
+    id: 'hist-5',
+    name: 'Engineering Headcount Analysis',
+    summary: 'Analyzed team growth, span of control, and budget impact for 2026 planning',
+    completedAt: 'Nov 8, 2025',
+    duration: 'Completed in 2 days',
+    deliverables: 3,
+    planId: 'plan-backfill-done',
+  },
+];
+
 // --- Mock data: Running rows (all-clear state — 6 rows, no alerts) ---
 
 export const runningRowsAllClear: RunningAutomation[] = [
