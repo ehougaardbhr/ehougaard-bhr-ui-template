@@ -61,9 +61,10 @@ export function AutomationsCard() {
       };
     });
 
-  // Merge live plans on top, then static activity (dedup by name)
+  // Merge live plans on top, then static activity (dedup by name, cap static at 4)
   const liveNames = new Set(livePlans.map(p => p.name));
-  const allItems = [...livePlans, ...recentActivity.filter(a => !liveNames.has(a.name))];
+  const staticItems = recentActivity.filter(a => !liveNames.has(a.name)).slice(0, 4);
+  const allItems = [...livePlans, ...staticItems];
 
   return (
     <div
