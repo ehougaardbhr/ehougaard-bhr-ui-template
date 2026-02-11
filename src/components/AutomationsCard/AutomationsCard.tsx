@@ -160,7 +160,7 @@ export function AutomationsCard() {
                       </span>
                       {config && (
                         <span
-                          className="text-[11px] font-semibold leading-none px-2 py-1 rounded-full whitespace-nowrap shrink-0"
+                          className="text-xs font-semibold leading-none px-2 py-1 rounded-full whitespace-nowrap shrink-0"
                           style={{ backgroundColor: config.bg, color: config.text }}
                         >
                           {config.label}
@@ -179,7 +179,7 @@ export function AutomationsCard() {
                           }}
                         />
                       </div>
-                      <span className="text-[11px] text-[var(--text-neutral-weak)] whitespace-nowrap">
+                      <span className="text-xs text-[var(--text-neutral-weak)] whitespace-nowrap">
                         {item.progress.done}/{item.progress.total}
                       </span>
                     </div>
