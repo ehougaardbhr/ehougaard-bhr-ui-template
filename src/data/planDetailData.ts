@@ -4,7 +4,7 @@ import type { IconName } from '../components/Icon/Icon';
 // Types — New simplified plan model
 // ============================================================================
 
-export type ReviewGateStatus = 'passed' | 'waiting' | 'future';
+export type ReviewGateStatus = 'passed' | 'ready' | 'waiting' | 'future';
 export type ArtifactContentType = 'chart' | 'report' | 'text' | 'job';
 
 export interface PlanActionItem {
@@ -392,72 +392,37 @@ const planPipelineReview: PlanDetailData = {
   totalReviews: 2,
   totalArtifacts: 2,
   conversationId: '21',
-  findings: [
+  actionItems: [
+    { id: 'pr-1', description: 'Audit all 7 open requisitions for pipeline health', status: 'done' },
+    { id: 'pr-2', description: 'Flag at-risk positions (stalled, low applicants, zero pipeline)', status: 'done' },
+    { id: 'pr-3', description: 'Generate Pipeline Health Dashboard', status: 'done' },
+    { id: 'pr-4', description: 'Screen talent pools for matches to open reqs', status: 'done' },
+    { id: 'pr-5', description: 'Draft personalized outreach for Marketing pool candidates', status: 'planned' },
+    { id: 'pr-6', description: 'Create hiring manager briefing for President of Sales (escalate)', status: 'planned' },
+    { id: 'pr-7', description: 'Update req priority rankings based on pipeline health', status: 'planned' },
+  ],
+  reviewGates: [
+    { id: 'pr-gate-1', afterItemId: 'pr-3', label: 'Review pipeline analysis before talent pool screening', reviewer: 'You', status: 'passed' },
+    { id: 'pr-gate-2', afterItemId: 'pr-4', label: 'Approve outreach to matched candidates', reviewer: 'You', status: 'ready' },
+  ],
+  deliverables: [
     {
-      id: 'finding-1',
-      sectionTitle: 'Pipeline Health Analysis',
-      status: 'done',
-      timestamp: 'Yesterday, 9:15 AM',
+      id: 'pipeline-chart',
       icon: 'chart-bar',
-      leadFinding:
-        '<strong>3 of 7 open positions are at risk of missing Q1 hiring targets.</strong> Marketing Coordinator has zero applicants after 2 weeks.',
-      secondaryFindings: [
-        { text: '<strong>President of Sales — HIGH risk.</strong> 60 days open, 9 candidates but stalled at reference check stage. No movement in 2 weeks.', severity: 'high' },
-        { text: '<strong>Medical Assistant — MED risk.</strong> 45 days open, only 2 applicants. Low inbound interest.', severity: 'med' },
-        { text: '<strong>Dog Trainer — on track.</strong> 22 candidates (8 new this week), healthy pipeline.', severity: 'low' },
-        { text: '<strong>Web Designer — normal velocity.</strong> 5 candidates, 1 interviewed.', severity: 'info' },
+      title: 'Pipeline Health Dashboard',
+      type: 'chart',
+      approvals: [
+        { reviewer: 'You', status: 'approved' },
       ],
-      artifacts: [
-        { id: 'pipeline-chart', icon: 'chart-bar', label: 'Pipeline Health Dashboard', type: 'chart' },
-      ],
-      reviewGate: {
-        status: 'passed',
-        reviewer: 'You',
-        label: 'Reviewed by You',
-        sublabel: 'Approved to proceed — Yesterday, 9:18 AM',
-      },
     },
     {
-      id: 'finding-2',
-      sectionTitle: 'Talent Pool Screening',
-      status: 'awaiting',
-      timestamp: 'Analysis complete — Yesterday, 9:22 AM',
-      icon: 'users',
-      leadFinding:
-        '<strong>Found 4 talent pool candidates matching open requirements — 2 strong fits for Marketing Coordinator.</strong> Adison Donin (3★ rating, content marketing background) and 1 other from Marketing pool match requirements well.',
-      secondaryFindings: [
-        { text: '<strong>Technology pool — 5 candidates available</strong> but already being evaluated for Senior SE backfill. No incremental matches for other reqs.', severity: 'med' },
-        { text: '<strong>No talent pool matches for Medical Assistant or Nursing Assistant</strong> — specialized roles need job board sourcing.', severity: 'info' },
+      id: 'candidate-matches',
+      icon: 'file-lines',
+      title: 'Candidate Match Report',
+      type: 'report',
+      approvals: [
+        { reviewer: 'You', status: 'waiting' },
       ],
-      artifacts: [
-        { id: 'candidate-matches', icon: 'file-lines', label: 'Candidate Match Report', type: 'report' },
-      ],
-      reviewGate: {
-        status: 'waiting',
-        reviewer: 'You',
-        label: 'Waiting for your review',
-        sublabel: 'Approve outreach to matched candidates',
-        chatLink: true,
-      },
-    },
-    {
-      id: 'finding-3',
-      sectionTitle: 'Candidate Outreach & Prioritization',
-      status: 'upcoming',
-      timestamp: 'Starts after review gate · 3 items',
-      icon: 'arrow-right',
-      leadFinding: '',
-      upcomingItems: [
-        { text: 'Draft personalized outreach for approved Marketing pool candidates' },
-        { text: 'Create hiring manager briefing packet for President of Sales (escalate stalled pipeline)' },
-        { text: 'Update req priority rankings based on pipeline health' },
-      ],
-      reviewGate: {
-        status: 'future',
-        reviewer: 'You',
-        label: 'You approve outreach messages before sending',
-        sublabel: '',
-      },
     },
   ],
   artifactContents: {

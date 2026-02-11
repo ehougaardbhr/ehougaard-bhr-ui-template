@@ -34,6 +34,7 @@ const itemStatusConfig = {
 
 const gateStatusConfig = {
   passed: { icon: 'check' as const, bg: '#D1FAE5', color: '#059669' },
+  ready: { icon: 'clock' as const, bg: '#FEF3C7', color: '#D97706' },
   waiting: { icon: 'clock' as const, bg: '#FEF3C7', color: '#D97706' },
   future: { icon: 'eye' as const, bg: '#F5F3F2', color: '#A8A29E' },
 };
