@@ -15,6 +15,7 @@ export interface ParsedAIResponse {
     title: string;
     sections: PlanSection[];
     reviewSteps?: ReviewStep[];
+    suggestedPrompts?: string[];
   };
 }
 

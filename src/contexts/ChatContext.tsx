@@ -14,7 +14,7 @@ interface ChatContextType {
   selectConversation: (id: string) => void;
   createNewChat: () => ChatConversation;
   addMessage: (conversationId: string, message: Omit<ChatMessage, 'id'>) => string;
-  updateMessage: (conversationId: string, messageId: string, text: string, artifactId?: string) => void;
+  updateMessage: (conversationId: string, messageId: string, text: string, artifactId?: string, suggestions?: string[]) => void;
   filteredConversations: ChatConversation[];
 }
 
@@ -76,14 +76,14 @@ export function ChatProvider({ children }: { children: ReactNode }) {
     return messageId;
   }, []);
 
-  const updateMessage = useCallback((conversationId: string, messageId: string, text: string, artifactId?: string) => {
+  const updateMessage = useCallback((conversationId: string, messageId: string, text: string, artifactId?: string, suggestions?: string[]) => {
     setConversations(prev => prev.map(conversation => {
       if (conversation.id === conversationId) {
         return {
           ...conversation,
           messages: conversation.messages.map(msg =>
             msg.id === messageId
-              ? { ...msg, text, ...(artifactId !== undefined && { artifactId }) }
+              ? { ...msg, text, ...(artifactId !== undefined && { artifactId }), ...(suggestions !== undefined && { suggestions }) }
               : msg
           ),
         };

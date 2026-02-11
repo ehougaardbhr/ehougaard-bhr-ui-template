@@ -346,7 +346,7 @@ export const mockArtifacts: Artifact[] = [
   {
     id: 'artifact-plan-1',
     type: 'plan',
-    title: 'Backfill Plan: Senior Software Engineer (Tony Ramirez)',
+    title: 'Job Requisition: Senior Software Engineer (Tony Ramirez Backfill)',
     conversationId: '20',
     createdAt: new Date('2026-01-25T09:00:00'),
     settings: {
@@ -354,12 +354,12 @@ export const mockArtifacts: Artifact[] = [
       sections: [
         {
           id: 'section-1',
-          title: 'Impact & Risk Assessment',
-          description: 'Analyze the organizational impact of Tony\'s departure and identify immediate risks to the Technology team.',
+          title: 'Draft Job Requisition',
+          description: 'Pull Tony\'s role context and compensation data to draft a job requisition for his replacement.',
           actionItems: [
             {
               id: 'ai-1',
-              description: 'Analyze org impact of Tony Ramirez\'s departure on team structure and span of control',
+              description: 'Analyze Tony\'s role, responsibilities, and team context',
               status: 'planned',
               toolCall: 'analyze_org_impact',
               toolParams: { scenario: 'departure', employeeId: 15, department: 'Technology' },
@@ -367,125 +367,30 @@ export const mockArtifacts: Artifact[] = [
             },
             {
               id: 'ai-2',
-              description: 'Identify flight risks among Uma Patel\'s remaining direct reports',
-              status: 'planned',
-              toolCall: 'identify_flight_risks',
-              toolParams: { team: 'Uma Patel direct reports', department: 'Technology' },
-              dependsOn: [],
-            },
-            {
-              id: 'ai-3',
-              description: 'Run compensation analysis for Technology team — flag anyone below midpoint',
+              description: 'Benchmark compensation against pay bands and market data',
               status: 'planned',
               toolCall: 'analyze_compensation',
-              toolParams: { department: 'Technology', benchmark: true },
-              dependsOn: [],
-            },
-          ],
-        },
-        {
-          id: 'section-2',
-          title: 'Internal Candidate Evaluation',
-          description: 'Assess internal candidates for promotion into the Senior Software Engineer role. Daniel Kim and Rachel Green are succession candidates.',
-          actionItems: [
-            {
-              id: 'ai-4',
-              description: 'Score promotion readiness for Daniel Kim and Rachel Green',
-              status: 'planned',
-              toolCall: 'assess_promotion_readiness',
-              toolParams: { candidates: ['Daniel Kim', 'Rachel Green'], targetRole: 'Senior Software Engineer' },
+              toolParams: { department: 'Technology', role: 'Senior Software Engineer', benchmark: true },
               dependsOn: ['ai-1'],
             },
             {
-              id: 'ai-5',
-              description: 'Model org impact of promoting Daniel Kim to Senior Software Engineer',
-              status: 'planned',
-              toolCall: 'analyze_org_impact',
-              toolParams: { scenario: 'promotion', employeeName: 'Daniel Kim', targetRole: 'Senior Software Engineer' },
-              dependsOn: ['ai-4'],
-            },
-            {
-              id: 'ai-6',
-              description: 'Draft development plan for top internal candidate based on skill gaps',
-              status: 'planned',
-              toolCall: 'draft_development_plan',
-              toolParams: { employeeName: 'Daniel Kim', targetRole: 'Senior Software Engineer' },
-              dependsOn: ['ai-4'],
-            },
-          ],
-        },
-        {
-          id: 'section-3',
-          title: 'External Hiring Pipeline',
-          description: 'Launch external hiring track in parallel — post the role and engage the Technology talent pool.',
-          actionItems: [
-            {
-              id: 'ai-8',
-              description: 'Screen Technology talent pool for candidates matching role requirements',
-              status: 'planned',
-              toolCall: 'screen_talent_pool',
-              toolParams: { pool: 'Technology', requirements: { skills: ['React', 'TypeScript', 'Node.js'], minExperience: 5 } },
-              dependsOn: [],
-            },
-            {
-              id: 'ai-7',
-              description: 'Create job posting for Senior Software Engineer using role data and pay band',
+              id: 'ai-3',
+              description: 'Draft job requisition with role details and salary range',
               status: 'planned',
               toolCall: 'create_job_posting',
               toolParams: { template: 'Senior Software Engineer', department: 'Technology', salaryRange: 'from_pay_band' },
-              dependsOn: ['ai-3'],
-            },
-            {
-              id: 'ai-9',
-              description: 'Draft personalized outreach to top-ranked external candidates',
-              status: 'planned',
-              toolCall: 'draft_candidate_outreach',
-              toolParams: { candidates: 'top_ranked', role: 'Senior Software Engineer' },
-              dependsOn: ['ai-8'],
-            },
-          ],
-        },
-        {
-          id: 'section-4',
-          title: 'Retention Actions',
-          description: 'Address compensation gaps and retention risks surfaced in the analysis. Tony\'s below-market salary may signal broader team issues.',
-          actionItems: [
-            {
-              id: 'ai-10',
-              description: 'Draft compensation adjustment proposals for at-risk team members',
-              status: 'planned',
-              toolCall: 'propose_compensation_change',
-              toolParams: { employees: 'flagged_below_midpoint', department: 'Technology', rationale: 'retention_risk' },
-              dependsOn: ['ai-3'],
-            },
-            {
-              id: 'ai-11',
-              description: 'Generate workforce analytics report on Technology team health',
-              status: 'planned',
-              toolCall: 'generate_report',
-              toolParams: { type: 'team_health', department: 'Technology', metrics: ['turnover', 'tenure', 'comp_ratio', 'flight_risk'] },
-              dependsOn: ['ai-2', 'ai-10'],
+              dependsOn: ['ai-2'],
             },
           ],
         },
       ],
       reviewSteps: [
-        // Section 1: after all analysis completes
-        { id: 'rs-1', description: 'Review impact and risk findings before proceeding', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-3', type: 'findings' },
-        // Section 2: after analysis, then after draft
-        { id: 'rs-2', description: 'Review internal candidate assessment results', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-5', type: 'findings' },
-        { id: 'rs-3', description: 'Approve development plan before sharing with candidate', reviewer: 'Jessica Cordova', reviewerTitle: 'Director, Demand Generation', status: 'planned', afterItem: 'ai-6', type: 'artifact' },
-        // Section 3: after screening, after job posting, after outreach
-        { id: 'rs-4', description: 'Review talent pool screening results', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-8', type: 'findings' },
-        { id: 'rs-5', description: 'Approve job posting before publishing', reviewer: 'Shannon Rivera', reviewerTitle: 'VP of People', status: 'planned', afterItem: 'ai-7', type: 'artifact' },
-        { id: 'rs-6', description: 'Approve outreach messages before sending', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-9', type: 'artifact' },
-        // Section 4: after comp change proposal
-        { id: 'rs-7', description: 'Approve compensation adjustments', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-10', type: 'artifact' },
+        { id: 'rs-1', description: 'Approve job requisition before posting', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-3', type: 'artifact' },
       ],
       approvedBy: undefined,
       approvedAt: undefined,
     } as PlanSettings,
-    content: 'Tool-based backfill plan for Tony Ramirez\'s Senior Software Engineer role. 11 actions across 4 sections: impact analysis, internal candidate evaluation, external hiring pipeline, and retention actions. 7 review gates.',
+    content: 'Focused backfill plan: draft a job requisition for Tony Ramirez\'s Senior Software Engineer role. 3 action items, 1 approval gate.',
   },
   {
     id: 'artifact-1',

@@ -301,3 +301,66 @@ Rendered as compact chip buttons at the bottom of each section:
 1. **Implement in `PlanInlineCard.tsx`** — replace `ReviewStepRow` with `ApprovalPill`, add `ArtifactChips` section footer
 2. No data model changes needed — map existing `ReviewStep.status` to new visual states, derive artifacts from `toolCall` fields
 3. Update `AI-AGENT-INTENT.md` Review Gate Design section to reflect the approval vs artifact split
+
+---
+
+# INTENT — Focused Plans + Suggested Prompts
+
+## Goal
+
+Plans were too big. A "backfill Tony" request generated a 4-section, 11-item mega plan covering impact analysis, internal candidates, external hiring, AND retention — all before the user gets any value. Users don't want to approve and watch a massive waterfall plan. They want the AI to do the next concrete thing, then suggest what else to think about.
+
+The shift: **"Do the one thing, then suggest what's next."**
+
+## Current Direction — Opinion-Led Focused Plans
+
+### Core Pattern
+
+When a user describes a situation, the AI:
+
+1. **Picks the single most actionable next step** — the thing that produces a concrete deliverable (a draft, a posting, a report, a proposal). This is opinion-led: the AI doesn't ask "would you like A, B, or C?" — it says "I'd start with A" and offers B and C as follow-ups.
+
+2. **Builds a focused plan around that one deliverable** — 1 section, 2-4 action items. The items are: the analysis needed to inform it, the creation of it, and the review gate to approve it.
+
+3. **Surfaces 2-3 suggested follow-up prompts** — related concerns the user might want to address next. Each maps to a real tool capability and would generate its own focused plan if clicked.
+
+### Example: Tony Ramirez Backfill
+
+**Old behavior:** 4 sections, 11 items, 7 review gates (impact analysis + internal candidates + external hiring + retention).
+
+**New behavior:**
+- AI message: "I'd recommend we start by creating a new job requisition for Tony's role. I'll pull his responsibilities, comp data, and team context to build it."
+- Plan (1 section, 3 items): analyze role context → analyze comp band → draft job requisition. Review gate: Uma approves the req.
+- Suggested prompts: "Screen the talent pool for matching candidates", "Assess promotion readiness for Tony's direct reports", "Identify flight risks on the team"
+
+### Generalized Rules
+
+- **Plan scope:** Always focus on a single deliverable. 1 section, 2-4 items.
+- **Every plan ends with a concrete output** the user can review (a draft, a posting, a report).
+- **Suggested prompts:** 2-3 related concerns. Each must map to a real tool from the registry.
+- **Opinion-led:** The AI picks the starting point based on urgency/impact. It states its recommendation conversationally, then presents the plan.
+- **Each suggested prompt is a new plan if clicked.** The user stays in control of scope.
+
+### Data Flow
+
+- `suggestedPrompts` is a field on the plan JSON format (alongside `title`, `sections`, `reviewSteps`).
+- The parser extracts them and surfaces them as `suggestions` on the ChatMessage.
+- Existing suggestion chip UI renders them below the plan card.
+- Clicking a suggestion submits it as a new user message, which generates its own focused plan.
+
+## What's Done
+
+- [x] Identified the problem: plans were too large and comprehensive, not focused
+- [x] Designed the "focused plan + suggested prompts" pattern
+- [x] Updated system prompt with new plan scope rules (1 section, 2-4 items, opinion-led)
+- [x] Added `suggestedPrompts` field to plan JSON format and parser
+- [x] Updated ChatContext.updateMessage to support suggestions
+- [x] Wired useChatSend to pass LLM-generated suggestedPrompts to message suggestions
+- [x] Replaced mock plan data: 3-item focused plan (analyze role → analyze comp → draft job req)
+- [x] Updated demo conversation with new AI message text and suggested follow-up prompts
+
+## Rejected Approaches
+
+- **Asking the user to pick** ("Would you like me to A, B, or C?") — consultative, not opinionated. The AI should lead with a recommendation.
+- **Single-item plans** — not enough to show the plan artifact doing its thing (dependencies, review gates, status progression). Minimum 2-3 items needed for the demo.
+- **Keeping all concerns in one plan with "phases"** — still a mega plan. Each concern deserves its own plan at the user's discretion.

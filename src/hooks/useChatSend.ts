@@ -75,8 +75,8 @@ export function useChatSend() {
           reviewSteps: parsed.planArtifact.reviewSteps || [],
         });
 
-        // Update message to include artifactId and display text only
-        updateMessage(conversationId, aiMessageId, parsed.displayText, artifact.id);
+        // Update message to include artifactId, display text, and suggested prompts
+        updateMessage(conversationId, aiMessageId, parsed.displayText, artifact.id, parsed.planArtifact.suggestedPrompts);
 
         // 6. Fire notification
         addNotification({

@@ -762,17 +762,13 @@ While you think about those, I'll start pulling together relevant data on the te
       {
         id: '203',
         type: 'ai',
-        text: `That's helpful context. Compensation-driven departures are something we should address proactively for the remaining team.
-
-I've analyzed the situation and put together a comprehensive backfill plan. Here's what I found:
-
-- **Tony's salary was $135,000** — below the market midpoint of $145,000 for his role
-- **Daniel Kim** on the same team shows strong promotion readiness and could be an internal candidate
-- **Rachel Green** could be ready in ~6 months with targeted development
-- We have **5 qualified candidates** in the Technology talent pool worth screening
-
-I've created a detailed plan with action items. Take a look:`,
+        text: `Got it — comp-driven departure. I'd recommend we start by getting a job requisition drafted so you're ready to move quickly. I'll pull Tony's role context and comp data to build it.`,
         artifactId: 'artifact-plan-1',
+        suggestions: [
+          'Screen the talent pool for matching candidates',
+          'Assess promotion readiness for Tony\'s direct reports',
+          'Identify flight risks on Uma\'s team',
+        ],
       },
     ],
   },
