@@ -5,19 +5,33 @@ import { useChat } from '../../contexts/ChatContext';
 import type { PlanSettings } from '../../data/artifactData';
 import { planDetailDataMap } from '../../data/planDetailData';
 
+type ActionType = 'approval' | 'review' | 'paused' | null;
+
 interface AgentActivityItem {
   id: string;
   name: string;
-  stat: string;
-  status: 'running' | 'paused' | 'completed';
+  progress: { done: number; total: number };
+  action: ActionType;
+  actionLabel: string;
   navPath: string;
 }
 
-const statusIndicator: Record<AgentActivityItem['status'], { color: string; icon?: IconName }> = {
-  running: { color: 'var(--color-primary-strong)' },
-  paused: { color: '#D97706' },
-  completed: { color: '#059669', icon: 'check' },
+const actionConfig: Record<string, { bg: string; text: string; label: string }> = {
+  approval: { bg: '#FEF3C7', text: '#92400E', label: 'Needs approval' },
+  review:   { bg: '#ECFEFF', text: '#155E75', label: 'Needs review' },
+  paused:   { bg: '#FEF3C7', text: '#92400E', label: 'Paused' },
 };
+
+function deriveAction(statusLabel: string): { action: ActionType; actionLabel: string } {
+  const lower = statusLabel.toLowerCase();
+  if (lower.includes('paused'))
+    return { action: 'paused', actionLabel: 'Paused' };
+  if (lower.includes('approval') || lower.includes('proposed'))
+    return { action: 'approval', actionLabel: 'Needs approval' };
+  if (lower.includes('review'))
+    return { action: 'review', actionLabel: 'Needs review' };
+  return { action: null, actionLabel: '' };
+}
 
 // Static recent activity items pulled from plan detail data
 const recentActivity: AgentActivityItem[] = [
@@ -29,13 +43,13 @@ const recentActivity: AgentActivityItem[] = [
   'plan-benefits-enrollment',
 ].map(id => {
   const plan = planDetailDataMap[id];
+  const { action, actionLabel } = deriveAction(plan.statusLabel);
   return {
     id,
     name: plan.title,
-    stat: plan.status === 'completed'
-      ? `Completed · ${plan.totalArtifacts} deliverable${plan.totalArtifacts !== 1 ? 's' : ''}`
-      : `${plan.completedItems}/${plan.totalItems} complete · ${plan.statusLabel}`,
-    status: plan.status === 'completed' ? 'completed' : plan.status === 'paused' ? 'paused' : 'running',
+    progress: { done: plan.completedItems, total: plan.totalItems },
+    action,
+    actionLabel,
     navPath: `/plans/${id}`,
   };
 });
@@ -55,8 +69,9 @@ export function AutomationsCard() {
       return {
         id: artifact.id,
         name: artifact.title,
-        stat: `${doneItems.length}/${allItems.length} complete`,
-        status: 'running' as const,
+        progress: { done: doneItems.length, total: allItems.length },
+        action: null,
+        actionLabel: '',
         navPath: '/plans/plan-backfill-mid',
       };
     });
@@ -64,7 +79,14 @@ export function AutomationsCard() {
   // Merge live plans on top, then static activity (dedup by name, cap static at 4)
   const liveNames = new Set(livePlans.map(p => p.name));
   const staticItems = recentActivity.filter(a => !liveNames.has(a.name)).slice(0, 4);
-  const allItems = [...livePlans, ...staticItems];
+  const merged = [...livePlans, ...staticItems];
+
+  // Sort: items needing action first, then running
+  const allItems = merged.sort((a, b) => {
+    if (a.action && !b.action) return -1;
+    if (!a.action && b.action) return 1;
+    return 0;
+  });
 
   return (
     <div
@@ -119,35 +141,47 @@ export function AutomationsCard() {
         ) : (
           <div className="flex flex-col">
             {allItems.map((item) => {
-              const indicator = statusIndicator[item.status];
+              const pct = item.progress.total > 0
+                ? (item.progress.done / item.progress.total) * 100
+                : 0;
+              const config = item.action ? actionConfig[item.action] : null;
+
               return (
                 <div
                   key={item.id}
-                  className="flex items-center gap-3 px-6 py-4 hover:bg-[var(--surface-neutral-xx-weak)] transition-colors cursor-pointer border-b border-[var(--border-neutral-x-weak)] last:border-b-0"
+                  className="flex items-center gap-3 px-6 py-3.5 hover:bg-[var(--surface-neutral-xx-weak)] transition-colors cursor-pointer border-b border-[var(--border-neutral-x-weak)] last:border-b-0"
                   onClick={() => navigate(item.navPath)}
                 >
-                  {/* Status indicator */}
-                  {indicator.icon ? (
-                    <div
-                      className="w-4 h-4 rounded-full flex items-center justify-center shrink-0"
-                      style={{ backgroundColor: indicator.color }}
-                    >
-                      <Icon name={indicator.icon} size={8} className="text-white" />
-                    </div>
-                  ) : (
-                    <div
-                      className="w-2 h-2 rounded-full shrink-0"
-                      style={{ backgroundColor: indicator.color }}
-                    />
-                  )}
-
-                  {/* Name + stat */}
+                  {/* Left: name + action pill OR progress bar */}
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-[var(--text-neutral-x-strong)]">
-                      {item.name}
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-medium truncate ${config ? 'text-[var(--text-neutral-x-strong)]' : 'text-[var(--text-neutral-medium)]'}`}>
+                        {item.name}
+                      </span>
+                      {config && (
+                        <span
+                          className="text-[11px] font-semibold leading-none px-2 py-1 rounded-full whitespace-nowrap shrink-0"
+                          style={{ backgroundColor: config.bg, color: config.text }}
+                        >
+                          {config.label}
+                        </span>
+                      )}
                     </div>
-                    <div className="text-xs text-[var(--text-neutral-weak)] mt-0.5">
-                      {item.stat}
+
+                    {/* Progress bar — always shown, quieter for running items */}
+                    <div className="flex items-center gap-2 mt-1.5">
+                      <div className="h-1 bg-[var(--surface-neutral-x-weak)] rounded-full overflow-hidden flex-1 max-w-[120px]">
+                        <div
+                          className="h-full rounded-full transition-all duration-300"
+                          style={{
+                            width: `${pct}%`,
+                            backgroundColor: config ? (item.action === 'review' ? '#0891B2' : '#D97706') : 'var(--color-primary-strong)',
+                          }}
+                        />
+                      </div>
+                      <span className="text-[11px] text-[var(--text-neutral-weak)] whitespace-nowrap">
+                        {item.progress.done}/{item.progress.total}
+                      </span>
                     </div>
                   </div>
 
