@@ -180,10 +180,10 @@ export interface CompletedAutomation {
 export const historyData: CompletedAutomation[] = [
   {
     id: 'hist-1',
-    name: 'Backfill — Tony Ramirez',
-    summary: 'Completed 3 deliverables: job requisition, candidate shortlist, interview schedule',
+    name: 'Backfill — Lisa Park (Design)',
+    summary: 'Sourced 4 candidates, drafted job req, scheduled 3 panel interviews',
     completedAt: 'Jan 15, 2026',
-    duration: 'Completed in 1 day',
+    duration: 'Completed in 2 days',
     deliverables: 3,
     planId: 'plan-backfill-done',
   },
