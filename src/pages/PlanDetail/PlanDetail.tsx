@@ -85,7 +85,7 @@ export function PlanDetail() {
     <div className="p-10 h-full overflow-y-auto">
       {/* Back link */}
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate(-1)}
         className="flex items-center gap-1.5 text-sm text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] mb-4 transition-colors"
       >
         <Icon name="chevron-left" size={14} />

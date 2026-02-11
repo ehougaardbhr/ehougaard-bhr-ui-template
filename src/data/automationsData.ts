@@ -86,7 +86,7 @@ export const alertsData: AutomationAlert[] = [
       { severity: 'amber', label: '4 roles below market rate', detail: '— avg 12% under, may hurt conversion' },
     ],
     ctaLabel: 'Review Findings',
-    planId: 'plan-backfill-mid',
+    planId: 'plan-pipeline-review',
   },
   {
     id: 'alert-2',
@@ -99,7 +99,7 @@ export const alertsData: AutomationAlert[] = [
     ],
     ctaLabel: 'Approve',
     ctaIcon: 'fa-solid fa-check',
-    planId: 'plan-backfill-done',
+    planId: 'plan-onboarding',
   },
   {
     id: 'alert-3',
@@ -112,7 +112,7 @@ export const alertsData: AutomationAlert[] = [
     ],
     ctaLabel: 'Resume',
     ctaIcon: 'fa-solid fa-play',
-    planId: 'plan-backfill-mid',
+    planId: 'plan-comp-review',
   },
 ];
 
@@ -135,7 +135,7 @@ export const runningRowsWithAlerts: RunningAutomation[] = [
     status: 'working',
     progress: { current: 2, total: 5 },
     lastUpdate: '1h ago',
-    planId: 'plan-backfill-done',
+    planId: 'plan-pto-audit',
   },
   {
     id: 'run-3',
@@ -143,7 +143,7 @@ export const runningRowsWithAlerts: RunningAutomation[] = [
     meta: 'Continuous · 2 high risk, 5 moderate',
     status: 'done',
     lastUpdate: '2h ago',
-    planId: 'plan-backfill-done',
+    planId: 'plan-flight-risk',
   },
   {
     id: 'run-4',
@@ -152,7 +152,7 @@ export const runningRowsWithAlerts: RunningAutomation[] = [
     status: 'working',
     progress: { current: 1, total: 4 },
     lastUpdate: '3h ago',
-    planId: 'plan-backfill-mid',
+    planId: 'plan-succession',
   },
   {
     id: 'run-5',
@@ -161,7 +161,7 @@ export const runningRowsWithAlerts: RunningAutomation[] = [
     status: 'working',
     progress: { current: 3, total: 6 },
     lastUpdate: '45m ago',
-    planId: 'plan-backfill-done',
+    planId: 'plan-benefits-enrollment',
   },
 ];
 
@@ -175,7 +175,7 @@ export const runningRowsAllClear: RunningAutomation[] = [
     status: 'working',
     progress: { current: 5, total: 7 },
     lastUpdate: '10m ago',
-    planId: 'plan-backfill-mid',
+    planId: 'plan-pipeline-review',
   },
   {
     id: 'clear-2',
@@ -193,7 +193,7 @@ export const runningRowsAllClear: RunningAutomation[] = [
     status: 'working',
     progress: { current: 1, total: 5 },
     lastUpdate: '15m ago',
-    planId: 'plan-backfill-done',
+    planId: 'plan-onboarding',
   },
   {
     id: 'clear-4',
@@ -202,7 +202,7 @@ export const runningRowsAllClear: RunningAutomation[] = [
     status: 'working',
     progress: { current: 2, total: 5 },
     lastUpdate: '1h ago',
-    planId: 'plan-backfill-done',
+    planId: 'plan-pto-audit',
   },
   {
     id: 'clear-5',
@@ -210,7 +210,7 @@ export const runningRowsAllClear: RunningAutomation[] = [
     meta: 'Continuous · 2 high risk, 5 moderate',
     status: 'done',
     lastUpdate: '2h ago',
-    planId: 'plan-backfill-done',
+    planId: 'plan-flight-risk',
   },
   {
     id: 'clear-6',
@@ -219,6 +219,6 @@ export const runningRowsAllClear: RunningAutomation[] = [
     status: 'working',
     progress: { current: 7, total: 8 },
     lastUpdate: '20m ago',
-    planId: 'plan-backfill-mid',
+    planId: 'plan-comp-review',
   },
 ];
