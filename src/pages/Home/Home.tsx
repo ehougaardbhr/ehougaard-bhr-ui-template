@@ -18,7 +18,7 @@ export function Home() {
 
   // Pre-built demo conversations mapped by suggestion label
   const demoConversations: Record<string, string> = {
-    'Backfill plan for Tony Ramirez': '20',
+    'Who on my team is a flight risk?': '20',
   };
 
   const handleSubmit = async (inputValue: string) => {
@@ -73,9 +73,9 @@ export function Home() {
         <OrgChartAIInput
           placeholder="Ask me anything..."
           suggestions={[
-            { label: 'Backfill plan for Tony Ramirez' },
-            { label: 'Show me the org chart' },
-            { label: 'Review team headcount' },
+            { label: 'Who on my team is a flight risk?' },
+            { label: 'Prep for my 1:1 with Marcus' },
+            { label: 'Summarize open headcount' },
           ]}
           onSubmit={handleSubmit}
           onSuggestionClick={(suggestion) => handleSubmit(suggestion.label)}
