@@ -149,14 +149,14 @@ export function OrgChartAIInput({
 
       {/* Suggestions - always visible, positioned below input */}
       {suggestions.length > 0 && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-stretch gap-3">
           {suggestions.map((suggestion, index) => (
             <button
               key={index}
               onClick={() => handleSuggestionClick(suggestion)}
               className="
                 flex items-center gap-2
-                h-8 px-3
+                min-h-8 py-1.5 px-3
                 bg-[var(--surface-neutral-white)]
                 border border-[var(--border-neutral-medium)]
                 rounded-full

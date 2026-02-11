@@ -77,9 +77,9 @@ export function Button({
   };
 
   const sizeStyles = {
-    small: 'h-8 px-4',
-    medium: 'h-10 px-5',
-    large: 'h-12 px-6',
+    small: 'min-h-8 py-1.5 px-4',
+    medium: 'min-h-10 py-2 px-5',
+    large: 'min-h-12 py-2.5 px-6',
   };
 
   const iconColor = {
