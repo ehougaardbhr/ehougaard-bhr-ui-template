@@ -186,7 +186,7 @@ class PlanExecutionEngine {
       if (this.callbacks.onReviewGateReached) {
         const doneCount = this.settings.sections.flatMap(s => s.actionItems).filter(i => i.status === 'done').length;
         const totalCount = this.settings.sections.flatMap(s => s.actionItems).length;
-        const gateMessage = `I've completed ${doneCount} of ${totalCount} steps. I'll need your approval on: **${reviewStep.description}**. You can review the deliverables above and approve when ready.`;
+        const gateMessage = `I've completed ${doneCount} of ${totalCount} steps. I'll need your approval on: **${reviewStep.description}**. You can review the deliverables above and approve when ready.\n\nIn the meantime, here are some other things I can help with:`;
         this.callbacks.onReviewGateReached(
           this.conversationId,
           gateMessage,
