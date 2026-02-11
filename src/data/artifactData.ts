@@ -80,6 +80,7 @@ export interface PlanSettings {
   status: PlanStatus;
   sections: PlanSection[];
   reviewSteps?: ReviewStep[];  // interleaved between sections
+  suggestedPrompts?: string[]; // follow-up actions to suggest after execution
   approvedBy?: string;
   approvedAt?: string;
 }
@@ -386,6 +387,11 @@ export const mockArtifacts: Artifact[] = [
       ],
       reviewSteps: [
         { id: 'rs-1', description: 'Approve job requisition before posting', reviewer: 'Jessica Cordova', reviewerTitle: 'Director, Demand Generation', status: 'planned', afterItem: 'ai-3', type: 'artifact' },
+      ],
+      suggestedPrompts: [
+        'Screen the talent pool for matching candidates',
+        'Assess promotion readiness for Tony\'s direct reports',
+        'Identify flight risks on Uma\'s team',
       ],
       approvedBy: undefined,
       approvedAt: undefined,

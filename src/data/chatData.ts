@@ -764,11 +764,6 @@ While you think about those, I'll start pulling together relevant data on the te
         type: 'ai',
         text: `Got it — comp-driven departure. I'd recommend we start by getting a job requisition drafted so you're ready to move quickly. I'll pull Tony's role context and comp data to build it.`,
         artifactId: 'artifact-plan-1',
-        suggestions: [
-          'Screen the talent pool for matching candidates',
-          'Assess promotion readiness for Tony\'s direct reports',
-          'Identify flight risks on Uma\'s team',
-        ],
       },
     ],
   },

@@ -8,6 +8,7 @@ interface ExecutionCallbacks {
     type?: 'info' | 'action_needed' | 'completed';
     conversationId?: string;
   }) => void;
+  onReviewGateReached?: (conversationId: string, message: string, suggestions?: string[]) => void;
 }
 
 interface ItemLocation {
@@ -180,6 +181,18 @@ class PlanExecutionEngine {
         message: reviewStep.description,
         conversationId: this.conversationId,
       });
+
+      // Post AI chat message with summary + suggested prompts
+      if (this.callbacks.onReviewGateReached) {
+        const doneCount = this.settings.sections.flatMap(s => s.actionItems).filter(i => i.status === 'done').length;
+        const totalCount = this.settings.sections.flatMap(s => s.actionItems).length;
+        const gateMessage = `I've completed ${doneCount} of ${totalCount} steps. I'll need your approval on: **${reviewStep.description}**. You can review the deliverables above and approve when ready.`;
+        this.callbacks.onReviewGateReached(
+          this.conversationId,
+          gateMessage,
+          this.settings.suggestedPrompts
+        );
+      }
     }
   }
 

@@ -73,10 +73,12 @@ export function useChatSend() {
           status: 'proposed',
           sections: parsed.planArtifact.sections,
           reviewSteps: parsed.planArtifact.reviewSteps || [],
+          suggestedPrompts: parsed.planArtifact.suggestedPrompts || [],
         });
 
-        // Update message to include artifactId, display text, and suggested prompts
-        updateMessage(conversationId, aiMessageId, parsed.displayText, artifact.id, parsed.planArtifact.suggestedPrompts);
+        // Update message with display text and artifact — no suggestions at proposal time
+        // (suggestions surface after execution hits a review gate)
+        updateMessage(conversationId, aiMessageId, parsed.displayText, artifact.id);
 
         // 6. Fire notification
         addNotification({

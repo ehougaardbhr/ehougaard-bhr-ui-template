@@ -4,6 +4,7 @@ import { Icon, type IconName } from '../Icon';
 import { Button } from '../Button';
 import { useArtifact } from '../../contexts/ArtifactContext';
 import { useAINotifications } from '../../contexts/AINotificationContext';
+import { useChat } from '../../contexts/ChatContext';
 import { startPlanExecution, resumePlanExecution } from '../../services/planExecutionService';
 import type { Artifact, PlanSettings, PlanStatus, ActionItem, PlanSection, ReviewStep } from '../../data/artifactData';
 import { currentEmployee } from '../../data/currentEmployee';
@@ -538,6 +539,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
   const navigate = useNavigate();
   const { updateArtifactSettings } = useArtifact();
   const { addNotification } = useAINotifications();
+  const { addMessage, updateMessage } = useChat();
   const settings = artifact.settings as PlanSettings;
 
   // Track which sections are collapsed (all start expanded)
@@ -615,6 +617,12 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
     startPlanExecution(artifact.id, artifact.conversationId, settings, {
       updateArtifactSettings,
       addNotification,
+      onReviewGateReached: (conversationId, message, suggestions) => {
+        const msgId = addMessage(conversationId, { type: 'ai', text: message });
+        if (suggestions && suggestions.length > 0) {
+          updateMessage(conversationId, msgId, message, undefined, suggestions);
+        }
+      },
     });
   };
 
