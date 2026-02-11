@@ -109,9 +109,10 @@ export function PlanDetail() {
         {plan.subtitle && (
           <span
             style={{
-              fontFamily: 'Inter, system-ui, sans-serif',
-              fontSize: '24px',
+              fontFamily: 'Fields, system-ui, sans-serif',
+              fontSize: '32px',
               fontWeight: 400,
+              lineHeight: '40px',
               color: 'var(--text-neutral-medium)',
             }}
           >

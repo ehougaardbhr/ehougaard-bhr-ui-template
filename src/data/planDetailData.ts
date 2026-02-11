@@ -258,8 +258,8 @@ const planBackfillMid: PlanDetailData = {
           <p style="margin-bottom:14px;"><strong>Span of control:</strong> Uma Patel drops from 8→7 direct reports.</p>
           <p style="margin-bottom:14px;"><strong>Projects affected:</strong></p>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-            <div style="padding:10px 14px;background:#F5F3F2;border-radius:8px;font-size:12px;"><strong>API Gateway v2</strong> — 65% complete, Tony is sole reviewer. Daniel Kim has most context.</div>
-            <div style="padding:10px 14px;background:#F5F3F2;border-radius:8px;font-size:12px;"><strong>Mobile SDK</strong> — 30% complete, Tony owns architecture. Rachel Green is secondary.</div>
+            <div style="padding:10px 14px;background:#F5F3F2;color:#44403C;border-radius:8px;font-size:12px;"><strong>API Gateway v2</strong> — 65% complete, Tony is sole reviewer. Daniel Kim has most context.</div>
+            <div style="padding:10px 14px;background:#F5F3F2;color:#44403C;border-radius:8px;font-size:12px;"><strong>Mobile SDK</strong> — 30% complete, Tony owns architecture. Rachel Green is secondary.</div>
           </div>
           <p><strong>Knowledge gaps:</strong></p>
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
@@ -651,10 +651,10 @@ const planCompReview: PlanDetailData = {
           <p style="margin-bottom:14px;"><strong>Compensation Adjustment Recommendations — Engineering</strong></p>
           <p style="margin-bottom:14px;font-size:12px;color:var(--text-neutral-medium);">7 of 14 engineering employees are below 90% compa-ratio. Total recommended adjustment: <strong style="color:var(--text-neutral-x-strong);">$47,200/year</strong> (3.2% of department payroll).</p>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-            <div style="padding:10px 14px;background:#FEE2E2;border-radius:8px;font-size:12px;">
+            <div style="padding:10px 14px;background:#FEE2E2;color:#7F1D1D;border-radius:8px;font-size:12px;">
               <strong>Priority 1 — High flight risk (3 employees):</strong> Daniel Kim (+$8K), Isabella Garcia (+$9K), Jack Bennett (+$7K). Combined: $24K. These employees have received competing offers or shown disengagement signals.
             </div>
-            <div style="padding:10px 14px;background:#FEF3C7;border-radius:8px;font-size:12px;">
+            <div style="padding:10px 14px;background:#FEF3C7;color:#78350F;border-radius:8px;font-size:12px;">
               <strong>Priority 2 — Below market (4 employees):</strong> Rachel Green (+$5K), Chris Martinez (+$7K), Samuel Wright (+$5.2K), Amanda Wilson (+$6K). Combined: $23.2K.
             </div>
           </div>
@@ -714,10 +714,10 @@ const planPtoAudit: PlanDetailData = {
           <p style="margin-bottom:14px;"><strong>PTO Balance Audit — Preliminary Findings</strong></p>
           <p style="margin-bottom:14px;font-size:12px;color:var(--text-neutral-medium);">Scanned 142 active employees across 6 departments. Analysis in progress — department patterns pending.</p>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-            <div style="padding:10px 14px;background:#FEE2E2;border-radius:8px;font-size:12px;">
+            <div style="padding:10px 14px;background:#FEE2E2;color:#7F1D1D;border-radius:8px;font-size:12px;">
               <strong>8 employees exceed 200-hour cap.</strong> Highest: Tom Harrison (Operations) at 247 hours. Policy requires use-it-or-lose-it by fiscal year end.
             </div>
-            <div style="padding:10px 14px;background:#FEF3C7;border-radius:8px;font-size:12px;">
+            <div style="padding:10px 14px;background:#FEF3C7;color:#78350F;border-radius:8px;font-size:12px;">
               <strong>12 employees have taken zero PTO in 6+ months.</strong> Concentrated in Technology (5) and Operations (4). May indicate workload or culture concerns.
             </div>
             <div style="padding:10px 14px;background:var(--surface-neutral-x-weak);border-radius:8px;font-size:12px;">
@@ -783,15 +783,15 @@ const planFlightRisk: PlanDetailData = {
         html: `
           <p style="margin-bottom:14px;"><strong>Marketing Team Flight Risk Summary</strong></p>
           <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
-            <div style="padding:10px 14px;background:#FEE2E2;border-radius:8px;font-size:12px;">
+            <div style="padding:10px 14px;background:#FEE2E2;color:#7F1D1D;border-radius:8px;font-size:12px;">
               <strong style="color:#DC2626;">HIGH RISK</strong> — <strong>Alex Johnson</strong>, Content Marketing Specialist<br/>
               <span style="color:var(--text-neutral-medium);">Compa-ratio: 0.82 · No promotion in 3 years · Engagement survey score dropped 18pts. LinkedIn activity increased 3x in past month.</span>
             </div>
-            <div style="padding:10px 14px;background:#FEE2E2;border-radius:8px;font-size:12px;">
+            <div style="padding:10px 14px;background:#FEE2E2;color:#7F1D1D;border-radius:8px;font-size:12px;">
               <strong style="color:#DC2626;">HIGH RISK</strong> — <strong>Jordan Lee</strong>, Digital Marketing Specialist<br/>
               <span style="color:var(--text-neutral-medium);">Compa-ratio: 0.85 · Declined last two optional projects · Manager 1:1 notes indicate dissatisfaction with growth path.</span>
             </div>
-            <div style="padding:10px 14px;background:#FEF3C7;border-radius:8px;font-size:12px;">
+            <div style="padding:10px 14px;background:#FEF3C7;color:#78350F;border-radius:8px;font-size:12px;">
               <strong style="color:#D97706;">MODERATE</strong> — <strong>Mia Turner</strong>, Marketing Manager<br/>
               <span style="color:var(--text-neutral-medium);">Compa-ratio: 0.91 · High performer but team of 2 is stretched thin. Risk increases if either direct report departs.</span>
             </div>
