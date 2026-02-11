@@ -1,5 +1,5 @@
 import { Icon } from '../Icon';
-import type { ArtifactContent, CompChartContent, OrgReportContent, DevPlanContent } from '../../data/planDetailData';
+import type { ArtifactContent, CompChartContent, OrgReportContent, DevPlanContent, JobReqContent } from '../../data/planDetailData';
 
 interface ArtifactPanelProps {
   artifact: ArtifactContent | null;
@@ -63,6 +63,9 @@ export function ArtifactPanel({ artifact, onClose }: ArtifactPanelProps) {
             )}
             {artifact.type === 'text' && (
               <DevPlanRenderer content={artifact.content as DevPlanContent} />
+            )}
+            {artifact.type === 'job' && (
+              <JobReqRenderer content={artifact.content as JobReqContent} />
             )}
           </div>
 
@@ -225,5 +228,15 @@ function DevPlanRenderer({ content }: { content: DevPlanContent }) {
         </div>
       )}
     </>
+  );
+}
+
+// Job Requisition Renderer
+function JobReqRenderer({ content }: { content: JobReqContent }) {
+  return (
+    <div
+      className="text-[13px] leading-[1.7] text-[var(--text-neutral-strong)]"
+      dangerouslySetInnerHTML={{ __html: content.html }}
+    />
   );
 }

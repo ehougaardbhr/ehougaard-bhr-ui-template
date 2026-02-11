@@ -1,16 +1,45 @@
 import type { IconName } from '../components/Icon/Icon';
 
 // ============================================================================
-// Types
+// Types — New simplified plan model
+// ============================================================================
+
+export type ReviewGateStatus = 'passed' | 'waiting' | 'future';
+export type ArtifactContentType = 'chart' | 'report' | 'text' | 'job';
+
+export interface PlanActionItem {
+  id: string;
+  label: string;
+  status: 'done' | 'working' | 'awaiting' | 'planned';
+  timestamp?: string;
+}
+
+export interface PlanReviewGate {
+  id: string;
+  afterItemId: string;
+  status: ReviewGateStatus;
+  reviewer: string;
+  label: string;
+  sublabel?: string;
+}
+
+export interface PlanDeliverable {
+  id: string; // maps to artifactContents key
+  icon: IconName;
+  title: string;
+  type: ArtifactContentType;
+  status: 'ready' | 'pending';
+}
+
+// ============================================================================
+// Types — Legacy findings model (used by pipeline review)
 // ============================================================================
 
 export type FindingStatus = 'done' | 'awaiting' | 'working' | 'upcoming';
 export type SeverityLevel = 'high' | 'med' | 'low' | 'info' | 'neutral';
-export type ReviewGateStatus = 'passed' | 'waiting' | 'future';
-export type ArtifactContentType = 'chart' | 'report' | 'text' | 'job';
 
 export interface SecondaryFinding {
-  text: string; // HTML string with <strong> tags
+  text: string;
   severity: SeverityLevel;
 }
 
@@ -39,12 +68,12 @@ export interface PlanDetailFinding {
   status: FindingStatus;
   timestamp?: string;
   icon: IconName;
-  leadFinding: string; // HTML string
+  leadFinding: string;
   secondaryFindings?: SecondaryFinding[];
   artifacts?: FindingArtifact[];
   upcomingItems?: UpcomingItem[];
   reviewGate?: ReviewGate;
-  parallelGroupId?: string; // findings with same ID render side-by-side
+  parallelGroupId?: string;
 }
 
 export interface StandaloneReviewGate {
@@ -55,7 +84,10 @@ export interface StandaloneReviewGate {
   sublabel: string;
 }
 
+// ============================================================================
 // Artifact panel content types
+// ============================================================================
+
 export interface CompChartContent {
   kind: 'comp-chart';
   chartTitle?: string;
@@ -97,14 +129,25 @@ export interface DevPlanContent {
   compAdjustment?: string;
 }
 
+export interface JobReqContent {
+  kind: 'job-req';
+  html: string;
+}
+
 export type ArtifactContent =
   | { id: string; title: string; meta: string; type: 'chart'; content: CompChartContent }
   | { id: string; title: string; meta: string; type: 'report'; content: OrgReportContent }
-  | { id: string; title: string; meta: string; type: 'text'; content: DevPlanContent };
+  | { id: string; title: string; meta: string; type: 'text'; content: DevPlanContent }
+  | { id: string; title: string; meta: string; type: 'job'; content: JobReqContent };
+
+// ============================================================================
+// Main data type
+// ============================================================================
 
 export interface PlanDetailData {
   id: string;
   title: string;
+  subtitle?: string;
   status: 'running' | 'paused' | 'completed';
   statusLabel: string;
   startedAt: string;
@@ -114,135 +157,67 @@ export interface PlanDetailData {
   totalReviews: number;
   totalArtifacts: number;
   conversationId: string;
-  findings: PlanDetailFinding[];
+  // New simplified plan model
+  actionItems?: PlanActionItem[];
+  reviewGates?: PlanReviewGate[];
+  deliverables?: PlanDeliverable[];
+  // Legacy findings model
+  findings?: PlanDetailFinding[];
   standaloneGates?: StandaloneReviewGate[];
+  // Artifact panel content (shared by both models)
   artifactContents: Record<string, ArtifactContent>;
 }
 
 // ============================================================================
-// Mock Data - Mid-Execution (Next-Day Check-In)
+// Mock Data - Mid-Execution (Awaiting Approval on Job Req)
 // ============================================================================
 
 const planBackfillMid: PlanDetailData = {
   id: 'plan-backfill-mid',
-  title: 'Backfill Plan for Tony Ramirez',
+  title: 'Backfill plan: Senior Software Engineer',
+  subtitle: 'Tony Ramirez',
   status: 'paused',
-  statusLabel: 'Waiting for review',
+  statusLabel: 'Waiting for approval',
   startedAt: 'Started yesterday',
-  totalItems: 9,
-  completedItems: 3,
+  totalItems: 3,
+  completedItems: 2,
   totalReviews: 1,
-  totalArtifacts: 3,
+  totalArtifacts: 2,
   conversationId: '20',
-  findings: [
-    // Finding 1: Done
+  actionItems: [
     {
-      id: 'finding-1',
-      sectionTitle: 'Team Compensation & Retention Risk',
+      id: 'item-1',
+      label: 'Analyze role context & org impact',
       status: 'done',
       timestamp: 'Yesterday, 10:23 AM',
-      icon: 'check',
-      leadFinding:
-        '<strong>Daniel Kim is significantly underpaid and a high flight risk.</strong> 15% below midpoint ($118K vs $135K), no promotion in 2 years. Tony\'s departure creates an AWS cert gap and leaves 2 projects without a lead.',
-      secondaryFindings: [
-        {
-          text: '<strong>Rachel Green — MEDIUM risk.</strong> $105K, 8% below midpoint, top performer, no comp adjustment in 14 months.',
-          severity: 'med',
-        },
-        {
-          text: '<strong>James Liu — LOW risk.</strong> Recently promoted, comp at midpoint.',
-          severity: 'low',
-        },
-        {
-          text: '<strong>Team compa-ratio: 0.87</strong> — below target range across the board.',
-          severity: 'info',
-        },
-      ],
-      artifacts: [
-        { id: 'comp', icon: 'chart-bar', label: 'Compensation Analysis', type: 'chart' },
-        { id: 'org', icon: 'sitemap', label: 'Org Impact Report', type: 'report' },
-      ],
-      reviewGate: {
-        status: 'passed',
-        reviewer: 'You',
-        label: 'Reviewed by You',
-        sublabel: 'Approved to proceed — Yesterday, 10:27 AM',
-      },
     },
-    // Finding 2: Awaiting
     {
-      id: 'finding-2',
-      sectionTitle: 'Internal Candidate Assessment',
+      id: 'item-2',
+      label: 'Benchmark compensation for replacement',
+      status: 'done',
+      timestamp: 'Yesterday, 10:25 AM',
+    },
+    {
+      id: 'item-3',
+      label: 'Draft job requisition',
       status: 'awaiting',
-      timestamp: 'Analysis complete — Yesterday, 10:30 AM',
-      icon: 'clock',
-      leadFinding:
-        '<strong>Daniel Kim scores 82/100 on promotion readiness — ready for Senior SE.</strong> Strong technical skills, exceeds expectations. Primary gap: mentorship experience. Development plan drafted.',
-      secondaryFindings: [
-        {
-          text: '<strong>Rachel Green: 71/100</strong> — needs 6–12 months. Worth tracking for next cycle.',
-          severity: 'med',
-        },
-        {
-          text: '<strong>Promoting Daniel creates a secondary backfill</strong> at mid-level SE — lower risk, 3 talent pool candidates available.',
-          severity: 'info',
-        },
-      ],
-      artifacts: [
-        {
-          id: 'devplan',
-          icon: 'file-lines',
-          label: 'Daniel Kim — Development Plan',
-          type: 'text',
-        },
-      ],
-      reviewGate: {
-        status: 'waiting',
-        reviewer: 'Uma Patel',
-        label: 'Waiting for Uma Patel\'s review',
-        sublabel: 'Confirm internal candidate direction — sent yesterday',
-        chatLink: true,
-      },
+      timestamp: 'Ready for review',
     },
-    // Finding 3: Upcoming
+  ],
+  reviewGates: [
     {
-      id: 'finding-3',
-      sectionTitle: 'External Hiring Pipeline',
-      status: 'upcoming',
-      timestamp: 'Starts after review gate · 3 items',
-      icon: 'arrow-right',
-      leadFinding: '',
-      upcomingItems: [
-        { text: 'Create job posting for Senior Software Engineer ($125K–$155K)' },
-        { text: 'Screen talent pool candidates against role requirements' },
-        { text: 'Draft personalized outreach for top-ranked candidates' },
-      ],
-      reviewGate: {
-        status: 'future',
-        reviewer: 'You',
-        label: 'You approve job posting and outreach before publishing',
-        sublabel: '',
-      },
+      id: 'gate-1',
+      afterItemId: 'item-3',
+      status: 'waiting',
+      reviewer: 'Jessica Cordova',
+      label: 'Approve job requisition before posting',
+      sublabel: 'Review the draft and approve to publish',
     },
-    // Finding 4: Upcoming
-    {
-      id: 'finding-4',
-      sectionTitle: 'Retention & Compensation Adjustments',
-      status: 'upcoming',
-      timestamp: 'Final section · 2 items',
-      icon: 'arrow-right',
-      leadFinding: '',
-      upcomingItems: [
-        { text: 'Propose compensation adjustment for Daniel Kim (promotion)' },
-        { text: 'Propose retention adjustment for Rachel Green' },
-      ],
-      reviewGate: {
-        status: 'future',
-        reviewer: 'Finance (VP)',
-        label: 'Finance (VP) approves compensation changes',
-        sublabel: '',
-      },
-    },
+  ],
+  deliverables: [
+    { id: 'comp', icon: 'chart-bar', title: 'Compensation Analysis', type: 'chart', status: 'ready' },
+    { id: 'org', icon: 'sitemap', title: 'Org Impact Report', type: 'report', status: 'ready' },
+    { id: 'jobreq', icon: 'briefcase', title: 'Job Requisition Draft', type: 'job', status: 'pending' },
   ],
   artifactContents: {
     comp: {
@@ -253,53 +228,14 @@ const planBackfillMid: PlanDetailData = {
       content: {
         kind: 'comp-chart',
         bars: [
-          {
-            name: 'Daniel Kim',
-            salary: '$118K',
-            fillPct: 62,
-            markerPct: 71,
-            color: '#DC2626',
-          },
-          {
-            name: 'Rachel Green',
-            salary: '$105K',
-            fillPct: 55,
-            markerPct: 60,
-            color: '#D97706',
-          },
+          { name: 'Daniel Kim', salary: '$118K', fillPct: 62, markerPct: 71, color: '#DC2626' },
+          { name: 'Rachel Green', salary: '$105K', fillPct: 55, markerPct: 60, color: '#D97706' },
           { name: 'James Liu', salary: '$128K', fillPct: 67, markerPct: 67, color: '#059669' },
         ],
         rows: [
-          {
-            name: 'Daniel Kim',
-            salary: '$118,000',
-            midpoint: '$135,000',
-            compa: '0.87',
-            compaColor: '#DC2626',
-            risk: 'HIGH',
-            riskBg: '#FEE2E2',
-            riskColor: '#DC2626',
-          },
-          {
-            name: 'Rachel Green',
-            salary: '$105,000',
-            midpoint: '$114,000',
-            compa: '0.92',
-            compaColor: '#D97706',
-            risk: 'MED',
-            riskBg: '#FEF3C7',
-            riskColor: '#D97706',
-          },
-          {
-            name: 'James Liu',
-            salary: '$128,000',
-            midpoint: '$128,000',
-            compa: '1.00',
-            compaColor: '#059669',
-            risk: 'LOW',
-            riskBg: '#D1FAE5',
-            riskColor: '#059669',
-          },
+          { name: 'Daniel Kim', salary: '$118,000', midpoint: '$135,000', compa: '0.87', compaColor: '#DC2626', risk: 'HIGH', riskBg: '#FEE2E2', riskColor: '#DC2626' },
+          { name: 'Rachel Green', salary: '$105,000', midpoint: '$114,000', compa: '0.92', compaColor: '#D97706', risk: 'MED', riskBg: '#FEF3C7', riskColor: '#D97706' },
+          { name: 'James Liu', salary: '$128,000', midpoint: '$128,000', compa: '1.00', compaColor: '#059669', risk: 'LOW', riskBg: '#D1FAE5', riskColor: '#059669' },
         ],
       },
     },
@@ -326,165 +262,107 @@ const planBackfillMid: PlanDetailData = {
         `,
       },
     },
-    devplan: {
-      id: 'devplan',
-      title: 'Daniel Kim — Development Plan',
-      meta: 'Yesterday, 10:29 AM · Senior SE Track',
-      type: 'text',
+    jobreq: {
+      id: 'jobreq',
+      title: 'Job Requisition — Senior Software Engineer',
+      meta: 'Draft · Pending approval',
+      type: 'job',
       content: {
-        kind: 'dev-plan',
-        readiness: 82,
-        milestones: [
-          {
-            period: 'Month 1',
-            description: 'Take over API Gateway lead. Shadow Uma on architecture reviews.',
-          },
-          { period: 'Month 2', description: 'Mentor junior engineer. Begin AWS cert prep.' },
-          {
-            period: 'Month 3',
-            description: 'Lead cross-team review. Complete AWS Solutions Architect.',
-          },
-        ],
-        compAdjustment:
-          'Proposed: $118K → $138K (+17%). Compa-ratio 0.87 → 1.02. Within Senior SE band ($125K–$155K).',
+        kind: 'job-req',
+        html: `
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-neutral-weak);margin-bottom:4px;">Position</div>
+            <div style="font-size:14px;font-weight:600;color:var(--text-neutral-x-strong);">Senior Software Engineer</div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-neutral-weak);margin-bottom:4px;">Department</div>
+            <div style="font-size:13px;color:var(--text-neutral-strong);">Technology · Uma Patel's Team</div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-neutral-weak);margin-bottom:4px;">Compensation Band</div>
+            <div style="font-size:13px;color:var(--text-neutral-strong);">$125,000 – $155,000 · Based on market benchmarking</div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-neutral-weak);margin-bottom:4px;">Key Requirements</div>
+            <ul style="margin:6px 0 0 18px;font-size:13px;color:var(--text-neutral-strong);line-height:1.6;">
+              <li>5+ years backend/full-stack experience</li>
+              <li>AWS infrastructure (EC2, Lambda, RDS, CloudFormation)</li>
+              <li>API architecture and microservices design</li>
+              <li>CI/CD pipeline ownership</li>
+              <li>Experience mentoring junior engineers</li>
+            </ul>
+          </div>
+          <div>
+            <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-neutral-weak);margin-bottom:4px;">Context from AI Analysis</div>
+            <div style="font-size:12px;color:var(--text-neutral-medium);line-height:1.6;padding:10px 14px;background:var(--surface-neutral-x-weak);border-radius:8px;">
+              Requirements derived from Tony Ramirez's responsibilities, team knowledge gaps (AWS Infrastructure, API Architecture, CI/CD Pipeline), and current project needs (API Gateway v2, Mobile SDK). Compensation band based on market data and team compa-ratio analysis.
+            </div>
+          </div>
+        `,
       },
     },
   },
 };
 
 // ============================================================================
-// Mock Data - Completed (Week-Later Retrospective)
+// Mock Data - Completed
 // ============================================================================
 
 const planBackfillDone: PlanDetailData = {
   id: 'plan-backfill-done',
-  title: 'Backfill Plan for Tony Ramirez',
+  title: 'Backfill plan: Senior Software Engineer',
+  subtitle: 'Tony Ramirez',
   status: 'completed',
   statusLabel: 'Completed',
-  startedAt: 'Jan 14–15, 2026',
-  completedAt: 'Completed in 2 days',
-  totalItems: 9,
-  completedItems: 9,
-  totalReviews: 3,
-  totalArtifacts: 5,
+  startedAt: 'Jan 14, 2026',
+  completedAt: 'Completed in 1 day',
+  totalItems: 3,
+  completedItems: 3,
+  totalReviews: 1,
+  totalArtifacts: 3,
   conversationId: '20',
-  findings: [
-    // Finding 1: Done (same as mid)
+  actionItems: [
     {
-      id: 'finding-1',
-      sectionTitle: 'Team Compensation & Retention Risk',
+      id: 'item-1',
+      label: 'Analyze role context & org impact',
       status: 'done',
       timestamp: 'Jan 14, 10:23 AM',
-      icon: 'check',
-      leadFinding:
-        '<strong>Daniel Kim is significantly underpaid and a high flight risk.</strong> 15% below midpoint ($118K vs $135K), no promotion in 2 years. Tony\'s departure creates AWS cert gap and 2 projects without a lead.',
-      secondaryFindings: [
-        {
-          text: '<strong>Rachel Green — MEDIUM risk.</strong> $105K, 8% below midpoint, top performer.',
-          severity: 'med',
-        },
-        { text: '<strong>James Liu — LOW risk.</strong> At midpoint, recently promoted.', severity: 'low' },
-        { text: '<strong>Team compa-ratio: 0.87.</strong>', severity: 'info' },
-      ],
-      artifacts: [
-        { id: 'comp2', icon: 'chart-bar', label: 'Compensation Analysis', type: 'chart' },
-        { id: 'org2', icon: 'sitemap', label: 'Org Impact Report', type: 'report' },
-      ],
-      reviewGate: {
-        status: 'passed',
-        reviewer: 'You',
-        label: 'Reviewed by You',
-        sublabel: 'Approved to proceed — Jan 14, 10:27 AM',
-      },
     },
-    // Finding 2: Done (parallel group)
     {
-      id: 'finding-2-parallel',
-      sectionTitle: 'Internal Candidates',
+      id: 'item-2',
+      label: 'Benchmark compensation for replacement',
       status: 'done',
-      timestamp: 'Jan 14, 10:28 AM',
-      icon: 'check',
-      leadFinding:
-        '<strong>Daniel Kim: 82/100 — ready for Senior SE.</strong> Gap: mentorship. Development plan drafted.',
-      secondaryFindings: [
-        {
-          text: '<strong>Rachel Green: 71/100</strong> — 6–12 months out.',
-          severity: 'med',
-        },
-        {
-          text: '<strong>Secondary backfill</strong> at mid-level — 3 candidates available.',
-          severity: 'info',
-        },
-      ],
-      artifacts: [
-        { id: 'devplan2', icon: 'file-lines', label: 'Development Plan', type: 'text' },
-      ],
-      parallelGroupId: 'parallel-1',
+      timestamp: 'Jan 14, 10:25 AM',
     },
-    // Finding 3: Done (parallel group)
     {
-      id: 'finding-3-parallel',
-      sectionTitle: 'External Hiring Pipeline',
+      id: 'item-3',
+      label: 'Draft job requisition',
       status: 'done',
-      timestamp: 'Jan 14, 10:28 AM',
-      icon: 'check',
-      leadFinding:
-        '<strong>3 strong candidates identified.</strong> Sarah Chen (94/100), Marcus Johnson (88), Alex Rivera (85).',
-      secondaryFindings: [
-        {
-          text: '<strong>Sarah Chen</strong> — 8 yrs, AWS certified, best match.',
-          severity: 'low',
-        },
-        { text: '2 candidates below 80 threshold — not recommended.', severity: 'neutral' },
-      ],
-      artifacts: [
-        { id: 'job', icon: 'briefcase', label: 'Job Posting', type: 'job' },
-        { id: 'outreach', icon: 'envelope', label: 'Outreach (3)', type: 'text' },
-      ],
-      parallelGroupId: 'parallel-1',
-    },
-    // Finding 4: Done
-    {
-      id: 'finding-4',
-      sectionTitle: 'Retention & Compensation Adjustments',
-      status: 'done',
-      timestamp: 'Jan 15, 9:15 AM',
-      icon: 'check',
-      leadFinding:
-        '<strong>Two compensation proposals drafted and approved.</strong> Daniel Kim: $118K→$138K (+17%) on promotion. Rachel Green: $105K→$114K (+8.6%) retention adjustment.',
-      secondaryFindings: [
-        {
-          text: '<strong>Combined budget impact: $29K/yr.</strong> Within department budget ($45K remaining).',
-          severity: 'low',
-        },
-        {
-          text: '<strong>Team compa-ratio improves to 0.96</strong> — within target range for the first time in 8 months.',
-          severity: 'info',
-        },
-      ],
-      reviewGate: {
-        status: 'passed',
-        reviewer: 'Sarah Mitchell (Finance VP)',
-        label: 'Reviewed by Sarah Mitchell (Finance VP)',
-        sublabel: 'Both adjustments approved, effective next pay period — Jan 15, 10:02 AM',
-      },
+      timestamp: 'Jan 14, 10:30 AM',
     },
   ],
-  standaloneGates: [
+  reviewGates: [
     {
-      id: 'gate-parallel-1',
-      afterParallelGroupId: 'parallel-1',
+      id: 'gate-1',
+      afterItemId: 'item-3',
       status: 'passed',
-      label: 'Reviewed by Uma Patel & You',
-      sublabel:
-        'Uma confirmed Daniel Kim promotion. You approved posting and outreach. — Jan 15, 9:14 AM',
+      reviewer: 'Jessica Cordova',
+      label: 'Approved by Jessica Cordova',
+      sublabel: 'Job requisition approved — Jan 14, 11:15 AM',
     },
+  ],
+  deliverables: [
+    { id: 'comp', icon: 'chart-bar', title: 'Compensation Analysis', type: 'chart', status: 'ready' },
+    { id: 'org', icon: 'sitemap', title: 'Org Impact Report', type: 'report', status: 'ready' },
+    { id: 'jobreq', icon: 'briefcase', title: 'Job Requisition', type: 'job', status: 'ready' },
   ],
   artifactContents: {
-    // Reuse same artifact content as mid-execution
-    comp2: planBackfillMid.artifactContents.comp,
-    org2: planBackfillMid.artifactContents.org,
-    devplan2: planBackfillMid.artifactContents.devplan,
+    comp: planBackfillMid.artifactContents.comp,
+    org: planBackfillMid.artifactContents.org,
+    jobreq: {
+      ...planBackfillMid.artifactContents.jobreq,
+      meta: 'Jan 14, 10:30 AM · Approved',
+    },
   },
 };
 
@@ -504,7 +382,6 @@ const planPipelineReview: PlanDetailData = {
   totalArtifacts: 2,
   conversationId: '21',
   findings: [
-    // Finding 1: Pipeline Health Analysis (done)
     {
       id: 'finding-1',
       sectionTitle: 'Pipeline Health Analysis',
@@ -514,22 +391,10 @@ const planPipelineReview: PlanDetailData = {
       leadFinding:
         '<strong>3 of 7 open positions are at risk of missing Q1 hiring targets.</strong> Marketing Coordinator has zero applicants after 2 weeks.',
       secondaryFindings: [
-        {
-          text: '<strong>President of Sales — HIGH risk.</strong> 60 days open, 9 candidates but stalled at reference check stage. No movement in 2 weeks.',
-          severity: 'high',
-        },
-        {
-          text: '<strong>Medical Assistant — MED risk.</strong> 45 days open, only 2 applicants. Low inbound interest.',
-          severity: 'med',
-        },
-        {
-          text: '<strong>Dog Trainer — on track.</strong> 22 candidates (8 new this week), healthy pipeline.',
-          severity: 'low',
-        },
-        {
-          text: '<strong>Web Designer — normal velocity.</strong> 5 candidates, 1 interviewed.',
-          severity: 'info',
-        },
+        { text: '<strong>President of Sales — HIGH risk.</strong> 60 days open, 9 candidates but stalled at reference check stage. No movement in 2 weeks.', severity: 'high' },
+        { text: '<strong>Medical Assistant — MED risk.</strong> 45 days open, only 2 applicants. Low inbound interest.', severity: 'med' },
+        { text: '<strong>Dog Trainer — on track.</strong> 22 candidates (8 new this week), healthy pipeline.', severity: 'low' },
+        { text: '<strong>Web Designer — normal velocity.</strong> 5 candidates, 1 interviewed.', severity: 'info' },
       ],
       artifacts: [
         { id: 'pipeline-chart', icon: 'chart-bar', label: 'Pipeline Health Dashboard', type: 'chart' },
@@ -541,7 +406,6 @@ const planPipelineReview: PlanDetailData = {
         sublabel: 'Approved to proceed — Yesterday, 9:18 AM',
       },
     },
-    // Finding 2: Talent Pool Screening (awaiting)
     {
       id: 'finding-2',
       sectionTitle: 'Talent Pool Screening',
@@ -551,14 +415,8 @@ const planPipelineReview: PlanDetailData = {
       leadFinding:
         '<strong>Found 4 talent pool candidates matching open requirements — 2 strong fits for Marketing Coordinator.</strong> Adison Donin (3★ rating, content marketing background) and 1 other from Marketing pool match requirements well.',
       secondaryFindings: [
-        {
-          text: '<strong>Technology pool — 5 candidates available</strong> but already being evaluated for Senior SE backfill. No incremental matches for other reqs.',
-          severity: 'med',
-        },
-        {
-          text: '<strong>No talent pool matches for Medical Assistant or Nursing Assistant</strong> — specialized roles need job board sourcing.',
-          severity: 'info',
-        },
+        { text: '<strong>Technology pool — 5 candidates available</strong> but already being evaluated for Senior SE backfill. No incremental matches for other reqs.', severity: 'med' },
+        { text: '<strong>No talent pool matches for Medical Assistant or Nursing Assistant</strong> — specialized roles need job board sourcing.', severity: 'info' },
       ],
       artifacts: [
         { id: 'candidate-matches', icon: 'file-lines', label: 'Candidate Match Report', type: 'report' },
@@ -571,7 +429,6 @@ const planPipelineReview: PlanDetailData = {
         chatLink: true,
       },
     },
-    // Finding 3: Candidate Outreach & Prioritization (upcoming)
     {
       id: 'finding-3',
       sectionTitle: 'Candidate Outreach & Prioritization',
@@ -601,101 +458,20 @@ const planPipelineReview: PlanDetailData = {
       content: {
         kind: 'comp-chart',
         chartTitle: 'Days Open vs 90-Day Target — All Open Requisitions',
-        columnHeaders: {
-          name: 'Position',
-          col1: 'Days Open',
-          col2: 'Candidates',
-          col3: 'New/Wk',
-          col4: 'Status',
-        },
+        columnHeaders: { name: 'Position', col1: 'Days Open', col2: 'Candidates', col3: 'New/Wk', col4: 'Status' },
         bars: [
-          {
-            name: 'President of Sales',
-            salary: '60 days',
-            fillPct: 67,
-            markerPct: 60,
-            color: '#DC2626',
-          },
-          {
-            name: 'Medical Assistant',
-            salary: '45 days',
-            fillPct: 50,
-            markerPct: 45,
-            color: '#D97706',
-          },
-          {
-            name: 'Marketing Coordinator',
-            salary: '14 days',
-            fillPct: 16,
-            markerPct: 0,
-            color: '#D97706',
-          },
-          {
-            name: 'Dog Trainer',
-            salary: '28 days',
-            fillPct: 31,
-            markerPct: 58,
-            color: '#059669',
-          },
-          {
-            name: 'Web Designer',
-            salary: '22 days',
-            fillPct: 24,
-            markerPct: 33,
-            color: '#059669',
-          },
+          { name: 'President of Sales', salary: '60 days', fillPct: 67, markerPct: 60, color: '#DC2626' },
+          { name: 'Medical Assistant', salary: '45 days', fillPct: 50, markerPct: 45, color: '#D97706' },
+          { name: 'Marketing Coordinator', salary: '14 days', fillPct: 16, markerPct: 0, color: '#D97706' },
+          { name: 'Dog Trainer', salary: '28 days', fillPct: 31, markerPct: 58, color: '#059669' },
+          { name: 'Web Designer', salary: '22 days', fillPct: 24, markerPct: 33, color: '#059669' },
         ],
         rows: [
-          {
-            name: 'President of Sales',
-            salary: '60',
-            midpoint: '9',
-            compa: '0',
-            compaColor: '#DC2626',
-            risk: 'STALLED',
-            riskBg: '#FEE2E2',
-            riskColor: '#DC2626',
-          },
-          {
-            name: 'Medical Assistant',
-            salary: '45',
-            midpoint: '2',
-            compa: '0',
-            compaColor: '#D97706',
-            risk: 'SLOW',
-            riskBg: '#FEF3C7',
-            riskColor: '#D97706',
-          },
-          {
-            name: 'Marketing Coordinator',
-            salary: '14',
-            midpoint: '0',
-            compa: '0',
-            compaColor: '#D97706',
-            risk: 'NO APPS',
-            riskBg: '#FEF3C7',
-            riskColor: '#D97706',
-          },
-          {
-            name: 'Dog Trainer',
-            salary: '28',
-            midpoint: '22',
-            compa: '8',
-            compaColor: '#059669',
-            risk: 'HEALTHY',
-            riskBg: '#D1FAE5',
-            riskColor: '#059669',
-          },
-          {
-            name: 'Web Designer',
-            salary: '22',
-            midpoint: '5',
-            compa: '2',
-            compaColor: '#059669',
-            risk: 'NORMAL',
-            riskBg: '#D1FAE5',
-            riskColor: '#059669',
-          },
+          { name: 'President of Sales', salary: '60', midpoint: '9', compa: '0', compaColor: '#DC2626', risk: 'STALLED', riskBg: '#FEE2E2', riskColor: '#DC2626' },
+          { name: 'Medical Assistant', salary: '45', midpoint: '2', compa: '0', compaColor: '#D97706', risk: 'SLOW', riskBg: '#FEF3C7', riskColor: '#D97706' },
+          { name: 'Marketing Coordinator', salary: '14', midpoint: '0', compa: '0', compaColor: '#D97706', risk: 'NO APPS', riskBg: '#FEF3C7', riskColor: '#D97706' },
+          { name: 'Dog Trainer', salary: '28', midpoint: '22', compa: '8', compaColor: '#059669', risk: 'HEALTHY', riskBg: '#D1FAE5', riskColor: '#059669' },
+          { name: 'Web Designer', salary: '22', midpoint: '5', compa: '2', compaColor: '#059669', risk: 'NORMAL', riskBg: '#D1FAE5', riskColor: '#059669' },
         ],
       },
     },
