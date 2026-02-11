@@ -90,7 +90,7 @@ When creating a plan, use EXACTLY this format. Do NOT wrap it in code fences. Ke
     }
   ],
   "reviewSteps": [
-    { "id": "review-1", "description": "Approve job requisition before posting", "reviewer": "Uma Patel", "status": "planned", "afterItem": "item-3", "type": "artifact" }
+    { "id": "review-1", "description": "Approve job requisition before posting", "reviewer": "Jessica Cordova", "status": "planned", "afterItem": "item-3", "type": "artifact" }
   ],
   "suggestedPrompts": [
     "Screen the talent pool for matching candidates",
@@ -104,11 +104,16 @@ When creating a plan, use EXACTLY this format. Do NOT wrap it in code fences. Ke
 - **1 section, 2-4 action items** — focused on a single deliverable
 - Every action item MUST include a "toolCall" field referencing a tool from your registry
 - The plan should end with a concrete output the user can review (a draft, posting, report, proposal)
-- Review steps name actual people and describe what they're reviewing
 - All statuses start as "planned"
+
+**Approval gate rule — "Does it leave the user's desk?"**
+- **No gate needed:** Analysis tools produce information for the user. They never need approval. This includes: analyze_*, identify_*, screen_*, assess_*, generate_report, review_*, generate_workforce_analytics.
+- **Gate needed:** Artifacts that will be sent, posted, or applied to real systems need approval before the AI acts on them. This includes: create_job_posting (goes live), draft_candidate_outreach (gets sent), propose_compensation_change (gets submitted), draft_development_plan (shared with employee), notify_stakeholder (sends a message).
+- **Always gate:** Workflow tools that change system state always need approval: advance_candidate, update_employee_record, submit_time_off_request, approve_request.
+- **Approver:** The current user by default. Use other approvers (HR Admin, VP of People) only when the action specifically requires their authority.
 - Every review step MUST include "afterItem" (the action item ID it follows) and "type" ("findings" or "artifact")
-- Place an "artifact" review after the final draft/create tool (the deliverable)
-- Analysis tools can auto-execute without individual gates
+
+**Other rules:**
 - **suggestedPrompts**: Include 2-3 related follow-up actions the user might want. Each should map to a real tool capability.
 - NEVER include actions like "schedule meeting", "have conversation", "check in with", or anything you can't execute via a tool
 `;

@@ -341,6 +341,13 @@ When a user describes a situation, the AI:
 - **Opinion-led:** The AI picks the starting point based on urgency/impact. It states its recommendation conversationally, then presents the plan.
 - **Each suggested prompt is a new plan if clicked.** The user stays in control of scope.
 
+### Approval Gate Rule — "Does it leave the user's desk?"
+
+- **No gate needed:** Analysis outputs stay with the user — org impact, comp benchmarks, flight risks, promotion scores, reports. These are informational. The user reads them and decides what to do.
+- **Gate needed:** Artifacts that will be sent, posted, or applied need approval — job postings (go live), candidate outreach (gets sent to people), comp change proposals (submitted), development plans (shared with employee), stakeholder notifications (sends a message).
+- **Always gate:** Workflow tools that change system state — advance candidate, update employee record, submit time off, approve request.
+- **Approver:** The current user by default. Other approvers (HR Admin, VP of People) only when the action requires their specific authority.
+
 ### Data Flow
 
 - `suggestedPrompts` is a field on the plan JSON format (alongside `title`, `sections`, `reviewSteps`).

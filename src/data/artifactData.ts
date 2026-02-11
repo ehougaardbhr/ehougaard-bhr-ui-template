@@ -385,7 +385,7 @@ export const mockArtifacts: Artifact[] = [
         },
       ],
       reviewSteps: [
-        { id: 'rs-1', description: 'Approve job requisition before posting', reviewer: 'Uma Patel', reviewerTitle: 'Engineering Manager', status: 'planned', afterItem: 'ai-3', type: 'artifact' },
+        { id: 'rs-1', description: 'Approve job requisition before posting', reviewer: 'Jessica Cordova', reviewerTitle: 'Director, Demand Generation', status: 'planned', afterItem: 'ai-3', type: 'artifact' },
       ],
       approvedBy: undefined,
       approvedAt: undefined,
