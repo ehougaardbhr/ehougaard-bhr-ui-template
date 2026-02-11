@@ -371,7 +371,7 @@ function DeliverableCard({
                   style={{ backgroundColor: style.bg, color: style.color }}
                 >
                   <Icon name={style.icon} size={8} />
-                  {a.reviewer}
+                  {a.status === 'approved' ? `Approved by ${a.reviewer}` : a.reviewer}
                 </span>
               );
             })}
