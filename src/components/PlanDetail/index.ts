@@ -1,2 +1,2 @@
 export { FindingCard } from './FindingCard';
-export { ArtifactPanel } from './ArtifactPanel';
+export { ArtifactPanel, ArtifactInlinePanel } from './ArtifactPanel';

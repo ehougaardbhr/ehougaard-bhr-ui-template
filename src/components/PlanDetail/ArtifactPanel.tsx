@@ -86,6 +86,65 @@ export function ArtifactPanel({ artifact, onClose }: ArtifactPanelProps) {
   );
 }
 
+// Inline artifact panel (renders below content, not as side panel)
+interface ArtifactInlinePanelProps {
+  artifact: ArtifactContent | null;
+  onClose: () => void;
+}
+
+export function ArtifactInlinePanel({ artifact, onClose }: ArtifactInlinePanelProps) {
+  if (!artifact) return null;
+
+  return (
+    <div
+      className="bg-[var(--surface-neutral-white)] rounded-2xl border border-[var(--border-neutral-weak)] overflow-hidden mt-4"
+      style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 p-5 pb-4 border-b border-[var(--border-neutral-weak)]">
+        <div
+          className="w-9 h-9 rounded-[10px] flex items-center justify-center text-sm flex-shrink-0"
+          style={{
+            backgroundColor: typeStyles[artifact.type].bg,
+            color: typeStyles[artifact.type].color,
+          }}
+        >
+          {artifact.type === 'chart' && <Icon name="chart-bar" size={14} />}
+          {artifact.type === 'report' && <Icon name="sitemap" size={14} />}
+          {artifact.type === 'text' && <Icon name="file-lines" size={14} />}
+          {artifact.type === 'job' && <Icon name="briefcase" size={14} />}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[15px] font-semibold truncate text-[var(--text-neutral-x-strong)]">{artifact.title}</div>
+          <div className="text-[11px] text-[var(--text-neutral-weak)] mt-0.5">{artifact.meta}</div>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-7 h-7 rounded-md flex items-center justify-center text-[var(--text-neutral-medium)] hover:bg-[var(--surface-neutral-x-weak)] transition-colors"
+        >
+          <Icon name="xmark" size={14} />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-6">
+        {artifact.type === 'chart' && (
+          <CompChartRenderer content={artifact.content as CompChartContent} />
+        )}
+        {artifact.type === 'report' && (
+          <OrgReportRenderer content={artifact.content as OrgReportContent} />
+        )}
+        {artifact.type === 'text' && (
+          <DevPlanRenderer content={artifact.content as DevPlanContent} />
+        )}
+        {artifact.type === 'job' && (
+          <JobReqRenderer content={artifact.content as JobReqContent} />
+        )}
+      </div>
+    </div>
+  );
+}
+
 // Compensation Chart Renderer
 function CompChartRenderer({ content }: { content: CompChartContent }) {
   return (

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useChat } from '../../contexts/ChatContext';
 import { Icon } from '../../components/Icon';
 import { FindingCard } from '../../components/PlanDetail/FindingCard';
-import { ArtifactPanel } from '../../components/PlanDetail/ArtifactPanel';
+import { ArtifactPanel, ArtifactInlinePanel } from '../../components/PlanDetail/ArtifactPanel';
 import { planDetailDataMap } from '../../data/planDetailData';
 import type { PlanDetailData, PlanDetailFinding, StandaloneReviewGate, PlanActionItem, PlanReviewGate, PlanDeliverable } from '../../data/planDetailData';
 
@@ -148,34 +148,40 @@ export function PlanDetail() {
       </div>
 
       {/* Main content area */}
-      <div className="flex gap-0 min-h-0">
-        {/* Plan content pane */}
-        <div
-          className="flex-1 transition-all duration-300 ease-in-out"
-          style={{ maxWidth: activeArtifactId ? 640 : 860 }}
-        >
-          {hasActionItems ? (
-            <ActionItemsView
-              plan={plan}
-              activeArtifactId={activeArtifactId}
-              onArtifactClick={setActiveArtifactId}
-            />
-          ) : (
+      {hasActionItems ? (
+        <div style={{ maxWidth: 860 }}>
+          <ActionItemsView
+            plan={plan}
+            activeArtifactId={activeArtifactId}
+            onArtifactClick={setActiveArtifactId}
+          />
+
+          {/* Artifact content below the card */}
+          <ArtifactInlinePanel
+            artifact={activeArtifact}
+            onClose={() => setActiveArtifactId(null)}
+          />
+
+          {/* Completion banner */}
+          {plan.status === 'completed' && <CompletionBanner plan={plan} />}
+        </div>
+      ) : (
+        <div className="flex gap-0 min-h-0">
+          <div
+            className="flex-1 transition-all duration-300 ease-in-out"
+            style={{ maxWidth: activeArtifactId ? 640 : 860 }}
+          >
             <FindingsView
               plan={plan}
               activeArtifactId={activeArtifactId}
               onArtifactClick={setActiveArtifactId}
               onOpenInChat={handleOpenInChat}
             />
-          )}
-
-          {/* Completion banner */}
-          {plan.status === 'completed' && <CompletionBanner plan={plan} />}
+            {plan.status === 'completed' && <CompletionBanner plan={plan} />}
+          </div>
+          <ArtifactPanel artifact={activeArtifact} onClose={() => setActiveArtifactId(null)} />
         </div>
-
-        {/* Artifact slide-out panel */}
-        <ArtifactPanel artifact={activeArtifact} onClose={() => setActiveArtifactId(null)} />
-      </div>
+      )}
     </div>
   );
 }
