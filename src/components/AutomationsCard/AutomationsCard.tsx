@@ -26,7 +26,7 @@ const recentActivity: AgentActivityItem[] = [
   'plan-pipeline-review',
   'plan-comp-review',
   'plan-flight-risk',
-  'plan-backfill-done',
+  'plan-benefits-enrollment',
 ].map(id => {
   const plan = planDetailDataMap[id];
   return {
