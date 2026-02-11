@@ -18,7 +18,7 @@ interface AgentActivityItem {
 
 const actionConfig: Record<string, { bg: string; text: string; label: string }> = {
   approval: { bg: '#FEF3C7', text: '#92400E', label: 'Needs approval' },
-  review:   { bg: '#ECFEFF', text: '#155E75', label: 'Needs review' },
+  review:   { bg: '#ECFEFF', text: '#155E75', label: 'Ready for review' },
   paused:   { bg: '#FEF3C7', text: '#92400E', label: 'Paused' },
 };
 
