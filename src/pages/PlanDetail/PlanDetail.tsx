@@ -135,13 +135,13 @@ export function PlanDetail() {
       </button>
 
       {/* Page title — BHR Fields font style */}
-      <div className="flex items-baseline gap-4 mb-3">
+      <div className="flex items-baseline gap-3 mb-3">
         <h1
           style={{
             fontFamily: 'Fields, system-ui, sans-serif',
-            fontSize: '48px',
+            fontSize: '32px',
             fontWeight: 700,
-            lineHeight: '56px',
+            lineHeight: '40px',
             color: '#2e7918',
           }}
         >
@@ -151,9 +151,9 @@ export function PlanDetail() {
           <span
             style={{
               fontFamily: 'Fields, system-ui, sans-serif',
-              fontSize: '32px',
+              fontSize: '24px',
               fontWeight: 400,
-              lineHeight: '40px',
+              lineHeight: '32px',
               color: 'var(--text-neutral-medium)',
             }}
           >
@@ -629,7 +629,7 @@ function DeliverableCard({
       className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all text-left ${
         isActive
           ? 'border-[var(--color-primary-strong)] bg-[var(--surface-primary-x-weak)] shadow-sm'
-          : 'border-[var(--border-neutral-weak)] bg-[var(--surface-neutral-x-weak)] hover:border-[var(--color-primary-strong)] hover:bg-[var(--surface-primary-x-weak)] cursor-pointer'
+          : 'border-[var(--border-neutral-weak)] bg-[var(--surface-neutral-white)] hover:border-[var(--border-neutral-medium)] hover:shadow-md cursor-pointer'
       }`}
       style={{ minWidth: 180 }}
     >
