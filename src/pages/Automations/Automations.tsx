@@ -86,8 +86,8 @@ export function Automations() {
             {hasAlerts && (
               <div className="mb-7">
                 <h2
-                  className="font-semibold text-[#215C10] mb-3.5"
-                  style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+                  className="font-semibold text-[#215C10]"
+                  style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif', marginBottom: 12 }}
                 >
                   {alertsData.length} need your attention
                 </h2>
@@ -114,8 +114,8 @@ export function Automations() {
 
             {/* Running section */}
             <h2
-              className="font-semibold text-[#215C10] mb-3.5"
-              style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+              className="font-semibold text-[#215C10]"
+              style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif', marginBottom: 12 }}
             >
               {hasAlerts ? 'Running smoothly' : 'All agents'}
             </h2>
@@ -143,8 +143,8 @@ export function Automations() {
           /* ── History tab ── */
           <>
             <h2
-              className="font-semibold text-[#215C10] mb-3.5"
-              style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+              className="font-semibold text-[#215C10]"
+              style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif', marginBottom: 12 }}
             >
               {historyData.length} completed agent runs
             </h2>
