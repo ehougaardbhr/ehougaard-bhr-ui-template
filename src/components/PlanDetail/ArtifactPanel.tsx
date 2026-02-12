@@ -1,4 +1,5 @@
 import { Icon } from '../Icon';
+import { Button } from '../Button';
 import type { ArtifactContent, CompChartContent, OrgReportContent, DevPlanContent, JobReqContent } from '../../data/planDetailData';
 
 interface ArtifactPanelProps {
@@ -90,10 +91,16 @@ export function ArtifactPanel({ artifact, onClose }: ArtifactPanelProps) {
 interface ArtifactInlinePanelProps {
   artifact: ArtifactContent | null;
   onClose: () => void;
+  pendingApproval?: { gateId: string; reviewer: string; description?: string } | null;
+  onApprove?: () => void;
+  onDeny?: () => void;
+  approvedGateId?: string | null;
 }
 
-export function ArtifactInlinePanel({ artifact, onClose }: ArtifactInlinePanelProps) {
+export function ArtifactInlinePanel({ artifact, onClose, pendingApproval, onApprove, onDeny, approvedGateId }: ArtifactInlinePanelProps) {
   if (!artifact) return null;
+
+  const wasJustApproved = approvedGateId && pendingApproval && approvedGateId === pendingApproval.gateId;
 
   return (
     <div
@@ -125,6 +132,40 @@ export function ArtifactInlinePanel({ artifact, onClose }: ArtifactInlinePanelPr
           <Icon name="xmark" size={14} />
         </button>
       </div>
+
+      {/* Approval banner */}
+      {pendingApproval && !wasJustApproved && (
+        <div
+          className="flex items-center gap-3 px-5 py-3 border-b border-[var(--border-neutral-weak)]"
+          style={{ backgroundColor: '#FFFBEB' }}
+        >
+          <Icon name="clipboard-check" size={14} style={{ color: '#D97706', flexShrink: 0 }} />
+          <span className="flex-1 text-sm font-medium" style={{ color: '#92400E' }}>
+            Pending your approval
+          </span>
+          <div className="flex gap-2">
+            <Button variant="standard" size="small" onClick={onDeny}>
+              Deny
+            </Button>
+            <Button variant="primary" size="small" icon="check" onClick={onApprove}>
+              Approve
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Just approved banner */}
+      {wasJustApproved && (
+        <div
+          className="flex items-center gap-3 px-5 py-3 border-b border-[var(--border-neutral-weak)]"
+          style={{ backgroundColor: '#ECFDF5' }}
+        >
+          <Icon name="check-circle" size={14} style={{ color: '#059669', flexShrink: 0 }} />
+          <span className="flex-1 text-sm font-medium" style={{ color: '#065F46' }}>
+            Approved
+          </span>
+        </div>
+      )}
 
       {/* Body */}
       <div className="p-6">

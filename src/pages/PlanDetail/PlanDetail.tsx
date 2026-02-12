@@ -232,10 +232,25 @@ export function PlanDetail() {
     }
   };
 
+  const [approvedGateId, setApprovedGateId] = useState<string | null>(null);
+
   const activeArtifact = activeArtifactId ? plan.artifactContents[activeArtifactId] : null;
   const config = statusConfig[plan.status];
   const hasActionItems = plan.actionItems && plan.actionItems.length > 0;
   const progressPct = plan.totalItems > 0 ? (plan.completedItems / plan.totalItems) * 100 : 0;
+
+  // Find pending approval gate for the active deliverable
+  const pendingApprovalGate = useMemo(() => {
+    if (!activeArtifactId || !plan.deliverables || !plan.reviewGates) return null;
+    const deliverable = plan.deliverables.find(d => d.id === activeArtifactId);
+    if (!deliverable?.approvals?.some(a => a.status === 'waiting')) return null;
+    // Find the matching review gate that's waiting/ready
+    const gate = plan.reviewGates.find(g =>
+      (g.status === 'waiting' || g.status === 'ready') && approvedGateId !== g.id
+    );
+    if (!gate) return null;
+    return { gateId: gate.id, reviewer: gate.reviewer, description: gate.description };
+  }, [activeArtifactId, plan.deliverables, plan.reviewGates, approvedGateId]);
 
   return (
     <div className="p-10 h-full overflow-y-auto">
@@ -327,12 +342,20 @@ export function PlanDetail() {
             activeArtifactId={activeArtifactId}
             onArtifactClick={setActiveArtifactId}
             deliverablesRef={deliverablesRef}
+            onApproveGate={setApprovedGateId}
+            approvedGateId={approvedGateId}
           />
 
           {/* Artifact content below the card */}
           <ArtifactInlinePanel
             artifact={activeArtifact}
             onClose={() => setActiveArtifactId(null)}
+            pendingApproval={pendingApprovalGate}
+            onApprove={() => {
+              if (pendingApprovalGate) setApprovedGateId(pendingApprovalGate.gateId);
+            }}
+            onDeny={() => setActiveArtifactId(null)}
+            approvedGateId={approvedGateId}
           />
 
           {/* Completion banner */}
@@ -432,11 +455,17 @@ function ActionItemsView({
   activeArtifactId,
   onArtifactClick,
   deliverablesRef,
+  pendingApprovalGate,
+  onApproveGate,
+  approvedGateId,
 }: {
   plan: PlanDetailData;
   activeArtifactId: string | null;
   onArtifactClick: (id: string | null) => void;
   deliverablesRef?: React.RefObject<HTMLDivElement | null>;
+  pendingApprovalGate?: { gateId: string; reviewer: string; description?: string } | null;
+  onApproveGate?: (gateId: string) => void;
+  approvedGateId?: string | null;
 }) {
   const actionItems = plan.actionItems || [];
   const reviewGates = plan.reviewGates || [];
@@ -447,9 +476,11 @@ function ActionItemsView({
 
   const handleApproveGate = (gate: PlanReviewGate) => {
     setLocalGateStatuses(prev => ({ ...prev, [gate.id]: 'passed' }));
+    onApproveGate?.(gate.id);
   };
 
   const getEffectiveStatus = (gate: PlanReviewGate): ReviewGateStatus => {
+    if (approvedGateId === gate.id) return 'passed';
     return localGateStatuses[gate.id] || gate.status;
   };
 
@@ -496,7 +527,19 @@ function ActionItemsView({
                       <ReviewGateRow
                         gate={gate}
                         effectiveStatus={getEffectiveStatus(gate)}
-                        onApprove={() => handleApproveGate(gate)}
+                        onApprove={() => {
+                          // Find the deliverable with a pending approval and open it
+                          const pendingDeliverable = deliverables.find(d =>
+                            d.approvals?.some(a => a.status === 'waiting')
+                          );
+                          if (pendingDeliverable) {
+                            onArtifactClick(pendingDeliverable.id);
+                          } else {
+                            // Fallback: open last deliverable
+                            const last = deliverables[deliverables.length - 1];
+                            if (last) onArtifactClick(last.id);
+                          }
+                        }}
                       />
                     )}
                   </div>
@@ -701,11 +744,6 @@ function ReviewGateRow({
             gate.label || gate.description || 'Pending review'
           )}
         </div>
-        {isClickable && gate.reviewer === 'You' && (
-          <div className="text-xs mt-0.5 opacity-75">
-            Click to approve
-          </div>
-        )}
         {!isClickable && !wasJustApproved && gate.reviewer && gate.reviewer !== 'You' && (
           <div className="text-xs mt-0.5 opacity-75">
             {gate.reviewer}{gate.reviewerTitle ? `, ${gate.reviewerTitle}` : ''}
