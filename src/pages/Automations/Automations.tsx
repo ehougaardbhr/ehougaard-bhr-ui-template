@@ -6,17 +6,63 @@ import { Button } from '../../components';
 import { AlertCard } from '../../components/Automations/AlertCard';
 import { QuietRow } from '../../components/Automations/QuietRow';
 import { Icon } from '../../components/Icon';
+import { useArtifact } from '../../contexts/ArtifactContext';
+import type { PlanSettings } from '../../data/artifactData';
 import {
   alertsData,
   runningRowsWithAlerts,
   historyData,
+  type RunningAutomation,
+  type AutomationAlert,
 } from '../../data/automationsData';
 
 export function Automations() {
   const navigate = useNavigate();
+  const { artifacts } = useArtifact();
   const [activeTab, setActiveTab] = useState<'active' | 'history'>('active');
-  const hasAlerts = true;
-  const runningRows = runningRowsWithAlerts;
+
+  // Build live plan rows from artifact context
+  const livePlans = artifacts.filter(a => a.type === 'plan' && (a.settings as PlanSettings).status !== 'proposed');
+
+  // Categorize live plans — pending approval trumps all other statuses
+  const liveAlerts: AutomationAlert[] = livePlans
+    .filter(a => {
+      const settings = a.settings as PlanSettings;
+      const hasPendingApproval = (settings.reviewSteps || []).some(r => r.status === 'ready');
+      return hasPendingApproval || settings.status === 'paused';
+    })
+    .map(a => ({
+      id: `live-alert-${a.id}`,
+      type: 'approve' as const,
+      title: a.title,
+      age: 'Just now',
+      ctaLabel: 'Review',
+      planId: 'plan-backfill-mid',
+    }));
+
+  // Live plans still running (no pending approvals)
+  const liveAlertIds = new Set(liveAlerts.map(a => a.id.replace('live-alert-', '')));
+  const liveRunning: RunningAutomation[] = livePlans
+    .filter(a => !liveAlertIds.has(a.id) && (a.settings as PlanSettings).status === 'running')
+    .map(a => {
+      const settings = a.settings as PlanSettings;
+      const allItems = settings.sections.flatMap(s => s.actionItems || []);
+      const doneItems = allItems.filter(i => i.status === 'done');
+      return {
+        id: `live-${a.id}`,
+        name: a.title,
+        meta: `${doneItems.length}/${allItems.length} steps completed`,
+        status: 'working' as const,
+        progress: { current: doneItems.length, total: allItems.length },
+        lastUpdate: 'Just now',
+        planId: 'plan-backfill-mid',
+      };
+    });
+
+  // Merge live + static (live first)
+  const allAlerts = [...liveAlerts, ...alertsData];
+  const hasAlerts = allAlerts.length > 0;
+  const runningRows = [...liveRunning, ...runningRowsWithAlerts];
 
   const handleNavigate = (planId: string) => {
     navigate(`/plans/${planId}`);
@@ -89,11 +135,11 @@ export function Automations() {
                   className="font-semibold text-[#215C10]"
                   style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif', marginBottom: 12 }}
                 >
-                  {alertsData.length} need your attention
+                  {allAlerts.length} need your attention
                 </h2>
 
                 {/* Alert cards */}
-                {alertsData.map((alert) => (
+                {allAlerts.map((alert) => (
                   <AlertCard key={alert.id} alert={alert} onNavigate={handleNavigate} />
                 ))}
               </div>

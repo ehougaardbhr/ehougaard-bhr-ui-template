@@ -5,7 +5,7 @@ import { useChat } from '../../contexts/ChatContext';
 import type { PlanSettings } from '../../data/artifactData';
 import { planDetailDataMap } from '../../data/planDetailData';
 
-type ActionType = 'approval' | 'review' | 'paused' | null;
+type ActionType = 'approval' | 'review' | 'paused' | 'completed' | null;
 
 interface AgentActivityItem {
   id: string;
@@ -14,12 +14,14 @@ interface AgentActivityItem {
   action: ActionType;
   actionLabel: string;
   navPath: string;
+  isLive?: boolean;
 }
 
 const actionConfig: Record<string, { bg: string; text: string; label: string }> = {
   approval: { bg: '#FEF3C7', text: '#92400E', label: 'Needs approval' },
   review:   { bg: '#ECFEFF', text: '#155E75', label: 'Ready for review' },
   paused:   { bg: '#FEF3C7', text: '#92400E', label: 'Paused' },
+  completed: { bg: '#D1FAE5', text: '#065F46', label: 'Completed' },
 };
 
 function deriveAction(statusLabel: string): { action: ActionType; actionLabel: string } {
@@ -35,10 +37,12 @@ function deriveAction(statusLabel: string): { action: ActionType; actionLabel: s
 
 // Static recent activity items pulled from plan detail data
 const recentActivity: AgentActivityItem[] = [
-  'plan-pto-audit',
+  'plan-onboarding',
   'plan-pipeline-review',
+  'plan-pto-audit',
   'plan-flight-risk',
   'plan-benefits-enrollment',
+  'plan-succession',
 ].map(id => {
   const plan = planDetailDataMap[id];
   const { action, actionLabel } = deriveAction(plan.statusLabel);
@@ -57,34 +61,55 @@ export function AutomationsCard() {
   const { selectConversation } = useChat();
   const navigate = useNavigate();
 
-  // Get real running plans from artifact context (live demo flow)
+  // Get live plans from artifact context (all non-proposed statuses)
   const livePlans: AgentActivityItem[] = artifacts
-    .filter(a => a.type === 'plan' && (a.settings as PlanSettings).status === 'running')
+    .filter(a => a.type === 'plan' && (a.settings as PlanSettings).status !== 'proposed')
     .map(artifact => {
       const settings = artifact.settings as PlanSettings;
       const allItems = settings.sections.flatMap(s => s.actionItems || []);
       const doneItems = allItems.filter(i => i.status === 'done');
+
+      // Check for pending review gates — approval trumps all other statuses
+      const hasPendingApproval = (settings.reviewSteps || []).some(r => r.status === 'ready');
+
+      let action: ActionType = null;
+      let actionLabel = '';
+      if (hasPendingApproval || settings.status === 'paused') {
+        action = 'approval';
+        actionLabel = 'Needs approval';
+      } else if (settings.status === 'completed') {
+        action = 'completed';
+        actionLabel = 'Completed';
+      }
+
       return {
         id: artifact.id,
         name: artifact.title,
         progress: { done: doneItems.length, total: allItems.length },
-        action: null,
-        actionLabel: '',
+        action,
+        actionLabel,
         navPath: '/plans/plan-backfill-mid',
+        isLive: true,
       };
     });
 
-  // Merge live plans on top, then static activity (dedup by name, cap static at 4)
+  // Merge live plans on top, then static activity (dedup by name)
   const liveNames = new Set(livePlans.map(p => p.name));
-  const staticItems = recentActivity.filter(a => !liveNames.has(a.name)).slice(0, 4);
+  const staticItems = recentActivity.filter(a => !liveNames.has(a.name)).map(a => ({ ...a, isLive: false }));
   const merged = [...livePlans, ...staticItems];
 
-  // Sort: items needing action first, then running
+  // Sort: live plans first (most recent), then by action priority — cap at 5 rows
+  const actionPriority = (action: ActionType) =>
+    action === 'approval' || action === 'review' || action === 'paused' ? 0
+    : action === 'completed' ? 1
+    : 2;
   const allItems = merged.sort((a, b) => {
-    if (a.action && !b.action) return -1;
-    if (!a.action && b.action) return 1;
-    return 0;
-  });
+    // Live plans always first
+    if (a.isLive && !b.isLive) return -1;
+    if (!a.isLive && b.isLive) return 1;
+    // Then by action priority
+    return actionPriority(a.action) - actionPriority(b.action);
+  }).slice(0, 5);
 
   return (
     <div
@@ -173,7 +198,7 @@ export function AutomationsCard() {
                           className="h-full rounded-full transition-all duration-300"
                           style={{
                             width: `${pct}%`,
-                            backgroundColor: config ? (item.action === 'review' ? '#0891B2' : '#D97706') : 'var(--color-primary-strong)',
+                            backgroundColor: item.action === 'completed' ? '#059669' : config ? (item.action === 'review' ? '#0891B2' : '#D97706') : 'var(--color-primary-strong)',
                           }}
                         />
                       </div>
