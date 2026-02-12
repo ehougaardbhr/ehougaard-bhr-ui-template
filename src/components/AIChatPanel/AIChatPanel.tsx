@@ -201,8 +201,110 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
 • Continue investing in retention initiatives`;
     }
 
+    // Screen talent pool
+    if (lowerPrompt.includes('screen') && lowerPrompt.includes('talent')) {
+      return `I've screened the talent pool against the Senior Software Engineer requisition. Here are the top matches:
+
+**Marcus Johnson** — 9 yrs exp, Currently at Indeed
+• Skills: Python, React, Kubernetes, GCP, System Design
+• Match Score: **92%** — strong full-stack fit
+• Status: Phone screen scheduled
+• Location: Austin, TX (remote eligible)
+
+**Priya Sharma** — 7 yrs exp, Currently at Stripe
+• Skills: TypeScript, Node.js, AWS, Microservices
+• Match Score: **87%** — excellent backend depth
+• Status: Application reviewed
+• Location: San Francisco, CA
+
+**David Park** — 11 yrs exp, Currently at Datadog
+• Skills: Go, Python, Kubernetes, Platform Engineering
+• Match Score: **85%** — strong infrastructure background
+• Status: New applicant
+• Location: Seattle, WA (local)
+
+All three meet the $130K–$170K salary range. I'd recommend moving Marcus and Priya to first-round interviews based on skill overlap and availability.`;
+    }
+
+    // Assess promotion readiness
+    if (lowerPrompt.includes('promotion') && lowerPrompt.includes('readiness')) {
+      return `I've assessed promotion readiness for Tony's direct reports based on performance data, tenure, and skill development:
+
+**Daniel Kim** — Senior Software Engineer
+• Readiness: **Ready now** — consistently exceeds expectations
+• Strengths: Technical leadership, mentors junior devs, led 3 major releases
+• Gap: Limited cross-team visibility
+• Recommendation: Strong candidate for Tech Lead role
+
+**Rachel Green** — Software Engineer
+• Readiness: **6–9 months** — trending upward
+• Strengths: Fast learner, strong code quality, good collaboration
+• Gap: Needs more ownership of end-to-end projects
+• Recommendation: Assign as lead on next feature initiative
+
+**Chris Martinez** — DevOps Engineer
+• Readiness: **3–6 months** — solid trajectory
+• Strengths: Reliability champion, automated 40% of deploy pipeline
+• Gap: Needs more experience with architecture decisions
+• Recommendation: Include in system design reviews
+
+Daniel Kim is the strongest internal candidate if you're considering backfilling the Senior role internally rather than hiring externally.`;
+    }
+
+    // Analyze hiring velocity
+    if (lowerPrompt.includes('hiring velocity') || (lowerPrompt.includes('velocity') && lowerPrompt.includes('requisition'))) {
+      return `Here's the hiring velocity analysis for this requisition:
+
+**Current Pipeline:**
+• 5 total candidates, 3 new this week
+• Average time in pipeline: 8 days
+• Oldest candidate: 14 days (Marcus Johnson — phone screen stage)
+
+**Benchmarks vs. Similar Roles:**
+• Time to fill (Senior SWE): **32 days avg** at BambooHR
+• Industry average: 42 days
+• You're on day 11 — ahead of pace
+
+**Stage Breakdown:**
+• Applied → Screen: 3.2 days avg (industry: 5 days) ✓
+• Screen → Interview: 4.8 days avg (industry: 7 days) ✓
+• Interview → Offer: 8.5 days avg (industry: 14 days) ✓
+
+**Bottleneck Alert:**
+⚠️ Panel interview scheduling is the #1 delay — 2 candidates are waiting on interviewer availability. I'd recommend expanding the interview panel to include Uma Patel's availability this week.
+
+At current velocity, you're on track for an offer by mid-February.`;
+    }
+
+    // Identify flight risks
+    if (lowerPrompt.includes('flight risk')) {
+      return `I've analyzed flight risk indicators across Uma's team:
+
+**High Risk:**
+🔴 **Daniel Kim** — Senior Software Engineer
+• Compa-ratio: 0.87 (below market)
+• Recent activity: Updated LinkedIn, declined team social events
+• Tenure: 3.2 years (common departure window)
+• Action: Recommend immediate comp adjustment + career path discussion
+
+**Moderate Risk:**
+🟡 **Chris Martinez** — DevOps Engineer
+• Compa-ratio: 0.88 (slightly below market)
+• Recent activity: No red flags, but workload has increased 30% post-Tony
+• Tenure: 2.1 years
+• Action: Monitor workload, discuss growth opportunities
+
+**Low Risk:**
+🟢 **Rachel Green** — Software Engineer
+• Compa-ratio: 0.92 (near market)
+• Recently promoted, high engagement scores
+• Tenure: 1.4 years
+
+Daniel should be the priority — losing two senior engineers from the same team would be critical. I'd recommend scheduling a 1:1 this week.`;
+    }
+
     // Default response
-    return `I'll help you with that. Let me analyze the relevant org chart data and get back to you with insights and recommendations.`;
+    return `I'll help you with that. Let me analyze the relevant data and get back to you with insights and recommendations.`;
   };
 
   const handleSuggestionClick = (suggestion: string) => {
