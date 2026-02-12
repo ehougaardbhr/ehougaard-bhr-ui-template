@@ -16,23 +16,8 @@ export function Home() {
   const { createNewChat, selectConversation, selectedConversation, addMessage } = useChat();
   const { sendMessage } = useChatSend();
 
-  // Pre-built demo conversations mapped by suggestion label
-  const demoConversations: Record<string, string> = {
-    'Who on my team is a flight risk?': '20',
-  };
-
   const handleSubmit = async (inputValue: string) => {
     if (!inputValue.trim()) return;
-
-    // Check if this matches a pre-built demo conversation
-    const demoConvoId = demoConversations[inputValue];
-    if (demoConvoId) {
-      selectConversation(demoConvoId);
-      localStorage.setItem('bhr-chat-panel-open', 'true');
-      localStorage.setItem('bhr-chat-expanded', 'true');
-      localStorage.setItem('bhr-selected-conversation', demoConvoId);
-      return;
-    }
 
     // Create new conversation, select it, open chat, and send message
     const newConversation = createNewChat();
