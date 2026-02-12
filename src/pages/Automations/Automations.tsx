@@ -39,14 +39,13 @@ export function Automations() {
             {/* Alert section */}
             {hasAlerts && (
               <div className="mb-7">
-                {/* Count row */}
-                <div className="flex items-center justify-between mb-3.5 text-sm font-medium text-[var(--text-neutral-medium)]">
-                  <div className="flex items-center gap-2">
-                    <span className="bg-[var(--text-neutral-strong)] text-white rounded-full px-2.5 py-px text-xs font-bold">
-                      {alertsData.length}
-                    </span>
-                    agents need your attention
-                  </div>
+                <div className="flex items-center justify-between mb-3.5">
+                  <h2
+                    className="font-semibold text-[#215C10]"
+                    style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+                  >
+                    {alertsData.length} need your attention
+                  </h2>
                   <TabSwitch activeTab={activeTab} onTabChange={setActiveTab} />
                 </div>
 
@@ -71,10 +70,13 @@ export function Automations() {
             )}
 
             {/* Running section — unified card container */}
-            <div className="flex items-center justify-between mb-2.5">
-              <span className="text-xs font-bold text-[var(--text-neutral-weak)] uppercase tracking-wide">
+            <div className="flex items-center justify-between mb-3.5">
+              <h2
+                className="font-semibold text-[#215C10]"
+                style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+              >
                 {hasAlerts ? 'Running smoothly' : 'All agents'}
-              </span>
+              </h2>
               {!hasAlerts && <TabSwitch activeTab={activeTab} onTabChange={setActiveTab} />}
             </div>
 

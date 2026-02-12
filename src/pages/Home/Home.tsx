@@ -74,8 +74,8 @@ export function Home() {
           placeholder="Ask me anything..."
           suggestions={[
             { label: 'Who on my team is a flight risk?' },
-            { label: 'Prep for my 1:1 with Marcus' },
-            { label: 'Summarize open headcount' },
+            { label: 'Prep for my 1:1 with Alan Nguyen' },
+            { label: 'Summarize my team\'s PTO balances' },
           ]}
           onSubmit={handleSubmit}
           onSuggestionClick={(suggestion) => handleSubmit(suggestion.label)}
