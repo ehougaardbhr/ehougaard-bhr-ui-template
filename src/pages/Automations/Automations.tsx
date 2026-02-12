@@ -31,14 +31,25 @@ export function Automations() {
       const hasPendingApproval = (settings.reviewSteps || []).some(r => r.status === 'ready');
       return hasPendingApproval || settings.status === 'paused';
     })
-    .map(a => ({
-      id: `live-alert-${a.id}`,
-      type: 'approve' as const,
-      title: a.title,
-      age: 'Just now',
-      ctaLabel: 'Review',
-      planId: 'plan-backfill-mid',
-    }));
+    .map(a => {
+      const settings = a.settings as PlanSettings;
+      const allItems = settings.sections.flatMap(s => s.actionItems || []);
+      const doneItems = allItems.filter(i => i.status === 'done');
+      const pendingGate = (settings.reviewSteps || []).find(r => r.status === 'ready');
+
+      return {
+        id: `live-alert-${a.id}`,
+        type: 'approve' as const,
+        title: a.title,
+        age: 'Just now',
+        ctaLabel: 'Review',
+        planId: 'plan-backfill-mid',
+        previewRows: [
+          ...(pendingGate ? [{ iconClass: 'fa-solid fa-list-check', text: `<strong>Gate:</strong> ${pendingGate.description}` }] : []),
+          { iconClass: 'fa-solid fa-circle-half-stroke', text: `<strong>${doneItems.length}/${allItems.length}</strong> steps completed` },
+        ],
+      };
+    });
 
   // Live plans still running (no pending approvals)
   const liveAlertIds = new Set(liveAlerts.map(a => a.id.replace('live-alert-', '')));
@@ -64,8 +75,8 @@ export function Automations() {
   const hasAlerts = allAlerts.length > 0;
   const runningRows = [...liveRunning, ...runningRowsWithAlerts];
 
-  const handleNavigate = (planId: string) => {
-    navigate(`/plans/${planId}`);
+  const handleNavigate = (planId: string, openApproval?: boolean) => {
+    navigate(`/plans/${planId}${openApproval ? '?openApproval=true' : ''}`);
   };
 
   const tabs: { label: string; value: 'active' | 'history'; icon: string }[] = [

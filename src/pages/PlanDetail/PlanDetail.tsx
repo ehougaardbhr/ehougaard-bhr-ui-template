@@ -208,6 +208,25 @@ export function PlanDetail() {
     }, 100);
   }, [plan, searchParams, setSearchParams]);
 
+  // Auto-open deliverable needing approval from query param (e.g., ?openApproval=true)
+  useEffect(() => {
+    const openApproval = searchParams.get('openApproval');
+    if (!openApproval || !plan) return;
+
+    // Find the deliverable with a pending approval
+    const pendingDeliverable = plan.deliverables?.find(d =>
+      d.approvals?.some(a => a.status === 'waiting')
+    );
+    if (!pendingDeliverable) return;
+
+    setActiveArtifactId(pendingDeliverable.id);
+    setSearchParams({}, { replace: true });
+
+    setTimeout(() => {
+      deliverablesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, [plan, searchParams, setSearchParams]);
+
   if (!plan) {
     return (
       <div className="p-10">

@@ -15,7 +15,7 @@ import { Button } from '../Button/Button';
 
 interface AlertCardProps {
   alert: AutomationAlert;
-  onNavigate: (planId: string) => void;
+  onNavigate: (planId: string, openApproval?: boolean) => void;
 }
 
 const typeIcons: Record<AutomationAlert['type'], IconDefinition> = {
@@ -75,7 +75,7 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
         {/* Title + pill */}
         <div className="flex items-center gap-2 mb-1">
           <div
-            onClick={() => onNavigate(alert.planId)}
+            onClick={() => onNavigate(alert.planId, alert.type === 'approve')}
             className="
               text-base font-semibold
               text-[var(--text-neutral-xx-strong)]
@@ -136,24 +136,13 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
 
         {/* Actions */}
         <div className="flex items-center gap-2 mt-2.5">
-          {alert.type === 'approve' ? (
-            <>
-              <Button size="small" icon="check" onClick={() => onNavigate(alert.planId)}>
-                Approve
-              </Button>
-              <Button size="small" icon="xmark">
-                Deny
-              </Button>
-            </>
-          ) : (
-            <Button
-              size="small"
-              icon={alert.type === 'paused' ? 'play' : undefined}
-              onClick={() => onNavigate(alert.planId)}
-            >
-              {alert.ctaLabel}
-            </Button>
-          )}
+          <Button
+            size="small"
+            icon={alert.type === 'approve' ? 'eye' : alert.type === 'paused' ? 'play' : undefined}
+            onClick={() => onNavigate(alert.planId, alert.type === 'approve')}
+          >
+            {alert.type === 'approve' ? 'Review Artifact' : alert.ctaLabel}
+          </Button>
         </div>
       </div>
     </div>
