@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useChat } from '../../contexts/ChatContext';
 import { useArtifact } from '../../contexts/ArtifactContext';
 import type { PlanSettings } from '../../data/artifactData';
@@ -88,12 +88,26 @@ const deliverableTypeStyles = {
 // Main Component
 // ============================================================================
 
+// Map tool calls to deliverable IDs on the plan detail page
+const toolToDeliverableId: Record<string, string> = {
+  analyze_org_impact: 'org',
+  analyze_compensation: 'comp',
+  create_job_posting: 'jobreq',
+  identify_flight_risks: 'risk-report',
+  screen_talent_pool: 'screening',
+  assess_promotion_readiness: 'readiness',
+  generate_report: 'report',
+  analyze_time_off_patterns: 'pto-report',
+};
+
 export function PlanDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { selectConversation } = useChat();
   const { artifacts } = useArtifact();
   const [activeArtifactId, setActiveArtifactId] = useState<string | null>(null);
+  const deliverablesRef = useRef<HTMLDivElement>(null);
 
   // Check for a live artifact first, then fall back to hardcoded data
   const plan: PlanDetailData | null = useMemo(() => {
@@ -168,6 +182,31 @@ export function PlanDetail() {
     // Fall back to hardcoded data
     return id ? planDetailDataMap[id] || null : null;
   }, [id, artifacts]);
+
+  // Auto-open deliverable from query param (e.g., ?deliverable=analyze_compensation)
+  useEffect(() => {
+    const toolCall = searchParams.get('deliverable');
+    if (!toolCall || !plan) return;
+
+    // Map tool call to deliverable ID
+    const deliverableId = toolToDeliverableId[toolCall];
+    if (!deliverableId) return;
+
+    // Check the deliverable exists on this plan
+    const exists = plan.deliverables?.some(d => d.id === deliverableId);
+    if (!exists) return;
+
+    // Open the deliverable
+    setActiveArtifactId(deliverableId);
+
+    // Clear the query param so it doesn't re-trigger
+    setSearchParams({}, { replace: true });
+
+    // Scroll to deliverables section after a short delay for render
+    setTimeout(() => {
+      deliverablesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }, [plan, searchParams, setSearchParams]);
 
   if (!plan) {
     return (
@@ -287,6 +326,7 @@ export function PlanDetail() {
             plan={plan}
             activeArtifactId={activeArtifactId}
             onArtifactClick={setActiveArtifactId}
+            deliverablesRef={deliverablesRef}
           />
 
           {/* Artifact content below the card */}
@@ -391,10 +431,12 @@ function ActionItemsView({
   plan,
   activeArtifactId,
   onArtifactClick,
+  deliverablesRef,
 }: {
   plan: PlanDetailData;
   activeArtifactId: string | null;
   onArtifactClick: (id: string | null) => void;
+  deliverablesRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const actionItems = plan.actionItems || [];
   const reviewGates = plan.reviewGates || [];
@@ -467,7 +509,7 @@ function ActionItemsView({
 
       {/* Deliverables section */}
       {deliverables.length > 0 && (
-        <div className="px-6 pt-2 pb-6">
+        <div ref={deliverablesRef} className="px-6 pt-2 pb-6">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-neutral-weak)]">
               Deliverables

@@ -286,15 +286,18 @@ function ArtifactChips({
   items,
   isProposal,
   isLast,
+  onNavigate,
 }: {
   items: ActionItem[];
   isProposal: boolean;
   isLast?: boolean;
+  onNavigate?: (toolCall: string) => void;
 }) {
   const artifacts = items
     .filter(item => item.toolCall && toolArtifactMap[item.toolCall])
     .map(item => ({
       id: item.id,
+      toolCall: item.toolCall!,
       ...toolArtifactMap[item.toolCall!],
       done: !isProposal && item.status === 'done',
     }));
@@ -329,6 +332,7 @@ function ArtifactChips({
               color: artifact.done ? 'var(--text-neutral-strong)' : 'var(--text-neutral-weak)',
               cursor: artifact.done ? 'pointer' : 'default',
             }}
+            onClick={artifact.done && onNavigate ? () => onNavigate(artifact.toolCall) : undefined}
           >
             <Icon name={artifact.icon} size={11} style={{ opacity: artifact.done ? 0.6 : 0.35 }} />
             {artifact.label}
@@ -401,6 +405,7 @@ function InlineSectionRow({
   reviewSteps,
   onReviewStep,
   isLast,
+  onDeliverableClick,
 }: {
   section: PlanSection;
   isProposal: boolean;
@@ -413,6 +418,7 @@ function InlineSectionRow({
   reviewSteps: ReviewStep[];
   onReviewStep: (stepId: string) => void;
   isLast?: boolean;
+  onDeliverableClick?: (toolCall: string) => void;
 }) {
   const items = section.actionItems || [];
 
@@ -529,7 +535,7 @@ function InlineSectionRow({
           );
         })}
         {/* Artifact chips at section end */}
-        <ArtifactChips items={items} isProposal={isProposal} isLast={isLast} />
+        <ArtifactChips items={items} isProposal={isProposal} isLast={isLast} onNavigate={onDeliverableClick} />
       </div>
     </div>
   );
@@ -800,6 +806,7 @@ export function PlanInlineCard({ artifact }: PlanInlineCardProps) {
                   reviewSteps={reviewSteps}
                   onReviewStep={handleReviewStep}
                   isLast={idx === arr.length - 1}
+                  onDeliverableClick={(toolCall) => navigate(`/plans/plan-backfill-mid?deliverable=${encodeURIComponent(toolCall)}`)}
                 />
               )}
             </div>
