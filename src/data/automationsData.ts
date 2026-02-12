@@ -107,15 +107,6 @@ export const alertsData: AutomationAlert[] = [
 
 export const runningRowsWithAlerts: RunningAutomation[] = [
   {
-    id: 'run-1',
-    name: 'Backfill — Tony Ramirez',
-    meta: '3/5 · Screening candidates · 3 strong matches',
-    status: 'working',
-    progress: { current: 3, total: 5 },
-    lastUpdate: '30m ago',
-    planId: 'plan-backfill-mid',
-  },
-  {
     id: 'run-2',
     name: 'PTO Balance Audit',
     meta: '2/5 · Analyzing department patterns · 142 employees',
@@ -223,15 +214,6 @@ export const runningRowsAllClear: RunningAutomation[] = [
     progress: { current: 5, total: 7 },
     lastUpdate: '10m ago',
     planId: 'plan-pipeline-review',
-  },
-  {
-    id: 'clear-2',
-    name: 'Backfill — Tony Ramirez',
-    meta: '3/5 · Screening candidates · 3 strong matches',
-    status: 'working',
-    progress: { current: 3, total: 5 },
-    lastUpdate: '30m ago',
-    planId: 'plan-backfill-mid',
   },
   {
     id: 'clear-3',

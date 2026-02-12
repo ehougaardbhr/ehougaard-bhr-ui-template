@@ -35,10 +35,8 @@ function deriveAction(statusLabel: string): { action: ActionType; actionLabel: s
 
 // Static recent activity items pulled from plan detail data
 const recentActivity: AgentActivityItem[] = [
-  'plan-backfill-mid',
   'plan-pto-audit',
   'plan-pipeline-review',
-
   'plan-flight-risk',
   'plan-benefits-enrollment',
 ].map(id => {
