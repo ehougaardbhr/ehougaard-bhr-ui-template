@@ -620,54 +620,53 @@ function ReviewGateRow({
   effectiveStatus: ReviewGateStatus;
   onApprove: () => void;
 }) {
-  const config = gateStatusConfig[effectiveStatus];
   const isClickable = effectiveStatus === 'ready' || effectiveStatus === 'waiting';
   const wasJustApproved = effectiveStatus === 'passed' && gate.status !== 'passed';
+  const isPassed = effectiveStatus === 'passed';
+  const isFuture = effectiveStatus === 'future';
+
+  // Match chat pill styling — amber for waiting, green for passed, grey for future
+  const pillStyle = isPassed || wasJustApproved
+    ? { bg: '#D1FAE5', color: '#065F46', border: '1px solid #A7F3D0', iconName: 'check-circle' as const }
+    : isFuture
+    ? { bg: 'var(--surface-neutral-xx-weak)', color: 'var(--text-neutral-weak)', border: '1px solid var(--border-neutral-weak)', iconName: 'clipboard-check' as const }
+    : { bg: '#FEF3C7', color: '#92400E', border: '1px solid #FCD34D', iconName: 'clipboard-check' as const };
 
   return (
     <div
-      className={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg ml-10 mb-1 ${
-        isClickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
+      className={`inline-flex items-center gap-2.5 ml-10 mb-1 ${
+        isClickable ? 'cursor-pointer hover:shadow-md transition-shadow' : ''
       }`}
-      style={{ backgroundColor: config.bg + '40' }}
+      style={{
+        padding: '8px 14px',
+        borderRadius: '8px',
+        backgroundColor: pillStyle.bg,
+        color: pillStyle.color,
+        border: pillStyle.border,
+      }}
       onClick={isClickable ? onApprove : undefined}
     >
-      <div
-        className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
-        style={{ backgroundColor: config.bg, color: config.color }}
-      >
-        <Icon name={config.icon} size={9} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div
-          className={`text-xs font-medium ${
-            effectiveStatus === 'waiting' || effectiveStatus === 'ready'
-              ? 'text-[#D97706]'
-              : 'text-[var(--text-neutral-strong)]'
-          }`}
-        >
+      <Icon name={pillStyle.iconName} size={14} style={{ flexShrink: 0 }} />
+      <div className="min-w-0">
+        <div className="text-sm font-medium">
           {wasJustApproved ? (
-            <>Approved by you</>
+            'Approved by you'
           ) : isClickable && gate.reviewer === 'You' ? (
-            <>Requires your approval</>
+            gate.description || gate.label || 'Requires your approval'
+          ) : isPassed ? (
+            'Approved' + (gate.reviewer === 'You' ? ' by you' : ` by ${gate.reviewer}`)
           ) : (
-            <>{gate.label}</>
-          )}
-          {/* Reviewer name + title — only if not already in the label */}
-          {!wasJustApproved && gate.reviewer !== 'You' && gate.reviewerTitle && !gate.label.includes(gate.reviewer) && (
-            <span className="text-[var(--text-neutral-weak)] font-normal">
-              {' '}· {gate.reviewer}, {gate.reviewerTitle}
-            </span>
+            gate.label || gate.description || 'Pending review'
           )}
         </div>
-        {!wasJustApproved && gate.sublabel && (
-          <div className="text-[11px] text-[var(--text-neutral-weak)] mt-0.5">
-            {gate.sublabel}
+        {isClickable && gate.reviewer === 'You' && (
+          <div className="text-xs mt-0.5 opacity-75">
+            Click to approve
           </div>
         )}
-        {isClickable && gate.reviewer === 'You' && (
-          <div className="text-[11px] text-[#D97706] mt-0.5 font-medium">
-            Click to approve
+        {!isClickable && !wasJustApproved && gate.reviewer && gate.reviewer !== 'You' && (
+          <div className="text-xs mt-0.5 opacity-75">
+            {gate.reviewer}{gate.reviewerTitle ? `, ${gate.reviewerTitle}` : ''}
           </div>
         )}
       </div>
