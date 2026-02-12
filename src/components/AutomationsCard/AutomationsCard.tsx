@@ -38,7 +38,7 @@ const recentActivity: AgentActivityItem[] = [
   'plan-backfill-mid',
   'plan-pto-audit',
   'plan-pipeline-review',
-  'plan-comp-review',
+
   'plan-flight-risk',
   'plan-benefits-enrollment',
 ].map(id => {

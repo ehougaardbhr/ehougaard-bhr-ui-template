@@ -101,19 +101,6 @@ export const alertsData: AutomationAlert[] = [
     ctaIcon: 'fa-solid fa-check',
     planId: 'plan-onboarding',
   },
-  {
-    id: 'alert-3',
-    type: 'paused',
-    title: 'Comp Review — Engineering',
-    age: 'Paused 3 days ago',
-    previewRows: [
-      { iconClass: 'fa-solid fa-circle-half-stroke', text: '<strong>6/8 steps done</strong> — paused for budget review' },
-      { iconClass: 'fa-solid fa-arrow-trend-down', text: '<strong>7 employees</strong> below market rate identified so far' },
-    ],
-    ctaLabel: 'Resume',
-    ctaIcon: 'fa-solid fa-play',
-    planId: 'plan-comp-review',
-  },
 ];
 
 // --- Mock data: Running rows (alerts state — 5 rows) ---
@@ -271,14 +258,5 @@ export const runningRowsAllClear: RunningAutomation[] = [
     status: 'done',
     lastUpdate: '2h ago',
     planId: 'plan-flight-risk',
-  },
-  {
-    id: 'clear-6',
-    name: 'Comp Review — Engineering',
-    meta: '7/8 · Drafting adjustment proposals',
-    status: 'working',
-    progress: { current: 7, total: 8 },
-    lastUpdate: '20m ago',
-    planId: 'plan-comp-review',
   },
 ];

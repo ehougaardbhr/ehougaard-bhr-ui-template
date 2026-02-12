@@ -90,7 +90,7 @@ When creating a plan, use EXACTLY this format. Do NOT wrap it in code fences. Ke
     }
   ],
   "reviewSteps": [
-    { "id": "review-1", "description": "Approve job requisition before posting", "reviewer": "Jessica Cordova", "status": "planned", "afterItem": "item-3", "type": "artifact" }
+    { "id": "review-1", "description": "Approve job requisition before posting", "reviewer": "You", "status": "planned", "afterItem": "item-3", "type": "artifact" }
   ],
   "suggestedPrompts": [
     "Screen the talent pool for matching candidates",

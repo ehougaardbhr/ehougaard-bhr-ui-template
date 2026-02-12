@@ -26,10 +26,10 @@ const typeIcons: Record<AutomationAlert['type'], IconDefinition> = {
   paused: faPause,
 };
 
-const typeLabels: Record<AutomationAlert['type'], string> = {
-  review: 'I have something to show you',
-  approve: 'I need your approval',
-  paused: 'Paused — waiting on you',
+const typePills: Record<AutomationAlert['type'], { label: string; bg: string; text: string }> = {
+  review: { label: 'Ready for review', bg: '#ECFEFF', text: '#155E75' },
+  approve: { label: 'Needs approval', bg: '#FEF3C7', text: '#92400E' },
+  paused: { label: 'Paused', bg: '#FEF3C7', text: '#92400E' },
 };
 
 // Map preview row icon classes to FA icon objects
@@ -67,18 +67,21 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
         <FontAwesomeIcon icon={typeIcons[alert.type]} fontSize={15} />
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0">
-        {/* Top row: type label + age */}
-        <div className="flex items-center gap-2 mb-0.5">
-          <div className="text-xs font-bold uppercase tracking-wide text-[var(--text-neutral-medium)]">
-            {typeLabels[alert.type]}
-          </div>
-          <span className="text-xs text-[var(--text-neutral-weak)] ml-auto">
-            {alert.age}
-          </span>
-        </div>
+      {/* Pill — top right */}
+      <div className="absolute top-4 right-5 flex flex-col items-end gap-0.5">
+        <span
+          className="text-xs font-semibold leading-none px-2 py-1 rounded-full whitespace-nowrap"
+          style={{ backgroundColor: typePills[alert.type].bg, color: typePills[alert.type].text }}
+        >
+          {typePills[alert.type].label}
+        </span>
+        <span className="text-xs text-[var(--text-neutral-weak)]">
+          {alert.age}
+        </span>
+      </div>
 
+      {/* Content */}
+      <div className="flex-1 min-w-0 pr-28">
         {/* Title */}
         <div
           onClick={() => onNavigate(alert.planId)}

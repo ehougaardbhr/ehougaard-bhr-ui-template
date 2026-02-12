@@ -2,10 +2,45 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useChat } from '../../contexts/ChatContext';
 import { Icon } from '../../components/Icon';
+import type { IconName } from '../../components/Icon/Icon';
 import { FindingCard } from '../../components/PlanDetail/FindingCard';
 import { ArtifactPanel, ArtifactInlinePanel } from '../../components/PlanDetail/ArtifactPanel';
 import { planDetailDataMap } from '../../data/planDetailData';
-import type { PlanDetailData, PlanDetailFinding, StandaloneReviewGate, PlanActionItem, PlanReviewGate, PlanDeliverable } from '../../data/planDetailData';
+import type { PlanDetailData, PlanDetailFinding, StandaloneReviewGate, PlanActionItem, PlanReviewGate, PlanDeliverable, ReviewGateStatus } from '../../data/planDetailData';
+
+// ============================================================================
+// Section icon mapping (ported from PlanInlineCard)
+// ============================================================================
+
+function getSectionIcon(title: string): IconName {
+  const lower = title.toLowerCase();
+  if (lower.includes('immediate') || lower.includes('urgent') || lower.includes('critical')) return 'bolt';
+  if (lower.includes('hiring') || lower.includes('recruit') || lower.includes('candidate')) return 'user-plus';
+  if (lower.includes('retention') || lower.includes('health') || lower.includes('morale') || lower.includes('wellness')) return 'shield-heart';
+  if (lower.includes('timeline') || lower.includes('schedule') || lower.includes('milestone')) return 'calendar';
+  if (lower.includes('budget') || lower.includes('cost') || lower.includes('compensation') || lower.includes('salary')) return 'circle-dollar';
+  if (lower.includes('training') || lower.includes('development') || lower.includes('learning')) return 'graduation-cap';
+  if (lower.includes('communication') || lower.includes('announce') || lower.includes('notify')) return 'bullhorn';
+  if (lower.includes('compliance') || lower.includes('legal') || lower.includes('policy')) return 'shield';
+  if (lower.includes('onboard') || lower.includes('welcome')) return 'door-open';
+  if (lower.includes('review') || lower.includes('assess') || lower.includes('evaluat')) return 'clipboard';
+  if (lower.includes('strateg') || lower.includes('plan')) return 'compass';
+  if (lower.includes('team') || lower.includes('people') || lower.includes('staff')) return 'users';
+  if (lower.includes('report') || lower.includes('analys') || lower.includes('data')) return 'chart-simple';
+  if (lower.includes('document') || lower.includes('knowledge') || lower.includes('transfer')) return 'file-lines';
+  if (lower.includes('research')) return 'magnifying-glass';
+  if (lower.includes('monitor')) return 'radar';
+  if (lower.includes('orient') || lower.includes('follow')) return 'clipboard-check';
+  if (lower.includes('pre-arrival') || lower.includes('preparation')) return 'box-open';
+  if (lower.includes('screen')) return 'filter';
+  if (lower.includes('risk')) return 'triangle-exclamation';
+  if (lower.includes('employee') || lower.includes('communi')) return 'envelope';
+  return 'list-check';
+}
+
+// ============================================================================
+// Configs
+// ============================================================================
 
 const statusConfig = {
   running: {
@@ -29,7 +64,8 @@ const itemStatusConfig = {
   done: { icon: 'check' as const, bg: '#D1FAE5', color: '#059669' },
   working: { icon: 'spinner' as const, bg: '#DBEAFE', color: '#2563EB' },
   awaiting: { icon: 'clock' as const, bg: '#FEF3C7', color: '#D97706' },
-  planned: { icon: 'circle' as const, bg: '#F5F3F2', color: '#A8A29E' },
+  queued: { icon: 'circle' as const, bg: '#F5F3F2', color: '#A8A29E' },
+  planned: { icon: 'circle' as const, bg: '#F5F3F2', color: '#D6D3D1' },
 };
 
 const gateStatusConfig = {
@@ -45,6 +81,10 @@ const deliverableTypeStyles = {
   text: { bg: '#EDE9FE', color: '#7C3AED' },
   job: { bg: '#FEF3C7', color: '#D97706' },
 };
+
+// ============================================================================
+// Main Component
+// ============================================================================
 
 export function PlanDetail() {
   const { id } = useParams<{ id: string }>();
@@ -81,6 +121,7 @@ export function PlanDetail() {
   const activeArtifact = activeArtifactId ? plan.artifactContents[activeArtifactId] : null;
   const config = statusConfig[plan.status];
   const hasActionItems = plan.actionItems && plan.actionItems.length > 0;
+  const progressPct = plan.totalItems > 0 ? (plan.completedItems / plan.totalItems) * 100 : 0;
 
   return (
     <div className="p-10 h-full overflow-y-auto">
@@ -122,7 +163,7 @@ export function PlanDetail() {
       </div>
 
       {/* Status pills row */}
-      <div className="flex items-center gap-4 flex-wrap mb-8">
+      <div className="flex items-center gap-4 flex-wrap mb-3">
         <span
           className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
           style={{ backgroundColor: config.badgeBg, color: config.badgeColor }}
@@ -148,6 +189,21 @@ export function PlanDetail() {
           {plan.status === 'completed' ? 'View conversation' : 'Open in chat'}
         </button>
       </div>
+
+      {/* Progress bar */}
+      {plan.totalItems > 0 && (
+        <div className="mb-8">
+          <div className="h-1 bg-[var(--surface-neutral-x-weak)] rounded-full overflow-hidden" style={{ maxWidth: 400 }}>
+            <div
+              className="h-full rounded-full transition-all duration-500"
+              style={{
+                width: `${progressPct}%`,
+                backgroundColor: plan.status === 'completed' ? '#059669' : '#2563EB',
+              }}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main content area */}
       {hasActionItems ? (
@@ -189,7 +245,71 @@ export function PlanDetail() {
 }
 
 // ============================================================================
-// Action Items View (new simplified plan layout)
+// Section grouping helpers
+// ============================================================================
+
+interface SectionGroup {
+  title: string;
+  items: PlanActionItem[];
+  isCompleted: boolean;
+  isWorking: boolean;
+  isBlocked: boolean;
+  blockedByReviewer?: string;
+}
+
+function groupItemsIntoSections(
+  actionItems: PlanActionItem[],
+  reviewGates: PlanReviewGate[],
+  localGateStatuses: Record<string, ReviewGateStatus>,
+): SectionGroup[] {
+  // Group consecutive items by section
+  const sections: { title: string; items: PlanActionItem[] }[] = [];
+  let current: { title: string; items: PlanActionItem[] } | null = null;
+
+  for (const item of actionItems) {
+    const sectionTitle = item.section || 'Steps';
+    if (!current || current.title !== sectionTitle) {
+      current = { title: sectionTitle, items: [] };
+      sections.push(current);
+    }
+    current.items.push(item);
+  }
+
+  // Map each item ID to its section index
+  const itemToSectionIdx = new Map<string, number>();
+  sections.forEach((section, idx) => {
+    section.items.forEach(item => itemToSectionIdx.set(item.id, idx));
+  });
+
+  // Compute state for each section
+  return sections.map((section, idx) => {
+    const isCompleted = section.items.every(i => i.status === 'done');
+    const isWorking = section.items.some(i => i.status === 'working');
+
+    // Check if blocked: no done/working items AND an unresolved gate exists before this section
+    const hasStarted = section.items.some(i => i.status === 'done' || i.status === 'working');
+    let isBlocked = false;
+    let blockedByReviewer: string | undefined;
+
+    if (!hasStarted && idx > 0) {
+      for (const gate of reviewGates) {
+        const effectiveStatus = localGateStatuses[gate.id] || gate.status;
+        if (effectiveStatus !== 'ready' && effectiveStatus !== 'waiting') continue;
+        const gateSectionIdx = itemToSectionIdx.get(gate.afterItemId);
+        if (gateSectionIdx !== undefined && gateSectionIdx < idx) {
+          isBlocked = true;
+          blockedByReviewer = gate.reviewer;
+          break;
+        }
+      }
+    }
+
+    return { ...section, isCompleted, isWorking, isBlocked, blockedByReviewer };
+  });
+}
+
+// ============================================================================
+// Action Items View (with sections)
 // ============================================================================
 
 function ActionItemsView({
@@ -205,35 +325,74 @@ function ActionItemsView({
   const reviewGates = plan.reviewGates || [];
   const deliverables = plan.deliverables || [];
 
-  // Build a map of gates by afterItemId for inline rendering
+  // Local state for interactive approval
+  const [localGateStatuses, setLocalGateStatuses] = useState<Record<string, ReviewGateStatus>>({});
+
+  const handleApproveGate = (gate: PlanReviewGate) => {
+    setLocalGateStatuses(prev => ({ ...prev, [gate.id]: 'passed' }));
+  };
+
+  const getEffectiveStatus = (gate: PlanReviewGate): ReviewGateStatus => {
+    return localGateStatuses[gate.id] || gate.status;
+  };
+
+  // Group into sections
+  const sections = groupItemsIntoSections(actionItems, reviewGates, localGateStatuses);
+
+  // Build gate map by afterItemId
   const gatesByItemId = new Map<string, PlanReviewGate>();
   for (const gate of reviewGates) {
     gatesByItemId.set(gate.afterItemId, gate);
   }
+
+  // Check if items have sections defined
+  const hasSections = actionItems.some(i => i.section);
 
   return (
     <div
       className="bg-[var(--surface-neutral-white)] rounded-2xl border border-[var(--border-neutral-weak)] overflow-hidden"
       style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}
     >
-      {/* Action items */}
+      {/* Sections with action items */}
       <div className="p-6">
-        <div className="flex flex-col gap-0.5">
-          {actionItems.map((item) => {
-            const gate = gatesByItemId.get(item.id);
-            return (
-              <div key={item.id}>
-                <ActionItemRow item={item} />
-                {gate && <ReviewGateRow gate={gate} />}
-              </div>
-            );
-          })}
-        </div>
+        {sections.map((section, sIdx) => (
+          <div key={section.title} className={sIdx > 0 ? 'mt-5' : ''}>
+            {/* Section header — only show if items have section labels */}
+            {hasSections && (
+              <SectionHeader
+                title={section.title}
+                isCompleted={section.isCompleted}
+                isWorking={section.isWorking}
+                isBlocked={section.isBlocked}
+                blockedByReviewer={section.blockedByReviewer}
+              />
+            )}
+
+            {/* Items in this section */}
+            <div className="flex flex-col gap-0.5">
+              {section.items.map((item) => {
+                const gate = gatesByItemId.get(item.id);
+                return (
+                  <div key={item.id}>
+                    <ActionItemRow item={item} />
+                    {gate && (
+                      <ReviewGateRow
+                        gate={gate}
+                        effectiveStatus={getEffectiveStatus(gate)}
+                        onApprove={() => handleApproveGate(gate)}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Deliverables section */}
       {deliverables.length > 0 && (
-        <div className="border-t border-[var(--border-neutral-weak)] p-6">
+        <div className="px-6 pt-2 pb-6">
           <div className="flex items-center gap-2.5 mb-4">
             <span className="text-xs font-semibold uppercase tracking-wider text-[var(--text-neutral-weak)]">
               Deliverables
@@ -256,6 +415,83 @@ function ActionItemsView({
   );
 }
 
+// ============================================================================
+// Section Header
+// ============================================================================
+
+function SectionHeader({
+  title,
+  isCompleted,
+  isWorking,
+  isBlocked,
+  blockedByReviewer,
+}: {
+  title: string;
+  isCompleted: boolean;
+  isWorking: boolean;
+  isBlocked: boolean;
+  blockedByReviewer?: string;
+}) {
+  const iconName = getSectionIcon(title);
+
+  // Icon circle color
+  const iconBg = isCompleted ? '#059669' : isWorking ? '#2563EB' : 'var(--color-primary-strong)';
+  const innerIcon: IconName = isCompleted ? 'check' : 'sparkles';
+  const innerIconSize = isCompleted ? 11 : 10;
+
+  return (
+    <div className="flex flex-wrap items-center gap-2 mb-2">
+      {/* Section icon circle */}
+      <div
+        className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0"
+        style={{ backgroundColor: iconBg }}
+      >
+        <Icon name={innerIcon} size={innerIconSize} style={{ color: '#fff' }} />
+      </div>
+
+      {/* Section title */}
+      <span
+        className="text-sm font-semibold text-[var(--text-neutral-xx-strong)]"
+        style={{ fontFamily: 'Inter, system-ui, sans-serif' }}
+      >
+        {title}
+      </span>
+
+      {/* Working badge */}
+      {isWorking && !isCompleted && (
+        <span
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
+          style={{ backgroundColor: '#DBEAFE', color: '#2563EB' }}
+        >
+          <span
+            className="inline-block w-[7px] h-[7px] rounded-full"
+            style={{
+              border: '1px solid #2563EB',
+              borderTopColor: 'transparent',
+              animation: 'spin 0.8s linear infinite',
+            }}
+          />
+          Working
+        </span>
+      )}
+
+      {/* Blocked badge */}
+      {isBlocked && !isCompleted && !isWorking && blockedByReviewer && (
+        <span
+          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+          style={{ color: '#A8A29E' }}
+        >
+          {blockedByReviewer === 'You' ? 'Pending your approval' : `Pending ${blockedByReviewer}'s approval`}
+        </span>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// Action Item Row
+// ============================================================================
+
 function ActionItemRow({ item }: { item: PlanActionItem }) {
   const config = itemStatusConfig[item.status];
 
@@ -265,14 +501,21 @@ function ActionItemRow({ item }: { item: PlanActionItem }) {
         className="w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0"
         style={{ backgroundColor: config.bg, color: config.color }}
       >
-        <Icon name={config.icon} size={12} />
+        {item.status === 'queued' || item.status === 'planned' ? (
+          <div
+            className="w-[5px] h-[5px] rounded-full"
+            style={{ backgroundColor: config.color }}
+          />
+        ) : (
+          <Icon name={config.icon} size={12} />
+        )}
       </div>
       <div className="flex-1 min-w-0">
         <div
           className={`text-sm font-medium ${
             item.status === 'done'
               ? 'text-[var(--text-neutral-strong)]'
-              : item.status === 'planned'
+              : item.status === 'planned' || item.status === 'queued'
                 ? 'text-[var(--text-neutral-medium)]'
                 : 'text-[var(--text-neutral-x-strong)]'
           }`}
@@ -289,13 +532,30 @@ function ActionItemRow({ item }: { item: PlanActionItem }) {
   );
 }
 
-function ReviewGateRow({ gate }: { gate: PlanReviewGate }) {
-  const config = gateStatusConfig[gate.status];
+// ============================================================================
+// Review Gate Row (with reviewer info + interactive approval)
+// ============================================================================
+
+function ReviewGateRow({
+  gate,
+  effectiveStatus,
+  onApprove,
+}: {
+  gate: PlanReviewGate;
+  effectiveStatus: ReviewGateStatus;
+  onApprove: () => void;
+}) {
+  const config = gateStatusConfig[effectiveStatus];
+  const isClickable = effectiveStatus === 'ready' || effectiveStatus === 'waiting';
+  const wasJustApproved = effectiveStatus === 'passed' && gate.status !== 'passed';
 
   return (
     <div
-      className="flex items-center gap-2.5 py-2.5 px-3 rounded-lg ml-10 mb-1"
+      className={`flex items-center gap-2.5 py-2.5 px-3 rounded-lg ml-10 mb-1 ${
+        isClickable ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''
+      }`}
       style={{ backgroundColor: config.bg + '40' }}
+      onClick={isClickable ? onApprove : undefined}
     >
       <div
         className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
@@ -306,22 +566,43 @@ function ReviewGateRow({ gate }: { gate: PlanReviewGate }) {
       <div className="flex-1 min-w-0">
         <div
           className={`text-xs font-medium ${
-            gate.status === 'waiting'
+            effectiveStatus === 'waiting' || effectiveStatus === 'ready'
               ? 'text-[#D97706]'
               : 'text-[var(--text-neutral-strong)]'
           }`}
         >
-          {gate.label}
+          {wasJustApproved ? (
+            <>Approved by you</>
+          ) : isClickable && gate.reviewer === 'You' ? (
+            <>Requires your approval</>
+          ) : (
+            <>{gate.label}</>
+          )}
+          {/* Reviewer name + title — only if not already in the label */}
+          {!wasJustApproved && gate.reviewer !== 'You' && gate.reviewerTitle && !gate.label.includes(gate.reviewer) && (
+            <span className="text-[var(--text-neutral-weak)] font-normal">
+              {' '}· {gate.reviewer}, {gate.reviewerTitle}
+            </span>
+          )}
         </div>
-        {gate.sublabel && (
+        {!wasJustApproved && gate.sublabel && (
           <div className="text-[11px] text-[var(--text-neutral-weak)] mt-0.5">
             {gate.sublabel}
+          </div>
+        )}
+        {isClickable && gate.reviewer === 'You' && (
+          <div className="text-[11px] text-[#D97706] mt-0.5 font-medium">
+            Click to approve
           </div>
         )}
       </div>
     </div>
   );
 }
+
+// ============================================================================
+// Deliverable Card
+// ============================================================================
 
 const approvalStyles = {
   approved: { bg: '#D1FAE5', color: '#059669', icon: 'check' as const, label: 'Approved' },
