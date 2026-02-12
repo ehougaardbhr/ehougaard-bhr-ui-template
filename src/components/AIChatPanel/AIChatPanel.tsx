@@ -128,14 +128,14 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
       return `I'll analyze the impact of team growth. Based on current span of control metrics and industry benchmarks, here are some scenarios:
 
 **Scenario 1: Add 2 Team Members**
-• Estimated Cost: $180K annually
-• Structure: Direct reports to current manager
-• Impact: Span of control increases to 7 (within healthy range)
+- Estimated Cost: $180K annually
+- Structure: Direct reports to current manager
+- Impact: Span of control increases to 7 (within healthy range)
 
 **Scenario 2: Add 5 Team Members**
-• Estimated Cost: $320K annually
-• Structure: Requires intermediate manager layer
-• Impact: Creates two sub-teams of 3-4 people each
+- Estimated Cost: $320K annually
+- Structure: Requires intermediate manager layer
+- Impact: Creates two sub-teams of 3-4 people each
 
 I recommend Scenario 1 for now, with plans to reassess in Q3.`;
     }
@@ -145,19 +145,19 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
       return `Looking at the span of control metrics:
 
 **Current State:**
-• Direct Reports: 5 people
-• Span Ratio: 1:5
-• Industry Benchmark: 1:5-8 (healthy range)
+- Direct Reports: 5 people
+- Span Ratio: 1:5
+- Industry Benchmark: 1:5-8 (healthy range)
 
 **Analysis:**
-• ✓ Within optimal range for hands-on management
-• ✓ Allows for regular 1-on-1s and mentorship
-• ⚠️ May become stretched if team grows beyond 8
+- ✓ Within optimal range for hands-on management
+- ✓ Allows for regular 1-on-1s and mentorship
+- ⚠️ May become stretched if team grows beyond 8
 
 **Recommendations:**
-• Current structure is sustainable
-• Consider adding a team lead if expanding beyond 8 direct reports
-• Monitor workload distribution across reports`;
+- Current structure is sustainable
+- Consider adding a team lead if expanding beyond 8 direct reports
+- Monitor workload distribution across reports`;
     }
 
     // Succession planning
@@ -167,19 +167,19 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
 **Internal Candidates:**
 
 **Alex Chen** (Senior Engineer)
-• Readiness: 6-9 months
-• Strengths: Technical excellence, respected by peers
-• Development needs: Project management, stakeholder communication
+- Readiness: 6-9 months
+- Strengths: Technical excellence, respected by peers
+- Development needs: Project management, stakeholder communication
 
 **Jordan Kim** (Team Lead)
-• Readiness: 3-6 months
-• Strengths: Leadership experience, cross-functional collaboration
-• Development needs: Deeper technical architecture knowledge
+- Readiness: 3-6 months
+- Strengths: Leadership experience, cross-functional collaboration
+- Development needs: Deeper technical architecture knowledge
 
 **Recommendations:**
-• Start mentorship program for Alex focusing on leadership
-• Give Jordan exposure to architecture decisions
-• Document key processes and relationships`;
+- Start mentorship program for Alex focusing on leadership
+- Give Jordan exposure to architecture decisions
+- Document key processes and relationships`;
     }
 
     // Industry benchmarks
@@ -187,18 +187,18 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
       return `Here's how this team compares to industry benchmarks:
 
 **Team Structure:**
-• Your Span: 1:5 | Industry Avg: 1:6.2 ✓
-• Your Levels: 3 | Industry Avg: 3.5 ✓
+- Your Span: 1:5 | Industry Avg: 1:6.2 ✓
+- Your Levels: 3 | Industry Avg: 3.5 ✓
 
 **Performance Metrics:**
-• Delivery Velocity: Above average (85th percentile)
-• Employee Retention: 94% vs 87% industry avg ✓
-• Promotion Rate: On par with industry
+- Delivery Velocity: Above average (85th percentile)
+- Employee Retention: 94% vs 87% industry avg ✓
+- Promotion Rate: On par with industry
 
 **Recommendations:**
-• Team structure is well-optimized
-• Consider slight expansion to match industry norms
-• Continue investing in retention initiatives`;
+- Team structure is well-optimized
+- Consider slight expansion to match industry norms
+- Continue investing in retention initiatives`;
     }
 
     // Screen talent pool
@@ -206,22 +206,22 @@ I recommend Scenario 1 for now, with plans to reassess in Q3.`;
       return `I've screened the talent pool against the Senior Software Engineer requisition. Here are the top matches:
 
 **Marcus Johnson** — 9 yrs exp, Currently at Indeed
-• Skills: Python, React, Kubernetes, GCP, System Design
-• Match Score: **92%** — strong full-stack fit
-• Status: Phone screen scheduled
-• Location: Austin, TX (remote eligible)
+- Skills: Python, React, Kubernetes, GCP, System Design
+- Match Score: **92%** — strong full-stack fit
+- Status: Phone screen scheduled
+- Location: Austin, TX (remote eligible)
 
 **Priya Sharma** — 7 yrs exp, Currently at Stripe
-• Skills: TypeScript, Node.js, AWS, Microservices
-• Match Score: **87%** — excellent backend depth
-• Status: Application reviewed
-• Location: San Francisco, CA
+- Skills: TypeScript, Node.js, AWS, Microservices
+- Match Score: **87%** — excellent backend depth
+- Status: Application reviewed
+- Location: San Francisco, CA
 
 **David Park** — 11 yrs exp, Currently at Datadog
-• Skills: Go, Python, Kubernetes, Platform Engineering
-• Match Score: **85%** — strong infrastructure background
-• Status: New applicant
-• Location: Seattle, WA (local)
+- Skills: Go, Python, Kubernetes, Platform Engineering
+- Match Score: **85%** — strong infrastructure background
+- Status: New applicant
+- Location: Seattle, WA (local)
 
 All three meet the $130K–$170K salary range. I'd recommend moving Marcus and Priya to first-round interviews based on skill overlap and availability.`;
     }
@@ -231,22 +231,22 @@ All three meet the $130K–$170K salary range. I'd recommend moving Marcus and P
       return `I've assessed promotion readiness for Tony's direct reports based on performance data, tenure, and skill development:
 
 **Daniel Kim** — Senior Software Engineer
-• Readiness: **Ready now** — consistently exceeds expectations
-• Strengths: Technical leadership, mentors junior devs, led 3 major releases
-• Gap: Limited cross-team visibility
-• Recommendation: Strong candidate for Tech Lead role
+- Readiness: **Ready now** — consistently exceeds expectations
+- Strengths: Technical leadership, mentors junior devs, led 3 major releases
+- Gap: Limited cross-team visibility
+- Recommendation: Strong candidate for Tech Lead role
 
 **Rachel Green** — Software Engineer
-• Readiness: **6–9 months** — trending upward
-• Strengths: Fast learner, strong code quality, good collaboration
-• Gap: Needs more ownership of end-to-end projects
-• Recommendation: Assign as lead on next feature initiative
+- Readiness: **6–9 months** — trending upward
+- Strengths: Fast learner, strong code quality, good collaboration
+- Gap: Needs more ownership of end-to-end projects
+- Recommendation: Assign as lead on next feature initiative
 
 **Chris Martinez** — DevOps Engineer
-• Readiness: **3–6 months** — solid trajectory
-• Strengths: Reliability champion, automated 40% of deploy pipeline
-• Gap: Needs more experience with architecture decisions
-• Recommendation: Include in system design reviews
+- Readiness: **3–6 months** — solid trajectory
+- Strengths: Reliability champion, automated 40% of deploy pipeline
+- Gap: Needs more experience with architecture decisions
+- Recommendation: Include in system design reviews
 
 Daniel Kim is the strongest internal candidate if you're considering backfilling the Senior role internally rather than hiring externally.`;
     }
@@ -256,19 +256,19 @@ Daniel Kim is the strongest internal candidate if you're considering backfilling
       return `Here's the hiring velocity analysis for this requisition:
 
 **Current Pipeline:**
-• 5 total candidates, 3 new this week
-• Average time in pipeline: 8 days
-• Oldest candidate: 14 days (Marcus Johnson — phone screen stage)
+- 5 total candidates, 3 new this week
+- Average time in pipeline: 8 days
+- Oldest candidate: 14 days (Marcus Johnson — phone screen stage)
 
 **Benchmarks vs. Similar Roles:**
-• Time to fill (Senior SWE): **32 days avg** at BambooHR
-• Industry average: 42 days
-• You're on day 11 — ahead of pace
+- Time to fill (Senior SWE): **32 days avg** at BambooHR
+- Industry average: 42 days
+- You're on day 11 — ahead of pace
 
 **Stage Breakdown:**
-• Applied → Screen: 3.2 days avg (industry: 5 days) ✓
-• Screen → Interview: 4.8 days avg (industry: 7 days) ✓
-• Interview → Offer: 8.5 days avg (industry: 14 days) ✓
+- Applied → Screen: 3.2 days avg (industry: 5 days) ✓
+- Screen → Interview: 4.8 days avg (industry: 7 days) ✓
+- Interview → Offer: 8.5 days avg (industry: 14 days) ✓
 
 **Bottleneck Alert:**
 ⚠️ Panel interview scheduling is the #1 delay — 2 candidates are waiting on interviewer availability. I'd recommend expanding the interview panel to include Uma Patel's availability this week.
@@ -282,23 +282,23 @@ At current velocity, you're on track for an offer by mid-February.`;
 
 **High Risk:**
 🔴 **Daniel Kim** — Senior Software Engineer
-• Compa-ratio: 0.87 (below market)
-• Recent activity: Updated LinkedIn, declined team social events
-• Tenure: 3.2 years (common departure window)
-• Action: Recommend immediate comp adjustment + career path discussion
+- Compa-ratio: 0.87 (below market)
+- Recent activity: Updated LinkedIn, declined team social events
+- Tenure: 3.2 years (common departure window)
+- Action: Recommend immediate comp adjustment + career path discussion
 
 **Moderate Risk:**
 🟡 **Chris Martinez** — DevOps Engineer
-• Compa-ratio: 0.88 (slightly below market)
-• Recent activity: No red flags, but workload has increased 30% post-Tony
-• Tenure: 2.1 years
-• Action: Monitor workload, discuss growth opportunities
+- Compa-ratio: 0.88 (slightly below market)
+- Recent activity: No red flags, but workload has increased 30% post-Tony
+- Tenure: 2.1 years
+- Action: Monitor workload, discuss growth opportunities
 
 **Low Risk:**
 🟢 **Rachel Green** — Software Engineer
-• Compa-ratio: 0.92 (near market)
-• Recently promoted, high engagement scores
-• Tenure: 1.4 years
+- Compa-ratio: 0.92 (near market)
+- Recently promoted, high engagement scores
+- Tenure: 1.4 years
 
 Daniel should be the priority — losing two senior engineers from the same team would be critical. I'd recommend scheduling a 1:1 this week.`;
     }
