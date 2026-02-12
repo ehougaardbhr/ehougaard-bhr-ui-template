@@ -67,33 +67,33 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
         <FontAwesomeIcon icon={typeIcons[alert.type]} fontSize={15} />
       </div>
 
-      {/* Pill — top right */}
-      <div className="absolute top-4 right-5 flex flex-col items-end gap-0.5">
-        <span
-          className="text-xs font-semibold leading-none px-2 py-1 rounded-full whitespace-nowrap"
-          style={{ backgroundColor: typePills[alert.type].bg, color: typePills[alert.type].text }}
-        >
-          {typePills[alert.type].label}
-        </span>
-        <span className="text-xs text-[var(--text-neutral-weak)]">
-          {alert.age}
-        </span>
-      </div>
+      {/* Age — top right */}
+      <span className="absolute top-4 right-5 text-sm text-[var(--text-neutral-weak)]">
+        {alert.age}
+      </span>
 
       {/* Content */}
       <div className="flex-1 min-w-0 pr-28">
-        {/* Title */}
-        <div
-          onClick={() => onNavigate(alert.planId)}
-          className="
-            text-sm font-semibold
-            text-[var(--text-neutral-xx-strong)]
-            mb-1 cursor-pointer
-            hover:text-[var(--color-primary-strong)]
-            transition-colors
-          "
-        >
-          {alert.title}
+        {/* Title + pill */}
+        <div className="flex items-center gap-2 mb-1">
+          <div
+            onClick={() => onNavigate(alert.planId)}
+            className="
+              text-base font-semibold
+              text-[var(--text-neutral-xx-strong)]
+              cursor-pointer
+              hover:text-[var(--color-primary-strong)]
+              transition-colors
+            "
+          >
+            {alert.title}
+          </div>
+          <span
+            className="text-xs font-semibold leading-none px-2 py-1 rounded-full whitespace-nowrap shrink-0"
+            style={{ backgroundColor: typePills[alert.type].bg, color: typePills[alert.type].text }}
+          >
+            {typePills[alert.type].label}
+          </span>
         </div>
 
         {/* Preview: findings (review type) */}
@@ -102,10 +102,10 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
             {alert.findings.map((f, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 py-0.5 text-xs text-[var(--text-neutral-strong)] leading-relaxed"
+                className="flex items-center gap-2 py-0.5 text-sm text-[var(--text-neutral-strong)] leading-relaxed"
               >
                 <div
-                  className="w-[7px] h-[7px] rounded-full shrink-0"
+                  className="w-2 h-2 rounded-full shrink-0"
                   style={{ background: f.severity === 'red' ? '#DC2626' : '#D97706' }}
                 />
                 <span className="font-semibold">{f.label}</span>
@@ -121,13 +121,13 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
             {alert.previewRows.map((row, i) => (
               <div
                 key={i}
-                className="flex items-center gap-2 py-0.5 text-xs text-[var(--text-neutral-strong)] leading-relaxed"
+                className="flex items-center gap-2 py-0.5 text-sm text-[var(--text-neutral-strong)] leading-relaxed"
               >
                 {previewIconMap[row.iconClass] && (
                   <FontAwesomeIcon
                     icon={previewIconMap[row.iconClass]}
                     className="text-[var(--icon-neutral-strong)] shrink-0"
-                    style={{ fontSize: 10, width: 12 }}
+                    style={{ fontSize: 12, width: 14 }}
                   />
                 )}
                 <span dangerouslySetInnerHTML={{ __html: row.text }} />

@@ -19,7 +19,7 @@ export function QuietRow({ automation, onNavigate, isLast = false }: QuietRowPro
       onClick={() => onNavigate(automation.planId)}
       className={`
         relative flex items-center gap-3.5
-        pl-5 pr-20 py-3 text-sm
+        pl-5 pr-20 py-4
         hover:bg-[var(--surface-neutral-xx-weak)]
         transition-colors cursor-pointer
         ${!isLast ? 'border-b border-[var(--border-neutral-x-weak)]' : ''}
@@ -33,12 +33,12 @@ export function QuietRow({ automation, onNavigate, isLast = false }: QuietRowPro
       />
 
       {/* Name */}
-      <span className="font-semibold text-[var(--text-neutral-strong)] whitespace-nowrap">
+      <span className="text-base font-semibold text-[var(--text-neutral-strong)] whitespace-nowrap">
         {automation.name}
       </span>
 
       {/* Meta */}
-      <span className="text-xs text-[var(--text-neutral-weak)] flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis">
+      <span className="text-sm text-[var(--text-neutral-weak)] flex-1 min-w-0 whitespace-nowrap overflow-hidden text-ellipsis">
         {automation.meta}
       </span>
 
@@ -55,7 +55,7 @@ export function QuietRow({ automation, onNavigate, isLast = false }: QuietRowPro
       )}
 
       {/* Timestamp */}
-      <span className="text-xs text-[var(--text-neutral-weak)] whitespace-nowrap">
+      <span className="text-sm text-[var(--text-neutral-weak)] whitespace-nowrap">
         {automation.lastUpdate}
       </span>
 

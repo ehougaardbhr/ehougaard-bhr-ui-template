@@ -102,10 +102,13 @@ export function Automations() {
         ) : (
           /* ── History tab ── */
           <>
-            <div className="flex items-center justify-between mb-5">
-              <span className="text-sm font-medium text-[var(--text-neutral-medium)]">
+            <div className="flex items-center justify-between mb-3.5">
+              <h2
+                className="font-semibold text-[#215C10]"
+                style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+              >
                 {historyData.length} completed agent runs
-              </span>
+              </h2>
               <TabSwitch activeTab={activeTab} onTabChange={setActiveTab} />
             </div>
 
@@ -124,7 +127,7 @@ export function Automations() {
                   onClick={() => handleNavigate(item.planId)}
                   className={`
                     flex items-center gap-3.5
-                    px-5 py-4 text-sm
+                    px-5 py-4
                     hover:bg-[var(--surface-neutral-xx-weak)]
                     transition-colors cursor-pointer
                     ${i < historyData.length - 1 ? 'border-b border-[var(--border-neutral-x-weak)]' : ''}
@@ -140,25 +143,25 @@ export function Automations() {
 
                   {/* Name + summary */}
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-[var(--text-neutral-strong)]">
+                    <div className="text-base font-semibold text-[var(--text-neutral-strong)]">
                       {item.name}
                     </div>
-                    <div className="text-xs text-[var(--text-neutral-weak)] mt-0.5 truncate">
+                    <div className="text-sm text-[var(--text-neutral-weak)] mt-0.5 truncate">
                       {item.summary}
                     </div>
                   </div>
 
                   {/* Deliverables count */}
-                  <span className="text-xs text-[var(--text-neutral-weak)] whitespace-nowrap shrink-0">
+                  <span className="text-sm text-[var(--text-neutral-weak)] whitespace-nowrap shrink-0">
                     {item.deliverables} deliverable{item.deliverables !== 1 ? 's' : ''}
                   </span>
 
                   {/* Date + duration */}
                   <div className="text-right shrink-0">
-                    <div className="text-xs text-[var(--text-neutral-medium)] whitespace-nowrap">
+                    <div className="text-sm text-[var(--text-neutral-medium)] whitespace-nowrap">
                       {item.completedAt}
                     </div>
-                    <div className="text-xs text-[var(--text-neutral-weak)] whitespace-nowrap mt-0.5">
+                    <div className="text-sm text-[var(--text-neutral-weak)] whitespace-nowrap mt-0.5">
                       {item.duration}
                     </div>
                   </div>
