@@ -22,32 +22,75 @@ export function Automations() {
     navigate(`/plans/${planId}`);
   };
 
+  const tabs: { label: string; value: 'active' | 'history'; icon: string }[] = [
+    { label: 'Active', value: 'active', icon: 'list-check' },
+    { label: 'History', value: 'history', icon: 'clock-rotate-left' },
+  ];
+
   return (
     <div className="p-8 h-full overflow-y-auto">
       <div className="max-w-[1100px] mx-auto">
 
-        {/* Page header */}
-        <div className="flex items-center justify-between mb-7">
-          <h1>Agents</h1>
-          <Button variant="primary" size="small">
-            + New
-          </Button>
+        {/* Page header — matches People/Org Chart */}
+        <div className="flex items-center justify-between mb-6">
+          <h1
+            style={{
+              fontFamily: 'Fields, system-ui, sans-serif',
+              fontSize: '48px',
+              fontWeight: 700,
+              lineHeight: '56px',
+              color: '#2e7918',
+            }}
+          >
+            Agents
+          </h1>
         </div>
 
+        {/* Actions bar with tabs */}
+        <div className="flex items-end justify-between border-b border-[var(--border-neutral-x-weak)] mb-6">
+          <div className="pb-4">
+            <Button icon="circle-plus-lined" variant="outlined">
+              New Agent
+            </Button>
+          </div>
+
+          {/* View tabs */}
+          <div className="flex items-center" style={{ gap: '24px' }}>
+            {tabs.map((tab) => (
+              <button
+                key={tab.value}
+                onClick={() => setActiveTab(tab.value)}
+                className="flex items-center gap-2 pb-3 text-[15px] transition-colors relative border-none bg-transparent cursor-pointer"
+                style={{
+                  fontWeight: activeTab === tab.value ? 700 : 500,
+                  color: activeTab === tab.value ? 'var(--color-primary-strong)' : 'var(--text-neutral-medium)',
+                }}
+              >
+                <Icon name={tab.icon} size={18} />
+                {tab.label}
+                {activeTab === tab.value && (
+                  <span
+                    className="absolute left-0 right-0 h-[2px] bg-[var(--color-primary-strong)]"
+                    style={{ bottom: '-1px' }}
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Tab content */}
         {activeTab === 'active' ? (
           <>
             {/* Alert section */}
             {hasAlerts && (
               <div className="mb-7">
-                <div className="flex items-center justify-between mb-3.5">
-                  <h2
-                    className="font-semibold text-[#215C10]"
-                    style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
-                  >
-                    {alertsData.length} need your attention
-                  </h2>
-                  <TabSwitch activeTab={activeTab} onTabChange={setActiveTab} />
-                </div>
+                <h2
+                  className="font-semibold text-[#215C10] mb-3.5"
+                  style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+                >
+                  {alertsData.length} need your attention
+                </h2>
 
                 {/* Alert cards */}
                 {alertsData.map((alert) => (
@@ -69,16 +112,13 @@ export function Automations() {
               </div>
             )}
 
-            {/* Running section — unified card container */}
-            <div className="flex items-center justify-between mb-3.5">
-              <h2
-                className="font-semibold text-[#215C10]"
-                style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
-              >
-                {hasAlerts ? 'Running smoothly' : 'All agents'}
-              </h2>
-              {!hasAlerts && <TabSwitch activeTab={activeTab} onTabChange={setActiveTab} />}
-            </div>
+            {/* Running section */}
+            <h2
+              className="font-semibold text-[#215C10] mb-3.5"
+              style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+            >
+              {hasAlerts ? 'Running smoothly' : 'All agents'}
+            </h2>
 
             <div
               className="
@@ -102,15 +142,12 @@ export function Automations() {
         ) : (
           /* ── History tab ── */
           <>
-            <div className="flex items-center justify-between mb-3.5">
-              <h2
-                className="font-semibold text-[#215C10]"
-                style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
-              >
-                {historyData.length} completed agent runs
-              </h2>
-              <TabSwitch activeTab={activeTab} onTabChange={setActiveTab} />
-            </div>
+            <h2
+              className="font-semibold text-[#215C10] mb-3.5"
+              style={{ fontSize: 21, lineHeight: '26px', fontFamily: 'Fields, Inter, system-ui, sans-serif' }}
+            >
+              {historyData.length} completed agent runs
+            </h2>
 
             <div
               className="
@@ -178,41 +215,6 @@ export function Automations() {
           </>
         )}
       </div>
-    </div>
-  );
-}
-
-/** Active/History tab switch */
-function TabSwitch({
-  activeTab,
-  onTabChange,
-}: {
-  activeTab: 'active' | 'history';
-  onTabChange: (tab: 'active' | 'history') => void;
-}) {
-  const tabs: { label: string; value: 'active' | 'history' }[] = [
-    { label: 'Active', value: 'active' },
-    { label: 'History', value: 'history' },
-  ];
-
-  return (
-    <div className="flex bg-[var(--surface-neutral-x-weak)] rounded-lg p-0.5">
-      {tabs.map((tab) => (
-        <button
-          key={tab.value}
-          onClick={() => onTabChange(tab.value)}
-          className={`
-            px-4 py-1.5 rounded-md text-sm font-semibold
-            border-none cursor-pointer transition-all duration-150
-            ${activeTab === tab.value
-              ? 'bg-[var(--surface-neutral-white)] text-[var(--text-neutral-xx-strong)] shadow-sm'
-              : 'bg-transparent text-[var(--text-neutral-medium)]'
-            }
-          `}
-        >
-          {tab.label}
-        </button>
-      ))}
     </div>
   );
 }

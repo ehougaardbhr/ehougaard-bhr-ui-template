@@ -3,10 +3,7 @@ import {
   faEye,
   faClipboardCheck,
   faPause,
-  faCheck,
-  faXmark,
-  faEllipsis,
-  faPlay,
+
   faListCheck,
   faUsers,
   faCircleHalfStroke,
@@ -14,6 +11,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import type { AutomationAlert } from '../../data/automationsData';
+import { Button } from '../Button/Button';
 
 interface AlertCardProps {
   alert: AutomationAlert;
@@ -140,71 +138,22 @@ export function AlertCard({ alert, onNavigate }: AlertCardProps) {
         <div className="flex items-center gap-2 mt-2.5">
           {alert.type === 'approve' ? (
             <>
-              <button
-                onClick={() => onNavigate(alert.planId)}
-                className="
-                  px-3.5 py-1.5 rounded-lg
-                  text-sm font-medium
-                  text-[var(--text-neutral-strong)]
-                  bg-[var(--surface-neutral-white)]
-                  hover:bg-[var(--surface-neutral-xx-weak)]
-                  border border-[var(--border-neutral-medium)]
-                  inline-flex items-center gap-1.5
-                  transition-colors cursor-pointer
-                "
-                style={{ boxShadow: 'var(--shadow-100)' }}
-              >
-                <FontAwesomeIcon icon={faCheck} fontSize={11} />
+              <Button size="small" icon="check" onClick={() => onNavigate(alert.planId)}>
                 Approve
-              </button>
-              <button
-                className="
-                  px-3.5 py-1.5 rounded-lg
-                  text-sm font-medium
-                  text-[var(--text-neutral-strong)]
-                  bg-[var(--surface-neutral-white)]
-                  hover:bg-[var(--surface-neutral-xx-weak)]
-                  border border-[var(--border-neutral-medium)]
-                  inline-flex items-center gap-1.5
-                  transition-colors cursor-pointer
-                "
-                style={{ boxShadow: 'var(--shadow-100)' }}
-              >
-                <FontAwesomeIcon icon={faXmark} fontSize={11} />
+              </Button>
+              <Button size="small" icon="xmark">
                 Deny
-              </button>
+              </Button>
             </>
           ) : (
-            <button
+            <Button
+              size="small"
+              icon={alert.type === 'paused' ? 'play' : undefined}
               onClick={() => onNavigate(alert.planId)}
-              className="
-                px-3.5 py-1.5 rounded-lg
-                text-sm font-medium
-                text-[var(--text-neutral-strong)]
-                bg-[var(--surface-neutral-white)]
-                hover:bg-[var(--surface-neutral-xx-weak)]
-                border border-[var(--border-neutral-medium)]
-                inline-flex items-center gap-1.5
-                transition-colors cursor-pointer
-              "
-              style={{ boxShadow: 'var(--shadow-100)' }}
             >
-              {alert.type === 'paused' && <FontAwesomeIcon icon={faPlay} fontSize={11} />}
               {alert.ctaLabel}
-            </button>
+            </Button>
           )}
-          <button
-            className="
-              w-8 h-8 rounded-lg border-none bg-transparent
-              flex items-center justify-center
-              text-[var(--text-neutral-medium)]
-              hover:bg-[var(--surface-neutral-xx-weak)]
-              hover:text-[var(--text-neutral-strong)]
-              transition-colors cursor-pointer
-            "
-          >
-            <FontAwesomeIcon icon={faEllipsis} />
-          </button>
         </div>
       </div>
     </div>

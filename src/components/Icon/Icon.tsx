@@ -85,6 +85,7 @@ import {
   faSpinner,
   faArrowLeft,
   faRotateLeft,
+  faClockRotateLeft,
   faBold,
   faItalic,
   faUnderline,
@@ -255,6 +256,7 @@ export type IconName =
   | 'spinner'
   | 'arrow-left'
   | 'rotate-left'
+  | 'clock-rotate-left'
   | 'bold'
   | 'italic'
   | 'underline'
@@ -385,6 +387,7 @@ const faIconMap = {
   'spinner': faSpinner,
   'arrow-left': faArrowLeft,
   'rotate-left': faRotateLeft,
+  'clock-rotate-left': faClockRotateLeft,
   'bold': faBold,
   'italic': faItalic,
   'underline': faUnderline,
