@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useChat } from '../../contexts/ChatContext';
+import { useArtifact } from '../../contexts/ArtifactContext';
+import type { PlanSettings } from '../../data/artifactData';
 import { Icon } from '../../components/Icon';
 import type { IconName } from '../../components/Icon/Icon';
 import { FindingCard } from '../../components/PlanDetail/FindingCard';
@@ -90,9 +92,82 @@ export function PlanDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { selectConversation } = useChat();
+  const { artifacts } = useArtifact();
   const [activeArtifactId, setActiveArtifactId] = useState<string | null>(null);
 
-  const plan = id ? planDetailDataMap[id] : null;
+  // Check for a live artifact first, then fall back to hardcoded data
+  const plan: PlanDetailData | null = useMemo(() => {
+    // Look for a live plan artifact that routes here
+    const liveArtifact = artifacts.find(
+      a => a.type === 'plan' && (a.settings as PlanSettings).status !== 'proposed'
+    );
+
+    // If the route is plan-backfill-mid and we have a live plan, use it
+    if (id === 'plan-backfill-mid' && liveArtifact) {
+      const settings = liveArtifact.settings as PlanSettings;
+      const allItems = settings.sections.flatMap(s => s.actionItems || []);
+      const doneItems = allItems.filter(i => i.status === 'done');
+      const hasPendingApproval = (settings.reviewSteps || []).some(r => r.status === 'ready');
+
+      // Determine display status — pending approval trumps completed
+      let status: 'running' | 'paused' | 'completed' = settings.status === 'proposed' ? 'running' : settings.status;
+      let statusLabel = settings.status === 'running' ? 'Running'
+        : settings.status === 'completed' ? 'Completed'
+        : 'Waiting for approval';
+      if (hasPendingApproval) {
+        status = 'paused';
+        statusLabel = 'Waiting for approval';
+      }
+
+      // Convert live action items to PlanDetailData format
+      const actionItems: PlanActionItem[] = allItems.map((item, idx) => ({
+        id: item.id || `live-item-${idx}`,
+        label: item.description,
+        status: item.status === 'planned' ? 'planned'
+          : item.status === 'queued' ? 'queued'
+          : item.status === 'working' ? 'working'
+          : item.status === 'done' ? 'done'
+          : 'planned' as const,
+        timestamp: item.status === 'done' ? 'Just now' : undefined,
+        section: settings.sections.find(s => (s.actionItems || []).some(ai => ai.id === item.id))?.title || 'Tasks',
+      }));
+
+      // Convert review steps to review gates
+      const reviewGates: PlanReviewGate[] = (settings.reviewSteps || []).map((rs, idx) => ({
+        id: rs.id || `live-gate-${idx}`,
+        afterItemId: rs.afterItem || allItems[allItems.length - 1]?.id || '',
+        status: rs.status === 'passed' ? 'passed'
+          : rs.status === 'ready' ? 'waiting'
+          : 'future' as ReviewGateStatus,
+        reviewer: rs.reviewer,
+        description: rs.description,
+      }));
+
+      // Use hardcoded deliverables/artifacts as fallback
+      const hardcoded = planDetailDataMap[id];
+
+      return {
+        id: liveArtifact.id,
+        title: liveArtifact.title,
+        subtitle: hardcoded?.subtitle || 'Tony Ramirez',
+        status,
+        statusLabel,
+        startedAt: 'Started just now',
+        totalItems: allItems.length,
+        completedItems: doneItems.length,
+        totalReviews: (settings.reviewSteps || []).length,
+        totalArtifacts: hardcoded?.totalArtifacts || 0,
+        conversationId: liveArtifact.conversationId || '',
+        actionItems,
+        reviewGates,
+        deliverables: hardcoded?.deliverables || [],
+        artifactContents: hardcoded?.artifactContents || {},
+      };
+    }
+
+    // Fall back to hardcoded data
+    return id ? planDetailDataMap[id] || null : null;
+  }, [id, artifacts]);
 
   if (!plan) {
     return (
