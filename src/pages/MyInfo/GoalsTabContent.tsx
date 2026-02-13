@@ -6,6 +6,7 @@ interface GoalsTabContentProps {
 }
 
 export function GoalsTabContent({ employeeName }: GoalsTabContentProps) {
+  void employeeName;
   const [statusFilter, setStatusFilter] = useState('in-progress');
 
   // Status filter options

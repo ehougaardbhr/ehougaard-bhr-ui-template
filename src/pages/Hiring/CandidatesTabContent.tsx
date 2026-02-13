@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Icon, Dropdown, StarRating } from '../../components';
+import { Icon, StarRating } from '../../components';
 import { candidates } from '../../data/candidates';
 
 export function CandidatesTabContent() {
@@ -99,7 +99,7 @@ export function CandidatesTabContent() {
           </div>
 
           {/* Filter Sections */}
-          {filterSections.map((section, index) => (
+          {filterSections.map((section) => (
             <div key={section.id} className="relative">
               <button
                 onClick={() => toggleFilter(section.id)}
@@ -126,6 +126,13 @@ export function CandidatesTabContent() {
                 {section.hasActive && (
                   <Icon name="circle-x" size={12} className="text-[var(--text-neutral-medium)]" />
                 )}
+                <Icon
+                  name="chevron-down"
+                  size={12}
+                  className={`text-[var(--text-neutral-medium)] transition-transform ${
+                    expandedFilters.has(section.id) ? 'rotate-0' : '-rotate-90'
+                  }`}
+                />
               </button>
               {/* Divider */}
               <div className="absolute bottom-0 left-[21px] right-0 h-px bg-[var(--border-neutral-x-weak)]" />
@@ -170,7 +177,7 @@ export function CandidatesTabContent() {
                 </tr>
               </thead>
               <tbody>
-                {candidates.map((candidate, index) => (
+                {candidates.map((candidate) => (
                   <tr
                     key={candidate.id}
                     className="border-t border-[var(--border-neutral-x-weak)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"

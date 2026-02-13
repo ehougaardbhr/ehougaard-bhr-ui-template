@@ -1,5 +1,4 @@
 import { hierarchy, tree } from 'd3-hierarchy';
-import type { HierarchyPointNode } from 'd3-hierarchy';
 import type { Employee } from '../data/employees';
 
 // Node spacing constants
@@ -139,13 +138,13 @@ export function calculateTreeLayout(
   }
 
   const hierarchyData = convertToHierarchy(root);
-  const rootHierarchy = hierarchy<EmployeeHierarchyNode>(hierarchyData);
+  const rootHierarchy = hierarchy(hierarchyData);
 
   // Create d3 tree layout with very compact spacing
   // Pack siblings tightly (1.0x spacing) and keep subtrees reasonably close (1.3x)
-  const treeLayout = tree<EmployeeHierarchyNode>()
+  const treeLayout = tree()
     .nodeSize([HORIZONTAL_SPACING, VERTICAL_SPACING])
-    .separation((a, b) => (a.parent === b.parent ? 1.0 : 1.3));
+    .separation((a: any, b: any) => (a.parent === b.parent ? 1.0 : 1.3));
 
   // Calculate layout
   const layoutRoot = treeLayout(rootHierarchy);
@@ -157,7 +156,7 @@ export function calculateTreeLayout(
   let maxY = -Infinity;
 
   function convertToTreeNode(
-    d3Node: HierarchyPointNode<EmployeeHierarchyNode>,
+    d3Node: any,
     level: number
   ): TreeNode {
     const node: TreeNode = {
@@ -176,7 +175,7 @@ export function calculateTreeLayout(
     // Apply depth filtering
     if (maxDepth === 'all' || level < maxDepth) {
       if (d3Node.children) {
-        node.children = d3Node.children.map((child) =>
+        node.children = d3Node.children.map((child: any) =>
           convertToTreeNode(child, level + 1)
         );
       }

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Icon, TextInput, Button, PendingFeedbackCard, FeedbackCard } from '../../components';
+import type { IconName } from '../../components/Icon';
 
 interface FeedbackTabContentProps {
   employeeName: string;
@@ -35,7 +36,15 @@ export function FeedbackTabContent({ employeeName }: FeedbackTabContentProps) {
   ];
 
   // Mock received feedback
-  const receivedFeedback = [
+  const receivedFeedback: Array<{
+    id: string;
+    authorName: string;
+    authorTitle: string;
+    date: string;
+    iconName: IconName;
+    strengths: { question: string; answer: string };
+    improvements: { question: string; answer: string };
+  }> = [
     {
       id: '1',
       authorName: 'Stevie Nordness',
