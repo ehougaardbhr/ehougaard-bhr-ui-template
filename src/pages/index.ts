@@ -5,6 +5,7 @@ export { Hiring } from './Hiring';
 export { Reports } from './Reports';
 export { Files } from './Files';
 export { Payroll } from './Payroll';
+export { TimeAttendance } from './TimeAttendance';
 export { Settings } from './Settings';
 export { Inbox } from './Inbox';
 export { NewEmployeePage } from './NewEmployeePage';
