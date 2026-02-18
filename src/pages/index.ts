@@ -12,3 +12,4 @@ export { DatePickerDemo } from './DatePickerDemo';
 export { CreateJobOpening } from './CreateJobOpening';
 export { JobAIPrototype } from './JobAIPrototype';
 export { SetupAccount } from './SetupAccount';
+export { YearToDate } from './YearToDate';

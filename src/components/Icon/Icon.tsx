@@ -88,6 +88,7 @@ import {
   faSpinner,
   faArrowLeft,
   faRotateLeft,
+  faTriangleExclamation,
 } from '@fortawesome/free-solid-svg-icons';
 import { faLinkedin } from '@fortawesome/free-brands-svg-icons';
 import {
@@ -229,7 +230,8 @@ export type IconName =
   | 'house-laptop'
   | 'spinner'
   | 'arrow-left'
-  | 'rotate-left';
+  | 'rotate-left'
+  | 'triangle-exclamation';
 
 interface IconProps {
   name: IconName;
@@ -341,6 +343,7 @@ const faIconMap = {
   'spinner': faSpinner,
   'arrow-left': faArrowLeft,
   'rotate-left': faRotateLeft,
+  'triangle-exclamation': faTriangleExclamation,
 } as const;
 
 export function Icon({ name, size = 24, className = '', variant = 'solid', style }: IconProps) {
