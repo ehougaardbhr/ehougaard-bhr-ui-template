@@ -1,8 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Icon, Button, TextInput } from '../../components';
+import type { IconName } from '../../components/Icon';
 import { currentEmployee } from '../../data/currentEmployee';
+import { getEmployeeTimesheetDataset } from '../../data/timesheetData';
 import { PerformanceTabContent } from './PerformanceTabContent';
 import { JobTabContent } from './JobTabContent';
+import { TimesheetsTabContent } from './TimesheetsTabContent';
 
 const profileTabs = [
   { id: 'personal', label: 'Personal' },
@@ -18,7 +22,13 @@ const profileTabs = [
 const MORE_TAB = { id: 'more', label: 'More' };
 
 export function MyInfo() {
-  const [activeTab, setActiveTab] = useState('personal');
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const tabFromQuery = queryParams.get('tab');
+  const employeeFromQuery = queryParams.get('employee') ?? undefined;
+  const initialTab = tabFromQuery && profileTabs.some((tab) => tab.id === tabFromQuery) ? tabFromQuery : 'personal';
+
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [showFloatingHeader, setShowFloatingHeader] = useState(false);
   const [floatingHeaderHeight, setFloatingHeaderHeight] = useState<number | null>(null);
   const [visibleTabCount, setVisibleTabCount] = useState(profileTabs.length);
@@ -33,6 +43,9 @@ export function MyInfo() {
   const moreButtonRef = useRef<HTMLDivElement>(null);
   const floatingMoreButtonRef = useRef<HTMLDivElement>(null);
   const employee = currentEmployee;
+  const selectedTimesheetDataset = getEmployeeTimesheetDataset(employeeFromQuery);
+  const headerName = employeeFromQuery ? selectedTimesheetDataset.pageData.employeeName : `${employee.preferredName} (${employee.firstName}) ${employee.lastName}`;
+  const headerTitle = employeeFromQuery ? selectedTimesheetDataset.pageData.employeeTitle : employee.title;
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -204,16 +217,14 @@ export function MyInfo() {
             <div className="flex items-center gap-3">
               {/* Avatar and Name */}
               <div className="flex items-center gap-3">
-                <img
-                  src={employee.avatar}
-                  alt={`${employee.preferredName} ${employee.lastName}`}
-                  className="w-12 h-12 rounded-[var(--radius-x-small)] object-cover shadow-[1px_1px_0px_1px_rgba(56,49,47,0.04)]"
-                />
+                <div className="w-12 h-12 rounded-[var(--radius-x-small)] bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-medium)] flex items-center justify-center shadow-[1px_1px_0px_1px_rgba(56,49,47,0.04)]">
+                  <Icon name="circle-user" size={28} className="text-[var(--icon-neutral-strong)]" />
+                </div>
                 <h2
                   className="text-[22px] font-semibold text-white"
                   style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}
                 >
-                  {employee.preferredName} {employee.lastName}
+                  {headerName}
                 </h2>
               </div>
 
@@ -327,10 +338,10 @@ export function MyInfo() {
                 className="text-[44px] leading-[52px] font-bold"
                 style={{ fontFamily: 'Fields, system-ui, sans-serif', color: 'white' }}
               >
-                {employee.preferredName} ({employee.firstName}) {employee.lastName}
+                {headerName}
               </h1>
               <p className="text-white text-[15px] leading-[22px]">
-                {employee.pronouns} · {employee.title}
+                {headerTitle}
               </p>
             </div>
 
@@ -439,12 +450,12 @@ export function MyInfo() {
         </div>
 
         {/* Avatar - positioned absolutely with z-10 to appear above tabs */}
-        <img
-          src={employee.avatar}
-          alt={`${employee.preferredName} ${employee.lastName}`}
-          className="absolute left-6 top-6 w-[224px] h-[224px] rounded-[var(--radius-large)] object-cover z-10"
+        <div
+          className="absolute left-6 top-6 w-[224px] h-[224px] rounded-[var(--radius-large)] z-10 bg-[var(--surface-neutral-x-weak)] border border-[var(--border-neutral-medium)] flex items-center justify-center"
           style={{ boxShadow: '2px 2px 0px 2px rgba(56, 49, 47, 0.05)', marginTop: '8px' }}
-        />
+        >
+          <Icon name="circle-user" size={120} className="text-[var(--icon-neutral-strong)]" />
+        </div>
       </div>
 
       {/* Main Content Area */}
@@ -531,6 +542,8 @@ export function MyInfo() {
             <PerformanceTabContent employeeName={employee.preferredName} />
           ) : activeTab === 'job' ? (
             <JobTabContent employeeName={employee.preferredName} />
+          ) : activeTab === 'timesheets' ? (
+            <TimesheetsTabContent key={employeeFromQuery ?? 'default'} employeeId={employeeFromQuery} />
           ) : (
             <>
               {/* Section Header */}
@@ -760,10 +773,10 @@ export function MyInfo() {
 }
 
 // Helper component for vital items
-function VitalItem({ icon, text }: { icon: string; text: string }) {
+function VitalItem({ icon, text }: { icon: IconName; text: string }) {
   return (
     <div className="flex items-center gap-2">
-      <Icon name={icon as any} size={12} className="text-[var(--icon-neutral-strong)]" />
+      <Icon name={icon} size={12} className="text-[var(--icon-neutral-strong)]" />
       <span className="text-[13px] text-[var(--text-neutral-medium)]">{text}</span>
     </div>
   );
