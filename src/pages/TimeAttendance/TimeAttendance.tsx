@@ -24,11 +24,22 @@ interface NewShiftDraft {
 }
 
 type TimeAttendanceTab = 'schedules' | 'live-view';
+type InsightId = 'late-pattern' | 'coverage-gap' | 'open-shift-risk';
 const liveShiftNames = ['Cashier', 'Bakery', 'Cleaning', 'Stocking'] as const;
 const liveShiftOverrides: Record<string, (typeof liveShiftNames)[number]> = {
   'devon-lane': 'Cashier',
   'ronald-richards': 'Stocking',
   'darrell-steward': 'Cleaning',
+};
+const lateClockInEvents = [
+  { day: 'Mon', time: '8:14 AM' },
+  { day: 'Wed', time: '8:19 AM' },
+  { day: 'Fri', time: '8:11 AM' },
+];
+const devonOtSnapshot = {
+  weekMinutesWorked: 38 * 60 + 39,
+  todayMinutesWorked: 6 * 60 + 12,
+  overtimeThresholdMinutes: 40 * 60,
 };
 
 function startOfWeekMonday(date: Date) {
@@ -81,6 +92,12 @@ function formatHoursLabel(hours: number) {
   return Number.isInteger(hours) ? String(hours) : hours.toFixed(1);
 }
 
+function formatMinutesAsHoursAndMinutes(totalMinutes: number) {
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h ${String(minutes).padStart(2, '0')}m`;
+}
+
 function cloneWeekShifts(weekKey: string): ShiftBlock[] {
   return populatedShiftBlocks.map((shift) => ({ ...shift, id: `${weekKey}-${shift.id}` }));
 }
@@ -117,6 +134,7 @@ export function TimeAttendance() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TimeAttendanceTab>('schedules');
   const [isInsightsExpanded, setIsInsightsExpanded] = useState(true);
+  const [activeInsightId, setActiveInsightId] = useState<InsightId | null>(null);
   const [weekStartDate, setWeekStartDate] = useState(() => startOfWeekMonday(new Date()));
   const initialKey = getWeekKey(startOfWeekMonday(new Date()));
 
@@ -163,23 +181,21 @@ export function TimeAttendance() {
   );
 
   const aiInsights = useMemo(() => {
-    const latePatternEmployee = liveNowRows.find((entry) => entry.status === 'Off')?.row.name ?? 'Ben Procter';
-
     return [
       {
-        id: 'late-pattern',
-        text: `${latePatternEmployee} has clocked in late 3 times over the last 2 weeks.`,
+        id: 'late-pattern' as const,
+        text: 'Ben Procter has clocked in late 3 times over the last 2 weeks.',
       },
       {
-        id: 'coverage-gap',
+        id: 'coverage-gap' as const,
         text: 'Current coverage is understaffed by 2 people compared to this time last week.',
       },
       {
-        id: 'open-shift-risk',
+        id: 'open-shift-risk' as const,
         text: 'Devon Lane is 1h 21m away from hitting OT.',
       },
     ];
-  }, [liveNowRows]);
+  }, []);
 
   const coverageSuggestions = useMemo(() => {
     return liveNowRows
@@ -195,6 +211,7 @@ export function TimeAttendance() {
   }, [liveNowRows]);
 
   const gridTemplateColumns = `${employeeColWidth}px repeat(${scheduleColumns.length}, ${dayColWidth}px)`;
+  const todayDayIndex = scheduleColumns.findIndex((column) => column.id === todayDayId);
 
   const openNewShiftModal = (rowId?: string, dayId?: string) => {
     setDraft(createDefaultDraft(rowId, dayId));
@@ -234,6 +251,21 @@ export function TimeAttendance() {
 
     setIsNewShiftModalOpen(false);
     setActiveTab('schedules');
+  };
+
+  const handleRemoveDevonRemainingShifts = () => {
+    setShiftsByWeek((prev) => {
+      const currentWeek = prev[weekKey] ?? cloneWeekShifts(weekKey);
+      return {
+        ...prev,
+        [weekKey]: currentWeek.filter((shift) => {
+          if (shift.rowId !== 'devon-lane') return true;
+          const shiftDayIndex = scheduleColumns.findIndex((column) => column.id === shift.dayId);
+          return shiftDayIndex < todayDayIndex;
+        }),
+      };
+    });
+    setActiveInsightId(null);
   };
 
   return (
@@ -431,7 +463,10 @@ export function TimeAttendance() {
                     <div className="h-full bg-[var(--surface-neutral-white)] rounded-[calc(var(--radius-small)-1px)] px-4 py-4 flex flex-col gap-4">
                       <p className="text-[17px] font-semibold text-[var(--text-neutral-strong)] leading-[24px]">{insight.text}</p>
                       <div className="mt-auto flex items-center justify-between">
-                        <button className="h-9 px-4 rounded-[var(--radius-full)] border border-[var(--border-neutral-medium)] bg-[var(--surface-neutral-white)] text-[15px] font-semibold text-[var(--text-neutral-strong)]">
+                        <button
+                          className="h-9 px-4 rounded-[var(--radius-full)] border border-[var(--border-neutral-medium)] bg-[var(--surface-neutral-white)] text-[15px] font-semibold text-[var(--text-neutral-strong)]"
+                          onClick={() => setActiveInsightId(insight.id)}
+                        >
                           View Details
                         </button>
                         <div className="flex items-center gap-3 text-[var(--icon-neutral-strong)]">
@@ -523,7 +558,13 @@ export function TimeAttendance() {
                     <div key={suggestion.id} className="rounded-[var(--radius-xx-small)] border border-[var(--border-neutral-xx-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-3">
                       <p className="text-[13px] font-semibold text-[var(--text-neutral-strong)]">{suggestion.name}</p>
                       <p className="text-[12px] text-[var(--text-neutral-medium)] mb-2">{suggestion.reason}</p>
-                      <button className="h-8 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-medium)] bg-[var(--surface-neutral-white)] text-[12px] font-semibold text-[var(--text-neutral-strong)]">
+                      <button
+                        className="h-8 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-medium)] bg-[var(--surface-neutral-white)] text-[12px] font-semibold text-[var(--text-neutral-strong)]"
+                        onClick={() => {
+                          setActiveTab('schedules');
+                          openNewShiftModal(suggestion.id, todayDayId);
+                        }}
+                      >
                         Assign to open Shift
                       </button>
                     </div>
@@ -617,6 +658,94 @@ export function TimeAttendance() {
               <Button variant="primary" size="small" className="!h-9 !px-4" onClick={createShift}>
                 Create Shift
               </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeInsightId && (
+        <div className="fixed inset-0 z-[75] bg-black/35 flex items-center justify-center p-6">
+          <div className="w-full max-w-[680px] bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] shadow-xl">
+            <div className="px-6 py-4 border-b border-[var(--border-neutral-x-weak)] flex items-center justify-between">
+              <h2 className="text-[28px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '32px' }}>
+                Insight Details
+              </h2>
+              <button onClick={() => setActiveInsightId(null)} className="text-[var(--icon-neutral-strong)] hover:text-[var(--text-neutral-strong)]">
+                <Icon name="xmark" size={18} />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {activeInsightId === 'late-pattern' && (
+                <>
+                  <p className="text-[18px] font-semibold text-[var(--text-neutral-strong)]">Ben Procter late clock-ins (last 2 weeks)</p>
+                  <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] p-4 space-y-2">
+                    {lateClockInEvents.map((event) => (
+                      <div key={`${event.day}-${event.time}`} className="text-[14px] text-[var(--text-neutral-strong)] flex items-center justify-between">
+                        <span>{event.day}</span>
+                        <span>{event.time}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="text-[13px] text-[var(--text-neutral-medium)]">Recommended action: schedule a meeting with Ben to discuss repeated late clock-ins.</p>
+                </>
+              )}
+
+              {activeInsightId === 'coverage-gap' && (
+                <>
+                  <p className="text-[18px] font-semibold text-[var(--text-neutral-strong)]">Coverage gap details</p>
+                  <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] p-4 space-y-2">
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Current staffed at this time: <span className="font-semibold">7 employees</span></p>
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Same time last week: <span className="font-semibold">9 employees</span></p>
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Difference: <span className="font-semibold text-red-700">-2 employees</span></p>
+                  </div>
+                </>
+              )}
+
+              {activeInsightId === 'open-shift-risk' && (
+                <>
+                  <p className="text-[18px] font-semibold text-[var(--text-neutral-strong)]">Devon Lane overtime warning</p>
+                  <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] p-4 space-y-2">
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Week worked: <span className="font-semibold">{formatMinutesAsHoursAndMinutes(devonOtSnapshot.weekMinutesWorked)}</span></p>
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Today worked: <span className="font-semibold">{formatMinutesAsHoursAndMinutes(devonOtSnapshot.todayMinutesWorked)}</span></p>
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Away from OT: <span className="font-semibold">{formatMinutesAsHoursAndMinutes(devonOtSnapshot.overtimeThresholdMinutes - devonOtSnapshot.weekMinutesWorked)}</span></p>
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div className="px-6 py-4 border-t border-[var(--border-neutral-x-weak)] flex items-center justify-end gap-2">
+              <Button variant="ghost" size="small" className="!h-9 !px-4" onClick={() => setActiveInsightId(null)}>
+                Close
+              </Button>
+              {activeInsightId === 'late-pattern' && (
+                <Button variant="primary" size="small" className="!h-9 !px-4">
+                  Schedule meeting with Ben
+                </Button>
+              )}
+              {activeInsightId === 'coverage-gap' && (
+                <Button
+                  variant="primary"
+                  size="small"
+                  className="!h-9 !px-4"
+                  onClick={() => {
+                    setActiveTab('schedules');
+                    setActiveInsightId(null);
+                  }}
+                >
+                  Staff Open Shift(s)
+                </Button>
+              )}
+              {activeInsightId === 'open-shift-risk' && (
+                <Button
+                  variant="primary"
+                  size="small"
+                  className="!h-9 !px-4"
+                  onClick={handleRemoveDevonRemainingShifts}
+                >
+                  Remove from remaining shifts this week
+                </Button>
+              )}
             </div>
           </div>
         </div>
