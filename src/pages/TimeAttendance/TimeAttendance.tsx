@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, FormDropdown, Icon, Tabs, TextInput } from '../../components';
+import CoverageByDayCard from '../../components/CoverageByDayCard';
+import LaborRiskSnapshotCard from '../../components/LaborRiskSnapshotCard';
 import {
   dayOptions,
   employeeOptions,
@@ -25,22 +27,61 @@ interface NewShiftDraft {
 
 type TimeAttendanceTab = 'schedules' | 'live-view';
 type InsightId = 'late-pattern' | 'coverage-gap' | 'open-shift-risk';
+type LiveStatus = 'Off' | 'PTO' | 'Clocked In' | 'Clocked In (Late)' | 'Absent';
+type LocationFilter = 'all' | 'office' | 'remote';
+type WorkLocation = 'Office' | 'Remote';
+
 const liveShiftNames = ['Cashier', 'Bakery', 'Cleaning', 'Stocking'] as const;
 const liveShiftOverrides: Record<string, (typeof liveShiftNames)[number]> = {
   'devon-lane': 'Cashier',
   'ronald-richards': 'Stocking',
   'darrell-steward': 'Cleaning',
 };
+const liveStatusByEmployee: Record<string, LiveStatus> = {
+  'ben-procter': 'Clocked In',
+  'albert-flores': 'Clocked In',
+  'janet-caldwell': 'Absent',
+  'devon-lane': 'Clocked In',
+  'ronald-richards': 'Absent',
+  'wade-warren': 'PTO',
+  'brooklyn-simmons': 'Off',
+  'darrell-steward': 'Clocked In (Late)',
+  'esther-howard': 'Clocked In (Late)',
+  'jenny-wilson': 'PTO',
+  'kristin-watson': 'Off',
+};
+const liveLocationByEmployee: Record<string, WorkLocation> = {
+  'ben-procter': 'Office',
+  'albert-flores': 'Office',
+  'janet-caldwell': 'Office',
+  'devon-lane': 'Office',
+  'ronald-richards': 'Office',
+  'wade-warren': 'Office',
+  'brooklyn-simmons': 'Remote',
+  'darrell-steward': 'Office',
+  'esther-howard': 'Remote',
+  'jenny-wilson': 'Office',
+  'kristin-watson': 'Remote',
+};
+const liveHoursByEmployee: Record<string, { todayHours: number; weekHours: number }> = {
+  'ben-procter': { todayHours: 6.1, weekHours: 39.3 },
+  'albert-flores': { todayHours: 7.5, weekHours: 41.4 },
+  'janet-caldwell': { todayHours: 2.3, weekHours: 16.2 },
+  'devon-lane': { todayHours: 6.2, weekHours: 38.65 },
+  'ronald-richards': { todayHours: 1.8, weekHours: 44.25 },
+  'wade-warren': { todayHours: 0, weekHours: 24 },
+  'brooklyn-simmons': { todayHours: 1.25, weekHours: 29.2 },
+  'darrell-steward': { todayHours: 5.9, weekHours: 40.5 },
+  'esther-howard': { todayHours: 5.4, weekHours: 39.5 },
+  'jenny-wilson': { todayHours: 0, weekHours: 20 },
+  'kristin-watson': { todayHours: 0, weekHours: 30 },
+};
 const lateClockInEvents = [
   { day: 'Mon', time: '8:14 AM' },
   { day: 'Wed', time: '8:19 AM' },
   { day: 'Fri', time: '8:11 AM' },
 ];
-const devonOtSnapshot = {
-  weekMinutesWorked: 38 * 60 + 39,
-  todayMinutesWorked: 6 * 60 + 12,
-  overtimeThresholdMinutes: 40 * 60,
-};
+const overtimeThresholdMinutes = 40 * 60;
 
 function startOfWeekMonday(date: Date) {
   const copy = new Date(date);
@@ -92,9 +133,24 @@ function formatHoursLabel(hours: number) {
   return Number.isInteger(hours) ? String(hours) : hours.toFixed(1);
 }
 
+function formatHoursToHoursAndMinutes(totalHours: number) {
+  const totalMinutes = Math.max(Math.round(totalHours * 60), 0);
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h ${String(minutes).padStart(2, '0')}m`;
+}
+
 function formatMinutesAsHoursAndMinutes(totalMinutes: number) {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
+  return `${hours}h ${String(minutes).padStart(2, '0')}m`;
+}
+
+function formatMinutesAsOvertimeInsight(totalMinutes: number) {
+  const safeMinutes = Math.max(totalMinutes, 0);
+  const hours = Math.floor(safeMinutes / 60);
+  const minutes = safeMinutes % 60;
+  if (hours === 0) return `${String(minutes).padStart(2, '0')}m`;
   return `${hours}h ${String(minutes).padStart(2, '0')}m`;
 }
 
@@ -130,9 +186,28 @@ function formatLiveShiftLabel(shiftTitle: string, assignedShiftName: string) {
   return `${withoutHourSuffix} (${assignedShiftName})`;
 }
 
+function getSeededIndex(seed: string, size: number) {
+  const hash = seed.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return hash % size;
+}
+
+function getStatusBadgeClasses(status: LiveStatus) {
+  if (status === 'Clocked In') {
+    return 'bg-[var(--surface-selected-weak)] text-[var(--color-primary-strong)]';
+  }
+  if (status === 'Clocked In (Late)') {
+    return 'bg-amber-50 text-amber-700 border border-amber-200';
+  }
+  if (status === 'Absent') {
+    return 'bg-red-50 text-red-700 border border-red-200';
+  }
+  return 'bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-medium)]';
+}
+
 export function TimeAttendance() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<TimeAttendanceTab>('schedules');
+  const [locationFilter, setLocationFilter] = useState<LocationFilter>('all');
   const [isInsightsExpanded, setIsInsightsExpanded] = useState(true);
   const [activeInsightId, setActiveInsightId] = useState<InsightId | null>(null);
   const [weekStartDate, setWeekStartDate] = useState(() => startOfWeekMonday(new Date()));
@@ -157,6 +232,22 @@ export function TimeAttendance() {
     () => scheduleColumns.map((column, index) => ({ ...column, subLabel: formatDaySubLabel(addDays(weekStartDate, index)) })),
     [weekStartDate],
   );
+  const coverageDaysWithDates = useMemo(
+    () => scheduleColumns.map((column) => {
+      const offsetByDay: Record<string, number> = {
+        sun: -1,
+        mon: 0,
+        tue: 1,
+        wed: 2,
+        thu: 3,
+        fri: 4,
+        sat: 5,
+      };
+      const offset = offsetByDay[column.id] ?? 0;
+      return { ...column, subLabel: formatDaySubLabel(addDays(weekStartDate, offset)) };
+    }),
+    [weekStartDate],
+  );
 
   const totalScheduledHours = useMemo(
     () => visibleShifts.reduce((sum, shift) => (shift.hours ? sum + shift.hours : sum), 0),
@@ -168,17 +259,46 @@ export function TimeAttendance() {
       .filter((row) => !row.isOpenShift)
       .map((row) => {
         const todayShift = visibleShifts.find((shift) => shift.rowId === row.id && shift.dayId === todayDayId && !shift.isAddShift && shift.variant !== 'vacation');
-        const status = row.id === 'ronald-richards' ? 'Late' : (todayShift ? 'On Shift' : 'Off');
+        const status = liveStatusByEmployee[row.id] ?? 'Off';
+        const hours = liveHoursByEmployee[row.id] ?? { todayHours: 0, weekHours: 0 };
+        const location = liveLocationByEmployee[row.id] ?? 'Office';
         const assignedShiftName = getAssignedLiveShiftName(row.id);
-        return { row, todayShift, status, assignedShiftName };
+        const overtimeHours = Math.max(hours.weekHours - 40, 0);
+        return { row, todayShift, status, assignedShiftName, hours, overtimeHours, location };
       }),
     [visibleShifts, todayDayId],
   );
 
+  const filteredLiveNowRows = useMemo(() => (
+    liveNowRows.filter((entry) => {
+      if (locationFilter === 'all') return true;
+      return locationFilter === 'office' ? entry.location === 'Office' : entry.location === 'Remote';
+    })
+  ), [liveNowRows, locationFilter]);
+
   const clockedInCount = useMemo(
-    () => liveNowRows.filter((r) => r.status === 'On Shift').length,
-    [liveNowRows],
+    () => filteredLiveNowRows.filter((r) => r.status === 'Clocked In' || r.status === 'Clocked In (Late)').length,
+    [filteredLiveNowRows],
   );
+
+  const overtimeRiskEmployee = useMemo(() => {
+    const riskCandidates = scheduleRows
+      .filter((row) => !row.isOpenShift)
+      .map((row) => {
+        const hours = liveHoursByEmployee[row.id];
+        if (!hours) return null;
+        const weekMinutesWorked = Math.round(hours.weekHours * 60);
+        const todayMinutesWorked = Math.round(hours.todayHours * 60);
+        const minutesAway = overtimeThresholdMinutes - weekMinutesWorked;
+        return { rowId: row.id, name: row.name, weekMinutesWorked, todayMinutesWorked, minutesAway };
+      })
+      .filter((candidate): candidate is { rowId: string; name: string; weekMinutesWorked: number; todayMinutesWorked: number; minutesAway: number } => (
+        !!candidate && candidate.minutesAway > 0 && candidate.minutesAway <= 60
+      ));
+
+    if (riskCandidates.length === 0) return null;
+    return riskCandidates[getSeededIndex(weekKey, riskCandidates.length)];
+  }, [weekKey]);
 
   const aiInsights = useMemo(() => {
     return [
@@ -192,26 +312,23 @@ export function TimeAttendance() {
       },
       {
         id: 'open-shift-risk' as const,
-        text: 'Devon Lane is 1h 21m away from hitting OT.',
+        text: overtimeRiskEmployee
+          ? `${overtimeRiskEmployee.name} is ${formatMinutesAsOvertimeInsight(overtimeRiskEmployee.minutesAway)} away from hitting overtime.`
+          : 'No employees are currently within one hour of hitting overtime.',
       },
     ];
-  }, []);
-
-  const coverageSuggestions = useMemo(() => {
-    return liveNowRows
-      .filter((entry) => entry.status === 'Off')
-      .slice(0, 4)
-      .map((entry, index) => ({
-        id: entry.row.id,
-        name: entry.row.name,
-        reason: index % 2 === 0
-          ? 'Available now and under weekly hour target.'
-          : 'Cross-trained for open roles and nearby.',
-      }));
-  }, [liveNowRows]);
+  }, [overtimeRiskEmployee]);
 
   const gridTemplateColumns = `${employeeColWidth}px repeat(${scheduleColumns.length}, ${dayColWidth}px)`;
   const todayDayIndex = scheduleColumns.findIndex((column) => column.id === todayDayId);
+
+  const emitCoverageTelemetry = (dayId: string, action: string) => {
+    if (typeof window === 'undefined') return;
+    const tracker = (window as Window & { track?: (eventName: string, payload: Record<string, unknown>) => void }).track;
+    if (typeof tracker === 'function') {
+      tracker('coverage_by_day_action', { dayId, action, weekKey });
+    }
+  };
 
   const openNewShiftModal = (rowId?: string, dayId?: string) => {
     setDraft(createDefaultDraft(rowId, dayId));
@@ -253,13 +370,14 @@ export function TimeAttendance() {
     setActiveTab('schedules');
   };
 
-  const handleRemoveDevonRemainingShifts = () => {
+  const handleRemoveRiskEmployeeRemainingShifts = () => {
+    if (!overtimeRiskEmployee) return;
     setShiftsByWeek((prev) => {
       const currentWeek = prev[weekKey] ?? cloneWeekShifts(weekKey);
       return {
         ...prev,
         [weekKey]: currentWeek.filter((shift) => {
-          if (shift.rowId !== 'devon-lane') return true;
+          if (shift.rowId !== overtimeRiskEmployee.rowId) return true;
           const shiftDayIndex = scheduleColumns.findIndex((column) => column.id === shift.dayId);
           return shiftDayIndex < todayDayIndex;
         }),
@@ -485,13 +603,27 @@ export function TimeAttendance() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-4">
-            <div className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-small)] p-4 h-full flex flex-col min-h-0">
+          <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-4 xl:h-[680px]">
+            <div className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-small)] p-4 h-full flex flex-col min-h-0 overflow-hidden">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
                   Live Team Status
                 </h2>
-                <p className="text-[13px] text-[var(--text-neutral-medium)]">Updates every minute</p>
+                <div className="flex flex-col items-start gap-1">
+                  <p className="text-[12px] text-[var(--text-neutral-medium)]">Filter by work location</p>
+                  <div className="w-[130px]">
+                    <FormDropdown
+                      label=""
+                      options={[
+                        { value: 'all', label: 'All' },
+                        { value: 'office', label: 'Office' },
+                        { value: 'remote', label: 'Remote' },
+                      ]}
+                      value={locationFilter}
+                      onChange={(value) => setLocationFilter(value as LocationFilter)}
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="mb-3 rounded-[var(--radius-xx-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-2 flex items-center justify-between">
@@ -500,7 +632,7 @@ export function TimeAttendance() {
               </div>
 
               <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
-                {liveNowRows.map(({ row, todayShift, status, assignedShiftName }) => (
+                {filteredLiveNowRows.map(({ row, todayShift, status, assignedShiftName, hours, overtimeHours }) => (
                   <div key={row.id} className="rounded-[var(--radius-xx-small)] border border-[var(--border-neutral-xx-weak)] px-3 py-2 flex items-center justify-between">
                     <div>
                       <button
@@ -512,8 +644,11 @@ export function TimeAttendance() {
                       <p className="text-[12px] text-[var(--text-neutral-medium)]">
                         {todayShift ? formatLiveShiftLabel(todayShift.title, assignedShiftName) : 'No shift assigned today'}
                       </p>
+                      <p className="text-[12px] text-[var(--text-neutral-medium)] mt-1">
+                        Today: {formatHoursToHoursAndMinutes(hours.todayHours)} | Week: {formatHoursToHoursAndMinutes(hours.weekHours)} | OT: {formatHoursToHoursAndMinutes(overtimeHours)}
+                      </p>
                     </div>
-                    <span className={`h-7 px-3 rounded-[var(--radius-full)] text-[12px] font-semibold inline-flex items-center ${status === 'On Shift' ? 'bg-[var(--surface-selected-weak)] text-[var(--color-primary-strong)]' : status === 'Late' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-medium)]'}`}>
+                    <span className={`h-7 px-3 rounded-[var(--radius-full)] text-[12px] font-semibold inline-flex items-center ${getStatusBadgeClasses(status)}`}>
                       {status}
                     </span>
                   </div>
@@ -521,56 +656,26 @@ export function TimeAttendance() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-small)] p-4">
-                <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)] mb-3" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
-                  Coverage by Day
-                </h2>
-                <div className="space-y-2">
-                  {scheduleColumnsWithDates.map((day) => {
-                    const dayCount = visibleShifts.filter((shift) => shift.dayId === day.id && !shift.isAddShift && shift.variant !== 'vacation').length;
-                    const target = day.id === 'sat' || day.id === 'sun' ? 4 : 10;
-                    const pct = Math.min(Math.round((dayCount / target) * 100), 100);
-                    return (
-                      <div key={day.id}>
-                        <div className="flex items-center justify-between text-[12px] text-[var(--text-neutral-medium)] mb-1">
-                          <span>{day.label}</span>
-                          <span>{dayCount}/{target} assigned</span>
-                        </div>
-                        <div className="h-2 rounded-[var(--radius-full)] bg-[var(--surface-neutral-xx-weak)] overflow-hidden">
-                          <div className="h-full bg-[var(--color-primary-strong)]" style={{ width: `${pct}%` }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+            <div className="space-y-4 h-full">
+              <CoverageByDayCard
+                days={coverageDaysWithDates}
+                shifts={visibleShifts}
+                employees={scheduleRows.filter((row) => !row.isOpenShift)}
+                requiredByDay={{ mon: 4, tue: 3 }}
+                onViewDay={(dayId) => {
+                  setActiveTab('schedules');
+                  emitCoverageTelemetry(dayId, 'view-day');
+                }}
+                onFillOpenShift={(dayId) => {
+                  setActiveTab('schedules');
+                  openNewShiftModal('open-shifts', dayId);
+                  emitCoverageTelemetry(dayId, 'fill-open-shift');
+                }}
+              />
 
-              <div className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-small)] p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <Icon name="sparkles" size={16} className="text-[var(--color-primary-strong)]" />
-                  <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
-                    Coverage Suggestions
-                  </h2>
-                </div>
-                <div className="space-y-2">
-                  {coverageSuggestions.map((suggestion) => (
-                    <div key={suggestion.id} className="rounded-[var(--radius-xx-small)] border border-[var(--border-neutral-xx-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-3">
-                      <p className="text-[13px] font-semibold text-[var(--text-neutral-strong)]">{suggestion.name}</p>
-                      <p className="text-[12px] text-[var(--text-neutral-medium)] mb-2">{suggestion.reason}</p>
-                      <button
-                        className="h-8 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-medium)] bg-[var(--surface-neutral-white)] text-[12px] font-semibold text-[var(--text-neutral-strong)]"
-                        onClick={() => {
-                          setActiveTab('schedules');
-                          openNewShiftModal(suggestion.id, todayDayId);
-                        }}
-                      >
-                        Assign to open Shift
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <LaborRiskSnapshotCard
+                onViewLaborDetails={() => emitCoverageTelemetry('live-view', 'view-labor-details')}
+              />
             </div>
           </div>
         </div>
@@ -704,11 +809,11 @@ export function TimeAttendance() {
 
               {activeInsightId === 'open-shift-risk' && (
                 <>
-                  <p className="text-[18px] font-semibold text-[var(--text-neutral-strong)]">Devon Lane overtime warning</p>
+                  <p className="text-[18px] font-semibold text-[var(--text-neutral-strong)]">{overtimeRiskEmployee?.name ?? 'Overtime'} warning</p>
                   <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] p-4 space-y-2">
-                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Week worked: <span className="font-semibold">{formatMinutesAsHoursAndMinutes(devonOtSnapshot.weekMinutesWorked)}</span></p>
-                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Today worked: <span className="font-semibold">{formatMinutesAsHoursAndMinutes(devonOtSnapshot.todayMinutesWorked)}</span></p>
-                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Away from OT: <span className="font-semibold">{formatMinutesAsHoursAndMinutes(devonOtSnapshot.overtimeThresholdMinutes - devonOtSnapshot.weekMinutesWorked)}</span></p>
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Week worked: <span className="font-semibold">{formatMinutesAsHoursAndMinutes(overtimeRiskEmployee?.weekMinutesWorked ?? 0)}</span></p>
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Today worked: <span className="font-semibold">{formatMinutesAsHoursAndMinutes(overtimeRiskEmployee?.todayMinutesWorked ?? 0)}</span></p>
+                    <p className="text-[14px] text-[var(--text-neutral-strong)]">Away from overtime: <span className="font-semibold">{formatMinutesAsOvertimeInsight(overtimeRiskEmployee?.minutesAway ?? 0)}</span></p>
                   </div>
                 </>
               )}
@@ -741,7 +846,8 @@ export function TimeAttendance() {
                   variant="primary"
                   size="small"
                   className="!h-9 !px-4"
-                  onClick={handleRemoveDevonRemainingShifts}
+                  onClick={handleRemoveRiskEmployeeRemainingShifts}
+                  disabled={!overtimeRiskEmployee}
                 >
                   Remove from remaining shifts this week
                 </Button>
