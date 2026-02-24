@@ -138,9 +138,12 @@ export default function CoverageByDayCard({
 
   return (
     <div className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-small)] p-4">
-      <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)] mb-3" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
-        Coverage by Day
-      </h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
+          Coverage by Day
+        </h2>
+        <p className="text-[11px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Mode: Schedule</p>
+      </div>
       <div className="space-y-2">
         {rows.map((row) => (
           <CoverageByDayRow

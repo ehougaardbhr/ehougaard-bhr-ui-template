@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, FormDropdown, Icon, Tabs, TextInput } from '../../components';
+import AttendanceHealthCard from '../../components/AttendanceHealthCard';
 import CoverageByDayCard from '../../components/CoverageByDayCard';
 import LaborRiskSnapshotCard from '../../components/LaborRiskSnapshotCard';
 import {
@@ -26,6 +27,7 @@ interface NewShiftDraft {
 }
 
 type TimeAttendanceTab = 'schedules' | 'live-view';
+type LiveViewMode = 'schedule' | 'no-schedule';
 type InsightId = 'late-pattern' | 'coverage-gap' | 'open-shift-risk';
 type LiveStatus = 'Off' | 'PTO' | 'Clocked In' | 'Clocked In (Late)' | 'Absent';
 type LocationFilter = 'all' | 'office' | 'remote';
@@ -204,9 +206,15 @@ function getStatusBadgeClasses(status: LiveStatus) {
   return 'bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-medium)]';
 }
 
-export function TimeAttendance() {
+interface TimeAttendanceProps {
+  schedulingEnabled?: boolean;
+}
+
+export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProps) {
   const navigate = useNavigate();
+  const isSchedulingEnabled = schedulingEnabled;
   const [activeTab, setActiveTab] = useState<TimeAttendanceTab>('schedules');
+  const [liveViewMode, setLiveViewMode] = useState<LiveViewMode>(() => (isSchedulingEnabled ? 'schedule' : 'no-schedule'));
   const [locationFilter, setLocationFilter] = useState<LocationFilter>('all');
   const [isInsightsExpanded, setIsInsightsExpanded] = useState(true);
   const [activeInsightId, setActiveInsightId] = useState<InsightId | null>(null);
@@ -280,6 +288,21 @@ export function TimeAttendance() {
     () => filteredLiveNowRows.filter((r) => r.status === 'Clocked In' || r.status === 'Clocked In (Late)').length,
     [filteredLiveNowRows],
   );
+  const attendanceHealthData = useMemo(() => {
+    const baseRows = liveNowRows;
+    const lateToday = baseRows.filter((row) => row.status === 'Clocked In (Late)' || row.status === 'Absent').length;
+    const notClockedInYet = baseRows.filter((row) => row.status === 'Off' || row.status === 'Absent').length;
+    const earlyClockOuts = baseRows.filter((row) => row.status === 'Off' && row.hours.todayHours > 0 && row.hours.todayHours < 7).length;
+    const exceptions = baseRows.filter((row) => row.status === 'Absent').length;
+
+    return {
+      clockedInNow: baseRows.filter((row) => row.status === 'Clocked In' || row.status === 'Clocked In (Late)').length,
+      notClockedInYet,
+      lateToday,
+      earlyClockOuts,
+      exceptions,
+    };
+  }, [liveNowRows]);
 
   const overtimeRiskEmployee = useMemo(() => {
     const riskCandidates = scheduleRows
@@ -422,6 +445,28 @@ export function TimeAttendance() {
         onTabChange={(tabId) => setActiveTab(tabId as TimeAttendanceTab)}
         className="mb-4"
       />
+
+      {activeTab === 'live-view' && (
+        <div className="mb-4 flex items-center justify-end">
+          <div className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] p-1">
+            <span className="text-[11px] font-semibold text-[var(--text-neutral-medium)] px-2">Mode</span>
+            <button
+              data-testid="mode-toggle-schedule"
+              className={`h-7 px-3 rounded-[var(--radius-full)] text-[12px] font-semibold ${liveViewMode === 'schedule' ? 'bg-[var(--surface-neutral-white)] text-[var(--text-neutral-strong)] border border-[var(--border-neutral-x-weak)]' : 'text-[var(--text-neutral-medium)]'}`}
+              onClick={() => setLiveViewMode('schedule')}
+            >
+              Schedule
+            </button>
+            <button
+              data-testid="mode-toggle-no-schedule"
+              className={`h-7 px-3 rounded-[var(--radius-full)] text-[12px] font-semibold ${liveViewMode === 'no-schedule' ? 'bg-[var(--surface-neutral-white)] text-[var(--text-neutral-strong)] border border-[var(--border-neutral-x-weak)]' : 'text-[var(--text-neutral-medium)]'}`}
+              onClick={() => setLiveViewMode('no-schedule')}
+            >
+              No Schedule
+            </button>
+          </div>
+        </div>
+      )}
 
       {activeTab === 'schedules' ? (
         <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] p-4 border border-[var(--border-neutral-x-weak)]">
@@ -641,9 +686,11 @@ export function TimeAttendance() {
                       >
                         {row.name}
                       </button>
-                      <p className="text-[12px] text-[var(--text-neutral-medium)]">
-                        {todayShift ? formatLiveShiftLabel(todayShift.title, assignedShiftName) : 'No shift assigned today'}
-                      </p>
+                      {liveViewMode === 'schedule' && (
+                        <p className="text-[12px] text-[var(--text-neutral-medium)]">
+                          {todayShift ? formatLiveShiftLabel(todayShift.title, assignedShiftName) : 'No shift assigned today'}
+                        </p>
+                      )}
                       <p className="text-[12px] text-[var(--text-neutral-medium)] mt-1">
                         Today: {formatHoursToHoursAndMinutes(hours.todayHours)} | Week: {formatHoursToHoursAndMinutes(hours.weekHours)} | OT: {formatHoursToHoursAndMinutes(overtimeHours)}
                       </p>
@@ -657,21 +704,32 @@ export function TimeAttendance() {
             </div>
 
             <div className="space-y-4 h-full">
-              <CoverageByDayCard
-                days={coverageDaysWithDates}
-                shifts={visibleShifts}
-                employees={scheduleRows.filter((row) => !row.isOpenShift)}
-                requiredByDay={{ mon: 4, tue: 3 }}
-                onViewDay={(dayId) => {
-                  setActiveTab('schedules');
-                  emitCoverageTelemetry(dayId, 'view-day');
-                }}
-                onFillOpenShift={(dayId) => {
-                  setActiveTab('schedules');
-                  openNewShiftModal('open-shifts', dayId);
-                  emitCoverageTelemetry(dayId, 'fill-open-shift');
-                }}
-              />
+              {liveViewMode === 'schedule' ? (
+                <CoverageByDayCard
+                  days={coverageDaysWithDates}
+                  shifts={visibleShifts}
+                  employees={scheduleRows.filter((row) => !row.isOpenShift)}
+                  requiredByDay={{ mon: 4, tue: 3 }}
+                  onViewDay={(dayId) => {
+                    setActiveTab('schedules');
+                    emitCoverageTelemetry(dayId, 'view-day');
+                  }}
+                  onFillOpenShift={(dayId) => {
+                    setActiveTab('schedules');
+                    openNewShiftModal('open-shifts', dayId);
+                    emitCoverageTelemetry(dayId, 'fill-open-shift');
+                  }}
+                />
+              ) : (
+                <AttendanceHealthCard
+                  data={attendanceHealthData}
+                  onViewDay={() => {
+                    navigate('/my-info?tab=timesheets');
+                    emitCoverageTelemetry('live-view', 'attendance-view-day');
+                  }}
+                  showSecondaryAction={false}
+                />
+              )}
 
               <LaborRiskSnapshotCard
                 onViewLaborDetails={() => emitCoverageTelemetry('live-view', 'view-labor-details')}
