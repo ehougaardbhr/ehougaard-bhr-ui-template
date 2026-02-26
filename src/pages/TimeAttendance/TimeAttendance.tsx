@@ -232,7 +232,7 @@ function getStatusBadgeClasses(status: LiveStatus) {
 
 export function TimeAttendance() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<TimeAttendanceTab>('schedules');
+  const [activeTab, setActiveTab] = useState<TimeAttendanceTab>('live-view');
   const [liveViewMode, setLiveViewMode] = useState<LiveViewMode>('schedule');
   const [locationFilter, setLocationFilter] = useState<LocationFilter>('all');
   const [liveStatusTimestamp, setLiveStatusTimestamp] = useState(() => new Date());
