@@ -481,8 +481,8 @@ export function TimeAttendance() {
 
       <Tabs
         tabs={[
-          { id: 'schedules', label: 'Schedules', icon: 'calendar' },
           { id: 'live-view', label: 'Live View', icon: 'chart-line' },
+          { id: 'schedules', label: 'Schedules', icon: 'calendar' },
         ]}
         activeTab={activeTab}
         onTabChange={(tabId) => setActiveTab(tabId as TimeAttendanceTab)}
