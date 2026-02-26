@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, FormDropdown, Icon, Tabs, TextInput } from '../../components';
 import AttendanceHealthCard from '../../components/AttendanceHealthCard';
@@ -29,7 +29,7 @@ interface NewShiftDraft {
 type TimeAttendanceTab = 'schedules' | 'live-view';
 type LiveViewMode = 'schedule' | 'no-schedule';
 type InsightId = 'late-pattern' | 'coverage-gap' | 'open-shift-risk';
-type LiveStatus = 'Off' | 'PTO' | 'Clocked In' | 'Clocked In (Late)' | 'Absent';
+type LiveStatus = 'Off' | 'PTO' | 'Clocked In' | 'Clocked In (Late)' | 'On a Break' | 'Absent';
 type LocationFilter = 'all' | 'office' | 'remote';
 type WorkLocation = 'Office' | 'Remote';
 
@@ -41,7 +41,7 @@ const liveShiftOverrides: Record<string, (typeof liveShiftNames)[number]> = {
 };
 const liveStatusByEmployee: Record<string, LiveStatus> = {
   'ben-procter': 'Clocked In',
-  'albert-flores': 'Clocked In',
+  'albert-flores': 'On a Break',
   'janet-caldwell': 'Absent',
   'devon-lane': 'Clocked In',
   'ronald-richards': 'Absent',
@@ -51,6 +51,9 @@ const liveStatusByEmployee: Record<string, LiveStatus> = {
   'esther-howard': 'Clocked In (Late)',
   'jenny-wilson': 'PTO',
   'kristin-watson': 'Off',
+};
+const liveBreakStartedAtByEmployee: Partial<Record<string, string>> = {
+  'albert-flores': new Date(Date.now() - 26 * 60 * 1000).toISOString(),
 };
 const liveLocationByEmployee: Record<string, WorkLocation> = {
   'ben-procter': 'Office',
@@ -156,6 +159,24 @@ function formatMinutesAsOvertimeInsight(totalMinutes: number) {
   return `${hours}h ${String(minutes).padStart(2, '0')}m`;
 }
 
+function formatTimeWithSeconds(date: Date) {
+  return new Intl.DateTimeFormat('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(date);
+}
+
+function formatElapsedBreakTime(startedAtIso: string) {
+  const startedAt = new Date(startedAtIso);
+  const startedAtMs = startedAt.getTime();
+  if (Number.isNaN(startedAtMs)) return '0m';
+  const elapsedMinutes = Math.max(Math.floor((Date.now() - startedAtMs) / 60000), 0);
+  const hours = Math.floor(elapsedMinutes / 60);
+  const minutes = elapsedMinutes % 60;
+  if (hours === 0) return `${minutes}m`;
+  return `${hours}h ${String(minutes).padStart(2, '0')}m`;
+}
+
 function cloneWeekShifts(weekKey: string): ShiftBlock[] {
   return populatedShiftBlocks.map((shift) => ({ ...shift, id: `${weekKey}-${shift.id}` }));
 }
@@ -200,22 +221,21 @@ function getStatusBadgeClasses(status: LiveStatus) {
   if (status === 'Clocked In (Late)') {
     return 'bg-amber-50 text-amber-700 border border-amber-200';
   }
+  if (status === 'On a Break') {
+    return 'bg-blue-50 text-blue-700 border border-blue-200';
+  }
   if (status === 'Absent') {
     return 'bg-red-50 text-red-700 border border-red-200';
   }
   return 'bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-medium)]';
 }
 
-interface TimeAttendanceProps {
-  schedulingEnabled?: boolean;
-}
-
-export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProps) {
+export function TimeAttendance() {
   const navigate = useNavigate();
-  const isSchedulingEnabled = schedulingEnabled;
   const [activeTab, setActiveTab] = useState<TimeAttendanceTab>('schedules');
-  const [liveViewMode, setLiveViewMode] = useState<LiveViewMode>(() => (isSchedulingEnabled ? 'schedule' : 'no-schedule'));
+  const [liveViewMode, setLiveViewMode] = useState<LiveViewMode>('schedule');
   const [locationFilter, setLocationFilter] = useState<LocationFilter>('all');
+  const [liveStatusTimestamp, setLiveStatusTimestamp] = useState(() => new Date());
   const [isInsightsExpanded, setIsInsightsExpanded] = useState(true);
   const [activeInsightId, setActiveInsightId] = useState<InsightId | null>(null);
   const [weekStartDate, setWeekStartDate] = useState(() => startOfWeekMonday(new Date()));
@@ -230,6 +250,13 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
 
   const weekKey = getWeekKey(weekStartDate);
   const todayDayId = getDayIdFromDate(new Date());
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setLiveStatusTimestamp(new Date());
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const visibleShifts = useMemo(
     () => shiftsByWeek[weekKey] ?? cloneWeekShifts(weekKey),
@@ -268,11 +295,13 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
       .map((row) => {
         const todayShift = visibleShifts.find((shift) => shift.rowId === row.id && shift.dayId === todayDayId && !shift.isAddShift && shift.variant !== 'vacation');
         const status = liveStatusByEmployee[row.id] ?? 'Off';
+        const breakStartedAt = status === 'On a Break' ? liveBreakStartedAtByEmployee[row.id] : undefined;
+        const breakDuration = breakStartedAt ? formatElapsedBreakTime(breakStartedAt) : null;
         const hours = liveHoursByEmployee[row.id] ?? { todayHours: 0, weekHours: 0 };
         const location = liveLocationByEmployee[row.id] ?? 'Office';
         const assignedShiftName = getAssignedLiveShiftName(row.id);
         const overtimeHours = Math.max(hours.weekHours - 40, 0);
-        return { row, todayShift, status, assignedShiftName, hours, overtimeHours, location };
+        return { row, todayShift, status, breakDuration, assignedShiftName, hours, overtimeHours, location };
       }),
     [visibleShifts, todayDayId],
   );
@@ -285,7 +314,7 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
   ), [liveNowRows, locationFilter]);
 
   const clockedInCount = useMemo(
-    () => filteredLiveNowRows.filter((r) => r.status === 'Clocked In' || r.status === 'Clocked In (Late)').length,
+    () => filteredLiveNowRows.filter((r) => r.status === 'Clocked In' || r.status === 'Clocked In (Late)' || r.status === 'On a Break').length,
     [filteredLiveNowRows],
   );
   const attendanceHealthData = useMemo(() => {
@@ -296,7 +325,7 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
     const exceptions = baseRows.filter((row) => row.status === 'Absent').length;
 
     return {
-      clockedInNow: baseRows.filter((row) => row.status === 'Clocked In' || row.status === 'Clocked In (Late)').length,
+      clockedInNow: baseRows.filter((row) => row.status === 'Clocked In' || row.status === 'Clocked In (Late)' || row.status === 'On a Break').length,
       notClockedInYet,
       lateToday,
       earlyClockOuts,
@@ -430,24 +459,6 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
             New Shift
           </Button>
         ) : (
-          <Button variant="standard" size="small" className="!h-9 !px-4 !text-[14px]" icon="arrows-rotate">
-            Refresh
-          </Button>
-        )}
-      </div>
-
-      <Tabs
-        tabs={[
-          { id: 'schedules', label: 'Schedules', icon: 'calendar' },
-          { id: 'live-view', label: 'Live View', icon: 'chart-line' },
-        ]}
-        activeTab={activeTab}
-        onTabChange={(tabId) => setActiveTab(tabId as TimeAttendanceTab)}
-        className="mb-4"
-      />
-
-      {activeTab === 'live-view' && (
-        <div className="mb-4 flex items-center justify-end">
           <div className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] p-1">
             <span className="text-[11px] font-semibold text-[var(--text-neutral-medium)] px-2">Mode</span>
             <button
@@ -465,8 +476,18 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
               No Schedule
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      <Tabs
+        tabs={[
+          { id: 'schedules', label: 'Schedules', icon: 'calendar' },
+          { id: 'live-view', label: 'Live View', icon: 'chart-line' },
+        ]}
+        activeTab={activeTab}
+        onTabChange={(tabId) => setActiveTab(tabId as TimeAttendanceTab)}
+        className="mb-4"
+      />
 
       {activeTab === 'schedules' ? (
         <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] p-4 border border-[var(--border-neutral-x-weak)]">
@@ -650,10 +671,33 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
 
           <div className="grid grid-cols-1 xl:grid-cols-[1.4fr_1fr] gap-4 xl:h-[680px]">
             <div className="bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-small)] p-4 h-full flex flex-col min-h-0 overflow-hidden">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
-                  Live Team Status
-                </h2>
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
+                      Live Team Status
+                    </h2>
+                    <div className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-red-200 bg-red-50 px-3 py-1">
+                      <span className="relative flex h-2 w-2">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-red-600" />
+                      </span>
+                      <span className="text-[11px] font-semibold uppercase tracking-wide text-red-700">Live</span>
+                    </div>
+                    <p className="text-[12px] text-[var(--text-neutral-medium)]">
+                      Last updated: {formatTimeWithSeconds(liveStatusTimestamp)}
+                    </p>
+                  </div>
+                  <div className="mt-3 inline-flex items-center gap-3 rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3 shadow-[0_1px_2px_rgba(16,24,40,0.06)]">
+                    <div className="h-8 w-8 rounded-[var(--radius-full)] bg-[var(--surface-selected-weak)] text-[var(--color-primary-strong)] flex items-center justify-center">
+                      <Icon name="users" size={14} />
+                    </div>
+                    <div className="leading-tight">
+                      <p className="text-[11px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Currently Clocked In</p>
+                      <p className="text-[20px] font-bold text-[var(--color-primary-strong)]">{clockedInCount}</p>
+                    </div>
+                  </div>
+                </div>
                 <div className="flex flex-col items-start gap-1">
                   <p className="text-[12px] text-[var(--text-neutral-medium)]">Filter by work location</p>
                   <div className="w-[130px]">
@@ -671,13 +715,8 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
                 </div>
               </div>
 
-              <div className="mb-3 rounded-[var(--radius-xx-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-2 flex items-center justify-between">
-                <p className="text-[13px] text-[var(--text-neutral-medium)]">Currently Clocked In</p>
-                <p className="text-[16px] font-semibold text-[var(--color-primary-strong)]">{clockedInCount}</p>
-              </div>
-
               <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
-                {filteredLiveNowRows.map(({ row, todayShift, status, assignedShiftName, hours, overtimeHours }) => (
+                {filteredLiveNowRows.map(({ row, todayShift, status, breakDuration, assignedShiftName, hours, overtimeHours }) => (
                   <div key={row.id} className="rounded-[var(--radius-xx-small)] border border-[var(--border-neutral-xx-weak)] px-3 py-2 flex items-center justify-between">
                     <div>
                       <button
@@ -694,6 +733,11 @@ export function TimeAttendance({ schedulingEnabled = false }: TimeAttendanceProp
                       <p className="text-[12px] text-[var(--text-neutral-medium)] mt-1">
                         Today: {formatHoursToHoursAndMinutes(hours.todayHours)} | Week: {formatHoursToHoursAndMinutes(hours.weekHours)} | OT: {formatHoursToHoursAndMinutes(overtimeHours)}
                       </p>
+                      {status === 'On a Break' && (
+                        <p className="text-[12px] text-amber-700 mt-1">
+                          On break for {breakDuration ?? '0m'}
+                        </p>
+                      )}
                     </div>
                     <span className={`h-7 px-3 rounded-[var(--radius-full)] text-[12px] font-semibold inline-flex items-center ${getStatusBadgeClasses(status)}`}>
                       {status}
