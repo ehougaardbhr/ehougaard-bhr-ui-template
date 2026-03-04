@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Checkbox, FormDropdown, Icon, Tabs, TextInput } from '../../components';
+import { Avatar, Button, Checkbox, FormDropdown, Icon, Tabs, TextInput } from '../../components';
 import AttendanceHealthCard from '../../components/AttendanceHealthCard';
 import CoverageByDayCard from '../../components/CoverageByDayCard';
 import LaborRiskSnapshotCard from '../../components/LaborRiskSnapshotCard';
@@ -26,12 +26,50 @@ interface NewShiftDraft {
   publishNow: boolean;
 }
 
-type TimeAttendanceTab = 'schedules' | 'live-view';
+type TimeAttendanceTab = 'schedules' | 'live-view' | 'time';
 type LiveViewMode = 'schedule' | 'no-schedule';
 type InsightId = 'late-pattern' | 'coverage-gap' | 'open-shift-risk';
 type LiveStatus = 'Off' | 'PTO' | 'Clocked In' | 'Clocked In (Late)' | 'On a Break' | 'Absent';
 type LocationFilter = 'all' | 'office' | 'remote';
+type JobFilter = 'all' | 'Cashier' | 'Lead' | 'Opening' | 'Stock' | 'Manager' | 'Support' | 'Prep' | 'Front Desk' | 'Part Time' | 'Closing';
+type ManagerFilter = 'all' | 'Ronald Richards' | 'Albert Flores' | 'Esther Howard';
+type StatusFilter = 'all' | LiveStatus;
 type WorkLocation = 'Office' | 'Remote';
+type ApprovalStatus = 'pending' | 'approved' | 'denied';
+
+interface PtoRequest {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  policy: string;
+  date: string;
+  startMinute: number;
+  endMinute: number;
+  requestedHours: number;
+  submittedAt: string;
+  reason: string;
+  status: ApprovalStatus;
+}
+
+interface TimesheetEntry {
+  dayLabel: string;
+  project: string;
+  hours: number;
+}
+
+interface TimesheetApproval {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  payPeriodLabel: string;
+  submittedAt: string;
+  dueAt: string;
+  regularHours: number;
+  overtimeHours: number;
+  notes?: string;
+  status: ApprovalStatus;
+  entries: TimesheetEntry[];
+}
 
 const liveShiftNames = ['Cashier', 'Bakery', 'Cleaning', 'Stocking'] as const;
 const liveShiftOverrides: Record<string, (typeof liveShiftNames)[number]> = {
@@ -68,6 +106,45 @@ const liveLocationByEmployee: Record<string, WorkLocation> = {
   'jenny-wilson': 'Office',
   'kristin-watson': 'Remote',
 };
+const liveJobByEmployee: Record<string, Exclude<JobFilter, 'all'>> = {
+  'ben-procter': 'Cashier',
+  'albert-flores': 'Lead',
+  'janet-caldwell': 'Opening',
+  'devon-lane': 'Stock',
+  'ronald-richards': 'Manager',
+  'wade-warren': 'Cashier',
+  'brooklyn-simmons': 'Support',
+  'darrell-steward': 'Prep',
+  'esther-howard': 'Front Desk',
+  'jenny-wilson': 'Part Time',
+  'kristin-watson': 'Closing',
+};
+const liveManagerByEmployee: Record<string, Exclude<ManagerFilter, 'all'>> = {
+  'ben-procter': 'Ronald Richards',
+  'albert-flores': 'Ronald Richards',
+  'janet-caldwell': 'Albert Flores',
+  'devon-lane': 'Albert Flores',
+  'ronald-richards': 'Ronald Richards',
+  'wade-warren': 'Albert Flores',
+  'brooklyn-simmons': 'Esther Howard',
+  'darrell-steward': 'Ronald Richards',
+  'esther-howard': 'Esther Howard',
+  'jenny-wilson': 'Esther Howard',
+  'kristin-watson': 'Albert Flores',
+};
+const liveAvatarByEmployee: Record<string, string> = {
+  'ben-procter': 'https://i.pravatar.cc/120?img=12',
+  'albert-flores': 'https://i.pravatar.cc/120?img=15',
+  'janet-caldwell': 'https://i.pravatar.cc/120?img=32',
+  'devon-lane': 'https://i.pravatar.cc/120?img=52',
+  'ronald-richards': 'https://i.pravatar.cc/120?img=56',
+  'wade-warren': 'https://i.pravatar.cc/120?img=59',
+  'brooklyn-simmons': 'https://i.pravatar.cc/120?img=47',
+  'darrell-steward': 'https://i.pravatar.cc/120?img=61',
+  'esther-howard': 'https://i.pravatar.cc/120?img=45',
+  'jenny-wilson': 'https://i.pravatar.cc/120?img=38',
+  'kristin-watson': 'https://i.pravatar.cc/120?img=26',
+};
 const liveHoursByEmployee: Record<string, { todayHours: number; weekHours: number }> = {
   'ben-procter': { todayHours: 6.1, weekHours: 39.3 },
   'albert-flores': { todayHours: 7.5, weekHours: 41.4 },
@@ -87,6 +164,220 @@ const lateClockInEvents = [
   { day: 'Fri', time: '8:11 AM' },
 ];
 const overtimeThresholdMinutes = 40 * 60;
+const allDayEndMinute = 24 * 60;
+const pendingStatuses: ApprovalStatus[] = ['pending', 'approved'];
+const liveStatusSortOrder: Record<LiveStatus, number> = {
+  'Clocked In': 1,
+  'Clocked In (Late)': 2,
+  'On a Break': 3,
+  'Absent': 4,
+  'Off': 5,
+  'PTO': 6,
+};
+
+const initialPtoRequests: PtoRequest[] = [
+  {
+    id: 'pto-1',
+    employeeId: 'devon-lane',
+    employeeName: 'Devon Lane',
+    policy: 'Vacation',
+    date: '2026-03-11',
+    startMinute: 0,
+    endMinute: allDayEndMinute,
+    requestedHours: 8,
+    submittedAt: '2026-03-01T08:40:00.000Z',
+    reason: 'Family travel',
+    status: 'pending',
+  },
+  {
+    id: 'pto-2',
+    employeeId: 'wade-warren',
+    employeeName: 'Wade Warren',
+    policy: 'Vacation',
+    date: '2026-03-11',
+    startMinute: 0,
+    endMinute: allDayEndMinute,
+    requestedHours: 8,
+    submittedAt: '2026-03-01T10:18:00.000Z',
+    reason: 'Spring break coverage',
+    status: 'pending',
+  },
+  {
+    id: 'pto-3',
+    employeeId: 'jenny-wilson',
+    employeeName: 'Jenny Wilson',
+    policy: 'Vacation',
+    date: '2026-03-11',
+    startMinute: 0,
+    endMinute: allDayEndMinute,
+    requestedHours: 8,
+    submittedAt: '2026-03-01T11:12:00.000Z',
+    reason: 'Out of town',
+    status: 'approved',
+  },
+  {
+    id: 'pto-4',
+    employeeId: 'brooklyn-simmons',
+    employeeName: 'Brooklyn Simmons',
+    policy: 'Sick Leave',
+    date: '2026-03-11',
+    startMinute: 780,
+    endMinute: 1080,
+    requestedHours: 5,
+    submittedAt: '2026-03-01T14:26:00.000Z',
+    reason: 'Medical appointment',
+    status: 'approved',
+  },
+  {
+    id: 'pto-5',
+    employeeId: 'albert-flores',
+    employeeName: 'Albert Flores',
+    policy: 'Personal',
+    date: '2026-03-12',
+    startMinute: 540,
+    endMinute: 780,
+    requestedHours: 4,
+    submittedAt: '2026-03-02T07:20:00.000Z',
+    reason: 'School conference',
+    status: 'pending',
+  },
+  {
+    id: 'pto-6',
+    employeeId: 'darrell-steward',
+    employeeName: 'Darrell Steward',
+    policy: 'Vacation',
+    date: '2026-03-12',
+    startMinute: 600,
+    endMinute: 900,
+    requestedHours: 5,
+    submittedAt: '2026-03-02T09:10:00.000Z',
+    reason: 'Travel buffer',
+    status: 'pending',
+  },
+  {
+    id: 'pto-7',
+    employeeId: 'esther-howard',
+    employeeName: 'Esther Howard',
+    policy: 'Vacation',
+    date: '2026-03-12',
+    startMinute: 600,
+    endMinute: 900,
+    requestedHours: 5,
+    submittedAt: '2026-03-02T09:44:00.000Z',
+    reason: 'Out of office',
+    status: 'approved',
+  },
+  {
+    id: 'pto-8',
+    employeeId: 'janet-caldwell',
+    employeeName: 'Janet Caldwell',
+    policy: 'Vacation',
+    date: '2026-03-12',
+    startMinute: 600,
+    endMinute: 900,
+    requestedHours: 5,
+    submittedAt: '2026-03-02T10:02:00.000Z',
+    reason: 'Family event',
+    status: 'approved',
+  },
+  {
+    id: 'pto-9',
+    employeeId: 'kristin-watson',
+    employeeName: 'Kristin Watson',
+    policy: 'Personal',
+    date: '2026-03-14',
+    startMinute: 480,
+    endMinute: 660,
+    requestedHours: 3,
+    submittedAt: '2026-03-02T12:14:00.000Z',
+    reason: 'Appointment',
+    status: 'pending',
+  },
+];
+
+const initialTimesheetApprovals: TimesheetApproval[] = [
+  {
+    id: 'sheet-1',
+    employeeId: 'ben-procter',
+    employeeName: 'Ben Procter',
+    payPeriodLabel: 'Mar 1 - Mar 7',
+    submittedAt: '2026-03-02T17:24:00.000Z',
+    dueAt: '2026-03-04T23:00:00.000Z',
+    regularHours: 39.5,
+    overtimeHours: 2,
+    notes: 'Two support escalations on Friday.',
+    status: 'pending',
+    entries: [
+      { dayLabel: 'Mon', project: 'Front Register', hours: 8 },
+      { dayLabel: 'Tue', project: 'Front Register', hours: 8 },
+      { dayLabel: 'Wed', project: 'Inventory', hours: 8.5 },
+      { dayLabel: 'Thu', project: 'Front Register', hours: 7.5 },
+      { dayLabel: 'Fri', project: 'Escalations', hours: 9.5 },
+      { dayLabel: 'Sat', project: 'Training', hours: 0 },
+      { dayLabel: 'Sun', project: 'Training', hours: 0 },
+    ],
+  },
+  {
+    id: 'sheet-2',
+    employeeId: 'albert-flores',
+    employeeName: 'Albert Flores',
+    payPeriodLabel: 'Mar 1 - Mar 7',
+    submittedAt: '2026-03-02T16:08:00.000Z',
+    dueAt: '2026-03-04T23:00:00.000Z',
+    regularHours: 40,
+    overtimeHours: 0,
+    status: 'pending',
+    entries: [
+      { dayLabel: 'Mon', project: 'Bakery', hours: 8 },
+      { dayLabel: 'Tue', project: 'Bakery', hours: 8 },
+      { dayLabel: 'Wed', project: 'Bakery', hours: 8 },
+      { dayLabel: 'Thu', project: 'Bakery', hours: 8 },
+      { dayLabel: 'Fri', project: 'Bakery', hours: 8 },
+      { dayLabel: 'Sat', project: 'Off', hours: 0 },
+      { dayLabel: 'Sun', project: 'Off', hours: 0 },
+    ],
+  },
+  {
+    id: 'sheet-3',
+    employeeId: 'darrell-steward',
+    employeeName: 'Darrell Steward',
+    payPeriodLabel: 'Mar 1 - Mar 7',
+    submittedAt: '2026-03-01T20:11:00.000Z',
+    dueAt: '2026-03-03T12:00:00.000Z',
+    regularHours: 36,
+    overtimeHours: 0,
+    status: 'pending',
+    entries: [
+      { dayLabel: 'Mon', project: 'Stocking', hours: 8 },
+      { dayLabel: 'Tue', project: 'Stocking', hours: 7 },
+      { dayLabel: 'Wed', project: 'Stocking', hours: 7 },
+      { dayLabel: 'Thu', project: 'Receiving', hours: 7 },
+      { dayLabel: 'Fri', project: 'Receiving', hours: 7 },
+      { dayLabel: 'Sat', project: 'Off', hours: 0 },
+      { dayLabel: 'Sun', project: 'Off', hours: 0 },
+    ],
+  },
+  {
+    id: 'sheet-4',
+    employeeId: 'ronald-richards',
+    employeeName: 'Ronald Richards',
+    payPeriodLabel: 'Mar 1 - Mar 7',
+    submittedAt: '2026-03-01T15:32:00.000Z',
+    dueAt: '2026-03-03T12:00:00.000Z',
+    regularHours: 38.25,
+    overtimeHours: 1.5,
+    status: 'approved',
+    entries: [
+      { dayLabel: 'Mon', project: 'Stocking', hours: 8 },
+      { dayLabel: 'Tue', project: 'Stocking', hours: 8.25 },
+      { dayLabel: 'Wed', project: 'Stocking', hours: 8 },
+      { dayLabel: 'Thu', project: 'Backroom', hours: 7.5 },
+      { dayLabel: 'Fri', project: 'Backroom', hours: 8 },
+      { dayLabel: 'Sat', project: 'Off', hours: 0 },
+      { dayLabel: 'Sun', project: 'Off', hours: 0 },
+    ],
+  },
+];
 
 function startOfWeekMonday(date: Date) {
   const copy = new Date(date);
@@ -166,6 +457,80 @@ function formatTimeWithSeconds(date: Date) {
   }).format(date);
 }
 
+function formatDateShort(dateIso: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+  }).format(new Date(dateIso));
+}
+
+function formatDateTimeShort(dateIso: string) {
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(new Date(dateIso));
+}
+
+function formatMinuteTime(minute: number) {
+  const hours = Math.floor(minute / 60);
+  const minutes = minute % 60;
+  const suffix = hours >= 12 ? 'PM' : 'AM';
+  const hours12 = hours % 12 === 0 ? 12 : hours % 12;
+  return `${hours12}:${String(minutes).padStart(2, '0')} ${suffix}`;
+}
+
+function formatPtoWindow(dateIso: string, startMinute: number, endMinute: number) {
+  const dateLabel = formatDateShort(dateIso);
+  if (startMinute === 0 && endMinute >= allDayEndMinute) return `${dateLabel} (All day)`;
+  return `${dateLabel}, ${formatMinuteTime(startMinute)} - ${formatMinuteTime(endMinute)}`;
+}
+
+function windowsOverlap(startA: number, endA: number, startB: number, endB: number) {
+  return startA < endB && startB < endA;
+}
+
+function parseClockLabelToMinutes(label: string, meridiem: string) {
+  const [hourRaw, minuteRaw] = label.split(':').map((value) => Number(value));
+  if (Number.isNaN(hourRaw) || Number.isNaN(minuteRaw)) return null;
+  const normalizedHour = hourRaw % 12;
+  const hour = meridiem.toUpperCase() === 'PM' ? normalizedHour + 12 : normalizedHour;
+  return hour * 60 + minuteRaw;
+}
+
+function parseShiftRangeMinutes(shiftTitle: string) {
+  const match = shiftTitle.match(/(\d{1,2}:\d{2})(AM|PM)-(\d{1,2}:\d{2})(AM|PM)/i);
+  if (!match) return null;
+
+  const start = parseClockLabelToMinutes(match[1], match[2]);
+  const end = parseClockLabelToMinutes(match[3], match[4]);
+  if (start === null || end === null) return null;
+  return { start, end };
+}
+
+function getCurrentMinutes(date: Date) {
+  return date.getHours() * 60 + date.getMinutes();
+}
+
+function deriveLiveStatus(rawStatus: LiveStatus, todayShift: ShiftBlock | undefined, nowMinutes: number): LiveStatus {
+  if (todayShift?.variant === 'vacation') return 'PTO';
+
+  // No shift today: treat as off-duty unless explicitly marked PTO.
+  if (!todayShift) return rawStatus === 'PTO' ? 'PTO' : 'Off';
+
+  if (rawStatus === 'Clocked In' || rawStatus === 'Clocked In (Late)' || rawStatus === 'On a Break') return rawStatus;
+  if (rawStatus === 'PTO') return 'PTO';
+
+  const shiftRange = parseShiftRangeMinutes(todayShift.title);
+  if (!shiftRange) return rawStatus === 'Absent' ? 'Absent' : 'Off';
+
+  const graceMinutes = 7;
+  if (nowMinutes < shiftRange.start + graceMinutes) return 'Off';
+  if (nowMinutes >= shiftRange.end) return 'Off';
+  return 'Absent';
+}
+
 function formatElapsedBreakTime(startedAtIso: string) {
   const startedAt = new Date(startedAtIso);
   const startedAtMs = startedAt.getTime();
@@ -235,6 +600,14 @@ export function TimeAttendance() {
   const [activeTab, setActiveTab] = useState<TimeAttendanceTab>('live-view');
   const [liveViewMode, setLiveViewMode] = useState<LiveViewMode>('schedule');
   const [locationFilter, setLocationFilter] = useState<LocationFilter>('all');
+  const [jobFilter, setJobFilter] = useState<JobFilter>('all');
+  const [managerFilter, setManagerFilter] = useState<ManagerFilter>('all');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
+  const [isLiveFilterMenuOpen, setIsLiveFilterMenuOpen] = useState(false);
+  const [activeLiveEmployeeId, setActiveLiveEmployeeId] = useState<string | null>(null);
+  const [ptoRequests, setPtoRequests] = useState<PtoRequest[]>(initialPtoRequests);
+  const [timesheetApprovals, setTimesheetApprovals] = useState<TimesheetApproval[]>(initialTimesheetApprovals);
+  const [activeTimesheetId, setActiveTimesheetId] = useState<string | null>(null);
   const [liveStatusTimestamp, setLiveStatusTimestamp] = useState(() => new Date());
   const [isInsightsExpanded, setIsInsightsExpanded] = useState(true);
   const [activeInsightId, setActiveInsightId] = useState<InsightId | null>(null);
@@ -293,25 +666,59 @@ export function TimeAttendance() {
     () => scheduleRows
       .filter((row) => !row.isOpenShift)
       .map((row) => {
-        const todayShift = visibleShifts.find((shift) => shift.rowId === row.id && shift.dayId === todayDayId && !shift.isAddShift && shift.variant !== 'vacation');
-        const status = liveStatusByEmployee[row.id] ?? 'Off';
+        const todayShift = visibleShifts.find((shift) => shift.rowId === row.id && shift.dayId === todayDayId && !shift.isAddShift);
+        const nowMinutes = getCurrentMinutes(liveStatusTimestamp);
+        const rawStatus = liveStatusByEmployee[row.id] ?? 'Off';
+        const status = deriveLiveStatus(rawStatus, todayShift, nowMinutes);
         const breakStartedAt = status === 'On a Break' ? liveBreakStartedAtByEmployee[row.id] : undefined;
         const breakDuration = breakStartedAt ? formatElapsedBreakTime(breakStartedAt) : null;
         const hours = liveHoursByEmployee[row.id] ?? { todayHours: 0, weekHours: 0 };
         const location = liveLocationByEmployee[row.id] ?? 'Office';
+        const job = liveJobByEmployee[row.id] ?? 'Cashier';
+        const manager = liveManagerByEmployee[row.id] ?? 'Ronald Richards';
+        const avatar = liveAvatarByEmployee[row.id];
         const assignedShiftName = getAssignedLiveShiftName(row.id);
         const overtimeHours = Math.max(hours.weekHours - 40, 0);
-        return { row, todayShift, status, breakDuration, assignedShiftName, hours, overtimeHours, location };
+        return { row, todayShift, status, breakDuration, assignedShiftName, hours, overtimeHours, location, job, manager, avatar };
       }),
-    [visibleShifts, todayDayId],
+    [visibleShifts, todayDayId, liveStatusTimestamp],
   );
 
   const filteredLiveNowRows = useMemo(() => (
     liveNowRows.filter((entry) => {
-      if (locationFilter === 'all') return true;
-      return locationFilter === 'office' ? entry.location === 'Office' : entry.location === 'Remote';
+      if (locationFilter !== 'all') {
+        const locationMatches = locationFilter === 'office' ? entry.location === 'Office' : entry.location === 'Remote';
+        if (!locationMatches) return false;
+      }
+      if (jobFilter !== 'all' && entry.job !== jobFilter) return false;
+      if (managerFilter !== 'all' && entry.manager !== managerFilter) return false;
+      if (statusFilter !== 'all' && entry.status !== statusFilter) return false;
+      return true;
+    }).sort((a, b) => {
+      const statusDelta = liveStatusSortOrder[a.status] - liveStatusSortOrder[b.status];
+      if (statusDelta !== 0) return statusDelta;
+      return a.row.name.localeCompare(b.row.name);
     })
-  ), [liveNowRows, locationFilter]);
+  ), [liveNowRows, locationFilter, jobFilter, managerFilter, statusFilter]);
+  const selectedLiveEmployee = useMemo(
+    () => liveNowRows.find((entry) => entry.row.id === activeLiveEmployeeId) ?? null,
+    [liveNowRows, activeLiveEmployeeId],
+  );
+  const jobFilterOptions = useMemo(() => {
+    const uniqueJobs = Array.from(new Set(liveNowRows.map((entry) => entry.job)));
+    return [{ value: 'all', label: 'All Jobs' }, ...uniqueJobs.map((job) => ({ value: job, label: job }))];
+  }, [liveNowRows]);
+  const managerFilterOptions = useMemo(() => {
+    const uniqueManagers = Array.from(new Set(liveNowRows.map((entry) => entry.manager)));
+    return [{ value: 'all', label: 'All Managers' }, ...uniqueManagers.map((manager) => ({ value: manager, label: manager }))];
+  }, [liveNowRows]);
+  const statusFilterOptions = useMemo(() => {
+    const uniqueStatuses = Array.from(new Set(liveNowRows.map((entry) => entry.status)));
+    return [{ value: 'all', label: 'All Statuses' }, ...uniqueStatuses.map((status) => ({ value: status, label: status }))];
+  }, [liveNowRows]);
+  const activeLiveFilterCount = useMemo(() => (
+    [locationFilter, jobFilter, managerFilter, statusFilter].filter((value) => value !== 'all').length
+  ), [locationFilter, jobFilter, managerFilter, statusFilter]);
 
   const clockedInCount = useMemo(
     () => filteredLiveNowRows.filter((r) => r.status === 'Clocked In' || r.status === 'Clocked In (Late)' || r.status === 'On a Break').length,
@@ -371,6 +778,43 @@ export function TimeAttendance() {
     ];
   }, [overtimeRiskEmployee]);
 
+  const pendingPtoRequests = useMemo(
+    () => ptoRequests.filter((request) => request.status === 'pending'),
+    [ptoRequests],
+  );
+  const pendingTimesheetApprovals = useMemo(
+    () => timesheetApprovals.filter((timesheet) => timesheet.status === 'pending'),
+    [timesheetApprovals],
+  );
+  const selectedTimesheet = useMemo(
+    () => timesheetApprovals.find((timesheet) => timesheet.id === activeTimesheetId) ?? null,
+    [timesheetApprovals, activeTimesheetId],
+  );
+  const highConflictPtoCount = useMemo(
+    () => pendingPtoRequests.filter((request) => {
+      const overlappingCount = ptoRequests.filter((otherRequest) => (
+        otherRequest.id !== request.id
+        && pendingStatuses.includes(otherRequest.status)
+        && otherRequest.date === request.date
+        && windowsOverlap(otherRequest.startMinute, otherRequest.endMinute, request.startMinute, request.endMinute)
+      )).length;
+      return overlappingCount > 2;
+    }).length,
+    [pendingPtoRequests, ptoRequests],
+  );
+  const totalPendingHours = useMemo(
+    () => pendingTimesheetApprovals.reduce((sum, timesheet) => sum + timesheet.regularHours + timesheet.overtimeHours, 0),
+    [pendingTimesheetApprovals],
+  );
+  const averagePendingHours = useMemo(
+    () => (pendingTimesheetApprovals.length > 0 ? totalPendingHours / pendingTimesheetApprovals.length : 0),
+    [pendingTimesheetApprovals, totalPendingHours],
+  );
+  const overdueTimesheetCount = useMemo(
+    () => pendingTimesheetApprovals.filter((timesheet) => new Date(timesheet.dueAt).getTime() < Date.now()).length,
+    [pendingTimesheetApprovals],
+  );
+
   const gridTemplateColumns = `${employeeColWidth}px repeat(${scheduleColumns.length}, ${dayColWidth}px)`;
   const todayDayIndex = scheduleColumns.findIndex((column) => column.id === todayDayId);
 
@@ -385,6 +829,35 @@ export function TimeAttendance() {
   const openNewShiftModal = (rowId?: string, dayId?: string) => {
     setDraft(createDefaultDraft(rowId, dayId));
     setIsNewShiftModalOpen(true);
+  };
+
+  const getPtoOverlapCount = (request: PtoRequest) => (
+    ptoRequests.filter((otherRequest) => (
+      otherRequest.id !== request.id
+      && pendingStatuses.includes(otherRequest.status)
+      && otherRequest.date === request.date
+      && windowsOverlap(otherRequest.startMinute, otherRequest.endMinute, request.startMinute, request.endMinute)
+    )).length
+  );
+
+  const setPtoRequestStatus = (requestId: string, status: ApprovalStatus) => {
+    setPtoRequests((prev) => prev.map((request) => (
+      request.id === requestId ? { ...request, status } : request
+    )));
+  };
+
+  const setTimesheetStatus = (timesheetId: string, status: ApprovalStatus) => {
+    setTimesheetApprovals((prev) => prev.map((timesheet) => (
+      timesheet.id === timesheetId ? { ...timesheet, status } : timesheet
+    )));
+    setActiveTimesheetId((prev) => (prev === timesheetId && status !== 'pending' ? null : prev));
+  };
+
+  const approveAllTimesheets = () => {
+    setTimesheetApprovals((prev) => prev.map((timesheet) => (
+      timesheet.status === 'pending' ? { ...timesheet, status: 'approved' } : timesheet
+    )));
+    setActiveTimesheetId(null);
   };
 
   const updateDraft = <K extends keyof NewShiftDraft>(field: K, value: NewShiftDraft[K]) => {
@@ -458,7 +931,7 @@ export function TimeAttendance() {
           >
             New Shift
           </Button>
-        ) : (
+        ) : activeTab === 'live-view' ? (
           <div className="inline-flex items-center gap-2 rounded-[var(--radius-full)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] p-1">
             <span className="text-[11px] font-semibold text-[var(--text-neutral-medium)] px-2">Mode</span>
             <button
@@ -476,6 +949,16 @@ export function TimeAttendance() {
               No Schedule
             </button>
           </div>
+        ) : (
+          <Button
+            variant="primary"
+            size="small"
+            className="!h-9 !px-4 !text-[14px]"
+            onClick={approveAllTimesheets}
+            disabled={pendingTimesheetApprovals.length === 0}
+          >
+            Approve All Pending Hours ({pendingTimesheetApprovals.length})
+          </Button>
         )}
       </div>
 
@@ -483,6 +966,7 @@ export function TimeAttendance() {
         tabs={[
           { id: 'live-view', label: 'Live View', icon: 'chart-line' },
           { id: 'schedules', label: 'Schedules', icon: 'calendar' },
+          { id: 'time', label: 'Time', icon: 'clock' },
         ]}
         activeTab={activeTab}
         onTabChange={(tabId) => setActiveTab(tabId as TimeAttendanceTab)}
@@ -619,7 +1103,7 @@ export function TimeAttendance() {
             <p className="text-[13px] font-semibold text-[var(--text-neutral-strong)]">Scheduled: {formatHoursLabel(totalScheduledHours)}h</p>
           </div>
         </div>
-      ) : (
+      ) : activeTab === 'live-view' ? (
         <div className="space-y-4">
           <div className="space-y-3">
             <button
@@ -698,46 +1182,113 @@ export function TimeAttendance() {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col items-start gap-1">
-                  <p className="text-[12px] text-[var(--text-neutral-medium)]">Filter by work location</p>
-                  <div className="w-[130px]">
-                    <FormDropdown
-                      label=""
-                      options={[
-                        { value: 'all', label: 'All' },
-                        { value: 'office', label: 'Office' },
-                        { value: 'remote', label: 'Remote' },
-                      ]}
-                      value={locationFilter}
-                      onChange={(value) => setLocationFilter(value as LocationFilter)}
-                    />
-                  </div>
+                <div className="relative">
+                  <button
+                    className="h-9 px-4 rounded-[var(--radius-full)] border border-[var(--border-neutral-medium)] bg-[var(--surface-neutral-white)] text-[13px] font-semibold text-[var(--text-neutral-strong)] inline-flex items-center gap-2"
+                    onClick={() => setIsLiveFilterMenuOpen((prev) => !prev)}
+                  >
+                    <Icon name="sliders" size={14} />
+                    Filters
+                    {activeLiveFilterCount > 0 && (
+                      <span className="h-5 min-w-[20px] px-1 rounded-[var(--radius-full)] bg-[var(--color-primary-strong)] text-white text-[11px] leading-[20px] text-center">
+                        {activeLiveFilterCount}
+                      </span>
+                    )}
+                    <Icon name="caret-down" size={10} className={isLiveFilterMenuOpen ? 'rotate-180 transition-transform' : 'transition-transform'} />
+                  </button>
+
+                  {isLiveFilterMenuOpen && (
+                    <div className="absolute right-0 top-[44px] z-20 w-[320px] rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] shadow-[0_8px_24px_rgba(16,24,40,0.12)] p-3 space-y-3">
+                      <FormDropdown
+                        label="Work Location"
+                        options={[
+                          { value: 'all', label: 'All Locations' },
+                          { value: 'office', label: 'Office' },
+                          { value: 'remote', label: 'Remote' },
+                        ]}
+                        value={locationFilter}
+                        onChange={(value) => setLocationFilter(value as LocationFilter)}
+                      />
+                      <FormDropdown
+                        label="Job"
+                        options={jobFilterOptions}
+                        value={jobFilter}
+                        onChange={(value) => setJobFilter(value as JobFilter)}
+                      />
+                      <FormDropdown
+                        label="Manager"
+                        options={managerFilterOptions}
+                        value={managerFilter}
+                        onChange={(value) => setManagerFilter(value as ManagerFilter)}
+                      />
+                      <FormDropdown
+                        label="Status"
+                        options={statusFilterOptions}
+                        value={statusFilter}
+                        onChange={(value) => setStatusFilter(value as StatusFilter)}
+                      />
+                      <div className="pt-1 flex items-center justify-end gap-2">
+                        <Button
+                          variant="ghost"
+                          size="small"
+                          className="!h-8 !px-3 !text-[13px]"
+                          onClick={() => {
+                            setLocationFilter('all');
+                            setJobFilter('all');
+                            setManagerFilter('all');
+                            setStatusFilter('all');
+                          }}
+                        >
+                          Clear
+                        </Button>
+                        <Button
+                          variant="primary"
+                          size="small"
+                          className="!h-8 !px-3 !text-[13px]"
+                          onClick={() => setIsLiveFilterMenuOpen(false)}
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
               <div className="space-y-2 overflow-y-auto pr-1 flex-1 min-h-0">
-                {filteredLiveNowRows.map(({ row, todayShift, status, breakDuration, assignedShiftName, hours, overtimeHours }) => (
+                {filteredLiveNowRows.length === 0 && (
+                  <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-4 py-4 text-[13px] text-[var(--text-neutral-medium)]">
+                    No employees match the selected filters.
+                  </div>
+                )}
+                {filteredLiveNowRows.map(({ row, todayShift, status, breakDuration, assignedShiftName, hours, overtimeHours, job, manager, location, avatar }) => (
                   <div key={row.id} className="rounded-[var(--radius-xx-small)] border border-[var(--border-neutral-xx-weak)] px-3 py-2 flex items-center justify-between">
-                    <div>
-                      <button
-                        onClick={() => navigate(`/my-info?tab=timesheets&employee=${row.id}`)}
-                        className="text-[14px] font-semibold text-[var(--color-link)] hover:underline"
-                      >
-                        {row.name}
-                      </button>
+                    <div className="flex items-start gap-3">
+                      <Avatar src={avatar} alt={row.name} size="small" />
+                      <div>
+                        <button
+                          onClick={() => setActiveLiveEmployeeId(row.id)}
+                          className="text-[14px] font-semibold text-[var(--color-link)] hover:underline"
+                        >
+                          {row.name}
+                        </button>
                       {liveViewMode === 'schedule' && (
                         <p className="text-[12px] text-[var(--text-neutral-medium)]">
-                          {todayShift ? formatLiveShiftLabel(todayShift.title, assignedShiftName) : 'No shift assigned today'}
+                          {todayShift
+                            ? (todayShift.variant === 'vacation' ? 'Vacation (PTO)' : formatLiveShiftLabel(todayShift.title, assignedShiftName))
+                            : 'No shift assigned today'}
                         </p>
                       )}
-                      <p className="text-[12px] text-[var(--text-neutral-medium)] mt-1">
-                        Today: {formatHoursToHoursAndMinutes(hours.todayHours)} | Week: {formatHoursToHoursAndMinutes(hours.weekHours)} | OT: {formatHoursToHoursAndMinutes(overtimeHours)}
-                      </p>
-                      {status === 'On a Break' && (
-                        <p className="text-[12px] text-amber-700 mt-1">
-                          On break for {breakDuration ?? '0m'}
+                        <p className="text-[12px] text-[var(--text-neutral-medium)] mt-1">{job} • {manager} • {location}</p>
+                        <p className="text-[12px] text-[var(--text-neutral-medium)] mt-1">
+                          Today: {formatHoursToHoursAndMinutes(hours.todayHours)} | Week: {formatHoursToHoursAndMinutes(hours.weekHours)} | OT: {formatHoursToHoursAndMinutes(overtimeHours)}
                         </p>
-                      )}
+                        {status === 'On a Break' && (
+                          <p className="text-[12px] text-amber-700 mt-1">
+                            On break for {breakDuration ?? '0m'}
+                          </p>
+                        )}
+                      </div>
                     </div>
                     <span className={`h-7 px-3 rounded-[var(--radius-full)] text-[12px] font-semibold inline-flex items-center ${getStatusBadgeClasses(status)}`}>
                       {status}
@@ -753,7 +1304,7 @@ export function TimeAttendance() {
                   days={coverageDaysWithDates}
                   shifts={visibleShifts}
                   employees={scheduleRows.filter((row) => !row.isOpenShift)}
-                  requiredByDay={{ mon: 4, tue: 3 }}
+                  requiredByDay={{ mon: 4, tue: 3, wed: 5, thu: 5 }}
                   onViewDay={(dayId) => {
                     setActiveTab('schedules');
                     emitCoverageTelemetry(dayId, 'view-day');
@@ -778,6 +1329,261 @@ export function TimeAttendance() {
               <LaborRiskSnapshotCard
                 onViewLaborDetails={() => emitCoverageTelemetry('live-view', 'view-labor-details')}
               />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+              <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Pending PTO Requests</p>
+              <p className="text-[28px] font-bold text-[var(--color-primary-strong)]">{pendingPtoRequests.length}</p>
+            </div>
+            <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+              <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">High Conflict Requests</p>
+              <p className="text-[28px] font-bold text-amber-700">{highConflictPtoCount}</p>
+            </div>
+            <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+              <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Pending Timesheets</p>
+              <p className="text-[28px] font-bold text-[var(--color-primary-strong)]">{pendingTimesheetApprovals.length}</p>
+            </div>
+            <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+              <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Overdue Timesheets</p>
+              <p className="text-[28px] font-bold text-red-700">{overdueTimesheetCount}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_1.25fr] gap-4">
+            <div className="rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)]">
+              <div className="px-5 py-4 border-b border-[var(--border-neutral-x-weak)] flex items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
+                    Time Off Requests
+                  </h2>
+                  <p className="text-[12px] text-[var(--text-neutral-medium)]">Review and approve time off with overlap awareness.</p>
+                </div>
+                <span className="inline-flex items-center h-7 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] text-[12px] font-semibold text-[var(--text-neutral-strong)]">
+                  {pendingPtoRequests.length} pending
+                </span>
+              </div>
+
+              <div className="px-4 py-3 space-y-2 max-h-[560px] overflow-y-auto">
+                {pendingPtoRequests.length === 0 && (
+                  <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-4 py-4 text-[13px] text-[var(--text-neutral-medium)]">
+                    No PTO requests are waiting for approval.
+                  </div>
+                )}
+
+                {pendingPtoRequests.map((request) => {
+                  const overlapCount = getPtoOverlapCount(request);
+                  const hasConflict = overlapCount > 2;
+                  return (
+                    <div key={request.id} className={`rounded-[var(--radius-small)] border px-4 py-3 ${hasConflict ? 'border-amber-300 bg-amber-50/40' : 'border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)]'}`}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="text-[15px] font-semibold text-[var(--text-neutral-strong)]">{request.employeeName}</p>
+                          <p className="text-[12px] text-[var(--text-neutral-medium)]">{request.policy} • {formatPtoWindow(request.date, request.startMinute, request.endMinute)}</p>
+                          <p className="text-[12px] text-[var(--text-neutral-medium)]">Requested {request.requestedHours}h • Submitted {formatDateTimeShort(request.submittedAt)}</p>
+                        </div>
+                        <span className="inline-flex items-center h-7 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] text-[12px] font-semibold text-[var(--text-neutral-strong)] whitespace-nowrap">
+                          {overlapCount} overlapping
+                        </span>
+                      </div>
+
+                      <p className="text-[12px] text-[var(--text-neutral-medium)] mt-2">Reason: {request.reason}</p>
+
+                      {hasConflict && (
+                        <div className="mt-2 rounded-[var(--radius-x-small)] border border-amber-200 bg-amber-100/60 px-3 py-2 text-[12px] text-amber-900 flex items-start gap-2">
+                          <Icon name="circle-info" size={14} className="mt-[1px]" />
+                          <span>{overlapCount} other people already requested this same day/time. Consider coverage before approving.</span>
+                        </div>
+                      )}
+
+                      <div className="mt-3 flex items-center gap-2">
+                        <Button
+                          variant="primary"
+                          size="small"
+                          className="!h-8 !px-3 !text-[13px]"
+                          onClick={() => setPtoRequestStatus(request.id, 'approved')}
+                        >
+                          Approve PTO
+                        </Button>
+                        <Button
+                          variant="standard"
+                          size="small"
+                          className="!h-8 !px-3 !text-[13px]"
+                          onClick={() => setPtoRequestStatus(request.id, 'denied')}
+                        >
+                          Deny
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)]">
+              <div className="px-5 py-4 border-b border-[var(--border-neutral-x-weak)] flex flex-wrap items-center justify-between gap-4">
+                <div>
+                  <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
+                    Timesheet Approvals
+                  </h2>
+                  <p className="text-[12px] text-[var(--text-neutral-medium)]">Moved from Inbox: approve, deny, or drill into any employee timesheet.</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[11px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Avg pending hours</p>
+                  <p className="text-[20px] font-bold text-[var(--text-neutral-strong)]">{formatHoursToHoursAndMinutes(averagePendingHours)}</p>
+                </div>
+              </div>
+
+              <div className="px-4 py-3 space-y-2 max-h-[560px] overflow-y-auto">
+                {timesheetApprovals.map((timesheet) => {
+                  const totalHours = timesheet.regularHours + timesheet.overtimeHours;
+                  const isOverdue = timesheet.status === 'pending' && new Date(timesheet.dueAt).getTime() < Date.now();
+                  const statusClasses = timesheet.status === 'approved'
+                    ? 'bg-[var(--surface-selected-weak)] text-[var(--color-primary-strong)] border-[var(--border-neutral-x-weak)]'
+                    : timesheet.status === 'denied'
+                      ? 'bg-red-50 text-red-700 border-red-200'
+                      : isOverdue
+                        ? 'bg-red-50 text-red-700 border-red-200'
+                        : 'bg-amber-50 text-amber-700 border-amber-200';
+
+                  return (
+                    <div key={timesheet.id} className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <button
+                            className="text-[15px] font-semibold text-[var(--color-link)] hover:underline"
+                            onClick={() => setActiveTimesheetId(timesheet.id)}
+                          >
+                            {timesheet.employeeName}
+                          </button>
+                          <p className="text-[12px] text-[var(--text-neutral-medium)]">{timesheet.payPeriodLabel} • Submitted {formatDateTimeShort(timesheet.submittedAt)}</p>
+                          <p className="text-[12px] text-[var(--text-neutral-medium)]">Due {formatDateTimeShort(timesheet.dueAt)}</p>
+                        </div>
+                        <span className={`inline-flex items-center h-7 px-3 rounded-[var(--radius-full)] border text-[12px] font-semibold ${statusClasses}`}>
+                          {timesheet.status === 'pending' ? (isOverdue ? 'Overdue' : 'Pending') : timesheet.status === 'approved' ? 'Approved' : 'Denied'}
+                        </span>
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                        <p className="text-[13px] text-[var(--text-neutral-strong)]">
+                          <span className="font-semibold">{formatHoursToHoursAndMinutes(totalHours)}</span> total
+                          {timesheet.overtimeHours > 0 && <span className="text-amber-700"> • {formatHoursToHoursAndMinutes(timesheet.overtimeHours)} OT</span>}
+                        </p>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="text"
+                            size="small"
+                            className="!text-[13px]"
+                            onClick={() => navigate(`/my-info?tab=timesheets&employee=${timesheet.employeeId}`)}
+                          >
+                            Open Full Timesheet
+                          </Button>
+                          <Button
+                            variant="standard"
+                            size="small"
+                            className="!h-8 !px-3 !text-[13px]"
+                            onClick={() => setActiveTimesheetId(timesheet.id)}
+                          >
+                            View Details
+                          </Button>
+                          {timesheet.status === 'pending' && (
+                            <>
+                              <Button
+                                variant="primary"
+                                size="small"
+                                className="!h-8 !px-3 !text-[13px]"
+                                onClick={() => setTimesheetStatus(timesheet.id, 'approved')}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                variant="standard"
+                                size="small"
+                                className="!h-8 !px-3 !text-[13px]"
+                                onClick={() => setTimesheetStatus(timesheet.id, 'denied')}
+                              >
+                                Deny
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {selectedLiveEmployee && (
+        <div className="fixed inset-0 z-[72] bg-black/35 flex items-center justify-center p-6">
+          <div className="w-full max-w-[680px] bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] shadow-xl">
+            <div className="px-6 py-4 border-b border-[var(--border-neutral-x-weak)] flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Live Status Snapshot</p>
+                <h2 className="text-[26px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '30px' }}>
+                  {selectedLiveEmployee.row.name}
+                </h2>
+                <p className="text-[13px] text-[var(--text-neutral-medium)]">Last updated {formatTimeWithSeconds(liveStatusTimestamp)}</p>
+              </div>
+              <button onClick={() => setActiveLiveEmployeeId(null)} className="text-[var(--icon-neutral-strong)] hover:text-[var(--text-neutral-strong)]">
+                <Icon name="xmark" size={18} />
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Status</p>
+                  <p className="text-[13px] font-semibold text-[var(--text-neutral-strong)]">{selectedLiveEmployee.status}</p>
+                </div>
+                <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Location</p>
+                  <p className="text-[13px] font-semibold text-[var(--text-neutral-strong)]">{selectedLiveEmployee.location}</p>
+                </div>
+                <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Today</p>
+                  <p className="text-[13px] font-semibold text-[var(--text-neutral-strong)]">{formatHoursToHoursAndMinutes(selectedLiveEmployee.hours.todayHours)}</p>
+                </div>
+                <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-2">
+                  <p className="text-[11px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Week / OT</p>
+                  <p className="text-[13px] font-semibold text-[var(--text-neutral-strong)]">
+                    {formatHoursToHoursAndMinutes(selectedLiveEmployee.hours.weekHours)} / {formatHoursToHoursAndMinutes(selectedLiveEmployee.overtimeHours)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+                <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Shift</p>
+                <p className="text-[14px] font-semibold text-[var(--text-neutral-strong)] mt-1">
+                  {selectedLiveEmployee.todayShift
+                    ? (selectedLiveEmployee.todayShift.variant === 'vacation'
+                      ? 'Vacation (PTO)'
+                      : formatLiveShiftLabel(selectedLiveEmployee.todayShift.title, selectedLiveEmployee.assignedShiftName))
+                    : 'No shift assigned today'}
+                </p>
+                {selectedLiveEmployee.status === 'On a Break' && (
+                  <p className="text-[12px] text-amber-700 mt-1">On break for {selectedLiveEmployee.breakDuration ?? '0m'}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 py-4 border-t border-[var(--border-neutral-x-weak)] flex items-center justify-between gap-2">
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => navigate(`/my-info?tab=timesheets&employee=${selectedLiveEmployee.row.id}`)}
+              >
+                Open Full Timesheet
+              </Button>
+              <Button variant="ghost" size="small" className="!h-9 !px-4" onClick={() => setActiveLiveEmployeeId(null)}>
+                Close
+              </Button>
             </div>
           </div>
         </div>
@@ -870,6 +1676,86 @@ export function TimeAttendance() {
         </div>
       )}
 
+      {selectedTimesheet && (
+        <div className="fixed inset-0 z-[73] bg-black/35 flex items-center justify-center p-6">
+          <div className="w-full max-w-[760px] bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] shadow-xl">
+            <div className="px-6 py-4 border-b border-[var(--border-neutral-x-weak)] flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Timesheet Details</p>
+                <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
+                  {selectedTimesheet.employeeName}
+                </h2>
+                <p className="text-[13px] text-[var(--text-neutral-medium)]">{selectedTimesheet.payPeriodLabel} • Due {formatDateTimeShort(selectedTimesheet.dueAt)}</p>
+              </div>
+              <button onClick={() => setActiveTimesheetId(null)} className="text-[var(--icon-neutral-strong)] hover:text-[var(--text-neutral-strong)]">
+                <Icon name="xmark" size={18} />
+              </button>
+            </div>
+
+            <div className="px-6 py-4">
+              <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] overflow-hidden">
+                <div className="grid grid-cols-[90px_1fr_80px] bg-[var(--surface-neutral-xx-weak)] px-3 py-2 border-b border-[var(--border-neutral-x-weak)]">
+                  <p className="text-[12px] font-semibold text-[var(--text-neutral-medium)]">Day</p>
+                  <p className="text-[12px] font-semibold text-[var(--text-neutral-medium)]">Project</p>
+                  <p className="text-[12px] font-semibold text-[var(--text-neutral-medium)] text-right">Hours</p>
+                </div>
+                <div className="max-h-[280px] overflow-y-auto">
+                  {selectedTimesheet.entries.map((entry) => (
+                    <div key={`${selectedTimesheet.id}-${entry.dayLabel}-${entry.project}`} className="grid grid-cols-[90px_1fr_80px] px-3 py-2 border-b last:border-b-0 border-[var(--border-neutral-xx-weak)]">
+                      <p className="text-[13px] text-[var(--text-neutral-strong)]">{entry.dayLabel}</p>
+                      <p className="text-[13px] text-[var(--text-neutral-strong)]">{entry.project}</p>
+                      <p className="text-[13px] font-semibold text-[var(--text-neutral-strong)] text-right">{formatHoursToHoursAndMinutes(entry.hours)}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {selectedTimesheet.notes && (
+                <div className="mt-3 rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-3 py-2">
+                  <p className="text-[12px] font-semibold text-[var(--text-neutral-medium)]">Manager Note</p>
+                  <p className="text-[13px] text-[var(--text-neutral-strong)]">{selectedTimesheet.notes}</p>
+                </div>
+              )}
+            </div>
+
+            <div className="px-6 py-4 border-t border-[var(--border-neutral-x-weak)] flex items-center justify-between gap-2">
+              <Button
+                variant="text"
+                size="small"
+                onClick={() => navigate(`/my-info?tab=timesheets&employee=${selectedTimesheet.employeeId}`)}
+              >
+                Open Full Timesheet
+              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="small" className="!h-9 !px-4" onClick={() => setActiveTimesheetId(null)}>
+                  Close
+                </Button>
+                {selectedTimesheet.status === 'pending' && (
+                  <>
+                    <Button
+                      variant="standard"
+                      size="small"
+                      className="!h-9 !px-4"
+                      onClick={() => setTimesheetStatus(selectedTimesheet.id, 'denied')}
+                    >
+                      Deny Hours
+                    </Button>
+                    <Button
+                      variant="primary"
+                      size="small"
+                      className="!h-9 !px-4"
+                      onClick={() => setTimesheetStatus(selectedTimesheet.id, 'approved')}
+                    >
+                      Approve Hours
+                    </Button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeInsightId && (
         <div className="fixed inset-0 z-[75] bg-black/35 flex items-center justify-center p-6">
           <div className="w-full max-w-[680px] bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] shadow-xl">
@@ -944,15 +1830,26 @@ export function TimeAttendance() {
                 </Button>
               )}
               {activeInsightId === 'open-shift-risk' && (
-                <Button
-                  variant="primary"
-                  size="small"
-                  className="!h-9 !px-4"
-                  onClick={handleRemoveRiskEmployeeRemainingShifts}
-                  disabled={!overtimeRiskEmployee}
-                >
-                  Remove from remaining shifts this week
-                </Button>
+                <>
+                  <Button
+                    variant="standard"
+                    size="small"
+                    className="!h-9 !px-4"
+                    onClick={handleRemoveRiskEmployeeRemainingShifts}
+                    disabled={!overtimeRiskEmployee}
+                  >
+                    Deny OT
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="small"
+                    className="!h-9 !px-4"
+                    onClick={() => setActiveInsightId(null)}
+                    disabled={!overtimeRiskEmployee}
+                  >
+                    Approve OT
+                  </Button>
+                </>
               )}
             </div>
           </div>

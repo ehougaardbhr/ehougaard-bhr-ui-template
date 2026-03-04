@@ -4,6 +4,15 @@ import { recentConversations } from '../../data/chatData';
 import type { ChatConversation } from '../../data/chatData';
 import MarkdownContent from '../MarkdownContent';
 
+const CHAT_LAUNCH_PROMPT_KEY = 'bhr-chat-launch-prompt';
+
+interface ChatLaunchPrompt {
+  id: number;
+  question: string;
+  answer: string;
+  suggestions?: string[];
+}
+
 interface AIChatPanelProps {
   isOpen: boolean;
   onClose: () => void;
@@ -17,6 +26,7 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [lastHandledPromptId, setLastHandledPromptId] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const messages = selectedConversation.messages;
@@ -38,6 +48,42 @@ export function AIChatPanel({ isOpen, onClose, isExpanded, onExpandChange }: AIC
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      const rawPrompt = localStorage.getItem(CHAT_LAUNCH_PROMPT_KEY);
+      if (!rawPrompt) return;
+
+      let parsedPrompt: ChatLaunchPrompt | null = null;
+      try {
+        parsedPrompt = JSON.parse(rawPrompt) as ChatLaunchPrompt;
+      } catch {
+        return;
+      }
+      if (!parsedPrompt || parsedPrompt.id === lastHandledPromptId) return;
+
+      const injectedConversation: ChatConversation = {
+        id: `launch-${parsedPrompt.id}`,
+        title: 'Team Urgency Snapshot',
+        messages: [
+          { id: `launch-user-${parsedPrompt.id}`, type: 'user', text: parsedPrompt.question },
+          {
+            id: `launch-ai-${parsedPrompt.id}`,
+            type: 'ai',
+            text: parsedPrompt.answer,
+            suggestions: parsedPrompt.suggestions,
+          },
+        ],
+      };
+
+      setSelectedConversation(injectedConversation);
+      setIsDropdownOpen(false);
+      setSearchQuery('');
+      setLastHandledPromptId(parsedPrompt.id);
+    }, 100);
+
+    return () => window.clearInterval(interval);
+  }, [lastHandledPromptId]);
 
   const handleExpand = () => {
     onExpandChange(true);

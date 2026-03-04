@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Icon } from '../Icon';
 import bamboohrLogo from '../../assets/images/bamboohr-logo.svg';
 
+const CHAT_PANEL_STORAGE_KEY = 'bhr-chat-panel-open';
+const CHAT_LAUNCH_PROMPT_KEY = 'bhr-chat-launch-prompt';
+
 interface GlobalHeaderProps {
   className?: string;
 }
@@ -151,8 +154,29 @@ export function GlobalHeader({ className = '' }: GlobalHeaderProps) {
             }`}
             style={{ boxShadow: '1px 1px 0px 1px rgba(56, 49, 47, 0.04)' }}
             onClick={() => {
-              const isOpen = localStorage.getItem('bhr-chat-panel-open') === 'true';
-              localStorage.setItem('bhr-chat-panel-open', String(!isOpen));
+              if (location.pathname === '/time-attendance') {
+                localStorage.setItem(CHAT_LAUNCH_PROMPT_KEY, JSON.stringify({
+                  id: Date.now(),
+                  question: 'Is there anything urgent I need to be aware of for my team?',
+                  answer: `Yes, there are a few urgent items to prioritize right now:
+
+1. **Timesheet approvals are pending** and at least one is overdue.
+2. **Time-off coverage risk is elevated** for overlapping requests later this week.
+3. **Attendance exceptions need review**: late clock-ins and an active break that is running long.
+
+Recommended order: clear overdue timesheets first, then resolve high-overlap time-off requests, then check attendance exceptions.`,
+                  suggestions: [
+                    'Show overdue timesheets',
+                    'Show overlapping time-off requests',
+                    'Open live attendance exceptions',
+                  ],
+                }));
+                localStorage.setItem(CHAT_PANEL_STORAGE_KEY, 'true');
+                return;
+              }
+
+              const isOpen = localStorage.getItem(CHAT_PANEL_STORAGE_KEY) === 'true';
+              localStorage.setItem(CHAT_PANEL_STORAGE_KEY, String(!isOpen));
             }}
           >
             <Icon name="sparkles" size={16} />
