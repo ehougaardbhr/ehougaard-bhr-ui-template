@@ -28,7 +28,7 @@ export function getCoverageStatus(assigned, required) {
   if (assigned === required) {
     return {
       status: 'fully-covered',
-      text: 'Fully covered',
+      text: 'Covered',
       dotClass: 'bg-[var(--color-primary-strong)]',
       tooltip: `Required ${required}, assigned ${assigned}`,
       urgency: statusRank['fully-covered'],
