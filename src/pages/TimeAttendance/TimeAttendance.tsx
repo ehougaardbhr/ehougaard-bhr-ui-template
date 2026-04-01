@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, Button, Checkbox, FormDropdown, Icon, Tabs, TextInput } from '../../components';
 import AttendanceHealthCard from '../../components/AttendanceHealthCard';
-import CoverageByDayCard from '../../components/CoverageByDayCard';
+import OvertimeCard from '../../components/OvertimeCard';
 import LaborRiskSnapshotCard from '../../components/LaborRiskSnapshotCard';
 import {
   dayOptions,
@@ -1300,20 +1300,8 @@ export function TimeAttendance() {
 
             <div className="space-y-4 h-full">
               {liveViewMode === 'schedule' ? (
-                <CoverageByDayCard
-                  days={coverageDaysWithDates}
-                  shifts={visibleShifts}
-                  employees={scheduleRows.filter((row) => !row.isOpenShift)}
-                  requiredByDay={{ mon: 4, tue: 3, wed: 5, thu: 5 }}
-                  onViewDay={(dayId) => {
-                    setActiveTab('schedules');
-                    emitCoverageTelemetry(dayId, 'view-day');
-                  }}
-                  onFillOpenShift={(dayId) => {
-                    setActiveTab('schedules');
-                    openNewShiftModal('open-shifts', dayId);
-                    emitCoverageTelemetry(dayId, 'fill-open-shift');
-                  }}
+                <OvertimeCard
+                  employees={liveNowRows}
                 />
               ) : (
                 <AttendanceHealthCard
