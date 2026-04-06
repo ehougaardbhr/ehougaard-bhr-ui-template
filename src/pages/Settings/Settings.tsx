@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { Button, Icon } from '../../components';
+import { MealRestBreakRecommendationsPanel, RecommendationPreviewModal } from '../../components/MealRestBreaks';
+import type { PolicyDraft } from '../../data/mealRestBreakRecommendations';
+import { policyDraftToFormState, DURATION_OPTIONS, AVAILABILITY_OPTIONS } from '../../services/recommendationService';
 import {
   settingsNavItems,
   accountSubTabs,
@@ -24,8 +27,255 @@ export function Settings() {
   const [activeTimeTrackingTab, setActiveTimeTrackingTab] = useState('employees');
   const [activeTimeTrackingGroup, setActiveTimeTrackingGroup] = useState('default');
 
+  type BreakItem = { id: string; name: string; paid: boolean; duration: string; availability: string };
+  type BreakPolicy = { id: string; name: string; description: string; assignedTo: 'no-employees' | 'all-employees' | 'specific-employees'; breaks: BreakItem[] };
+
+  const [showAddPolicyForm, setShowAddPolicyForm] = useState(false);
+  const [formPolicyName, setFormPolicyName] = useState('');
+  const [formPolicyDescription, setFormPolicyDescription] = useState('');
+  const [formAssignedTo, setFormAssignedTo] = useState<'no-employees' | 'all-employees' | 'specific-employees'>('no-employees');
+  const [formBreakIdCounter, setFormBreakIdCounter] = useState(2);
+  const [formBreaks, setFormBreaks] = useState<BreakItem[]>([{ id: '1', name: '', paid: true, duration: '30 min', availability: 'Anytime' }]);
+  const [breakPolicies, setBreakPolicies] = useState<BreakPolicy[]>([]);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<PolicyDraft | null>(null);
+  const [previewPolicy, setPreviewPolicy] = useState<PolicyDraft | null>(null);
+
+  function openAddPolicyForm(recommendation?: PolicyDraft) {
+    if (recommendation) {
+      const fs = policyDraftToFormState(recommendation);
+      setFormPolicyName(fs.policyName);
+      setFormPolicyDescription(fs.policyDescription);
+      setFormBreaks(fs.breaks);
+      setFormBreakIdCounter(fs.breaks.length + 1);
+      setSelectedRecommendation(recommendation);
+    } else {
+      setFormPolicyName('');
+      setFormPolicyDescription('');
+      setFormBreaks([{ id: '1', name: '', paid: true, duration: '30 min', availability: 'Anytime' }]);
+      setFormBreakIdCounter(2);
+      setSelectedRecommendation(null);
+    }
+    setFormAssignedTo('no-employees');
+    setShowAddPolicyForm(true);
+  }
+
+  function handleSavePolicy() {
+    if (!formPolicyName.trim()) return;
+    setBreakPolicies(prev => [...prev, {
+      id: Date.now().toString(),
+      name: formPolicyName,
+      description: formPolicyDescription,
+      assignedTo: formAssignedTo,
+      breaks: formBreaks,
+    }]);
+    setShowAddPolicyForm(false);
+  }
+
+  function addFormBreak() {
+    setFormBreaks(prev => [...prev, { id: String(formBreakIdCounter), name: '', paid: true, duration: '30 min', availability: 'Anytime' }]);
+    setFormBreakIdCounter(c => c + 1);
+  }
+
+  function removeFormBreak(id: string) {
+    setFormBreaks(prev => prev.filter(b => b.id !== id));
+  }
+
+  function updateFormBreak(id: string, updates: Partial<BreakItem>) {
+    setFormBreaks(prev => prev.map(b => b.id === id ? { ...b, ...updates } : b));
+  }
+
   const selectedTimeOffSection =
     timeOffSidebarSections.find((section) => section.id === activeTimeOffSection) ?? timeOffSidebarSections[0];
+
+  if (showAddPolicyForm) {
+    return (
+      <div className="min-h-full px-10 py-8">
+        <button
+          onClick={() => setShowAddPolicyForm(false)}
+          className="flex items-center gap-1.5 text-[13px] text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] mb-5"
+        >
+          <Icon name="chevron-left" size={11} />
+          Meal &amp; Rest Breaks
+        </button>
+
+        <h1
+          className="text-[44px] font-bold text-[var(--color-primary-strong)] mb-4"
+          style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '52px' }}
+        >
+          Add Break Policy
+        </h1>
+
+        {selectedRecommendation && (
+          <div className="flex items-center gap-2 mb-6 px-4 py-2.5 bg-[var(--color-primary-weak)] border border-[var(--color-primary-weak)] rounded-[var(--radius-x-small)] w-fit">
+            <Icon name="sparkles" size={13} className="text-[var(--color-primary-strong)]" />
+            <span className="text-[13px] text-[var(--color-primary-strong)]">
+              Pre-filled from <strong>{selectedRecommendation.policyName}</strong> — edit anything before saving.
+            </span>
+          </div>
+        )}
+
+        <div className="bg-[var(--surface-neutral-white)] rounded-[var(--radius-medium)] p-8 mb-6">
+          {/* Policy Info */}
+          <div className="mb-8 pb-8 border-b border-[var(--border-neutral-x-weak)]">
+            <h2 className="text-[18px] font-bold text-[var(--color-primary-strong)] mb-1" style={{ fontFamily: 'Fields, system-ui, sans-serif' }}>
+              Policy Info
+            </h2>
+            <p className="text-[14px] text-[var(--text-neutral-medium)] mb-6">
+              Use a clear name and description so your team can easily understand this policy later. Don't worry, employees won't see it.
+            </p>
+
+            <div className="mb-4">
+              <label className="block text-[14px] font-medium text-[var(--text-neutral-strong)] mb-1.5">
+                Policy Name<span className="text-[var(--color-primary-strong)]">*</span>
+              </label>
+              <input
+                type="text"
+                value={formPolicyName}
+                onChange={e => setFormPolicyName(e.target.value)}
+                placeholder={'"Default Break Policy", "10-Hour Shift"'}
+                className="w-full max-w-[420px] h-10 px-3 border border-[var(--border-neutral-weak)] rounded-[var(--radius-x-small)] text-[15px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-x-weak)] focus:outline-none focus:border-[var(--color-primary-strong)] bg-[var(--surface-neutral-white)]"
+              />
+            </div>
+
+            <div className="mb-6">
+              <label className="block text-[14px] font-medium text-[var(--text-neutral-strong)] mb-1.5">
+                Policy Description
+              </label>
+              <textarea
+                value={formPolicyDescription}
+                onChange={e => setFormPolicyDescription(e.target.value)}
+                placeholder="--Add a description--"
+                rows={4}
+                className="w-full max-w-[420px] px-3 py-2.5 border border-[var(--border-neutral-weak)] rounded-[var(--radius-x-small)] text-[15px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-x-weak)] focus:outline-none focus:border-[var(--color-primary-strong)] bg-[var(--surface-neutral-white)] resize-y"
+              />
+            </div>
+
+            <div>
+              <p className="text-[14px] font-medium text-[var(--text-neutral-strong)] mb-3">Who is this break policy for?</p>
+              <div className="space-y-3">
+                {([
+                  { id: 'no-employees', label: 'No employees' },
+                  { id: 'all-employees', label: 'All Time & Attendance employees (56)' },
+                  { id: 'specific-employees', label: 'Only specific employees' },
+                ] as const).map(option => (
+                  <label key={option.id} className="flex items-center gap-2.5 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="assignedTo"
+                      value={option.id}
+                      checked={formAssignedTo === option.id}
+                      onChange={() => setFormAssignedTo(option.id)}
+                      className="w-4 h-4 accent-[var(--color-primary-strong)]"
+                    />
+                    <span className="text-[15px] text-[var(--text-neutral-strong)]">{option.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Breaks In This Policy */}
+          <div>
+            <h2 className="text-[18px] font-bold text-[var(--color-primary-strong)] mb-1" style={{ fontFamily: 'Fields, system-ui, sans-serif' }}>
+              Breaks In This Policy
+            </h2>
+            <p className="text-[14px] text-[var(--text-neutral-medium)] mb-5">
+              Set up the breaks that are included in this policy. Break names will be shown to employees and be included in reports.
+            </p>
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-5 shrink-0" />
+                <div className="w-[200px] text-[13px] font-semibold text-[var(--text-neutral-strong)]">Break Name<span className="text-[var(--color-primary-strong)]">*</span></div>
+                <div className="w-[130px] text-[13px] font-semibold text-[var(--text-neutral-strong)]">Break Duration<span className="text-[var(--color-primary-strong)]">*</span></div>
+                <div className="w-[140px] text-[13px] font-semibold text-[var(--text-neutral-strong)]">Availability<span className="text-[var(--color-primary-strong)]">*</span></div>
+              </div>
+
+              {formBreaks.map(breakItem => (
+                <div key={breakItem.id} className="flex items-center gap-2">
+                  <button
+                    onClick={() => removeFormBreak(breakItem.id)}
+                    className="w-5 h-5 flex items-center justify-center text-[var(--icon-neutral-strong)] hover:text-[var(--color-primary-strong)] shrink-0"
+                  >
+                    <Icon name="xmark" size={12} />
+                  </button>
+
+                  <input
+                    type="text"
+                    value={breakItem.name}
+                    onChange={e => updateFormBreak(breakItem.id, { name: e.target.value })}
+                    placeholder='"Meal Break"'
+                    className="w-[200px] h-9 px-3 border border-[var(--border-neutral-weak)] rounded-[var(--radius-x-small)] text-[14px] text-[var(--text-neutral-strong)] placeholder:text-[var(--text-neutral-x-weak)] focus:outline-none focus:border-[var(--color-primary-strong)] bg-[var(--surface-neutral-white)]"
+                  />
+
+                  <div className="flex items-center h-9 border border-[var(--border-neutral-weak)] rounded-[var(--radius-x-small)] overflow-hidden shrink-0">
+                    <button
+                      onClick={() => updateFormBreak(breakItem.id, { paid: true })}
+                      className={`px-3 h-full text-[13px] font-semibold transition-colors ${breakItem.paid ? 'bg-[var(--color-primary-strong)] text-white' : 'bg-transparent text-[var(--text-neutral-medium)] hover:bg-[var(--surface-neutral-xx-weak)]'}`}
+                    >
+                      Paid
+                    </button>
+                    <button
+                      onClick={() => updateFormBreak(breakItem.id, { paid: false })}
+                      className={`px-3 h-full text-[13px] font-semibold transition-colors ${!breakItem.paid ? 'bg-[var(--color-primary-strong)] text-white' : 'bg-transparent text-[var(--text-neutral-medium)] hover:bg-[var(--surface-neutral-xx-weak)]'}`}
+                    >
+                      Unpaid
+                    </button>
+                  </div>
+
+                  <div className="relative shrink-0">
+                    <select
+                      value={breakItem.duration}
+                      onChange={e => updateFormBreak(breakItem.id, { duration: e.target.value })}
+                      className="w-[120px] h-9 pl-3 pr-7 border border-[var(--border-neutral-weak)] rounded-[var(--radius-x-small)] text-[14px] text-[var(--text-neutral-strong)] focus:outline-none focus:border-[var(--color-primary-strong)] bg-[var(--surface-neutral-white)] appearance-none cursor-pointer"
+                    >
+                      {DURATION_OPTIONS.map(d => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <Icon name="caret-down" size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--icon-neutral-strong)]" />
+                  </div>
+
+                  <div className="relative shrink-0">
+                    <select
+                      value={breakItem.availability}
+                      onChange={e => updateFormBreak(breakItem.id, { availability: e.target.value })}
+                      className="w-[140px] h-9 pl-3 pr-7 border border-[var(--border-neutral-weak)] rounded-[var(--radius-x-small)] text-[14px] text-[var(--text-neutral-strong)] focus:outline-none focus:border-[var(--color-primary-strong)] bg-[var(--surface-neutral-white)] appearance-none cursor-pointer"
+                    >
+                      {AVAILABILITY_OPTIONS.map(a => (
+                        <option key={a} value={a}>{a}</option>
+                      ))}
+                    </select>
+                    <Icon name="caret-down" size={10} className="absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--icon-neutral-strong)]" />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              onClick={addFormBreak}
+              className="flex items-center gap-1.5 mt-4 text-[14px] font-medium text-[var(--color-link)] hover:underline"
+            >
+              <Icon name="circle-plus-lined" size={15} />
+              Add Break
+            </button>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-5">
+          <Button variant="primary" size="medium" onClick={handleSavePolicy}>
+            Save
+          </Button>
+          <button
+            onClick={() => setShowAddPolicyForm(false)}
+            className="text-[15px] font-medium text-[var(--color-link)] hover:underline"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-full">
@@ -183,7 +433,7 @@ export function Settings() {
                 className="text-[36px] font-bold text-[var(--color-primary-strong)] mb-6 pb-6 border-b border-[var(--border-neutral-x-weak)]"
                 style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '40px' }}
               >
-                Time Tracking
+                Time &amp; Attendance
               </h2>
 
               <div className="flex flex-col xl:flex-row gap-6">
@@ -244,68 +494,137 @@ export function Settings() {
                 </aside>
 
                 <section className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <h3
-                      className="text-[34px] font-bold text-[var(--color-primary-strong)]"
-                      style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '38px' }}
-                    >
-                      Employees
-                    </h3>
+                  {activeTimeTrackingTab === 'meal-rest-breaks' ? (
+                    <div>
+                      <h3
+                        className="text-[34px] font-bold text-[var(--color-primary-strong)] mb-4"
+                        style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '38px' }}
+                      >
+                        Meal &amp; Rest Breaks
+                      </h3>
 
-                    <div className="flex items-center gap-2">
-                      <Button variant="standard" size="small" className="!h-9 !px-4 !text-[14px]">
-                        Create Group
-                      </Button>
-                      <button className="h-9 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-weak)] bg-[var(--surface-neutral-white)] text-[var(--text-neutral-strong)] flex items-center gap-2">
-                        <Icon name="gear" variant="regular" size={14} />
-                        <Icon name="caret-down" size={10} />
-                      </button>
+                      <div className="mb-6">
+                        <Button variant="outlined" size="small" icon="circle-plus-lined" className="!h-8 !px-4 !text-[13px]" onClick={openAddPolicyForm}>
+                          Add Break Policy
+                        </Button>
+                      </div>
+
+                      {/* Saved policies */}
+                      {breakPolicies.length > 0 && (
+                        <div className="mb-8">
+                          <h4
+                            className="text-[18px] font-bold text-[var(--color-primary-strong)] mb-4"
+                            style={{ fontFamily: 'Fields, system-ui, sans-serif' }}
+                          >
+                            Break Policies
+                          </h4>
+                          <div className="space-y-3">
+                            {breakPolicies.map(policy => (
+                              <div
+                                key={policy.id}
+                                className="border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-medium)] px-6 py-5 flex items-center justify-between"
+                              >
+                                <div>
+                                  <h5
+                                    className="text-[24px] font-bold text-[var(--color-primary-strong)] mb-2"
+                                    style={{ fontFamily: 'Fields, system-ui, sans-serif' }}
+                                  >
+                                    {policy.name}
+                                  </h5>
+                                  <div className="flex items-center gap-5">
+                                    <span className="flex items-center gap-1.5 text-[14px] text-[var(--text-neutral-medium)]">
+                                      <Icon name="clock" size={14} className="text-[var(--icon-neutral-medium)]" />
+                                      {policy.breaks.length} Break{policy.breaks.length !== 1 ? 's' : ''}
+                                    </span>
+                                    <span className="flex items-center gap-1.5 text-[14px] text-[var(--color-link)]">
+                                      <Icon name="users" size={14} />
+                                      {policy.assignedTo === 'all-employees' ? 'All Employees' : policy.assignedTo === 'no-employees' ? 'No Employees' : 'Specific Employees'}
+                                    </span>
+                                  </div>
+                                </div>
+                                <button className="w-9 h-9 rounded-full border border-[var(--border-neutral-weak)] flex items-center justify-center text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]">
+                                  <Icon name="ellipsis" size={14} />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Recommendations panel */}
+                      <div className={breakPolicies.length > 0 ? 'pt-6 border-t border-[var(--border-neutral-x-weak)]' : ''}>
+                        <MealRestBreakRecommendationsPanel
+                          onSelectPolicy={policy => openAddPolicyForm(policy)}
+                          onPreviewPolicy={policy => setPreviewPolicy(policy)}
+                        />
+                      </div>
                     </div>
-                  </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center justify-between mb-1">
+                        <h3
+                          className="text-[34px] font-bold text-[var(--color-primary-strong)]"
+                          style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '38px' }}
+                        >
+                          Employees
+                        </h3>
 
-                  <div className="mb-4">
-                    <Button variant="outlined" size="small" icon="circle-plus-lined" showCaret className="!h-8 !px-3 !text-[13px]">
-                      Add Employees
-                    </Button>
-                  </div>
+                        <div className="flex items-center gap-2">
+                          <Button variant="standard" size="small" className="!h-9 !px-4 !text-[14px]">
+                            Create Group
+                          </Button>
+                          <button className="h-9 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-weak)] bg-[var(--surface-neutral-white)] text-[var(--text-neutral-strong)] flex items-center gap-2">
+                            <Icon name="gear" variant="regular" size={14} />
+                            <Icon name="caret-down" size={10} />
+                          </button>
+                        </div>
+                      </div>
 
-                  <div className="border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-x-small)] overflow-hidden">
-                    <table className="w-full border-collapse">
-                      <thead>
-                        <tr className="bg-[var(--surface-neutral-xx-weak)]">
-                          <th className="text-left px-4 py-2 text-[14px] font-semibold text-[var(--text-neutral-strong)]">
-                            <span className="inline-flex items-center gap-1">
-                              Name
-                              <Icon name="chevron-up" size={9} className="text-[var(--icon-neutral-strong)]" />
-                            </span>
-                          </th>
-                          <th className="text-left px-4 py-2 text-[14px] font-semibold text-[var(--text-neutral-strong)]">Group</th>
-                          <th className="text-left px-4 py-2 text-[14px] font-semibold text-[var(--text-neutral-strong)]">Overtime State</th>
-                          <th className="text-left px-4 py-2 text-[14px] font-semibold text-[var(--text-neutral-strong)]">Pay Schedule</th>
-                          <th className="w-8" />
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {timeTrackingEmployees.map((employee) => {
-                          const showDelete = employee.id === 'andy-graves';
-                          return (
-                            <tr
-                              key={employee.id}
-                              className={`${showDelete ? 'bg-[var(--surface-neutral-xx-weak)]' : 'bg-[var(--surface-neutral-white)]'} border-t border-[var(--border-neutral-xx-weak)]`}
-                            >
-                              <td className="px-4 py-3 text-[15px] font-semibold text-[var(--color-link)]">{employee.name}</td>
-                              <td className="px-4 py-3 text-[15px] text-[var(--text-neutral-strong)]">{employee.group}</td>
-                              <td className="px-4 py-3 text-[15px] text-[var(--text-neutral-strong)]">{employee.overtimeState}</td>
-                              <td className="px-4 py-3 text-[15px] text-[var(--text-neutral-strong)]">{employee.paySchedule}</td>
-                              <td className="px-3 py-3 text-right">
-                                {showDelete && <Icon name="trash-can" size={13} className="text-[var(--icon-neutral-strong)]" />}
-                              </td>
+                      <div className="mb-4">
+                        <Button variant="outlined" size="small" icon="circle-plus-lined" showCaret className="!h-8 !px-3 !text-[13px]">
+                          Add Employees
+                        </Button>
+                      </div>
+
+                      <div className="border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-x-small)] overflow-hidden">
+                        <table className="w-full border-collapse">
+                          <thead>
+                            <tr className="bg-[var(--surface-neutral-xx-weak)]">
+                              <th className="text-left px-4 py-2 text-[14px] font-semibold text-[var(--text-neutral-strong)]">
+                                <span className="inline-flex items-center gap-1">
+                                  Name
+                                  <Icon name="chevron-up" size={9} className="text-[var(--icon-neutral-strong)]" />
+                                </span>
+                              </th>
+                              <th className="text-left px-4 py-2 text-[14px] font-semibold text-[var(--text-neutral-strong)]">Group</th>
+                              <th className="text-left px-4 py-2 text-[14px] font-semibold text-[var(--text-neutral-strong)]">Overtime State</th>
+                              <th className="text-left px-4 py-2 text-[14px] font-semibold text-[var(--text-neutral-strong)]">Pay Schedule</th>
+                              <th className="w-8" />
                             </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                          </thead>
+                          <tbody>
+                            {timeTrackingEmployees.map((employee) => {
+                              const showDelete = employee.id === 'andy-graves';
+                              return (
+                                <tr
+                                  key={employee.id}
+                                  className={`${showDelete ? 'bg-[var(--surface-neutral-xx-weak)]' : 'bg-[var(--surface-neutral-white)]'} border-t border-[var(--border-neutral-xx-weak)]`}
+                                >
+                                  <td className="px-4 py-3 text-[15px] font-semibold text-[var(--color-link)]">{employee.name}</td>
+                                  <td className="px-4 py-3 text-[15px] text-[var(--text-neutral-strong)]">{employee.group}</td>
+                                  <td className="px-4 py-3 text-[15px] text-[var(--text-neutral-strong)]">{employee.overtimeState}</td>
+                                  <td className="px-4 py-3 text-[15px] text-[var(--text-neutral-strong)]">{employee.paySchedule}</td>
+                                  <td className="px-3 py-3 text-right">
+                                    {showDelete && <Icon name="trash-can" size={13} className="text-[var(--icon-neutral-strong)]" />}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  )}
                 </section>
               </div>
             </div>
@@ -554,6 +873,12 @@ export function Settings() {
           )}
         </main>
       </div>
+
+      <RecommendationPreviewModal
+        policy={previewPolicy}
+        onUse={policy => { setPreviewPolicy(null); openAddPolicyForm(policy); }}
+        onClose={() => setPreviewPolicy(null)}
+      />
     </div>
   );
 }
