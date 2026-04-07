@@ -24,7 +24,7 @@ export function Settings() {
   const [activeNav, setActiveNav] = useState('time-tracking');
   const [activeSubTab, setActiveSubTab] = useState('account-info');
   const [activeTimeOffSection, setActiveTimeOffSection] = useState('overview');
-  const [activeTimeTrackingTab, setActiveTimeTrackingTab] = useState('employees');
+  const [activeTimeTrackingTab, setActiveTimeTrackingTab] = useState('meal-rest-breaks');
   const [activeTimeTrackingGroup, setActiveTimeTrackingGroup] = useState('default');
 
   type BreakItem = { id: string; name: string; paid: boolean; duration: string; availability: string };
