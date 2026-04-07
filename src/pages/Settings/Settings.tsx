@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Button, Icon } from '../../components';
-import { MealRestBreakRecommendationsPanel, RecommendationPreviewModal } from '../../components/MealRestBreaks';
+import { MealRestBreakRecommendationsPanel, RecommendationPreviewModal, AskAgentPanel } from '../../components/MealRestBreaks';
 import type { PolicyDraft } from '../../data/mealRestBreakRecommendations';
 import { policyDraftToFormState, DURATION_OPTIONS, AVAILABILITY_OPTIONS } from '../../services/recommendationService';
 import {
@@ -30,7 +30,10 @@ export function Settings() {
   type BreakItem = { id: string; name: string; paid: boolean; duration: string; availability: string };
   type BreakPolicy = { id: string; name: string; description: string; assignedTo: 'no-employees' | 'all-employees' | 'specific-employees'; breaks: BreakItem[] };
 
+  const [activeBreakMode, setActiveBreakMode] = useState<'recommendations' | 'ask'>('recommendations');
   const [showAddPolicyForm, setShowAddPolicyForm] = useState(false);
+  const [editingPolicyId, setEditingPolicyId] = useState<string | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [formPolicyName, setFormPolicyName] = useState('');
   const [formPolicyDescription, setFormPolicyDescription] = useState('');
   const [formAssignedTo, setFormAssignedTo] = useState<'no-employees' | 'all-employees' | 'specific-employees'>('no-employees');
@@ -61,14 +64,51 @@ export function Settings() {
 
   function handleSavePolicy() {
     if (!formPolicyName.trim()) return;
-    setBreakPolicies(prev => [...prev, {
-      id: Date.now().toString(),
-      name: formPolicyName,
-      description: formPolicyDescription,
-      assignedTo: formAssignedTo,
-      breaks: formBreaks,
-    }]);
+    if (editingPolicyId) {
+      setBreakPolicies(prev => prev.map(p =>
+        p.id === editingPolicyId
+          ? { ...p, name: formPolicyName, description: formPolicyDescription, assignedTo: formAssignedTo, breaks: formBreaks }
+          : p
+      ));
+      setEditingPolicyId(null);
+    } else {
+      setBreakPolicies(prev => [...prev, {
+        id: Date.now().toString(),
+        name: formPolicyName,
+        description: formPolicyDescription,
+        assignedTo: formAssignedTo,
+        breaks: formBreaks,
+      }]);
+    }
     setShowAddPolicyForm(false);
+  }
+
+  function openEditPolicyForm(policy: BreakPolicy) {
+    setFormPolicyName(policy.name);
+    setFormPolicyDescription(policy.description);
+    setFormAssignedTo(policy.assignedTo);
+    setFormBreaks(policy.breaks);
+    setFormBreakIdCounter(policy.breaks.length + 1);
+    setSelectedRecommendation(null);
+    setEditingPolicyId(policy.id);
+    setOpenMenuId(null);
+    setShowAddPolicyForm(true);
+  }
+
+  function handleDeletePolicy(id: string) {
+    setBreakPolicies(prev => prev.filter(p => p.id !== id));
+    setOpenMenuId(null);
+  }
+
+  function handleDirectCreate(draft: PolicyDraft) {
+    const fs = policyDraftToFormState(draft);
+    setBreakPolicies(prev => [...prev, {
+      id: `ask-${Date.now()}`,
+      name: fs.policyName,
+      description: draft.policyDescription,
+      assignedTo: 'no-employees',
+      breaks: fs.breaks,
+    }]);
   }
 
   function addFormBreak() {
@@ -91,7 +131,7 @@ export function Settings() {
     return (
       <div className="min-h-full px-10 py-8">
         <button
-          onClick={() => setShowAddPolicyForm(false)}
+          onClick={() => { setShowAddPolicyForm(false); setEditingPolicyId(null); }}
           className="flex items-center gap-1.5 text-[13px] text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)] mb-5"
         >
           <Icon name="chevron-left" size={11} />
@@ -102,7 +142,7 @@ export function Settings() {
           className="text-[44px] font-bold text-[var(--color-primary-strong)] mb-4"
           style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '52px' }}
         >
-          Add Break Policy
+          {editingPolicyId ? 'Edit Break Policy' : 'Add Break Policy'}
         </h1>
 
         {selectedRecommendation && (
@@ -267,7 +307,7 @@ export function Settings() {
             Save
           </Button>
           <button
-            onClick={() => setShowAddPolicyForm(false)}
+            onClick={() => { setShowAddPolicyForm(false); setEditingPolicyId(null); }}
             className="text-[15px] font-medium text-[var(--color-link)] hover:underline"
           >
             Cancel
@@ -542,22 +582,80 @@ export function Settings() {
                                     </span>
                                   </div>
                                 </div>
-                                <button className="w-9 h-9 rounded-full border border-[var(--border-neutral-weak)] flex items-center justify-center text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)]">
-                                  <Icon name="ellipsis" size={14} />
-                                </button>
+                                <div className="relative">
+                                  <button
+                                    onClick={() => setOpenMenuId(openMenuId === policy.id ? null : policy.id)}
+                                    className="w-9 h-9 rounded-full border border-[var(--border-neutral-weak)] flex items-center justify-center text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors"
+                                  >
+                                    <Icon name="ellipsis" size={14} />
+                                  </button>
+                                  {openMenuId === policy.id && (
+                                    <div className="absolute right-0 top-10 z-10 w-36 bg-[var(--surface-neutral-white)] border border-[var(--border-neutral-x-weak)] rounded-[var(--radius-x-small)] shadow-md overflow-hidden">
+                                      <button
+                                        onClick={() => openEditPolicyForm(policy)}
+                                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-[14px] text-[var(--text-neutral-strong)] hover:bg-[var(--surface-neutral-xx-weak)] transition-colors text-left"
+                                      >
+                                        <Icon name="pen" size={13} className="text-[var(--icon-neutral-strong)]" />
+                                        Edit
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeletePolicy(policy.id)}
+                                        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-[14px] text-red-600 hover:bg-red-50 transition-colors text-left"
+                                      >
+                                        <Icon name="trash-can" size={13} className="text-red-500" />
+                                        Delete
+                                      </button>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
 
-                      {/* Recommendations panel */}
-                      <div className={breakPolicies.length > 0 ? 'pt-6 border-t border-[var(--border-neutral-x-weak)]' : ''}>
+                      {/* Mode toggle: Recommendations vs Ask Agent */}
+                      <div className={`${breakPolicies.length > 0 ? 'pt-6 border-t border-[var(--border-neutral-x-weak)]' : ''} mb-5`}>
+                        <div className="flex items-center gap-1 p-1 rounded-[var(--radius-full)] bg-[var(--surface-neutral-xx-weak)] border border-[var(--border-neutral-x-weak)] w-fit">
+                          <button
+                            onClick={() => setActiveBreakMode('recommendations')}
+                            className={`h-8 px-4 rounded-[var(--radius-full)] text-[13px] font-medium transition-all ${
+                              activeBreakMode === 'recommendations'
+                                ? 'bg-[var(--surface-neutral-white)] text-[var(--text-neutral-x-strong)] shadow-sm'
+                                : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)]'
+                            }`}
+                          >
+                            Suggested Policies
+                          </button>
+                          <button
+                            onClick={() => setActiveBreakMode('ask')}
+                            className={`h-8 px-4 rounded-[var(--radius-full)] text-[13px] font-medium transition-all flex items-center gap-1.5 ${
+                              activeBreakMode === 'ask'
+                                ? 'bg-[var(--surface-neutral-white)] text-[var(--text-neutral-x-strong)] shadow-sm'
+                                : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)]'
+                            }`}
+                          >
+                            <Icon
+                              name="sparkles"
+                              size={11}
+                              className={activeBreakMode === 'ask' ? 'text-[var(--color-primary-strong)]' : ''}
+                            />
+                            Ask
+                          </button>
+                        </div>
+                      </div>
+
+                      {activeBreakMode === 'recommendations' ? (
                         <MealRestBreakRecommendationsPanel
                           onSelectPolicy={policy => openAddPolicyForm(policy)}
                           onPreviewPolicy={policy => setPreviewPolicy(policy)}
                         />
-                      </div>
+                      ) : (
+                        <AskAgentPanel
+                          onOpenInEditor={draft => openAddPolicyForm(draft)}
+                          onDirectCreate={handleDirectCreate}
+                        />
+                      )}
                     </div>
                   ) : (
                     <>
