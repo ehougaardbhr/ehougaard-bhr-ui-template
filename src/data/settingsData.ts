@@ -102,7 +102,7 @@ export const settingsNavItems: SettingsNavItem[] = [
   { id: 'payroll', label: 'Payroll', icon: 'circle-dollar' },
   { id: 'performance', label: 'Performance', icon: 'chart-line' },
   { id: 'time-off', label: 'Time Off', icon: 'plane' },
-  { id: 'time-tracking', label: 'Time Tracking', icon: 'clock' },
+  { id: 'time-tracking', label: 'Time & Attendance', icon: 'clock' },
   { id: 'total-rewards', label: 'Total Rewards', icon: 'heart' },
   { id: 'training', label: 'Training', icon: 'graduation-cap' },
 ];
