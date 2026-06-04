@@ -38,3 +38,8 @@ export { JobLocationOption } from './JobLocationOption';
 export { JobWizardSidebar } from './JobWizardSidebar';
 export { JobInformationForm } from './JobInformationForm';
 export { SuccessNotification } from './SuccessNotification';
+export { AgentInsightBar } from './AgentInsightBar';
+export { AutoApprovedBanner } from './AutoApprovedBanner';
+export { TimesheetFlagBadge } from './TimesheetFlagBadge';
+export { TimesheetAgentDetailPanel } from './TimesheetAgentDetailPanel';
+export { CorrectionRequestCard } from './CorrectionRequestCard';

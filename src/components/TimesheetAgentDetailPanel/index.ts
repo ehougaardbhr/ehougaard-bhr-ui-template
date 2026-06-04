@@ -1,0 +1,1 @@
+export { TimesheetAgentDetailPanel } from './TimesheetAgentDetailPanel';

@@ -4,6 +4,19 @@ import { Avatar, Button, Checkbox, FormDropdown, Icon, Tabs, TextInput } from '.
 import AttendanceHealthCard from '../../components/AttendanceHealthCard';
 import OvertimeCard from '../../components/OvertimeCard';
 import LaborRiskSnapshotCard from '../../components/LaborRiskSnapshotCard';
+import { AgentInsightBar } from '../../components/AgentInsightBar';
+import { AutoApprovedBanner } from '../../components/AutoApprovedBanner';
+import { TimesheetFlagBadge } from '../../components/TimesheetFlagBadge';
+import { TimesheetAgentDetailPanel } from '../../components/TimesheetAgentDetailPanel';
+import { CorrectionRequestCard } from '../../components/CorrectionRequestCard';
+import {
+  agentInsights,
+  autoApprovedRows as initialAutoApprovedRows,
+  managerTimesheets as initialManagerTimesheets,
+  correctionRequests as initialCorrectionRequests,
+  type ManagerTimesheetRow,
+  type CorrectionRequest,
+} from '../../data/timesheetAgentData';
 import {
   dayOptions,
   employeeOptions,
@@ -620,6 +633,15 @@ export function TimeAttendance() {
 
   const [isNewShiftModalOpen, setIsNewShiftModalOpen] = useState(false);
   const [draft, setDraft] = useState<NewShiftDraft>(() => createDefaultDraft());
+
+  // Timesheet Agent state
+  const [managerTimesheets, setManagerTimesheets] = useState<ManagerTimesheetRow[]>(initialManagerTimesheets);
+  const [autoApproved, setAutoApproved] = useState(initialAutoApprovedRows);
+  const [correctionRequests, setCorrectionRequests] = useState<CorrectionRequest[]>(initialCorrectionRequests);
+  const [activeAgentTimesheetId, setActiveAgentTimesheetId] = useState<string | null>(null);
+  const [selectedTimesheetIds, setSelectedTimesheetIds] = useState<Set<string>>(new Set());
+  const [timesheetFilter, setTimesheetFilter] = useState<'all' | 'needs-review' | 'clean' | 'corrections'>('all');
+  const [timeSubTab, setTimeSubTab] = useState<'timesheets' | 'corrections'>('timesheets');
 
   const weekKey = getWeekKey(weekStartDate);
   const todayDayId = getDayIdFromDate(new Date());
@@ -1321,191 +1343,234 @@ export function TimeAttendance() {
           </div>
         </div>
       ) : (
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-            <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
-              <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Pending PTO Requests</p>
-              <p className="text-[28px] font-bold text-[var(--color-primary-strong)]">{pendingPtoRequests.length}</p>
-            </div>
-            <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
-              <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">High Conflict Requests</p>
-              <p className="text-[28px] font-bold text-amber-700">{highConflictPtoCount}</p>
-            </div>
-            <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
-              <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Pending Timesheets</p>
-              <p className="text-[28px] font-bold text-[var(--color-primary-strong)]">{pendingTimesheetApprovals.length}</p>
-            </div>
-            <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
-              <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Overdue Timesheets</p>
-              <p className="text-[28px] font-bold text-red-700">{overdueTimesheetCount}</p>
-            </div>
-          </div>
+        (() => {
+          const activeAgentRow = managerTimesheets.find((r) => r.id === activeAgentTimesheetId) ?? null;
+          const pendingCorrectionCount = correctionRequests.filter((r) => r.status === 'pending').length;
+          const filteredTimesheets = managerTimesheets.filter((r) => {
+            if (timesheetFilter === 'needs-review') return r.flags.length > 0 && r.status !== 'approved';
+            if (timesheetFilter === 'clean') return r.flags.length === 0;
+            if (timesheetFilter === 'corrections') return correctionRequests.some((cr) => cr.employeeId === r.employeeId && cr.status === 'pending');
+            return true;
+          });
+          const cleanPendingIds = filteredTimesheets.filter((r) => r.flags.length === 0 && r.status === 'pending').map((r) => r.id);
+          const selectedCleanCount = [...selectedTimesheetIds].filter((id) => cleanPendingIds.includes(id)).length;
 
-          <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_1.25fr] gap-4">
-            <div className="rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)]">
-              <div className="px-5 py-4 border-b border-[var(--border-neutral-x-weak)] flex items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
-                    Time Off Requests
-                  </h2>
-                  <p className="text-[12px] text-[var(--text-neutral-medium)]">Review and approve time off with overlap awareness.</p>
+          function toggleSelect(id: string) {
+            setSelectedTimesheetIds((prev) => {
+              const next = new Set(prev);
+              next.has(id) ? next.delete(id) : next.add(id);
+              return next;
+            });
+          }
+
+          function bulkApprove() {
+            setManagerTimesheets((prev) =>
+              prev.map((r) => selectedTimesheetIds.has(r.id) ? { ...r, status: 'approved' } : r)
+            );
+            setSelectedTimesheetIds(new Set());
+          }
+
+          function approveSheet(id: string) {
+            setManagerTimesheets((prev) => prev.map((r) => r.id === id ? { ...r, status: 'approved' } : r));
+          }
+
+          function undoAutoApproved(autoId: string) {
+            setAutoApproved((prev) => prev.filter((r) => r.id !== autoId));
+          }
+
+          function handleInsightAction(target: 'flags' | 'corrections' | 'bulk-approve') {
+            if (target === 'corrections') setTimeSubTab('corrections');
+            else {
+              setTimeSubTab('timesheets');
+              if (target === 'flags') setTimesheetFilter('needs-review');
+              else setTimesheetFilter('all');
+            }
+          }
+
+          function handleCorrectionApprove(id: string) {
+            setCorrectionRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: 'approved' } : r));
+          }
+
+          function handleCorrectionDeny(id: string) {
+            setCorrectionRequests((prev) => prev.map((r) => r.id === id ? { ...r, status: 'denied' } : r));
+          }
+
+          const statusBadgeClasses = (status: ManagerTimesheetRow['status']) => {
+            if (status === 'approved') return 'bg-[var(--surface-selected-weak)] text-[var(--color-primary-strong)] border-[var(--border-neutral-x-weak)]';
+            if (status === 'overdue') return 'bg-red-50 text-red-700 border-red-200';
+            return 'bg-amber-50 text-amber-700 border-amber-200';
+          };
+
+          return (
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+                  <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Needs Review</p>
+                  <p className="text-[28px] font-bold text-[var(--color-primary-strong)]">{managerTimesheets.filter((r) => r.flags.length > 0 && r.status === 'pending').length}</p>
                 </div>
-                <span className="inline-flex items-center h-7 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] text-[12px] font-semibold text-[var(--text-neutral-strong)]">
-                  {pendingPtoRequests.length} pending
-                </span>
+                <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+                  <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Correction Requests</p>
+                  <p className="text-[28px] font-bold text-amber-700">{pendingCorrectionCount}</p>
+                </div>
+                <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+                  <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Auto-Approved</p>
+                  <p className="text-[28px] font-bold text-[var(--color-primary-strong)]">{autoApproved.length}</p>
+                </div>
+                <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
+                  <p className="text-[12px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Overdue</p>
+                  <p className="text-[28px] font-bold text-red-700">{managerTimesheets.filter((r) => r.status === 'overdue').length}</p>
+                </div>
               </div>
 
-              <div className="px-4 py-3 space-y-2 max-h-[560px] overflow-y-auto">
-                {pendingPtoRequests.length === 0 && (
-                  <div className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] px-4 py-4 text-[13px] text-[var(--text-neutral-medium)]">
-                    No PTO requests are waiting for approval.
-                  </div>
-                )}
+              <AgentInsightBar insights={agentInsights} onAction={handleInsightAction} />
 
-                {pendingPtoRequests.map((request) => {
-                  const overlapCount = getPtoOverlapCount(request);
-                  const hasConflict = overlapCount > 2;
-                  return (
-                    <div key={request.id} className={`rounded-[var(--radius-small)] border px-4 py-3 ${hasConflict ? 'border-amber-300 bg-amber-50/40' : 'border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)]'}`}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <p className="text-[15px] font-semibold text-[var(--text-neutral-strong)]">{request.employeeName}</p>
-                          <p className="text-[12px] text-[var(--text-neutral-medium)]">{request.policy} • {formatPtoWindow(request.date, request.startMinute, request.endMinute)}</p>
-                          <p className="text-[12px] text-[var(--text-neutral-medium)]">Requested {request.requestedHours}h • Submitted {formatDateTimeShort(request.submittedAt)}</p>
-                        </div>
-                        <span className="inline-flex items-center h-7 px-3 rounded-[var(--radius-full)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-xx-weak)] text-[12px] font-semibold text-[var(--text-neutral-strong)] whitespace-nowrap">
-                          {overlapCount} overlapping
+              <AutoApprovedBanner rows={autoApproved} onUndo={undoAutoApproved} />
+
+              <div className="rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)]">
+                <div className="px-4 py-3 border-b border-[var(--border-neutral-x-weak)] flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setTimeSubTab('timesheets')}
+                      className={`h-9 px-4 rounded-[var(--radius-full)] text-[13px] font-semibold transition-colors ${timeSubTab === 'timesheets' ? 'bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-strong)]' : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)]'}`}
+                    >
+                      Timesheets
+                    </button>
+                    <button
+                      onClick={() => setTimeSubTab('corrections')}
+                      className={`h-9 px-4 rounded-[var(--radius-full)] text-[13px] font-semibold transition-colors flex items-center gap-2 ${timeSubTab === 'corrections' ? 'bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-strong)]' : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)]'}`}
+                    >
+                      Correction Requests
+                      {pendingCorrectionCount > 0 && (
+                        <span className="h-5 min-w-[20px] px-1 rounded-[var(--radius-full)] bg-amber-500 text-white text-[11px] font-semibold leading-[20px] text-center">
+                          {pendingCorrectionCount}
                         </span>
-                      </div>
+                      )}
+                    </button>
+                  </div>
 
-                      <p className="text-[12px] text-[var(--text-neutral-medium)] mt-2">Reason: {request.reason}</p>
+                  {timeSubTab === 'timesheets' && selectedCleanCount > 0 && (
+                    <Button
+                      variant="primary"
+                      size="small"
+                      className="!h-8 !px-4 !text-[13px]"
+                      onClick={bulkApprove}
+                    >
+                      Approve {selectedCleanCount} Clean Timesheets
+                    </Button>
+                  )}
+                </div>
 
-                      {hasConflict && (
-                        <div className="mt-2 rounded-[var(--radius-x-small)] border border-amber-200 bg-amber-100/60 px-3 py-2 text-[12px] text-amber-900 flex items-start gap-2">
-                          <Icon name="circle-info" size={14} className="mt-[1px]" />
-                          <span>{overlapCount} other people already requested this same day/time. Consider coverage before approving.</span>
+                {timeSubTab === 'timesheets' && (
+                  <>
+                    <div className="px-4 py-2.5 border-b border-[var(--border-neutral-xx-weak)] flex items-center gap-2 bg-[var(--surface-neutral-xx-weak)]">
+                      {(['all', 'needs-review', 'clean'] as const).map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => setTimesheetFilter(f)}
+                          className={`h-7 px-3 rounded-[var(--radius-full)] text-[12px] font-semibold transition-colors ${timesheetFilter === f ? 'bg-[var(--surface-neutral-white)] text-[var(--text-neutral-strong)] shadow-sm border border-[var(--border-neutral-x-weak)]' : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)]'}`}
+                        >
+                          {f === 'all' ? 'All' : f === 'needs-review' ? 'Needs Review' : 'Clean'}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="divide-y divide-[var(--border-neutral-xx-weak)]">
+                      {filteredTimesheets.length === 0 && (
+                        <div className="px-4 py-6 text-[13px] text-[var(--text-neutral-medium)] text-center">
+                          No timesheets match this filter.
                         </div>
                       )}
-
-                      <div className="mt-3 flex items-center gap-2">
-                        <Button
-                          variant="primary"
-                          size="small"
-                          className="!h-8 !px-3 !text-[13px]"
-                          onClick={() => setPtoRequestStatus(request.id, 'approved')}
-                        >
-                          Approve PTO
-                        </Button>
-                        <Button
-                          variant="standard"
-                          size="small"
-                          className="!h-8 !px-3 !text-[13px]"
-                          onClick={() => setPtoRequestStatus(request.id, 'denied')}
-                        >
-                          Deny
-                        </Button>
-                      </div>
+                      {filteredTimesheets.map((ts) => {
+                        const isCleanPending = ts.flags.length === 0 && ts.status === 'pending';
+                        const isSelected = selectedTimesheetIds.has(ts.id);
+                        return (
+                          <div
+                            key={ts.id}
+                            className={`px-4 py-3 flex items-center gap-4 ${isSelected ? 'bg-[var(--surface-selected-weak)]' : ''}`}
+                          >
+                            {isCleanPending && (
+                              <input
+                                type="checkbox"
+                                checked={isSelected}
+                                onChange={() => toggleSelect(ts.id)}
+                                className="h-4 w-4 accent-[var(--color-primary-strong)] shrink-0"
+                              />
+                            )}
+                            {!isCleanPending && <div className="w-4 shrink-0" />}
+                            <Avatar src={ts.avatarUrl} alt={ts.employeeName} size="small" />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <p className="text-[14px] font-semibold text-[var(--text-neutral-strong)]">{ts.employeeName}</p>
+                                {ts.flags.length === 0
+                                  ? <TimesheetFlagBadge type="clean" />
+                                  : ts.flags.map((f) => <TimesheetFlagBadge key={f.id} type={f.type} />)
+                                }
+                              </div>
+                              <p className="text-[12px] text-[var(--text-neutral-medium)]">
+                                {ts.payPeriod} · {ts.regularHours}h reg{ts.overtimeHours > 0 ? ` · ${ts.overtimeHours}h OT` : ''}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className={`inline-flex items-center h-6 px-2.5 rounded-[var(--radius-full)] border text-[11px] font-semibold ${statusBadgeClasses(ts.status)}`}>
+                                {ts.status === 'auto-approved' ? 'Auto-approved' : ts.status.charAt(0).toUpperCase() + ts.status.slice(1)}
+                              </span>
+                              {ts.status !== 'approved' && ts.status !== 'auto-approved' && (
+                                <Button
+                                  variant="standard"
+                                  size="small"
+                                  className="!h-7 !px-3 !text-[12px]"
+                                  onClick={() => setActiveAgentTimesheetId(ts.id)}
+                                >
+                                  Review
+                                </Button>
+                              )}
+                              {ts.status === 'approved' && (
+                                <Button
+                                  variant="ghost"
+                                  size="small"
+                                  className="!h-7 !px-3 !text-[12px]"
+                                  onClick={() => setActiveAgentTimesheetId(ts.id)}
+                                >
+                                  View
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
-            </div>
+                  </>
+                )}
 
-            <div className="rounded-[var(--radius-medium)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)]">
-              <div className="px-5 py-4 border-b border-[var(--border-neutral-x-weak)] flex flex-wrap items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-[24px] font-bold text-[var(--color-primary-strong)]" style={{ fontFamily: 'Fields, system-ui, sans-serif', lineHeight: '28px' }}>
-                    Timesheet Approvals
-                  </h2>
-                  <p className="text-[12px] text-[var(--text-neutral-medium)]">Moved from Inbox: approve, deny, or drill into any employee timesheet.</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[11px] uppercase tracking-wide text-[var(--text-neutral-medium)]">Avg pending hours</p>
-                  <p className="text-[20px] font-bold text-[var(--text-neutral-strong)]">{formatHoursToHoursAndMinutes(averagePendingHours)}</p>
-                </div>
-              </div>
-
-              <div className="px-4 py-3 space-y-2 max-h-[560px] overflow-y-auto">
-                {timesheetApprovals.map((timesheet) => {
-                  const totalHours = timesheet.regularHours + timesheet.overtimeHours;
-                  const isOverdue = timesheet.status === 'pending' && new Date(timesheet.dueAt).getTime() < Date.now();
-                  const statusClasses = timesheet.status === 'approved'
-                    ? 'bg-[var(--surface-selected-weak)] text-[var(--color-primary-strong)] border-[var(--border-neutral-x-weak)]'
-                    : timesheet.status === 'denied'
-                      ? 'bg-red-50 text-red-700 border-red-200'
-                      : isOverdue
-                        ? 'bg-red-50 text-red-700 border-red-200'
-                        : 'bg-amber-50 text-amber-700 border-amber-200';
-
-                  return (
-                    <div key={timesheet.id} className="rounded-[var(--radius-small)] border border-[var(--border-neutral-x-weak)] bg-[var(--surface-neutral-white)] px-4 py-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <button
-                            className="text-[15px] font-semibold text-[var(--color-link)] hover:underline"
-                            onClick={() => setActiveTimesheetId(timesheet.id)}
-                          >
-                            {timesheet.employeeName}
-                          </button>
-                          <p className="text-[12px] text-[var(--text-neutral-medium)]">{timesheet.payPeriodLabel} • Submitted {formatDateTimeShort(timesheet.submittedAt)}</p>
-                          <p className="text-[12px] text-[var(--text-neutral-medium)]">Due {formatDateTimeShort(timesheet.dueAt)}</p>
-                        </div>
-                        <span className={`inline-flex items-center h-7 px-3 rounded-[var(--radius-full)] border text-[12px] font-semibold ${statusClasses}`}>
-                          {timesheet.status === 'pending' ? (isOverdue ? 'Overdue' : 'Pending') : timesheet.status === 'approved' ? 'Approved' : 'Denied'}
-                        </span>
+                {timeSubTab === 'corrections' && (
+                  <div className="p-4 space-y-3">
+                    {correctionRequests.length === 0 && (
+                      <div className="px-4 py-6 text-[13px] text-[var(--text-neutral-medium)] text-center">
+                        No correction requests at this time.
                       </div>
-
-                      <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
-                        <p className="text-[13px] text-[var(--text-neutral-strong)]">
-                          <span className="font-semibold">{formatHoursToHoursAndMinutes(totalHours)}</span> total
-                          {timesheet.overtimeHours > 0 && <span className="text-amber-700"> • {formatHoursToHoursAndMinutes(timesheet.overtimeHours)} OT</span>}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="text"
-                            size="small"
-                            className="!text-[13px]"
-                            onClick={() => navigate(`/my-info?tab=timesheets&employee=${timesheet.employeeId}`)}
-                          >
-                            Open Full Timesheet
-                          </Button>
-                          <Button
-                            variant="standard"
-                            size="small"
-                            className="!h-8 !px-3 !text-[13px]"
-                            onClick={() => setActiveTimesheetId(timesheet.id)}
-                          >
-                            View Details
-                          </Button>
-                          {timesheet.status === 'pending' && (
-                            <>
-                              <Button
-                                variant="primary"
-                                size="small"
-                                className="!h-8 !px-3 !text-[13px]"
-                                onClick={() => setTimesheetStatus(timesheet.id, 'approved')}
-                              >
-                                Approve
-                              </Button>
-                              <Button
-                                variant="standard"
-                                size="small"
-                                className="!h-8 !px-3 !text-[13px]"
-                                onClick={() => setTimesheetStatus(timesheet.id, 'denied')}
-                              >
-                                Deny
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+                    )}
+                    {correctionRequests.map((req) => (
+                      <CorrectionRequestCard
+                        key={req.id}
+                        request={req}
+                        onApprove={handleCorrectionApprove}
+                        onDeny={handleCorrectionDeny}
+                        onAskMore={() => {}}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
+
+              <TimesheetAgentDetailPanel
+                row={activeAgentRow}
+                onClose={() => setActiveAgentTimesheetId(null)}
+                onApprove={approveSheet}
+                onRequestChanges={() => setActiveAgentTimesheetId(null)}
+              />
             </div>
-          </div>
-        </div>
+          );
+        })()
       )}
 
       {selectedLiveEmployee && (

@@ -1,0 +1,1 @@
+export { AutoApprovedBanner } from './AutoApprovedBanner';
