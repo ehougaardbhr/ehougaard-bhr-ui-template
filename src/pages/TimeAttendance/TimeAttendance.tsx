@@ -9,6 +9,7 @@ import { AutoApprovedBanner } from '../../components/AutoApprovedBanner';
 import { TimesheetFlagBadge } from '../../components/TimesheetFlagBadge';
 import { TimesheetAgentDetailPanel } from '../../components/TimesheetAgentDetailPanel';
 import { CorrectionRequestCard } from '../../components/CorrectionRequestCard';
+import { TeamTimeOffCalendar } from '../../components/TeamTimeOffCalendar';
 import {
   agentInsights,
   autoApprovedRows as initialAutoApprovedRows,
@@ -641,7 +642,7 @@ export function TimeAttendance() {
   const [activeAgentTimesheetId, setActiveAgentTimesheetId] = useState<string | null>(null);
   const [selectedTimesheetIds, setSelectedTimesheetIds] = useState<Set<string>>(new Set());
   const [timesheetFilter, setTimesheetFilter] = useState<'all' | 'needs-review' | 'clean' | 'corrections'>('all');
-  const [timeSubTab, setTimeSubTab] = useState<'timesheets' | 'corrections'>('timesheets');
+  const [timeSubTab, setTimeSubTab] = useState<'timesheets' | 'corrections' | 'team-time-off'>('timesheets');
 
   const weekKey = getWeekKey(weekStartDate);
   const todayDayId = getDayIdFromDate(new Date());
@@ -1446,6 +1447,12 @@ export function TimeAttendance() {
                         </span>
                       )}
                     </button>
+                    <button
+                      onClick={() => setTimeSubTab('team-time-off')}
+                      className={`h-9 px-4 rounded-[var(--radius-full)] text-[13px] font-semibold transition-colors ${timeSubTab === 'team-time-off' ? 'bg-[var(--surface-neutral-xx-weak)] text-[var(--text-neutral-strong)]' : 'text-[var(--text-neutral-medium)] hover:text-[var(--text-neutral-strong)]'}`}
+                    >
+                      Team Time Off
+                    </button>
                   </div>
 
                   {timeSubTab === 'timesheets' && selectedCleanCount > 0 && (
@@ -1558,6 +1565,12 @@ export function TimeAttendance() {
                         onAskMore={() => {}}
                       />
                     ))}
+                  </div>
+                )}
+
+                {timeSubTab === 'team-time-off' && (
+                  <div className="p-4">
+                    <TeamTimeOffCalendar />
                   </div>
                 )}
               </div>
